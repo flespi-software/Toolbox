@@ -1,0 +1,96 @@
+<template>
+  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}">
+    <span class="list__item item_actions" v-if="actionsVisible">
+      <i v-for="(action, i) in actions" :key="i" @click="clickHandler(index, action.type, item)" :class="action.classes" class="material-icons cursor-pointer">{{action.icon}}</i>
+    </span>
+    <span v-for="(prop, k) in cols" :key="k" class="list__item" :class="{[`item_${k}`]: true}">{{values[prop.name].value}}</span>
+    <span v-if="etcVisible" class="list__item item_etc">{{values.etc.value || '*Empty*'}}</span>
+  </div>
+</template>
+
+<script>
+  export default {
+    props: [
+      'item',
+      'index',
+      'actions',
+      'cols',
+      'itemHeight',
+      'etcVisible',
+      'rowWidth',
+      'actionsVisible'
+    ],
+    computed: {
+      values () {
+        let vals = this.cols.reduce((res, col, index, arr) => {
+          res[col.name] = {value: null}
+          if (index === arr.length - 1) {
+            res.etc = {value: ''}
+          }
+          return res
+        }, {})
+        Object.keys(this.item).forEach((propName) => {
+          if (propName.indexOf('#') !== -1) {
+            let splitedName = propName.split('#'),
+              name = splitedName[0],
+              index = splitedName[1]
+            if (vals[name]) {
+              if (!vals[name].value) {
+                vals[name].value = {}
+              }
+              vals[name].value[index] = this.item[propName]
+            }
+            else {
+              vals.etc.value += `${propName}: ${this.item[propName]}; `
+            }
+          }
+          else if (vals[propName]) {
+            vals[propName].value = this.item[propName]
+          }
+          else {
+            vals.etc.value += `${propName}: ${this.item[propName]}; `
+          }
+        })
+        Object.keys(vals).forEach((key) => {
+          if (typeof vals[key].value === 'object' && vals[key].value) {
+            if (vals[key].value instanceof Array) {
+              let buff = vals[key].value.reduce((acc, item, index, arr) => {
+                acc += item
+                if (index !== arr.length - 1) {
+                  acc += ', '
+                }
+                return acc
+              }, '')
+              vals[key].value = buff
+            }
+            else if (vals[key].value instanceof Object) {
+              let buff = Object.keys(vals[key].value).reduce((acc, name, index, arr) => {
+                acc += `${name}: ${vals[key].value[name]}`
+                if (index !== arr.length - 1) {
+                  acc += ', '
+                }
+                return acc
+              }, '')
+              vals[key].value = buff
+            }
+          }
+        })
+        return vals
+      }
+    },
+    methods: {
+      clickHandler (index, type, content) {
+        this.$emit(`action`, {index, type, content})
+      }
+    }
+  }
+</script>
+
+<style lang="stylus">
+  .list__item
+    display inline-block
+    white-space nowrap
+    margin 0 10px 0 5px
+    text-overflow ellipsis
+    overflow hidden
+</style>
