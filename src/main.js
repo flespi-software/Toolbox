@@ -14,6 +14,9 @@ import Vue from 'vue'
 import Quasar from 'quasar'
 import router from './router'
 import store from './store/index'
+import VueClipboard from 'vue-clipboard2'
+
+Vue.use(VueClipboard)
 
 Vue.config.productionTip = false
 Vue.use(Quasar) // Install Quasar Framework

@@ -26,6 +26,7 @@
     >
       <logs-list-item slot="items" slot-scope="{item, index, actions, cols, etcVisible, actionsVisible, itemHeight, rowWidth}"
           :item="item"
+          :key="index"
           :index="index"
           :actions="actions"
           :cols="cols"
@@ -40,13 +41,16 @@
 <script>
   import { VirtualScrollList } from 'qvirtualscroll'
   import LogsListItem from './LogsListItem.vue'
-  import { date } from 'quasar-framework'
+  import { date, LocalStorage } from 'quasar-framework'
   import filterMessages from '../../../mixins/filterMessages'
 
   export default {
     props: [
       'mode',
-      'activeId'
+      'activeId',
+      'delay',
+      'limit',
+      'moduleName'
     ],
     data () {
       return {
@@ -70,75 +74,75 @@
     computed: {
       messages: {
         get () {
-          let messages = this.$store.state.channelsLogs.messages
+          let messages = this.$store.state[this.moduleName].messages
           this.i18n.from = messages.length ? date.formatDate(messages[0].time * 1000, 'HH:mm:ss') : 'Prev'
           this.i18n.to = messages.length ? date.formatDate(messages[messages.length - 1].time * 1000, 'HH:mm:ss') : 'Next'
           return this.filter && this.mode === 1 ? this.filterMessages(this.filter, messages) : messages
         },
         set (val) {
-          this.$store.commit(`channelsLogs/setMessages`, val)
+          this.$store.commit(`${this.moduleName}/setMessages`, val)
         }
       },
       active: {
         get () {
-          return this.$store.state.channelsLogs.active
+          return this.$store.state[this.moduleName].active
         },
         async set (val) {
-          this.$store.commit(`channelsLogs/setActive`, val)
-          this.$store.commit(`channelsLogs/clearMessages`)
-          await this.$store.dispatch(`channelsLogs/getCols`)
+          this.$store.commit(`${this.moduleName}/setActive`, val)
+          this.$store.commit(`${this.moduleName}/clearMessages`)
+          await this.$store.dispatch(`${this.moduleName}/getCols`)
           if (this.mode === 0) {
-            await this.$store.dispatch(`channelsLogs/initTime`)
+            await this.$store.dispatch(`${this.moduleName}/initTime`)
           }
-          await this.$store.dispatch(`channelsLogs/get`)
+          await this.$store.dispatch(`${this.moduleName}/get`)
         }
       },
       cols: {
         get () {
-          return this.$store.state.channelsLogs.cols
+          return this.$store.state[this.moduleName].cols
         },
         set (val) {
-          this.$store.commit(`channelsLogs/setCols`, val)
+          this.$store.commit(`${this.moduleName}/setCols`, val)
         }
       },
       filter: {
         get () {
-          return this.$store.state.channelsLogs.filter
+          return this.$store.state[this.moduleName].filter
         },
         set (val) {
-          val ? this.$store.commit(`channelsLogs/setFilter`, val) : this.$store.commit(`channelsLogs/setFilter`, '')
+          val ? this.$store.commit(`${this.moduleName}/setFilter`, val) : this.$store.commit(`${this.moduleName}/setFilter`, '')
         }
       },
       from: {
         get () {
-          return this.$store.state.channelsLogs.from
+          return this.$store.state[this.moduleName].from
         },
         set (val) {
-          val ? this.$store.commit(`channelsLogs/setFrom`, val) : this.$store.commit(`channelsLogs/setFrom`, 0)
+          val ? this.$store.commit(`${this.moduleName}/setFrom`, val) : this.$store.commit(`${this.moduleName}/setFrom`, 0)
         }
       },
       to: {
         get () {
-          return this.$store.state.channelsLogs.to
+          return this.$store.state[this.moduleName].to
         },
         set (val) {
-          val ? this.$store.commit(`channelsLogs/setTo`, val) : this.$store.commit(`channelsLogs/setTo`, 0)
+          val ? this.$store.commit(`${this.moduleName}/setTo`, val) : this.$store.commit(`${this.moduleName}/setTo`, 0)
         }
       },
       reverse: {
         get () {
-          return this.$store.state.channelsLogs.reverse || false
+          return this.$store.state[this.moduleName].reverse || false
         },
         set (val) {
-          this.$store.commit(`channelsLogs/setReverse`, val)
+          this.$store.commit(`${this.moduleName}/setReverse`, val)
         }
       },
-      limit: {
+      currentLimit: {
         get () {
-          return this.$store.state.channelsMessages.limit
+          return this.$store.state[this.moduleName].limit
         },
         set (val) {
-          val ? this.$store.commit(`channelsLogs/setLimit`, val) : this.$store.commit(`channelsLogs/setLimit`, 1000)
+          val ? this.$store.commit(`${this.moduleName}/setLimit`, val) : this.$store.commit(`${this.moduleName}/setLimit`, 1000)
         }
       }
     },
@@ -150,50 +154,55 @@
         if (this.filter !== val) {
           this.filter = val
           if (this.mode === 0) {
-            this.$store.commit(`channelsLogs/clearMessages`)
-            this.$store.dispatch(`channelsLogs/get`)
+            this.$store.commit(`${this.moduleName}/clearMessages`)
+            this.$store.dispatch(`${this.moduleName}/get`)
           }
         }
       },
       modeChange (val) {
         val = +val
-        this.$store.commit(`channelsLogs/clearMessages`)
-        this.$store.commit(`channelsLogs/setMode`, val)
+        this.$store.commit(`${this.moduleName}/clearMessages`)
+        this.$store.commit(`${this.moduleName}/setMode`, val)
         switch (val) {
           case 0: {
-            this.$store.dispatch(`channelsLogs/initTime`) // if need init time by last messages
-              .then(() => {
-                this.$store.dispatch(`channelsLogs/get`)
-              })
+            if (this.active) {
+              this.$store.dispatch(`${this.moduleName}/initTime`) // if need init time by last messages
+                .then(() => {
+                  this.$store.dispatch(`${this.moduleName}/get`)
+                })
+            }
             break
           }
           case 1: {
-            this.$store.dispatch(`channelsLogs/pullingGet`, 2000)
+            if (this.active) {
+              this.$store.dispatch(`${this.moduleName}/pollingGet`, this.delay)
+            }
             break
           }
         }
+        LocalStorage.set('Toolbox-mode', val)
       },
       updateColsHandler (cols) {
         this.cols = cols
       },
       dateChangeHandler (date) {
-        this.$store.dispatch(`channelsLogs/get`, {name: 'setDate', payload: date})
+        this.$store.dispatch(`${this.moduleName}/get`, {name: 'setDate', payload: date})
       },
       datePrevChangeHandler () {
-        this.$store.dispatch(`channelsLogs/get`, {name: 'datePrev'})
+        this.$store.dispatch(`${this.moduleName}/get`, {name: 'datePrev'})
       },
       dateNextChangeHandler () {
-        this.$store.dispatch(`channelsLogs/get`, {name: 'dateNext'})
+        this.$store.dispatch(`${this.moduleName}/get`, {name: 'dateNext'})
       },
       paginationPrevChangeHandler () {
         let time = 0
         time = this.messages.length ? this.messages[0].time * 1000 : 0
-        this.$store.dispatch(`channelsLogs/get`, {name: 'paginationPrev', payload: time})
+        this.$store.dispatch(`${this.moduleName}/get`, {name: 'paginationPrev', payload: time})
       },
       paginationNextChangeHandler () {
         let time = 0
         time = this.messages.length ? this.messages[this.messages.length - 1].time * 1000 : 0
-        this.$store.dispatch(`channelsLogs/get`, {name: 'paginationNext', payload: time})
+        this.$store.dispatch(`${this.moduleName}/get`, {name: 'paginationNext', payload: time})
       }
     },
     watch: {
@@ -202,22 +211,25 @@
       },
       mode (mode) {
         this.modeChange(mode)
+      },
+      limit (limit) {
+        this.currentLimit = limit
+      },
+      delay (delay) {
+        if (this.mode === 1) {
+          this.$store.dispatch(`${this.moduleName}/pollingGet`, delay)
+        }
       }
     },
     async created () {
-      if (this.activeId) { this.active = this.activeId }
-      if (this.$store.state.channelsLogs.mode === null) {
+      this.currentLimit = this.limit
+      if (this.$store.state[this.moduleName].mode === null) {
         this.modeChange(this.mode)
-        return false
       }
-      this.$store.commit('channelsLogs/setTo', Date.now())
-      await this.$store.dispatch('channelsLogs/get')
-      this.$store.commit('channelsLogs/setFrom', this.$store.state.channelsLogs.to - 4000 - 1000)
-      this.$store.commit('channelsLogs/setTo', this.$store.state.channelsLogs.to - 4000)
-      await this.$store.dispatch('channelsLogs/pullingGet', 2000)
+      if (this.activeId) { this.active = this.activeId }
     },
     destroyed () {
-      this.$store.commit('channelsLogs/clearTimer')
+      this.$store.commit(`${this.moduleName}/clearTimer`)
     },
     mixins: [filterMessages],
     components: { VirtualScrollList, LogsListItem }

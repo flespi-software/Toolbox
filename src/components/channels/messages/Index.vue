@@ -3,7 +3,7 @@
     <virtual-scroll-list
       ref="scrollList"
       :cols="cols"
-      :actions="[]"
+      :actions="actions"
       :items="messages"
       :date="from"
       :mode="mode"
@@ -22,12 +22,16 @@
     >
       <messages-list-item slot="items" slot-scope="{item, index, actions, cols, etcVisible, actionsVisible, itemHeight, rowWidth}"
         :item="item"
+        :key="`${JSON.stringify(item)}${index}`"
         :index="index"
         :actions="actions"
         :cols="cols"
         :itemHeight="itemHeight"
         :rowWidth="rowWidth"
         :etcVisible="etcVisible"
+        :actionsVisible="actionsVisible"
+        :selected="`${JSON.stringify(item)}${index}` === selectedItemKey"
+        @action="actionHandler"
       />
     </virtual-scroll-list>
   </div>
@@ -35,7 +39,7 @@
 
 <script>
   import { VirtualScrollList } from 'qvirtualscroll'
-  import { date } from 'quasar-framework'
+  import { date, Toast, LocalStorage } from 'quasar-framework'
   import filterMessages from '../../../mixins/filterMessages'
   import MessagesListItem from './MessagesListItem.vue'
 
@@ -43,10 +47,13 @@
     props: [
       'mode',
       'date',
-      'activeId'
+      'activeId',
+      'limit',
+      'moduleName'
     ],
     data () {
       return {
+        selectedItemKey: null,
         theme: {
           color: 'white',
           bgColor: 'dark',
@@ -59,69 +66,84 @@
           needShowMode: false,
           needShowPageScroll: 'right',
           needShowDate: false
-        }
+        },
+        actions: [
+          {
+            icon: 'mdi-view-list',
+            label: 'view',
+            classes: '',
+            type: 'view'
+          },
+          {
+            icon: 'mdi-content-copy',
+            label: 'copy',
+            classes: '',
+            type: 'copy'
+          }
+        ]
       }
     },
     computed: {
       messages: {
         get () {
-          let messages = this.$store.state.channelsMessages.messages
+          let messages = this.$store.state[this.moduleName].messages
           this.i18n.to = messages.length ? date.formatDate(this.from * 1000, 'HH:mm:ss') : 'Next'
           return this.filter ? this.filterMessages(this.filter, messages) : messages
         },
         set (val) {
-          this.$store.commit(`channelsMessages/setMessages`, val)
+          this.$store.commit(`${this.moduleName}/setMessages`, val)
         }
       },
       active: {
         get () {
-          return this.$store.state.channelsMessages.active
+          return this.$store.state[this.moduleName].active
         },
         async set (val) {
-          this.$store.commit(`channelsMessages/setActive`, val)
-          this.$store.commit(`channelsMessages/clearMessages`)
-          await this.$store.dispatch(`channelsMessages/getCols`)
-          await this.$store.dispatch(`channelsMessages/get`)
+          this.$store.commit(`${this.moduleName}/setActive`, val)
+          this.$store.commit(`${this.moduleName}/clearMessages`)
+          this.$store.commit(`${this.moduleName}/setFrom`, 0)
+          await this.$store.dispatch(`${this.moduleName}/getCols`)
+          await this.$store.dispatch(`${this.moduleName}/get`)
         }
       },
       cols: {
         get () {
-          return this.$store.state.channelsMessages.cols
+          return this.$store.state[this.moduleName].cols
         },
         set (val) {
-          this.$store.commit(`channelsMessages/setCols`, val)
+          this.$store.commit(`${this.moduleName}/setCols`, val)
         }
       },
       filter: {
         get () {
-          return this.$store.state.channelsMessages.filter
+          return this.$store.state[this.moduleName].filter
         },
         set (val) {
-          val ? this.$store.commit(`channelsMessages/setFilter`, val) : this.$store.commit(`channelsMessages/setFilter`, '')
+          val ? this.$store.commit(`${this.moduleName}/setFilter`, val) : this.$store.commit(`${this.moduleName}/setFilter`, '')
         }
       },
       from: {
         get () {
-          return this.$store.state.channelsMessages.from
+          return this.$store.state[this.moduleName].from
         },
         set (val) {
-          val ? this.$store.commit(`channelsMessages/setFrom`, val) : this.$store.commit(`channelsMessages/setFrom`, 0)
+          val ? this.$store.commit(`${this.moduleName}/setFrom`, val) : this.$store.commit(`${this.moduleName}/setFrom`, 0)
         }
       },
       to: {
         get () {
-          return this.$store.state.channelsMessages.to
+          return this.$store.state[this.moduleName].to
         },
         set (val) {
-          val ? this.$store.commit(`channelsMessages/setTo`, val) : this.$store.commit(`channelsMessages/setTo`, 0)
+          val ? this.$store.commit(`${this.moduleName}/setTo`, val) : this.$store.commit(`${this.moduleName}/setTo`, 0)
         }
       },
-      limit: {
+      currentLimit: {
         get () {
-          return this.$store.state.channelsMessages.limit
+          return this.$store.state[this.moduleName].limit
         },
         set (val) {
-          val ? this.$store.commit(`channelsMessages/setLimit`, val) : this.$store.commit(`channelsMessages/setLimit`, 1000)
+          val ? this.$store.commit(`${this.moduleName}/setLimit`, val) : this.$store.commit(`${this.moduleName}/setLimit`, 1000)
         }
       }
     },
@@ -136,15 +158,20 @@
       },
       modeChange (val) {
         val = +val
-        this.$store.commit(`channelsMessages/clearMessages`)
-        this.$store.commit(`channelsMessages/setMode`, val)
+        this.$store.commit(`${this.moduleName}/clearMessages`)
+        this.$store.commit(`${this.moduleName}/setMode`, val)
+        LocalStorage.set('Toolbox-mode', val)
         switch (val) {
           case 0: {
-            this.$store.dispatch(`channelsMessages/get`)
+            if (this.active) {
+              this.$store.dispatch(`${this.moduleName}/get`)
+            }
             break
           }
           case 1: {
-            this.$store.dispatch(`channelsMessages/pullingGet`, 2000)
+            if (this.active) {
+              this.$store.dispatch(`${this.moduleName}/pollingGet`)
+            }
             break
           }
         }
@@ -153,7 +180,43 @@
         this.cols = cols
       },
       paginationNextChangeHandler () {
-        this.$store.dispatch(`channelsMessages/get`)
+        this.$store.dispatch(`${this.moduleName}/get`)
+      },
+      actionHandler ({index, type, content}) {
+        switch (type) {
+          case 'view': {
+            this.viewMessagesHandler({index, content})
+            break
+          }
+          case 'copy': {
+            this.copyMessageHandler({index, content})
+            break
+          }
+        }
+      },
+      viewMessagesHandler ({index, content}) {
+        this.selectedItemKey = `${JSON.stringify(content)}${index}`
+        this.$emit('view-data', content)
+      },
+      copyMessageHandler ({index, content}) {
+        this.$copyText(JSON.stringify(content)).then(function (e) {
+          Toast.create.positive({
+            icon: 'content_copy',
+            html: `Message copied`,
+            timeout: 1000
+          })
+        }, function (e) {
+          Toast.create.negative({
+            icon: 'content_copy',
+            html: `Error coping messages`,
+            timeout: 1000
+          })
+        })
+      },
+      unselect () {
+        if (this.selectedItemKey) {
+          this.selectedItemKey = null
+        }
       }
     },
     watch: {
@@ -162,19 +225,17 @@
       },
       mode (mode) {
         this.modeChange(mode)
+      },
+      limit (limit) {
+        this.currentLimit = limit
       }
     },
     async created () {
-      if (this.activeId) { this.active = this.activeId }
-      if (this.$store.state.channelsMessages.mode === null) {
+      this.currentLimit = this.limit
+      if (this.$store.state[this.moduleName].mode === null) {
         this.modeChange(this.mode)
-        return false
       }
-      await this.$store.dispatch('channelsMessages/get')
-      await this.$store.dispatch('channelsMessages/pullingGet', 2000)
-    },
-    destroyed () {
-      this.$store.commit('channelsMessages/clearTimer')
+      if (this.activeId) { this.active = this.activeId }
     },
     mixins: [filterMessages],
     components: { VirtualScrollList, MessagesListItem }

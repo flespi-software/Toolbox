@@ -1,26 +1,31 @@
 import Vue from 'vue'
 
 async function getItems ({ state, commit }, entity) {
-  let queryString = ''
-  switch (entity) {
-    case 'devices': {
-      queryString = `${state.server}/registry/devices/all`
-      break
+  if (entity) {
+    let queryString = '',
+      params = {}
+    switch (entity) {
+      case 'devices': {
+        queryString = `${state.server}/registry/devices/all`
+        params = {fields: 'id,name'}
+        break
+      }
+      case 'channels': {
+        queryString = `${state.server}/gw/channels/all`
+        params = {fields: 'id,name,uri,protocol_name'}
+        break
+      }
     }
-    case 'channels': {
-      queryString = `${state.server}/gw/channels/all`
-      break
+    if (state.token) {
+      try {
+        let resp = await Vue.http.get(queryString, {
+          params: params
+        })
+        let data = await resp.json()
+        commit('setItems', data.result)
+      }
+      catch (e) { commit('reqFailed', e) }
     }
-  }
-  if (state.token) {
-    try {
-      let resp = await Vue.http.get(queryString, {
-        params: {fields: 'id,name'}
-      })
-      let data = await resp.json()
-      commit('setItems', data.result)
-    }
-    catch (e) { commit('reqFailed', e) }
   }
 }
 

@@ -1,7 +1,9 @@
 <template>
-  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}">
+  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, backgroundColor: selected ? 'rgba(255,255,255,0.7)': '', color: selected ? '#333' : ''}">
     <span class="list__item item_actions" v-if="actionsVisible">
-      <i v-for="(action, i) in actions" :key="i" @click="clickHandler(index, action.type, item)" :class="action.classes" class="material-icons cursor-pointer">{{action.icon}}</i>
+      <q-icon v-for="(action, i) in actions" :key="i" @click="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
+        <q-tooltip>{{action.label}}</q-tooltip>
+      </q-icon>
     </span>
     <span v-for="(prop, k) in cols" :key="k" class="list__item" :class="{[`item_${k}`]: true}">{{values[prop.name].value}}</span>
     <span v-if="etcVisible" class="list__item item_etc">{{values.etc.value || '*Empty*'}}</span>
@@ -9,6 +11,8 @@
 </template>
 
 <script>
+  import { QIcon, QTooltip } from 'quasar-framework'
+
   export default {
     props: [
       'item',
@@ -18,7 +22,8 @@
       'itemHeight',
       'etcVisible',
       'rowWidth',
-      'actionsVisible'
+      'actionsVisible',
+      'selected'
     ],
     computed: {
       values () {
@@ -82,7 +87,8 @@
       clickHandler (index, type, content) {
         this.$emit(`action`, {index, type, content})
       }
-    }
+    },
+    components: { QIcon, QTooltip }
   }
 </script>
 
