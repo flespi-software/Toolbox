@@ -1,14 +1,20 @@
 <template>
-  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}" :class="[this.color]">
+  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}" :class="[color]">
     <span class="list__item item_actions" v-if="actionsVisible">
       <i v-for="(action, i) in actions" :key="i" @click="clickHandler(index, action.type, item)" :class="action.classes" class="material-icons cursor-pointer">{{action.icon}}</i>
     </span>
-    <span v-for="(prop, k) in cols" :key="k" class="list__item" :class="{[`item_${k}`]: true}">{{getValueOfProp(prop)}}</span>
+    <span v-for="(prop, k) in cols" :key="k" class="list__item" :class="{[`item_${k}`]: true}">
+      <q-tooltip v-if="prop.name === 'event_code' && !!item['error_text']">{{item['error_text']}}</q-tooltip>
+      <a target="_blank" :class="[color]" :href="eventLinkMore" v-if="prop.name === 'event_code'"><q-icon name="mdi-information-outline"/></a>
+      {{getValueOfProp(prop)}}
+    </span>
     <span v-if="etcVisible" class="list__item item_etc">{{etc}}</span>
   </div>
 </template>
 
 <script>
+  import { date, QTooltip, QIcon } from 'quasar-framework'
+
   export default {
     props: [
       'item',
@@ -24,55 +30,139 @@
       etc () {
         let etcKeys = Object.keys(this.item).filter(key => !this.hasInCols(key))
         return etcKeys.reduce((acc, key) => {
+          if (key === 'event_origin' || key === 'event_text' || key === 'item_data' || key === 'error_text' || key === 'close_code' || key === 'http_data') { return acc }
           acc += `${key}: ${JSON.stringify(this.item[key])}; `
           return acc
         }, '') || '*Empty*'
       },
       color () {
-        switch (this.item.event) {
-          case 1: // return 'connection established'
-          case 13: // return 'command successfully executed'
+        switch (this.item.event_code) {
+          case 1:
+          case 100:
+          case 101:
+          case 110:
+          case 200:
+          case 201:
+          case 202:
+          case 300:
+          case 401:
+          case 410:
             return 'text-green'
-          case 14: // return 'connected device successfully identified'
+          case 2:
+          case 3:
+          case 21:
+          case 111:
+          case 112:
+          case 411:
+          case 412:
             return 'text-yellow'
-          case 2: // return 'connection closed by tracking device'
-          case 3: // return 'connection successfully processed and closed'
-          case 9: // return 'connection closed: channel\'s parameters changed'
-          case 10: // return 'connection closed upon user\'s request'
-          case 11: // return 'connection closed: terminal mode ended'
+          case 113:
+          case 301:
+          case 404:
             return 'text-grey-6'
-
-          case 4: // return 'connection closed: received data violates channel\'s protocol'
-          case 5:
-          case 6:
-          case 7:
-          case 8: // return 'connection closed: internal error'
-          case 12: // return 'message registration error'
-          case 15: // return 'failed to start channel due to invalid configuration'
+          case 20:
+          case 114:
+          case 203:
+          case 204:
+          case 402:
+          case 403:
             return 'text-red'
+          case 102: {
+            switch (this.item.close_code) {
+              case 3: { return 'text-green' }
+              case 2: { return 'text-grey-6' }
+              case 4:
+              case 5:
+              case 6: { return 'text-red' }
+              case 7:
+              case 8:
+              case 9:
+              case 10:
+              case 11: { return 'text-yellow' }
+              default: { return '' }
+            }
+          }
           default:
             return ''
         }
       },
+      eventLinkMore () {
+        switch (this.item.event_code) {
+          case 1:
+          case 2:
+          case 3: { return `${SERVER}/docs/#/platform` }
+          case 20:
+          case 21: { return `${SERVER}/docs/#/platform/!/counters` }
+          case 100:
+          case 101:
+          case 102: { return `${SERVER}/docs/#/gw/!/connections` }
+          case 110:
+          case 111:
+          case 112:
+          case 113: { return `${SERVER}/docs/#/gw/!/commands` }
+          case 114: { return `${SERVER}/docs/#/gw/!/channels` }
+          case 200:
+          case 201:
+          case 202:
+          case 203:
+          case 204: { return `${SERVER}/docs/#/gw/!/modems` }
+          case 300:
+          case 301: { return `${SERVER}/docs/#/registry/!/devices` }
+          case 401:
+          case 402:
+          case 403:
+          case 404:
+          case 410:
+          case 411:
+          case 412: { return `${SERVER}/docs/#/registry/!/streams` }
+          default: { return '' }
+        }
+      },
       description () {
         let types = {
-          1: '1: connection established',
-          2: '2: connection closed by tracking device',
-          3: '3: connection successfully processed and closed',
-          4: '4: connection closed: received data violates channel\'s protocol',
-          5: '5: connection closed: internal error',
-          6: '6: connection closed: data parsing error',
-          7: '7: connection closed: server updated',
-          8: '8: connection closed: channel protocol was modified on the server',
-          9: '9: connection closed: channel\'s parameters changed',
-          10: '10: connection closed upon user\'s request',
-          11: '11: connection closed: terminal mode ended',
-          12: '12: message registration error',
-          13: '13: command successfully executed',
-          14: '14: connected device successfully identified',
-          15: '15: failed to start channel due to invalid configuration'
-        }
-        return types[this.item.event]
+            1: 'item was created, usually by customer via REST API',
+            2: 'item was updated, usually by customer via REST API',
+            3: 'item was deleted, usually by customer via REST API',
+            20: 'item was blocked',
+            21: 'item was deleted',
+            100: 'channel has accepted connection',
+            101: 'channel connection was identified',
+            102: 'channel connection was closed',
+            110: 'new channel\'s command was created',
+            111: 'channel\'s command was updated',
+            112: 'channel\'s command was deleted',
+            113: 'channel\'s command executed or discarded',
+            114: 'channel configuration is invalid',
+            200: 'SMS was received via modem',
+            201: 'SMS was sent via modem',
+            202: 'modem has successfully connected to SMPP server',
+            203: 'modem has lost connection to SMPP server',
+            204: 'failed to connect to SMPP server',
+            300: 'device connected',
+            301: 'device disconnected',
+            401: 'stream connected successfully',
+            402: 'stream has lost connection',
+            403: 'stream failed to connect',
+            404: 'stream has sent messages',
+            410: 'new subscription was created for stream',
+            411: 'stream subscription was updated',
+            412: 'stream subscription was deleted'
+          },
+          closeCodes = {
+            2: 'connection closed by tracking device',
+            3: 'connection successfully processed and closed',
+            4: 'received data violates channel\'s protocol',
+            5: 'internal error',
+            6: 'data parsing error',
+            7: 'gateway server updated',
+            8: 'channel protocol was modified on the server',
+            9: 'channel\'s parameters changed',
+            10: 'connection closed upon user\'s request',
+            11: 'terminal mode ended'
+          }
+        let res = types[this.item.event_code] ? `${this.item.event_code}: ${types[this.item.event_code]}` : this.item.event_code
+        res += this.item.close_code ? `: ${closeCodes[this.item.close_code]}` : ''
+        return res
       }
     },
     methods: {
@@ -83,9 +173,17 @@
         this.$emit(`action`, {index, type, content})
       },
       getValueOfProp (prop) {
-        return prop.custom ? JSON.stringify(this.item[prop.name]) : prop.name === 'event' ? this.description : this.item[prop.name]
+        let res = prop.custom ? JSON.stringify(this.item[prop.name]) : this.item[prop.name]
+        if (prop.name === 'event_code') {
+          res = this.description
+        }
+        if (prop.name === 'timestamp') {
+          res = date.formatDate(this.item[prop.name] * 1000, 'HH:mm:ss')
+        }
+        return res
       }
-    }
+    },
+    components: {QTooltip, QIcon}
   }
 </script>
 

@@ -10,11 +10,6 @@
         <q-item-side class="text-right"><q-icon color="white" size="2rem" name="mdi-menu-down" /></q-item-side>
         <q-popover fit ref="popoverActive">
           <q-list link separator class="scroll">
-            <q-item @click="active = null, $refs.popoverActive.close()">
-              <q-item-main>
-                <q-item-tile label>&lt;Available channels&gt;</q-item-tile>
-              </q-item-main>
-            </q-item>
             <q-item
               v-for="(item, index) in items"
               :key="index"
@@ -31,7 +26,7 @@
         </q-popover>
       </q-item>
       <q-btn flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'">{{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}</q-btn>
-      <q-icon size="1.5rem" style="position: absolute;right: 0;" class="on-left cursor-pointer" name="mdi-format-align-middle" @click="settingsClickHandler"/>
+      <q-icon v-if="isCustomer" size="1.5rem" style="position: absolute;right: 0;" class="on-left cursor-pointer" name="mdi-format-align-middle" @click="settingsClickHandler"/>
     </q-toolbar>
     <div class="text-center" style="display: flex; justify-content: center; font-size: 1.5rem" v-if="!active">
       <div class="text-grey-3" style="margin-top: 50px">
@@ -64,7 +59,7 @@
       :isEnabled="!!+size[0]"
       :delay="delay"
       :moduleName="mainLogModuleName"
-      v-if="+size[0] && active"
+      v-if="isCustomer && +size[0] && active"
       :style="{minHeight: `calc(${size[0]}vh - ${+size[1] ? '50px' : '100px'})`, position: 'relative'}"
     />
     <messages
@@ -85,7 +80,7 @@
 <script>
   import Vue from 'vue'
   import { QToolbar, QSelect, QInput, Dialog, QIcon, QBtn, LocalStorage, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip } from 'quasar-framework'
-  import { channelsLogsModule, channelsMessagesModule } from 'qvirtualscroll'
+  import { logsModule, channelsMessagesModule } from 'qvirtualscroll'
   import logs from './logs/Index.vue'
   import messages from './messages/Index.vue'
 
@@ -95,14 +90,15 @@
   export default {
     props: [
       'limit',
-      'delay'
+      'delay',
+      'isCustomer'
     ],
     data () {
       let mode = LocalStorage.get.item('Toolbox-mode')
       return {
         mode: typeof mode === 'number' ? mode : 1,
         active: null,
-        ratio: '50/50',
+        ratio: this.isCustomer ? '50/50' : '0/100',
         isInit: false,
         ratioOptions: [
           {label: 'only logs', value: '100/0'},
@@ -171,11 +167,16 @@
       }
     },
     beforeCreate () {
-      this.$store.registerModule(MAIN_LOG_MODULE_NAME, channelsLogsModule(this.$store, Vue))
+      this.$store.registerModule(MAIN_LOG_MODULE_NAME, logsModule(this.$store, Vue))
       this.$store.registerModule(MAIN_CHANNEL_MODULE_NAME, channelsMessagesModule(this.$store, Vue))
+    },
+    destroyed () {
+      this.$store.unregisterModule(MAIN_LOG_MODULE_NAME)
+      this.$store.unregisterModule(MAIN_CHANNEL_MODULE_NAME)
     },
     created () {
       this.$store.dispatch('getItems', 'channels')
+        .then(() => { this.$store.dispatch('getCustomer') })
         .then(() => {
           this.isInit = true
           if (this.$route.params && this.$route.params.id) {
@@ -212,6 +213,14 @@
       },
       active (val) {
         val ? this.$router.push(`/channels/${val}`) : this.$router.push('/channels')
+      },
+      isCustomer (val) {
+        if (!val) {
+          this.ratio = '0/100'
+        }
+        else {
+          this.ratio = '50/50'
+        }
       }
     },
     components: { logs, messages, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip }

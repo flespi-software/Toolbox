@@ -37,11 +37,30 @@ async function checkConnection ({ state, commit }) {
     }
   }
   catch (e) {
-    console.log(e)
+    if (DEV) {
+      console.log(e)
+    }
+  }
+}
+
+async function getCustomer ({ state, commit }) {
+  try {
+    let resp = await Vue.http.get(`${state.server}/platform/customer`)
+    let data = await resp.json()
+    if (data.result && data.result.length) {
+      state.isCustomer = true
+    }
+  }
+  catch (e) {
+    if (DEV) {
+      console.log(e)
+    }
+    state.isCustomer = false
   }
 }
 
 export default {
   getItems,
-  checkConnection
+  checkConnection,
+  getCustomer
 }

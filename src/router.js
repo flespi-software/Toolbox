@@ -27,7 +27,7 @@ export default new VueRouter({
       component: load('Index'),
       children: [
         {
-          path: ':token/:id',
+          path: 'token/:token/type/:type/id/:id',
           component: load('channels/Index')
         },
         {
