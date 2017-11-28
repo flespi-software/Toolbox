@@ -51,6 +51,21 @@ module.exports = {
         target: 'https://localhost:9005',
         changeOrigin: true,
         secure: false
+      },
+      '/gw': {
+        target: 'https://localhost:9005',
+        changeOrigin: true,
+        secure: false
+      },
+      '/platform': {
+        target: 'https://localhost:9005',
+        changeOrigin: true,
+        secure: false
+      },
+      '/docs': {
+        target: 'https://localhost:9005',
+        changeOrigin: true,
+        secure: false
       }
     }
   }

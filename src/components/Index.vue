@@ -34,6 +34,7 @@
         @view-data-hide="$refs.layout.hideRight(), currentMessage = {}"
         :limit="limit"
         :delay="delay"
+        :isCustomer="isCustomer"
       >
       </router-view>
     </div>
@@ -58,12 +59,13 @@
           right: false
         },
         currentLimit: 1000,
-        delay: 5000
+        delay: 2
       }
     },
     computed: {
       ...mapState({
-        token: (state) => state.token
+        token: (state) => state.token,
+        isCustomer: (state) => state.isCustomer
       }),
       limit: {
         get () {
@@ -131,7 +133,7 @@
               type: 'number',
               label: 'Delay',
               model: this.delay,
-              min: 5000
+              min: 2
             },
             limit: {
               type: 'number',
@@ -167,9 +169,9 @@
     },
     created () {
       let localStorageToken = LocalStorage.get.item('X-Flespi-Token')
-      if (this.$route.params.token && this.$route.params.id) {
+      if (this.$route.params.token && this.$route.params.id && this.$route.params.type) {
         this.setToken(this.$route.params.token)
-        this.$router.push(`/channels/${this.$route.params.id}`)
+        this.$router.push(`/${this.$route.params.type}/${this.$route.params.id}`)
       }
       else if (!this.token && !localStorageToken) { // if not logged in
         this.$router.push('/login')

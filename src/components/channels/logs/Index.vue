@@ -7,10 +7,7 @@
       :items="messages"
       :date="from"
       :mode="mode"
-      :needShowMode="config.needShowMode"
-      :needShowPageScroll="config.needShowPageScroll"
-      :needShowDate="config.needShowDate"
-      :needShowFilter="config.needShowFilter"
+      :viewConfig="config"
       :colsConfigurator="'toolbar'"
       :i18n="i18n"
       :filter="filter"
@@ -67,7 +64,8 @@
           needShowFilter: true,
           needShowMode: false,
           needShowPageScroll: 'right left',
-          needShowDate: true
+          needShowDate: true,
+          needShowEtc: true
         }
       }
     },
@@ -75,26 +73,34 @@
       messages: {
         get () {
           let messages = this.$store.state[this.moduleName].messages
-          this.i18n.from = messages.length ? date.formatDate(messages[0].time * 1000, 'HH:mm:ss') : 'Prev'
-          this.i18n.to = messages.length ? date.formatDate(messages[messages.length - 1].time * 1000, 'HH:mm:ss') : 'Next'
+          this.i18n.from = messages.length ? date.formatDate(messages[0].timestamp * 1000, 'HH:mm:ss') : 'Prev'
+          this.i18n.to = messages.length ? date.formatDate(messages[messages.length - 1].timestamp * 1000, 'HH:mm:ss') : 'Next'
           return this.filter && this.mode === 1 ? this.filterMessages(this.filter, messages) : messages
         },
         set (val) {
           this.$store.commit(`${this.moduleName}/setMessages`, val)
         }
       },
-      active: {
+      origin: {
         get () {
-          return this.$store.state[this.moduleName].active
+          return this.$store.state[this.moduleName].origin
         },
         async set (val) {
-          this.$store.commit(`${this.moduleName}/setActive`, val)
+          this.$store.commit(`${this.moduleName}/setOrigin`, val)
           this.$store.commit(`${this.moduleName}/clearMessages`)
           await this.$store.dispatch(`${this.moduleName}/getCols`)
           if (this.mode === 0) {
             await this.$store.dispatch(`${this.moduleName}/initTime`)
           }
           await this.$store.dispatch(`${this.moduleName}/get`)
+        }
+      },
+      currentDelay: {
+        get () {
+          return this.$store.state[this.moduleName].delay
+        },
+        set (val) {
+          this.$store.commit(`${this.moduleName}/setDelay`, val * 1000)
         }
       },
       cols: {
@@ -165,7 +171,7 @@
         this.$store.commit(`${this.moduleName}/setMode`, val)
         switch (val) {
           case 0: {
-            if (this.active) {
+            if (this.origin) {
               this.$store.dispatch(`${this.moduleName}/initTime`) // if need init time by last messages
                 .then(() => {
                   this.$store.dispatch(`${this.moduleName}/get`)
@@ -174,8 +180,9 @@
             break
           }
           case 1: {
-            if (this.active) {
-              this.$store.dispatch(`${this.moduleName}/pollingGet`, this.delay)
+            if (this.origin) {
+              this.currentDelay = this.delay
+              this.$store.dispatch(`${this.moduleName}/pollingGet`)
             }
             break
           }
@@ -195,19 +202,19 @@
         this.$store.dispatch(`${this.moduleName}/get`, {name: 'dateNext'})
       },
       paginationPrevChangeHandler () {
-        let time = 0
-        time = this.messages.length ? this.messages[0].time * 1000 : 0
-        this.$store.dispatch(`${this.moduleName}/get`, {name: 'paginationPrev', payload: time})
+        let timestamp = 0
+        timestamp = this.messages.length ? this.messages[0].timestamp * 1000 : 0
+        this.$store.dispatch(`${this.moduleName}/get`, {name: 'paginationPrev', payload: timestamp})
       },
       paginationNextChangeHandler () {
-        let time = 0
-        time = this.messages.length ? this.messages[this.messages.length - 1].time * 1000 : 0
-        this.$store.dispatch(`${this.moduleName}/get`, {name: 'paginationNext', payload: time})
+        let timestamp = 0
+        timestamp = this.messages.length ? this.messages[this.messages.length - 1].timestamp * 1000 : 0
+        this.$store.dispatch(`${this.moduleName}/get`, {name: 'paginationNext', payload: timestamp})
       }
     },
     watch: {
       activeId (val) {
-        this.active = val
+        this.origin = `gw/channels/${val}`
       },
       mode (mode) {
         this.modeChange(mode)
@@ -217,19 +224,25 @@
       },
       delay (delay) {
         if (this.mode === 1) {
-          this.$store.dispatch(`${this.moduleName}/pollingGet`, delay)
+          this.currentDelay = this.delay
+          this.$store.dispatch(`${this.moduleName}/pollingGet`)
         }
       }
     },
     async created () {
       this.currentLimit = this.limit
+      this.currentDelay = this.delay
+      if (this.activeId) {
+        this.$store.commit(`${this.moduleName}/setOrigin`, `gw/channels/${this.activeId}`)
+        await this.$store.dispatch(`${this.moduleName}/getCols`)
+      }
       if (this.$store.state[this.moduleName].mode === null) {
         this.modeChange(this.mode)
       }
-      if (this.activeId) { this.active = this.activeId }
     },
     destroyed () {
       this.$store.commit(`${this.moduleName}/clearTimer`)
+      this.$store.commit(`${this.moduleName}/clear`)
     },
     mixins: [filterMessages],
     components: { VirtualScrollList, LogsListItem }

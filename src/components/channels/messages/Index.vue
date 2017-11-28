@@ -7,10 +7,7 @@
       :items="messages"
       :date="from"
       :mode="mode"
-      :needShowMode="config.needShowMode"
-      :needShowPageScroll="config.needShowPageScroll"
-      :needShowDate="config.needShowDate"
-      :needShowFilter="config.needShowFilter"
+      :viewConfig="config"
       :colsConfigurator="'toolbar'"
       :i18n="i18n"
       :filter="filter"
@@ -100,10 +97,8 @@
         },
         async set (val) {
           this.$store.commit(`${this.moduleName}/setActive`, val)
-          this.$store.commit(`${this.moduleName}/clearMessages`)
-          this.$store.commit(`${this.moduleName}/setFrom`, 0)
           await this.$store.dispatch(`${this.moduleName}/getCols`)
-          await this.$store.dispatch(`${this.moduleName}/get`)
+          this.modeChange(this.mode)
         }
       },
       cols: {
@@ -232,10 +227,16 @@
     },
     async created () {
       this.currentLimit = this.limit
+      if (this.activeId) {
+        this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
+        await this.$store.dispatch(`${this.moduleName}/getCols`)
+      }
       if (this.$store.state[this.moduleName].mode === null) {
         this.modeChange(this.mode)
       }
-      if (this.activeId) { this.active = this.activeId }
+    },
+    destroyed () {
+      this.$store.commit(`${this.moduleName}/clear`)
     },
     mixins: [filterMessages],
     components: { VirtualScrollList, MessagesListItem }

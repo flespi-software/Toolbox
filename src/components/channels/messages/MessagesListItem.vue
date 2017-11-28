@@ -11,7 +11,7 @@
 </template>
 
 <script>
-  import { QIcon, QTooltip } from 'quasar-framework'
+  import { QIcon, QTooltip, date } from 'quasar-framework'
 
   export default {
     props: [
@@ -50,7 +50,11 @@
             }
           }
           else if (vals[propName]) {
-            vals[propName].value = this.item[propName]
+            let value = this.item[propName]
+            if (propName === 'timestamp') {
+              value = date.formatDate(value * 1000, 'MM/DD/YYYY HH:mm:ss')
+            }
+            vals[propName].value = value
           }
           else {
             vals.etc.value += `${propName}: ${this.item[propName]}; `

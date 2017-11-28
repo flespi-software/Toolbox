@@ -13,7 +13,8 @@ let state = {
   token: '',
   server: SERVER,
   items: [],
-  offline: false
+  offline: false,
+  isCustomer: false
 }
 
 export default new Vuex.Store(
