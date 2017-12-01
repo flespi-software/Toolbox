@@ -1,10 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.3.0] - 2017-12-01
+[feature] device messages and logs viewer added
+[feature] raw additional info viewer added
+[feature] logs module rebased for origin pattern use
 ### [0.2.1] - 2017-11-28
 [feature] delay and limit of messages in global messages now
 [feature] components has been updated by last of changes of QVirtualScroll
 [fix] hide messages viewer
-[fix] reregister vuex-modules
+[fix] re-register vuex-modules
 ### [0.2.0] - 2017-11-22
 [feature] Added viewer for channel message
 [feature] Added actions for view and copy channel message

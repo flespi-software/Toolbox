@@ -1,7 +1,9 @@
 <template>
   <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}" :class="[color]">
-    <span class="list__item item_actions" v-if="actionsVisible">
-      <i v-for="(action, i) in actions" :key="i" @click="clickHandler(index, action.type, item)" :class="action.classes" class="material-icons cursor-pointer">{{action.icon}}</i>
+    <span class="list__item item_actions text-white" v-if="actionsVisible">
+      <q-icon v-for="(action, i) in actions" :key="i" @click="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
+        <q-tooltip>{{action.label}}</q-tooltip>
+      </q-icon>
     </span>
     <span v-for="(prop, k) in cols" :key="k" class="list__item" :class="{[`item_${k}`]: true}">
       <q-tooltip v-if="prop.name === 'event_code' && !!item['error_text']">{{item['error_text']}}</q-tooltip>
@@ -53,17 +55,22 @@
           case 21:
           case 111:
           case 112:
+          case 311:
+          case 314:
           case 411:
           case 412:
             return 'text-yellow'
           case 113:
           case 301:
+          case 310:
+          case 313:
           case 404:
             return 'text-grey-6'
           case 20:
           case 114:
           case 203:
           case 204:
+          case 312:
           case 402:
           case 403:
             return 'text-red'
@@ -107,7 +114,12 @@
           case 203:
           case 204: { return `${SERVER}/docs/#/gw/!/modems` }
           case 300:
-          case 301: { return `${SERVER}/docs/#/registry/!/devices` }
+          case 301:
+          case 310:
+          case 311:
+          case 312:
+          case 313:
+          case 314: { return `${SERVER}/docs/#/registry/!/devices` }
           case 401:
           case 402:
           case 403:
@@ -140,6 +152,11 @@
             204: 'failed to connect to SMPP server',
             300: 'device connected',
             301: 'device disconnected',
+            310: 'REST API (POST) request to read setting value from device',
+            311: 'REST API (PUT) request to modify setting value on device',
+            312: 'REST API (DELETE) request to delete current device setting value',
+            313: 'Platform originated request to synchronize setting value from device',
+            314: 'Device setting value was modified',
             401: 'stream connected successfully',
             402: 'stream has lost connection',
             403: 'stream failed to connect',

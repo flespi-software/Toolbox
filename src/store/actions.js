@@ -7,7 +7,7 @@ async function getItems ({ state, commit }, entity) {
     switch (entity) {
       case 'devices': {
         queryString = `${state.server}/registry/devices/all`
-        params = {fields: 'id,name'}
+        params = {fields: 'id,name,ident'}
         break
       }
       case 'channels': {

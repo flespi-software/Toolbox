@@ -37,6 +37,14 @@ export default new VueRouter({
         {
           path: 'channels/:id',
           component: load('channels/Index')
+        },
+        {
+          path: 'devices',
+          component: load('devices/Index')
+        },
+        {
+          path: 'devices/:id',
+          component: load('devices/Index')
         }
       ]
     },
