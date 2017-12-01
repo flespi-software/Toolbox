@@ -3,7 +3,7 @@
     <virtual-scroll-list
       ref="scrollList"
       :cols="cols"
-      :actions="[]"
+      :actions="actions"
       :items="messages"
       :date="from"
       :mode="mode"
@@ -21,15 +21,18 @@
       @change:mode="modeChange"
       @update:cols="updateColsHandler"
     >
-      <logs-list-item slot="items" slot-scope="{item, index, actions, cols, etcVisible, actionsVisible, itemHeight, rowWidth}"
-          :item="item"
-          :key="index"
-          :index="index"
-          :actions="actions"
-          :cols="cols"
-          :itemHeight="itemHeight"
-          :rowWidth="rowWidth"
-          :etcVisible="etcVisible"
+      <messages-list-item slot="items" slot-scope="{item, index, actions, cols, etcVisible, actionsVisible, itemHeight, rowWidth}"
+         :item="item"
+         :key="`${JSON.stringify(item)}${index}`"
+         :index="index"
+         :actions="actions"
+         :cols="cols"
+         :itemHeight="itemHeight"
+         :rowWidth="rowWidth"
+         :etcVisible="etcVisible"
+         :actionsVisible="actionsVisible"
+         :selected="`${JSON.stringify(item)}${index}` === selectedItemKey"
+         @action="actionHandler"
       />
     </virtual-scroll-list>
   </div>
@@ -37,9 +40,9 @@
 
 <script>
   import { VirtualScrollList } from 'qvirtualscroll'
-  import LogsListItem from './LogsListItem.vue'
-  import { date, LocalStorage } from 'quasar-framework'
+  import { date, LocalStorage, Toast } from 'quasar-framework'
   import filterMessages from '../../../mixins/filterMessages'
+  import MessagesListItem from './MessagesListItem.vue'
 
   export default {
     props: [
@@ -51,22 +54,35 @@
     ],
     data () {
       return {
+        selectedItemKey: null,
         theme: {
           color: 'white',
           bgColor: 'dark',
           contentInverted: true,
           controlsInverted: true
         },
-        i18n: {
-          'Messages not found': 'Log entries not found'
-        },
+        i18n: {},
         config: {
           needShowFilter: true,
           needShowMode: false,
           needShowPageScroll: 'right left',
           needShowDate: true,
           needShowEtc: true
-        }
+        },
+        actions: [
+          {
+            icon: 'mdi-view-list',
+            label: 'view',
+            classes: '',
+            type: 'view'
+          },
+          {
+            icon: 'mdi-content-copy',
+            label: 'copy',
+            classes: '',
+            type: 'copy'
+          }
+        ]
       }
     },
     computed: {
@@ -81,12 +97,12 @@
           this.$store.commit(`${this.moduleName}/setMessages`, val)
         }
       },
-      origin: {
+      active: {
         get () {
-          return this.$store.state[this.moduleName].origin
+          return this.$store.state[this.moduleName].active
         },
         async set (val) {
-          this.$store.commit(`${this.moduleName}/setOrigin`, val)
+          this.$store.commit(`${this.moduleName}/setActive`, val)
           this.$store.commit(`${this.moduleName}/clearMessages`)
           await this.$store.dispatch(`${this.moduleName}/getCols`)
           if (this.mode === 0) {
@@ -171,7 +187,7 @@
         this.$store.commit(`${this.moduleName}/setMode`, val)
         switch (val) {
           case 0: {
-            if (this.origin) {
+            if (this.active) {
               this.$store.dispatch(`${this.moduleName}/initTime`) // if need init time by last messages
                 .then(() => {
                   this.$store.dispatch(`${this.moduleName}/get`)
@@ -180,7 +196,7 @@
             break
           }
           case 1: {
-            if (this.origin) {
+            if (this.active) {
               this.currentDelay = this.delay
               this.$store.dispatch(`${this.moduleName}/pollingGet`)
             }
@@ -210,11 +226,47 @@
         let timestamp = 0
         timestamp = this.messages.length ? this.messages[this.messages.length - 1].timestamp * 1000 : 0
         this.$store.dispatch(`${this.moduleName}/get`, {name: 'paginationNext', payload: timestamp})
+      },
+      actionHandler ({index, type, content}) {
+        switch (type) {
+          case 'view': {
+            this.viewMessagesHandler({index, content})
+            break
+          }
+          case 'copy': {
+            this.copyMessageHandler({index, content})
+            break
+          }
+        }
+      },
+      viewMessagesHandler ({index, content}) {
+        this.selectedItemKey = `${JSON.stringify(content)}${index}`
+        this.$emit('view-data', content)
+      },
+      copyMessageHandler ({index, content}) {
+        this.$copyText(JSON.stringify(content)).then(function (e) {
+          Toast.create.positive({
+            icon: 'content_copy',
+            html: `Message copied`,
+            timeout: 1000
+          })
+        }, function (e) {
+          Toast.create.negative({
+            icon: 'content_copy',
+            html: `Error coping messages`,
+            timeout: 1000
+          })
+        })
+      },
+      unselect () {
+        if (this.selectedItemKey) {
+          this.selectedItemKey = null
+        }
       }
     },
     watch: {
       activeId (val) {
-        this.origin = `gw/channels/${val}`
+        this.active = val
       },
       mode (mode) {
         this.modeChange(mode)
@@ -233,7 +285,7 @@
       this.currentLimit = this.limit
       this.currentDelay = this.delay
       if (this.activeId) {
-        this.$store.commit(`${this.moduleName}/setOrigin`, `gw/channels/${this.activeId}`)
+        this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
         await this.$store.dispatch(`${this.moduleName}/getCols`)
       }
       if (this.$store.state[this.moduleName].mode === null) {
@@ -245,9 +297,6 @@
       this.$store.commit(`${this.moduleName}/clear`)
     },
     mixins: [filterMessages],
-    components: { VirtualScrollList, LogsListItem }
+    components: { VirtualScrollList, MessagesListItem }
   }
 </script>
-
-<style>
-</style>

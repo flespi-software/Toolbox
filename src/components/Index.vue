@@ -4,7 +4,7 @@
       <q-toolbar-title>
         <img :src="$q.platform.is.mobile ? 'statics/toolbox_mobile.png':'statics/toolbox50.png'" alt="Track it!" style="height: 30px"> <sup>{{version}}</sup>
       </q-toolbar-title>
-      <q-tabs color="dark" v-if="false">
+      <q-tabs color="dark">
         <q-route-tab
           slot="title"
           name="channels-tab"
@@ -18,8 +18,8 @@
           to="/devices"
         />
       </q-tabs>
-      <q-btn @click="settingsHandler"><q-icon name="mdi-settings"></q-icon></q-btn>
-      <q-btn @click="exitHandler"><q-icon name="mdi-exit-to-app"></q-icon></q-btn>
+      <q-btn @click="settingsHandler" small flat round icon="mdi-settings"/>
+      <q-btn @click="exitHandler" small  flat round icon="mdi-exit-to-app"/>
     </q-toolbar>
     <object-viewer
       slot="right"
@@ -27,11 +27,17 @@
       :object="currentMessage"
       v-if="Object.keys(currentMessage).length"
     />
+    <raw-viewer
+      ref="rawViewer"
+      :config="rawConfig"
+      inverted
+    />
     <div>
       <router-view
         ref='main'
         @view-data="viewDataHandler"
         @view-data-hide="$refs.layout.hideRight(), currentMessage = {}"
+        @view-log-message="viewLogMessagesHandler"
         :limit="limit"
         :delay="delay"
         :isCustomer="isCustomer"
@@ -48,18 +54,22 @@
   import { mapState, mapMutations } from 'vuex'
   import dist from '../../package.json'
   import ObjectViewer from './ObjectViewer.vue'
+  import RawViewer from './RawViewer.vue'
+  import JsonTree from './JsonTree.vue'
 
   export default {
     data () {
       return {
         version: dist.version,
         currentMessage: {},
+        currentData: {},
         sides: {
           left: false,
           right: false
         },
         currentLimit: 1000,
-        delay: 2
+        delay: 2,
+        rawConfig: {}
       }
     },
     computed: {
@@ -105,6 +115,18 @@
             this.currentLimit = val
           }
         }
+      },
+      logMessageConfig () {
+        return {
+          'item_data': {
+            wrapper: JsonTree,
+            data: this.currentData.item_data
+          },
+          'http_data': {
+            wrapper: JsonTree,
+            data: this.currentData.http_data
+          }
+        }
       }
     },
     methods: {
@@ -120,9 +142,12 @@
         this.currentMessage = JSON.parse(JSON.stringify(content))
         this.$refs.layout.showRight()
       },
-      hideRightHandler () {
+      hideRight () {
         this.$refs.layout.hideRight()
         this.currentMessage = {}
+      },
+      hideRightHandler () {
+        this.hideRight()
         this.$refs.main.unselect()
       },
       settingsHandler () {
@@ -153,6 +178,11 @@
             }
           ]
         })
+      },
+      viewLogMessagesHandler (content) {
+        this.currentData = JSON.parse(JSON.stringify(content))
+        this.rawConfig = this.logMessageConfig
+        this.$refs.rawViewer.open()
       }
     },
     watch: {
@@ -165,6 +195,7 @@
         if (route.path === '/') {
           this.$router.push('/channels')
         }
+        this.hideRight()
       }
     },
     created () {
@@ -188,7 +219,7 @@
         }
       }
     },
-    components: { QLayout, QToolbar, QToolbarTitle, QBtn, QIcon, QTabs, QRouteTab, ObjectViewer }
+    components: { QLayout, QToolbar, QToolbarTitle, QBtn, QIcon, QTabs, QRouteTab, ObjectViewer, RawViewer }
   }
 </script>
 

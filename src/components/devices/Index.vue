@@ -2,10 +2,9 @@
   <div>
     <q-toolbar slot="header" color="dark" v-if="active">
       <q-item class="no-padding" style="max-width: 50%">
-        <q-tooltip><small>{{selectedItem.protocol_name}}</small></q-tooltip>
         <q-item-main>
-          <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name}}</q-item-tile>
-          <q-item-tile sublabel style="font-size: 0.8rem">{{selectedItem.uri}}</q-item-tile>
+          <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name || `#${selectedItem.id}`}}<q-tooltip v-if="$q.platform.is.desktop && selectedItem.name">{{selectedItem.name}}</q-tooltip></q-item-tile>
+          <q-item-tile sublabel style="font-size: 0.8rem" v-if="selectedItem.ident">{{selectedItem.ident}}</q-item-tile>
         </q-item-main>
         <q-item-side class="text-right"><q-icon color="white" size="2rem" name="mdi-menu-down" /></q-item-side>
         <q-popover fit ref="popoverActive">
@@ -16,11 +15,10 @@
               @click="active = item.id, $refs.popoverActive.close(), $emit('view-data-hide')"
             >
               <q-item-main>
-                <q-item-tile label class="ellipsis overflow-hidden">{{item.name}}</q-item-tile>
-                <q-item-tile sublabel><small>{{item.protocol_name}}</small></q-item-tile>
-                <q-item-tile sublabel><small>{{item.uri}}</small></q-item-tile>
+                <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || `#${item.id}`}}</q-item-tile>
+                <q-item-tile sublabel><small>{{item.ident}}</small></q-item-tile>
               </q-item-main>
-              <q-item-side class="text-right"><small>#{{item.id.toString()}}</small></q-item-side>
+              <q-item-side class="text-right" v-if="item.name"><small>#{{item.id.toString()}}</small></q-item-side>
             </q-item>
           </q-list>
         </q-popover>
@@ -30,9 +28,9 @@
     </q-toolbar>
     <div class="text-center" style="display: flex; justify-content: center; font-size: 1.5rem" v-if="!active">
       <div class="text-grey-3" style="margin-top: 50px">
-        Select channel
+        Select device
         <q-btn flat style="display: flex; flex-wrap: nowrap; margin-top: 20px" icon-right="mdi-menu-down" v-if="items.length">
-          &lt;Available channels&gt;
+          &lt;Available devices&gt;
           <q-popover fit ref="popoverNotActive">
             <q-list link separator class="scroll">
               <q-item
@@ -41,11 +39,10 @@
                 @click="active = item.id, $refs.popoverNotActive.close()"
               >
                 <q-item-main>
-                  <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name}}<q-tooltip v-if="$q.platform.is.desktop">{{item.name}}</q-tooltip></q-item-tile>
-                  <q-item-tile sublabel><small>{{item.protocol_name}}</small></q-item-tile>
-                  <q-item-tile sublabel><small>{{item.uri}}</small></q-item-tile>
+                  <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || `#${item.id}`}}<q-tooltip v-if="$q.platform.is.desktop && item.name">{{item.name}}</q-tooltip></q-item-tile>
+                  <q-item-tile sublabel><small>{{item.ident}}</small></q-item-tile>
                 </q-item-main>
-                <q-item-side class="text-right"><small>#{{item.id.toString()}}</small></q-item-side>
+                <q-item-side class="text-right" v-if="item.name"><small>#{{item.id.toString()}}</small></q-item-side>
               </q-item>
             </q-list>
           </q-popover>
@@ -56,8 +53,8 @@
       ref="logs"
       :mode="mode"
       :activeId="active"
+      originPattern="registry/devices/:id"
       :isEnabled="!!+size[0]"
-      originPattern="gw/channels/:id"
       :delay="delay"
       :moduleName="mainLogModuleName"
       v-if="isCustomer && +size[0] && active"
@@ -82,12 +79,12 @@
 <script>
   import Vue from 'vue'
   import { QToolbar, QSelect, QInput, Dialog, QIcon, QBtn, LocalStorage, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip } from 'quasar-framework'
-  import { logsModule, channelsMessagesModule } from 'qvirtualscroll'
+  import { logsModule, devicesMessagesModule } from 'qvirtualscroll'
   import logs from '../logs/Index.vue'
   import messages from './messages/Index.vue'
 
-  const MAIN_LOG_MODULE_NAME = 'channelsLogs',
-    MAIN_CHANNEL_MODULE_NAME = 'channelsMessages'
+  const DEVICE_LOG_MODULE_NAME = 'devicesLogs',
+    MAIN_DEVICES_MODULE_NAME = 'devicesMessages'
 
   export default {
     props: [
@@ -109,8 +106,8 @@
           {label: '40/60', value: '40/60'},
           {label: 'only messages', value: '0/100'}
         ],
-        mainLogModuleName: MAIN_LOG_MODULE_NAME,
-        mainChannelModuleName: MAIN_CHANNEL_MODULE_NAME
+        mainLogModuleName: DEVICE_LOG_MODULE_NAME,
+        mainChannelModuleName: MAIN_DEVICES_MODULE_NAME
       }
     },
     computed: {
@@ -172,15 +169,15 @@
       }
     },
     beforeCreate () {
-      this.$store.registerModule(MAIN_LOG_MODULE_NAME, logsModule(this.$store, Vue))
-      this.$store.registerModule(MAIN_CHANNEL_MODULE_NAME, channelsMessagesModule(this.$store, Vue))
+      this.$store.registerModule(DEVICE_LOG_MODULE_NAME, logsModule(this.$store, Vue))
+      this.$store.registerModule(MAIN_DEVICES_MODULE_NAME, devicesMessagesModule(this.$store, Vue))
     },
     destroyed () {
-      this.$store.unregisterModule(MAIN_LOG_MODULE_NAME)
-      this.$store.unregisterModule(MAIN_CHANNEL_MODULE_NAME)
+      this.$store.unregisterModule(DEVICE_LOG_MODULE_NAME)
+      this.$store.unregisterModule(MAIN_DEVICES_MODULE_NAME)
     },
     created () {
-      this.$store.dispatch('getItems', 'channels')
+      this.$store.dispatch('getItems', 'devices')
         .then(() => { this.$store.dispatch('getCustomer') })
         .then(() => {
           this.isInit = true
@@ -217,7 +214,7 @@
         }
       },
       active (val) {
-        val ? this.$router.push(`/channels/${val}`) : this.$router.push('/channels')
+        val ? this.$router.push(`/devices/${val}`) : this.$router.push('/devices')
       },
       isCustomer (val) {
         if (!val) {
