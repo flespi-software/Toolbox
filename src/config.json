@@ -1,0 +1,312 @@
+{
+  "channels": {
+    "label": "Channels",
+    "icon": "merge_type",
+    "logs": {
+      "vuexModuleName": "channelsLogs",
+      "cols": [
+        {
+          "name": "timestamp",
+          "width": 100,
+          "display": true,
+          "description": "Log event time"
+        },
+        {
+          "name": "event_code",
+          "title": "event",
+          "width": 400,
+          "display": true,
+          "description": "Log event code and description"
+        },
+        {
+          "name": "ident",
+          "width": 150,
+          "display": true,
+          "description": "Connected device's identification string"
+        },
+        {
+          "name": "msgs",
+          "title": "messages",
+          "width": 85,
+          "display": true,
+          "description": "Number of messages received"
+        },
+        {
+          "name": "recv",
+          "title": "received",
+          "width": 85,
+          "display": true,
+          "description": "Number of bytes received"
+        },
+        {
+          "name": "send",
+          "title": "sent",
+          "width": 85,
+          "display": true,
+          "description": "Number of bytes sent"
+        },
+        {
+          "name": "source",
+          "width": 150,
+          "display": true,
+          "description": "Connected device's address"
+        },
+        {
+          "name": "host",
+          "width": 150,
+          "display": true,
+          "description": "IP address from which HTTP request was received"
+        },
+        {
+          "name": "duration",
+          "width": 85,
+          "display": true,
+          "description": "Connection duration in seconds"
+        },
+        {
+          "name": "transport",
+          "width": 85,
+          "display": true,
+          "description": "Connected device's transport: tcp, udp, http etc"
+        }
+      ],
+      "actions": [
+        {
+          "icon": "mdi-view-list",
+          "label": "view",
+          "classes": "",
+          "type": "view"
+        }
+      ],
+      "viewConfig": {
+        "needShowFilter": true,
+        "needShowMode": false,
+        "needShowPageScroll": "right left",
+        "needShowDate": true,
+        "needShowEtc": true
+      },
+      "theme": {
+        "color": "white",
+        "bgColor": "dark",
+        "contentInverted": true,
+        "controlsInverted": true
+      }
+    },
+    "messages": {
+      "vuexModuleName": "channelsMessages",
+      "actions": [
+        {
+          "icon": "mdi-view-list",
+          "label": "view",
+          "classes": "",
+          "type": "view"
+        },
+        {
+          "icon": "mdi-content-copy",
+          "label": "copy",
+          "classes": "",
+          "type": "copy"
+        }
+      ],
+      "viewConfig": {
+        "needShowFilter": true,
+        "needShowMode": false,
+        "needShowPageScroll": "right",
+        "needShowDate": false
+      },
+      "theme": {
+        "color": "white",
+        "bgColor": "dark",
+        "contentInverted": true,
+        "controlsInverted": true
+      }
+    }
+  },
+  "devices": {
+    "label": "Devices",
+    "icon": "mdi-developer-board",
+    "logs": {
+      "vuexModuleName": "devicesLogs",
+      "cols": [
+        {
+          "name": "timestamp",
+          "width": 100,
+          "display": true,
+          "description": "Log event time"
+        },
+        {
+          "name": "event_code",
+          "title": "event",
+          "width": 400,
+          "display": true,
+          "description": "Log event code and description"
+        },
+        {
+          "name": "name",
+          "title": "setting",
+          "width": 80,
+          "display": true,
+          "description": "Setting name"
+        },
+        {
+          "name": "ident",
+          "width": 150,
+          "display": true,
+          "description": "Connected device's identification string"
+        },
+        {
+          "name": "msgs",
+          "title": "messages",
+          "width": 85,
+          "display": true,
+          "description": "Number of messages received"
+        },
+        {
+          "name": "recv",
+          "title": "recived",
+          "width": 85,
+          "display": true,
+          "description": "Number of bytes received"
+        },
+        {
+          "name": "send",
+          "title": "sent",
+          "width": 85,
+          "display": true,
+          "description": "Number of bytes sent"
+        },
+        {
+          "name": "source",
+          "width": 150,
+          "display": true,
+          "description": "Connected device's address"
+        },
+        {
+          "name": "host",
+          "width": 150,
+          "display": true,
+          "description": "IP address from which HTTP request was received"
+        },
+        {
+          "name": "duration",
+          "width": 85,
+          "display": true,
+          "description": "Connection duration in seconds"
+        },
+        {
+          "name": "transport",
+          "width": 85,
+          "display": true,
+          "description": "Connected device's transport: tcp, udp, http etc"
+        }
+      ],
+      "actions": [
+        {
+          "icon": "mdi-view-list",
+          "label": "view",
+          "classes": "",
+          "type": "view"
+        }
+      ],
+      "viewConfig": {
+        "needShowFilter": true,
+        "needShowMode": false,
+        "needShowPageScroll": "right left",
+        "needShowDate": true,
+        "needShowEtc": true
+      },
+      "theme": {
+        "color": "white",
+        "bgColor": "dark",
+        "contentInverted": true,
+        "controlsInverted": true
+      }
+    },
+    "messages": {
+      "vuexModuleName": "devicesMessages",
+      "actions": [
+        {
+          "icon": "mdi-view-list",
+          "label": "view",
+          "classes": "",
+          "type": "view"
+        },
+        {
+          "icon": "mdi-content-copy",
+          "label": "copy",
+          "classes": "",
+          "type": "copy"
+        }
+      ],
+      "viewConfig": {
+        "needShowFilter": true,
+        "needShowMode": false,
+        "needShowPageScroll": "right left",
+        "needShowDate": true,
+        "needShowEtc": true
+      },
+      "theme": {
+        "color": "white",
+        "bgColor": "dark",
+        "contentInverted": true,
+        "controlsInverted": true
+      }
+    }
+  },
+  "streams": {
+    "label": "Streams",
+    "icon": "mdi-call-split",
+    "logs": {
+      "vuexModuleName": "streamsLogs",
+      "cols": [
+        {
+          "name": "timestamp",
+          "width": 100,
+          "display": true,
+          "description": "Log event time"
+        },
+        {
+          "name": "event_code",
+          "title": "event",
+          "width": 450,
+          "display": true,
+          "description": "Log event code and description"
+        },
+        {
+          "name": "messages_count",
+          "title": "messages",
+          "width": 100,
+          "display": true,
+          "description": "Number of messages has sent"
+        },
+        {
+          "name": "host",
+          "width": 150,
+          "display": true,
+          "description": "IP address from which HTTP request was received"
+        }
+      ],
+      "actions": [
+        {
+          "icon": "mdi-view-list",
+          "label": "view",
+          "classes": "",
+          "type": "view"
+        }
+      ],
+      "viewConfig": {
+        "needShowFilter": true,
+        "needShowMode": false,
+        "needShowPageScroll": "right left",
+        "needShowDate": true,
+        "needShowEtc": true
+      },
+      "theme": {
+        "color": "white",
+        "bgColor": "dark",
+        "contentInverted": true,
+        "controlsInverted": true
+      }
+    }
+  }
+}

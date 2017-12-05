@@ -1,25 +1,19 @@
 <template>
   <q-layout ref="layout" v-model="sides" view="hHh LpR lFf" :page-style="{background: '#333'}" :right-class="{'bg-dark':true}">
-    <q-toolbar slot="header" color="dark" class="header__main-toolbar">
+    <q-toolbar slot="header" color="dark" class="header__main-toolbar" v-if="isVisibleToolbar">
       <q-toolbar-title>
         <img :src="$q.platform.is.mobile ? 'statics/toolbox_mobile.png':'statics/toolbox50.png'" alt="Track it!" style="height: 30px"> <sup>{{version}}</sup>
       </q-toolbar-title>
-      <q-tabs color="dark">
+      <q-tabs color="dark" v-model="tabModel">
         <q-route-tab
+          v-for="(moduleConfig, moduleName, index) in config"
+          :key="index"
           slot="title"
-          name="channels-tab"
-          :label="$q.platform.is.desktop ? 'Channels':''"
+          :name="`${moduleName}`"
+          :label="$q.platform.is.desktop ? moduleConfig.label : ''"
           hide="label"
-          :icon="$q.platform.is.mobile ? 'merge_type' : ''"
-          to="/channels"
-        />
-        <q-route-tab
-          slot="title"
-          name="devices-tab"
-          :label="$q.platform.is.desktop ? 'Devices' : ''"
-          hide="label"
-          :icon="$q.platform.is.mobile ? 'mdi-developer-board' : ''"
-          to="/devices"
+          :icon="$q.platform.is.mobile ? moduleConfig.icon : ''"
+          :to="`/${moduleName}`"
         />
       </q-tabs>
       <q-btn @click="settingsHandler" small flat round icon="mdi-settings"/>
@@ -36,23 +30,24 @@
       :config="rawConfig"
       inverted
     />
-    <div>
-      <router-view
-        ref='main'
-        @view-data="viewDataHandler"
-        @view-data-hide="$refs.layout.hideRight(), currentMessage = {}"
-        @view-log-message="viewLogMessagesHandler"
-        :limit="limit"
-        :delay="delay"
-        :isCustomer="isCustomer"
-      >
-      </router-view>
-    </div>
+    <router-view
+      ref='main'
+      v-if="configByEntity"
+      @view-data="viewDataHandler"
+      @view-data-hide="$refs.layout.hideRight(), currentMessage = {}"
+      @view-log-message="viewLogMessagesHandler"
+      :limit="limit"
+      :delay="delay"
+      :isCustomer="isCustomer"
+      :config="configByEntity"
+    >
+    </router-view>
   </q-layout>
 </template>
 
 <script>
-  import { QLayout, QToolbar, QToolbarTitle, QBtn, QIcon, QTabs, QRouteTab, LocalStorage, Dialog, Toast, Alert } from 'quasar-framework'
+  import { QLayout, QToolbar, QToolbarTitle, QBtn, QIcon, QTabs, QRouteTab, LocalStorage, Dialog, Toast, Alert, date } from 'quasar-framework'
+  import config from '../config.json'
   import 'quasar-extras/animate/bounceInRight.css'
   import 'quasar-extras/animate/bounceOutRight.css'
   import { mapState, mapMutations } from 'vuex'
@@ -73,7 +68,10 @@
         },
         currentLimit: 1000,
         delay: 2,
-        rawConfig: {}
+        rawConfig: {},
+        config: config,
+        tabModel: 'channels',
+        isVisibleToolbar: true
       }
     },
     computed: {
@@ -81,6 +79,9 @@
         token: (state) => state.token,
         isCustomer: (state) => state.isCustomer
       }),
+      configByEntity () {
+        return this.config[this.tabModel]
+      },
       limit: {
         get () {
           return this.currentLimit
@@ -123,12 +124,19 @@
       logMessageConfig () {
         return {
           'item_data': {
+            title: 'item data',
             wrapper: JsonTree,
             data: this.currentData.item_data
           },
           'http_data': {
+            title: 'http data',
             wrapper: JsonTree,
             data: this.currentData.http_data
+          },
+          'current': {
+            title: `${this.currentData.name} [upd:${date.formatDate(this.currentData.updated * 1000, 'HH:mm:ss')}]`,
+            wrapper: JsonTree,
+            data: this.currentData.current
           }
         }
       }
@@ -205,6 +213,9 @@
     created () {
       let localStorageToken = LocalStorage.get.item('X-Flespi-Token')
       if (this.$route.params.token && this.$route.params.id && this.$route.params.type) {
+        if (this.$route.params.fullscreen) {
+          this.isVisibleToolbar = false
+        }
         this.setToken(this.$route.params.token)
         this.$router.push(`/${this.$route.params.type}/${this.$route.params.id}`)
       }

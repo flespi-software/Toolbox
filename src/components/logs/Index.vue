@@ -7,7 +7,7 @@
       :items="messages"
       :date="from"
       :mode="mode"
-      :viewConfig="config"
+      :viewConfig="viewConfig"
       :colsConfigurator="'toolbar'"
       :i18n="i18n"
       :filter="filter"
@@ -38,7 +38,8 @@
 </template>
 
 <script>
-  import { VirtualScrollList } from 'qvirtualscroll'
+  import { VirtualScrollList, logsModule } from 'qvirtualscroll'
+  import Vue from 'vue'
   import LogsListItem from './LogsListItem.vue'
   import { date, LocalStorage } from 'quasar-framework'
   import filterMessages from '../../mixins/filterMessages'
@@ -49,35 +50,18 @@
       'activeId',
       'delay',
       'limit',
-      'moduleName',
-      'originPattern'
+      'originPattern',
+      'config'
     ],
     data () {
       return {
-        theme: {
-          color: 'white',
-          bgColor: 'dark',
-          contentInverted: true,
-          controlsInverted: true
-        },
+        theme: this.config.theme,
         i18n: {
           'Messages not found': 'Log entries not found'
         },
-        config: {
-          needShowFilter: true,
-          needShowMode: false,
-          needShowPageScroll: 'right left',
-          needShowDate: true,
-          needShowEtc: true
-        },
-        actions: [
-          {
-            icon: 'mdi-view-list',
-            label: 'view',
-            classes: '',
-            type: 'view'
-          }
-        ]
+        viewConfig: this.config.viewConfig,
+        actions: this.config.actions,
+        moduleName: this.config.vuexModuleName
       }
     },
     computed: {
@@ -99,7 +83,7 @@
         async set (val) {
           this.$store.commit(`${this.moduleName}/setOrigin`, val)
           this.$store.commit(`${this.moduleName}/clearMessages`)
-          await this.$store.dispatch(`${this.moduleName}/getCols`)
+          this.cols = this.config.cols
           if (this.mode === 0) {
             await this.$store.dispatch(`${this.moduleName}/initTime`)
           }
@@ -257,11 +241,12 @@
       }
     },
     async created () {
+      this.$store.registerModule(this.moduleName, logsModule(this.$store, Vue))
       this.currentLimit = this.limit
       this.currentDelay = this.delay
       if (this.activeId) {
         this.$store.commit(`${this.moduleName}/setOrigin`, this.getOriginByPattern({id: this.activeId}))
-        await this.$store.dispatch(`${this.moduleName}/getCols`)
+        this.cols = this.config.cols
       }
       if (this.$store.state[this.moduleName].mode === null) {
         this.modeChange(this.mode)
@@ -270,6 +255,7 @@
     destroyed () {
       this.$store.commit(`${this.moduleName}/clearTimer`)
       this.$store.commit(`${this.moduleName}/clear`)
+      this.$store.unregisterModule(this.moduleName)
     },
     mixins: [filterMessages],
     components: { VirtualScrollList, LogsListItem }

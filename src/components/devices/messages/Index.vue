@@ -7,7 +7,7 @@
       :items="messages"
       :date="from"
       :mode="mode"
-      :viewConfig="config"
+      :viewConfig="viewConfig"
       :colsConfigurator="'toolbar'"
       :i18n="i18n"
       :filter="filter"
@@ -39,7 +39,8 @@
 </template>
 
 <script>
-  import { VirtualScrollList } from 'qvirtualscroll'
+  import { VirtualScrollList, devicesMessagesModule } from 'qvirtualscroll'
+  import Vue from 'vue'
   import { date, LocalStorage, Toast } from 'quasar-framework'
   import filterMessages from '../../../mixins/filterMessages'
   import MessagesListItem from './MessagesListItem.vue'
@@ -50,39 +51,16 @@
       'activeId',
       'delay',
       'limit',
-      'moduleName'
+      'config'
     ],
     data () {
       return {
         selectedItemKey: null,
-        theme: {
-          color: 'white',
-          bgColor: 'dark',
-          contentInverted: true,
-          controlsInverted: true
-        },
+        theme: this.config.theme,
         i18n: {},
-        config: {
-          needShowFilter: true,
-          needShowMode: false,
-          needShowPageScroll: 'right left',
-          needShowDate: true,
-          needShowEtc: true
-        },
-        actions: [
-          {
-            icon: 'mdi-view-list',
-            label: 'view',
-            classes: '',
-            type: 'view'
-          },
-          {
-            icon: 'mdi-content-copy',
-            label: 'copy',
-            classes: '',
-            type: 'copy'
-          }
-        ]
+        viewConfig: this.config.viewConfig,
+        actions: this.config.actions,
+        moduleName: this.config.vuexModuleName
       }
     },
     computed: {
@@ -282,6 +260,7 @@
       }
     },
     async created () {
+      this.$store.registerModule(this.moduleName, devicesMessagesModule(this.$store, Vue))
       this.currentLimit = this.limit
       this.currentDelay = this.delay
       if (this.activeId) {
@@ -295,6 +274,7 @@
     destroyed () {
       this.$store.commit(`${this.moduleName}/clearTimer`)
       this.$store.commit(`${this.moduleName}/clear`)
+      this.$store.unregisterModule(this.moduleName)
     },
     mixins: [filterMessages],
     components: { VirtualScrollList, MessagesListItem }

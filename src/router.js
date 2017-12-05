@@ -1,11 +1,26 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import config from './config.json'
 
 Vue.use(VueRouter)
 
 function load (component) {
   // '@' is aliased to src/components
   return () => import(`@/${component}.vue`)
+}
+
+function getIndexChildrenRoutes (config) {
+  return Object.keys(config).reduce((result, moduleName) => {
+    result.push({
+      path: moduleName,
+      component: load(`${moduleName}/Index`)
+    })
+    result.push({
+      path: `${moduleName}/:id`,
+      component: load(`${moduleName}/Index`)
+    })
+    return result
+  }, [])
 }
 
 export default new VueRouter({
@@ -25,29 +40,10 @@ export default new VueRouter({
     {
       path: '/',
       component: load('Index'),
-      children: [
-        {
-          path: 'token/:token/type/:type/id/:id',
-          component: load('channels/Index')
-        },
-        {
-          path: 'channels',
-          component: load('channels/Index')
-        },
-        {
-          path: 'channels/:id',
-          component: load('channels/Index')
-        },
-        {
-          path: 'devices',
-          component: load('devices/Index')
-        },
-        {
-          path: 'devices/:id',
-          component: load('devices/Index')
-        }
-      ]
+      children: getIndexChildrenRoutes(config)
     },
+    { path: '/token/:token/type/:type/id/:id', component: load('Index') },
+    { path: '/token/:token/type/:type/id/:id/fullscreen/:fullscreen', component: load('Index') },
     { path: '/login', component: load('Login') },
     { path: '/login/:token', component: load('Login') }
   ]

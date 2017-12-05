@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.0] - 2017-12-06
+[feature] stream logs viewer added
+[feature] full screen flag to router added
+[feature] components rebased for global config
 ### [0.3.0] - 2017-12-01
 [feature] device messages and logs viewer added
 [feature] raw additional info viewer added

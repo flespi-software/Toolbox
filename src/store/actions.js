@@ -15,6 +15,11 @@ async function getItems ({ state, commit }, entity) {
         params = {fields: 'id,name,uri,protocol_name'}
         break
       }
+      case 'streams': {
+        queryString = `${state.server}/registry/streams/all`
+        params = {fields: 'id,name,configuration'}
+        break
+      }
     }
     if (state.token) {
       try {
