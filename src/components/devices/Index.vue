@@ -2,9 +2,8 @@
   <div>
     <div class="text-center" style="display: flex; justify-content: center; font-size: 1.5rem" v-if="!active">
       <div class="text-grey-3" style="margin-top: 50px">
-        Select device
         <q-btn flat style="display: flex; flex-wrap: nowrap; margin-top: 20px" icon-right="mdi-menu-down" v-if="items.length">
-          &lt;Available devices&gt;
+          Select device
           <q-popover fit ref="popoverNotActive">
             <q-list link separator class="scroll">
               <q-item
@@ -21,6 +20,7 @@
             </q-list>
           </q-popover>
         </q-btn>
+        <div v-if="!items.length">Devices is empty</div>
       </div>
     </div>
     <template v-else>
@@ -131,12 +131,8 @@
     methods: {
       settingsClickHandler () {
         Dialog.create({
-          title: 'Settings',
+          title: 'Ratio',
           form: {
-            ratioHeader: {
-              type: 'heading',
-              label: 'Ratio'
-            },
             ratio: {
               type: 'radio',
               model: this.ratio,

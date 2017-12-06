@@ -20,6 +20,11 @@ async function getItems ({ state, commit }, entity) {
         params = {fields: 'id,name,configuration'}
         break
       }
+      case 'modems': {
+        queryString = `${state.server}/gw/modems/all`
+        params = {fields: 'id,name,configuration'}
+        break
+      }
     }
     if (state.token) {
       try {

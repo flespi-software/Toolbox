@@ -1,10 +1,10 @@
 <template>
   <q-layout ref="layout" v-model="sides" view="hHh LpR lFf" :page-style="{background: '#333'}" :right-class="{'bg-dark':true}">
     <q-toolbar slot="header" color="dark" class="header__main-toolbar" v-if="isVisibleToolbar">
-      <q-toolbar-title>
+      <q-toolbar-title style="min-width: 100px">
         <img :src="$q.platform.is.mobile ? 'statics/toolbox_mobile.png':'statics/toolbox50.png'" alt="Track it!" style="height: 30px"> <sup>{{version}}</sup>
       </q-toolbar-title>
-      <q-tabs color="dark" v-model="tabModel">
+      <q-tabs color="dark" v-model="tabModel" :style="{maxWidth: $q.platform.is.mobile ? '45%' : ''}">
         <q-route-tab
           v-for="(moduleConfig, moduleName, index) in config"
           :key="index"
@@ -89,7 +89,7 @@
         set (val) {
           if (val < 100) {
             Toast.create.negative({
-              html: 'Set limit more than 100, please',
+              html: 'Please set the count to more than 100.',
               timeout: 1500
             })
             this.currentLimit = 100
@@ -100,7 +100,7 @@
               leave: 'bounceOutRight',
               color: 'amber-9',
               icon: 'warning',
-              html: `You try set limit count more than 2000. This can affect the operation of your browser. Continue?`,
+              html: `You are setting the row count to more than 2000. This can affect your browser performance. Do you want to continue?`,
               position: 'top-right',
               actions: [
                 {
@@ -168,13 +168,13 @@
           form: {
             delay: {
               type: 'number',
-              label: 'Delay',
+              label: 'Real-time logs refresh time, sec',
               model: this.delay,
               min: 2
             },
             limit: {
               type: 'number',
-              label: 'Limit',
+              label: 'Page row count',
               model: this.limit,
               min: 100
             }

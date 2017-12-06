@@ -3,7 +3,7 @@
     <div v-if="!active" class="text-center" style="display: flex; justify-content: center; font-size: 1.5rem">
       <div class="text-grey-3" style="margin-top: 50px">
         <q-btn flat style="display: flex; flex-wrap: nowrap; margin-top: 20px" icon-right="mdi-menu-down" v-if="items.length">
-          Select stream
+          Select modem
           <q-popover fit ref="popoverNotActive">
             <q-list link separator class="scroll">
               <q-item
@@ -14,7 +14,7 @@
               >
                 <q-item-main>
                   <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name}}<q-tooltip v-if="$q.platform.is.desktop">{{item.name}}</q-tooltip></q-item-tile>
-                  <q-item-tile v-if="item.configuration" sublabel><small>{{item.configuration.protocol}}</small></q-item-tile>
+                  <q-item-tile v-if="item.configuration" sublabel><small>{{item.configuration.source_addr}}</small></q-item-tile>
                   <q-item-tile v-if="item.configuration" sublabel><small>{{item.configuration.uri}}</small></q-item-tile>
                 </q-item-main>
                 <q-item-side class="text-right"><small>#{{item.id.toString()}}</small></q-item-side>
@@ -22,7 +22,7 @@
             </q-list>
           </q-popover>
         </q-btn>
-        <div v-if="!items.length">Streams is empty</div>
+        <div v-if="!items.length">Modems is empty</div>
       </div>
     </div>
     <template v-else>
@@ -43,7 +43,7 @@
               >
                 <q-item-main>
                   <q-item-tile label class="ellipsis overflow-hidden">{{item.name}}</q-item-tile>
-                  <q-item-tile sublabel><small>{{item.configuration.protocol}}</small></q-item-tile>
+                  <q-item-tile sublabel><small>{{item.configuration.source_addr}}</small></q-item-tile>
                   <q-item-tile sublabel><small>{{item.configuration.uri}}</small></q-item-tile>
                 </q-item-main>
                 <q-item-side class="text-right"><small>#{{item.id.toString()}}</small></q-item-side>
@@ -58,7 +58,7 @@
         v-if="isCustomer"
         :mode="mode"
         :activeId="active"
-        originPattern="registry/streams/:id"
+        originPattern="gw/modems/:id"
         :isEnabled="true"
         :delay="delay"
         :config="config.logs"
@@ -116,7 +116,7 @@
       }
     },
     created () {
-      this.$store.dispatch('getItems', 'streams')
+      this.$store.dispatch('getItems', 'modems')
         .then(() => { this.$store.dispatch('getCustomer') })
         .then(() => {
           this.isInit = true
@@ -145,7 +145,7 @@
         }
       },
       active (val) {
-        val ? this.$router.push(`/streams/${val}`) : this.$router.push('/streams')
+        val ? this.$router.push(`/modems/${val}`) : this.$router.push('/modems')
       }
     },
     components: { logs, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip }
@@ -157,4 +157,3 @@
     margin-top: 0;
   }
 </style>
-

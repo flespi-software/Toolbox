@@ -12,6 +12,7 @@
       :i18n="i18n"
       :filter="filter"
       :theme="theme"
+      :title="'Messages'"
       @change:filter="filterChangeHandler"
       @change:pagination-prev="paginationPrevChangeHandler"
       @change:pagination-next="paginationNextChangeHandler"
@@ -67,8 +68,8 @@
       messages: {
         get () {
           let messages = this.$store.state[this.moduleName].messages
-          this.i18n.from = messages.length ? date.formatDate(messages[0].timestamp * 1000, 'HH:mm:ss') : 'Prev'
-          this.i18n.to = messages.length ? date.formatDate(messages[messages.length - 1].timestamp * 1000, 'HH:mm:ss') : 'Next'
+          this.i18n.from = messages.length ? `Previous batch until ${date.formatDate(messages[0].timestamp * 1000, 'HH:mm:ss')}` : 'Prev'
+          this.i18n.to = messages.length ? `Next batch from ${date.formatDate(messages[messages.length - 1].timestamp * 1000, 'HH:mm:ss')}` : 'Next'
           return this.filter && this.mode === 1 ? this.filterMessages(this.filter, messages) : messages
         },
         set (val) {

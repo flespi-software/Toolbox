@@ -308,5 +308,72 @@
         "controlsInverted": true
       }
     }
+  },
+  "modems": {
+    "label": "Modems",
+    "icon": "router",
+    "logs": {
+      "vuexModuleName": "modemsLogs",
+      "cols": [
+        {
+          "name": "timestamp",
+          "width": 100,
+          "display": true,
+          "description": "Log event time"
+        },
+        {
+          "name": "event_code",
+          "title": "event",
+          "width": 450,
+          "display": true,
+          "description": "Log event code and description"
+        },
+        {
+          "name": "source_addr",
+          "width": 100,
+          "display": true,
+          "description": "SMS source address"
+        },
+        {
+          "name": "dest_addr",
+          "width": 100,
+          "display": true,
+          "description": "SMS destination address"
+        },
+        {
+          "name": "text",
+          "width": 150,
+          "display": true,
+          "description": "textual SMS contents"
+        },
+        {
+          "name": "hex",
+          "width": 150,
+          "display": true,
+          "description": "hex representation of binary SMS contents"
+        }
+      ],
+      "actions": [
+        {
+          "icon": "mdi-view-list",
+          "label": "view",
+          "classes": "",
+          "type": "view"
+        }
+      ],
+      "viewConfig": {
+        "needShowFilter": true,
+        "needShowMode": false,
+        "needShowPageScroll": "right left",
+        "needShowDate": true,
+        "needShowEtc": true
+      },
+      "theme": {
+        "color": "white",
+        "bgColor": "dark",
+        "contentInverted": true,
+        "controlsInverted": true
+      }
+    }
   }
 }

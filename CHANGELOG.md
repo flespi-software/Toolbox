@@ -1,5 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.5.0] - 2017-12-06
+[feature] modems logs viewer added
+[feature] empty entities count message added
+[feature] ratio dialog updated
+[feature] info for page scroll controls updated
+[fix] tooltip reuse
 ### [0.4.0] - 2017-12-06
 [feature] stream logs viewer added
 [feature] full screen flag to router added
