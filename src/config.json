@@ -46,16 +46,10 @@
           "description": "Number of bytes sent"
         },
         {
-          "name": "source",
-          "width": 150,
-          "display": true,
-          "description": "Connected device's address"
-        },
-        {
           "name": "host",
           "width": 150,
           "display": true,
-          "description": "IP address from which HTTP request was received"
+          "description": "Connected device's address (source) or IP address from which HTTP request was received (host)"
         },
         {
           "name": "duration",

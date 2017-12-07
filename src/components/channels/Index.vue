@@ -22,7 +22,7 @@
               </q-list>
             </q-popover>
           </q-btn>
-          <div v-if="!items.length">Channels is empty</div>
+          <div v-if="!items.length">Channels not found</div>
         </div>
       </div>
     </template>
@@ -30,7 +30,7 @@
       <q-toolbar color="dark">
         <q-item class="no-padding" style="max-width: 50%">
           <q-item-main>
-            <q-tooltip><small>{{selectedItem.protocol_name}}</small></q-tooltip>
+            <q-tooltip><small>protocol: {{selectedItem.protocol_name}}</small></q-tooltip>
             <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name}}</q-item-tile>
             <q-item-tile sublabel style="font-size: 0.8rem">{{selectedItem.uri}}</q-item-tile>
           </q-item-main>
@@ -52,7 +52,10 @@
             </q-list>
           </q-popover>
         </q-item>
-        <q-btn flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'">{{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}</q-btn>
+        <q-btn flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'" :rounded="$q.platform.is.mobile">
+          <q-tooltip>Mode (Real-time/History)</q-tooltip>
+          {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
+        </q-btn>
         <q-icon v-if="isCustomer" size="1.5rem" style="position: absolute;right: 0;" class="on-left cursor-pointer" name="mdi-format-align-middle" @click="settingsClickHandler"/>
       </q-toolbar>
       <logs

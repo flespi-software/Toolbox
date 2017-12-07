@@ -22,7 +22,7 @@
             </q-list>
           </q-popover>
         </q-btn>
-        <div v-if="!items.length">Streams is empty</div>
+        <div v-if="!items.length">Streams not found</div>
       </div>
     </div>
     <template v-else>
@@ -51,7 +51,10 @@
             </q-list>
           </q-popover>
         </q-item>
-        <q-btn flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'">{{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}</q-btn>
+        <q-btn flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
+          <q-tooltip>Mode (Real-time/History)</q-tooltip>
+          {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
+        </q-btn>
       </q-toolbar>
       <logs
         ref="logs"

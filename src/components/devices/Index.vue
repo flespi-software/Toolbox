@@ -20,7 +20,7 @@
             </q-list>
           </q-popover>
         </q-btn>
-        <div v-if="!items.length">Devices is empty</div>
+        <div v-if="!items.length">Devices not found</div>
       </div>
     </div>
     <template v-else>
@@ -47,7 +47,10 @@
             </q-list>
           </q-popover>
         </q-item>
-        <q-btn flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'">{{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}</q-btn>
+        <q-btn flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
+          <q-tooltip>Mode (Real-time/History)</q-tooltip>
+          {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
+        </q-btn>
         <q-icon v-if="isCustomer" size="1.5rem" style="position: absolute;right: 0;" class="on-left cursor-pointer" name="mdi-format-align-middle" @click="settingsClickHandler"/>
       </q-toolbar>
       <logs

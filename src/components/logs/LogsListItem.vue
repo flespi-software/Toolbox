@@ -6,7 +6,7 @@
       </q-icon>
     </span>
     <span v-for="(prop, k) in cols" :key="prop.name + k" class="list__item" :class="{[`item_${k}`]: true}">
-      <q-tooltip>{{getValueOfProp(prop)}}</q-tooltip>
+      <!--<q-tooltip>{{getValueOfProp(prop)}}</q-tooltip>-->
       <a target="_blank" :class="[color]" :href="eventLinkMore" v-if="prop.name === 'event_code'"><q-icon name="mdi-information-outline"/></a>
       {{getValueOfProp(prop)}}
       <q-icon name="mdi-alert-circle-outline" v-if="prop.name === 'event_code' && !!item['error_text']"><q-tooltip>{{item['error_text']}}</q-tooltip></q-icon>
@@ -34,7 +34,7 @@
       etc () {
         let etcKeys = Object.keys(this.item).filter(key => !this.hasInCols(key))
         return etcKeys.reduce((acc, key) => {
-          if (key === 'event_origin' || key === 'event_text' || key === 'item_data' || key === 'error_text' || key === 'close_code' || key === 'http_data' || key === 'current' || key === 'updated' || key === 'error_code' || key === 'smpp_code') { return acc }
+          if (key === 'event_origin' || key === 'event_text' || key === 'item_data' || key === 'source' || key === 'error_text' || key === 'close_code' || key === 'http_data' || key === 'current' || key === 'updated' || key === 'error_code' || key === 'smpp_code') { return acc }
           acc += `${key}: ${JSON.stringify(this.item[key])}; `
           return acc
         }, '') || '*Empty*'
@@ -170,6 +170,9 @@
         }
         if (prop.name === 'timestamp') {
           res = date.formatDate(this.item[prop.name] * 1000, 'HH:mm:ss')
+        }
+        if (prop.name === 'host') {
+          res = this.item['host'] || this.item['source'] || ''
         }
         return res
       }

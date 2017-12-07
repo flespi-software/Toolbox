@@ -5,7 +5,7 @@
       <q-item-main>
         <q-item-tile label class="ellipsis text-bold text-white">Message</q-item-tile>
       </q-item-main>
-      <q-item-side right><q-icon color="white" class="pull-right cursor-pointer" name="arrow_forward" @click="$emit('close')" size="1.8rem" /></q-item-side>
+      <q-item-side right><q-icon color="white" class="pull-right cursor-pointer" name="mdi-close" @click="$emit('close')" size="1.8rem" /></q-item-side>
     </q-item>
     <q-item>
       <q-item-main>

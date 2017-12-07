@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.5.1] - 2017-12-07
+[feature] confirm for exit added
+[feature] some messages for user updated
 ### [0.5.0] - 2017-12-06
 [feature] modems logs viewer added
 [feature] empty entities count message added

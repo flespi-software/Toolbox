@@ -17,7 +17,7 @@
         />
       </q-tabs>
       <q-btn @click="settingsHandler" small flat round icon="mdi-settings"/>
-      <q-btn @click="exitHandler" small  flat round icon="mdi-exit-to-app"/>
+      <q-btn @click="confirmExitHandler" small  flat round icon="mdi-exit-to-app"/>
     </q-toolbar>
     <object-viewer
       slot="right"
@@ -146,7 +146,7 @@
         'setToken',
         'clearToken'
       ]),
-      exitHandler (e) {
+      exitHandler () {
         this.clearToken()
         this.$router.push('/login')
       },
@@ -161,6 +161,23 @@
       hideRightHandler () {
         this.hideRight()
         this.$refs.main.unselect()
+      },
+      confirmExitHandler () {
+        Dialog.create({
+          title: 'Confirm',
+          message: 'Do you really want to exit?',
+          buttons: [
+            {
+              label: 'No'
+            },
+            {
+              label: 'Yes',
+              handler: () => {
+                this.exitHandler()
+              }
+            }
+          ]
+        })
       },
       settingsHandler () {
         Dialog.create({
