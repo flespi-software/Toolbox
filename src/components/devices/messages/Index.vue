@@ -34,6 +34,7 @@
          :actionsVisible="actionsVisible"
          :selected="`${JSON.stringify(item)}${index}` === selectedItemKey"
          @action="actionHandler"
+         @item-click="viewMessagesHandler"
       />
     </virtual-scroll-list>
   </div>
@@ -86,8 +87,11 @@
           await this.$store.dispatch(`${this.moduleName}/getCols`)
           if (this.mode === 0) {
             await this.$store.dispatch(`${this.moduleName}/initTime`)
+            await this.$store.dispatch(`${this.moduleName}/get`)
           }
-          await this.$store.dispatch(`${this.moduleName}/get`)
+          else if (this.mode === 1) {
+            this.$store.dispatch(`${this.moduleName}/pollingGet`)
+          }
         }
       },
       currentDelay: {

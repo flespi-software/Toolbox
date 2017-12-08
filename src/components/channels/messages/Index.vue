@@ -30,6 +30,7 @@
         :actionsVisible="actionsVisible"
         :selected="`${JSON.stringify(item)}${index}` === selectedItemKey"
         @action="actionHandler"
+        @item-click="viewMessagesHandler"
       />
     </virtual-scroll-list>
   </div>

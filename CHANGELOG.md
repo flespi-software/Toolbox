@@ -1,5 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.5.2] - 2017-12-08
+[feature] toast if raw additional info viewer hasn`t data
+[feature] limited history in real-time mode added
+[feature] handling click by item list added (view action removed from action list)
+[feature] login page updated
 ### [0.5.1] - 2017-12-07
 [feature] confirm for exit added
 [feature] some messages for user updated

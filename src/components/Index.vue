@@ -122,23 +122,27 @@
         }
       },
       logMessageConfig () {
-        return {
-          'item_data': {
-            title: 'item data',
-            wrapper: JsonTree,
-            data: this.currentData.item_data
+        let config = {
+            'item_data': {
+              title: 'item data',
+              wrapper: JsonTree,
+              data: this.currentData.item_data
+            },
+            'http_data': {
+              title: 'http data',
+              wrapper: JsonTree,
+              data: this.currentData.http_data
+            },
+            'current': {
+              title: `${this.currentData.name} [upd:${date.formatDate(this.currentData.updated * 1000, 'HH:mm:ss')}]`,
+              wrapper: JsonTree,
+              data: this.currentData.current
+            }
           },
-          'http_data': {
-            title: 'http data',
-            wrapper: JsonTree,
-            data: this.currentData.http_data
-          },
-          'current': {
-            title: `${this.currentData.name} [upd:${date.formatDate(this.currentData.updated * 1000, 'HH:mm:ss')}]`,
-            wrapper: JsonTree,
-            data: this.currentData.current
-          }
-        }
+          hasData = Object.keys(config).reduce((result, key) => {
+            return result || !!config[key].data
+          }, false)
+        return hasData ? config : hasData
       }
     },
     methods: {
@@ -210,8 +214,16 @@
       },
       viewLogMessagesHandler (content) {
         this.currentData = JSON.parse(JSON.stringify(content))
-        this.rawConfig = this.logMessageConfig
-        this.$refs.rawViewer.open()
+        if (this.logMessageConfig) {
+          this.rawConfig = this.logMessageConfig
+          this.$refs.rawViewer.open()
+        }
+        else {
+          Toast.create({
+            html: 'No additional data available',
+            timeout: 1500
+          })
+        }
       }
     },
     watch: {

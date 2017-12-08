@@ -33,6 +33,7 @@
           :etcVisible="etcVisible"
           :actionsVisible="actionsVisible"
           @action="actionHandler"
+          @item-click="viewMessagesHandler"
       />
     </virtual-scroll-list>
   </div>
@@ -78,17 +79,20 @@
         }
       },
       origin: {
-        get () {
-          return this.$store.state[this.moduleName].origin
-        },
         async set (val) {
           this.$store.commit(`${this.moduleName}/setOrigin`, val)
           this.$store.commit(`${this.moduleName}/clearMessages`)
           this.cols = this.config.cols
           if (this.mode === 0) {
             await this.$store.dispatch(`${this.moduleName}/initTime`)
+            await this.$store.dispatch(`${this.moduleName}/get`)
           }
-          await this.$store.dispatch(`${this.moduleName}/get`)
+          else if (this.mode === 1) {
+            this.$store.dispatch(`${this.moduleName}/pollingGet`)
+          }
+        },
+        get () {
+          return this.$store.state[this.moduleName].origin
         }
       },
       currentDelay: {

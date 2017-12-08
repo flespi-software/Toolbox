@@ -1,7 +1,10 @@
 <template>
-  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}" :class="[color]">
+  <div
+    class="cursor-pointer"
+    :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, borderBottom: item.delimiter ? 'solid 1px #f40' : ''}" :class="[color]"
+    @click="itemClickHandler(index, item)">
     <span class="list__item item_actions text-white" v-if="actionsVisible">
-      <q-icon v-for="(action, i) in actions" :key="i" @click="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
+      <q-icon v-for="(action, i) in actions" :key="i" @click.stop="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
         <q-tooltip>{{action.label}}</q-tooltip>
       </q-icon>
     </span>
@@ -34,7 +37,7 @@
       etc () {
         let etcKeys = Object.keys(this.item).filter(key => !this.hasInCols(key))
         return etcKeys.reduce((acc, key) => {
-          if (key === 'event_origin' || key === 'event_text' || key === 'item_data' || key === 'source' || key === 'error_text' || key === 'close_code' || key === 'http_data' || key === 'current' || key === 'updated' || key === 'error_code' || key === 'smpp_code') { return acc }
+          if (key === 'delimiter' || key === 'event_origin' || key === 'event_text' || key === 'item_data' || key === 'source' || key === 'error_text' || key === 'close_code' || key === 'http_data' || key === 'current' || key === 'updated' || key === 'error_code' || key === 'smpp_code') { return acc }
           acc += `${key}: ${JSON.stringify(this.item[key])}; `
           return acc
         }, '') || '*Empty*'
@@ -175,6 +178,9 @@
           res = this.item['host'] || this.item['source'] || ''
         }
         return res
+      },
+      itemClickHandler (index, content) {
+        this.$emit(`item-click`, {index, content})
       }
     },
     components: {QTooltip, QIcon}

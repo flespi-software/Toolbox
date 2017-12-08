@@ -64,14 +64,7 @@
           "description": "Connected device's transport: tcp, udp, http etc"
         }
       ],
-      "actions": [
-        {
-          "icon": "mdi-view-list",
-          "label": "view",
-          "classes": "",
-          "type": "view"
-        }
-      ],
+      "actions": [],
       "viewConfig": {
         "needShowFilter": true,
         "needShowMode": false,
@@ -89,12 +82,6 @@
     "messages": {
       "vuexModuleName": "channelsMessages",
       "actions": [
-        {
-          "icon": "mdi-view-list",
-          "label": "view",
-          "classes": "",
-          "type": "view"
-        },
         {
           "icon": "mdi-content-copy",
           "label": "copy",
@@ -194,14 +181,7 @@
           "description": "Connected device's transport: tcp, udp, http etc"
         }
       ],
-      "actions": [
-        {
-          "icon": "mdi-view-list",
-          "label": "view",
-          "classes": "",
-          "type": "view"
-        }
-      ],
+      "actions": [],
       "viewConfig": {
         "needShowFilter": true,
         "needShowMode": false,
@@ -219,12 +199,6 @@
     "messages": {
       "vuexModuleName": "devicesMessages",
       "actions": [
-        {
-          "icon": "mdi-view-list",
-          "label": "view",
-          "classes": "",
-          "type": "view"
-        },
         {
           "icon": "mdi-content-copy",
           "label": "copy",
@@ -280,14 +254,7 @@
           "description": "IP address from which HTTP request was received"
         }
       ],
-      "actions": [
-        {
-          "icon": "mdi-view-list",
-          "label": "view",
-          "classes": "",
-          "type": "view"
-        }
-      ],
+      "actions": [],
       "viewConfig": {
         "needShowFilter": true,
         "needShowMode": false,
@@ -347,14 +314,7 @@
           "description": "hex representation of binary SMS contents"
         }
       ],
-      "actions": [
-        {
-          "icon": "mdi-view-list",
-          "label": "view",
-          "classes": "",
-          "type": "view"
-        }
-      ],
+      "actions": [],
       "viewConfig": {
         "needShowFilter": true,
         "needShowMode": false,
