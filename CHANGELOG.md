@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.5.3] - 2017-12-08
+[feature] expanded deploy command
+[feature] title added to item list
+[feature] tooltips for some buttons
 ### [0.5.2] - 2017-12-08
 [feature] toast if raw additional info viewer hasn`t data
 [feature] limited history in real-time mode added

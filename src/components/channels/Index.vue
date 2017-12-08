@@ -56,7 +56,9 @@
           <q-tooltip>Mode (Real-time/History)</q-tooltip>
           {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
         </q-btn>
-        <q-icon v-if="isCustomer" size="1.5rem" style="position: absolute;right: 0;" class="on-left cursor-pointer" name="mdi-format-align-middle" @click="settingsClickHandler"/>
+        <q-icon v-if="isCustomer" size="1.5rem" style="position: absolute;right: 0;" class="on-left cursor-pointer" name="mdi-format-align-middle" @click="settingsClickHandler">
+          <q-tooltip>Section ratio</q-tooltip>
+        </q-icon>
       </q-toolbar>
       <logs
         ref="logs"
