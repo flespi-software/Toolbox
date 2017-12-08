@@ -8,7 +8,7 @@
         <q-tooltip>{{action.label}}</q-tooltip>
       </q-icon>
     </span>
-    <span v-for="(prop, k) in cols" :key="prop.name + k" class="list__item" :class="{[`item_${k}`]: true}">
+    <span v-for="(prop, k) in cols" :key="prop.name + k" class="list__item" :class="{[`item_${k}`]: true}" :title="JSON.stringify(getValueOfProp(prop))">
       <!--<q-tooltip>{{getValueOfProp(prop)}}</q-tooltip>-->
       <a target="_blank" :class="[color]" :href="eventLinkMore" v-if="prop.name === 'event_code'"><q-icon name="mdi-information-outline"/></a>
       {{getValueOfProp(prop)}}

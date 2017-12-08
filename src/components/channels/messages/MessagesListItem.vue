@@ -8,7 +8,7 @@
         <q-tooltip>{{action.label}}</q-tooltip>
       </q-icon>
     </span>
-    <span v-for="(prop, k) in cols" :key="prop.name + k" class="list__item" :class="{[`item_${k}`]: true}">
+    <span v-for="(prop, k) in cols" :key="prop.name + k" class="list__item" :class="{[`item_${k}`]: true}" :title="JSON.stringify(values[prop.name].value)">
       <!--<q-tooltip>{{values[prop.name].value}}</q-tooltip>-->
       {{values[prop.name].value}}
     </span>
