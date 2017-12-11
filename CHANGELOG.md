@@ -1,5 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.6.0] - 2017-12-11
+[feature] abques logs viewer added
+[feature] containers logs viewer added
+[feature] last active entity saved to localeStorage
+[fix] main tabs view 
 ### [0.5.4] - 2017-12-11
 [feature] header tabs rebased to select
 [fix] build for prod

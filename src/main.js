@@ -6,14 +6,6 @@
 require(`quasar/dist/quasar.${__THEME}.css`)
 // ==============================
 
-// check for pfornt SERVER
-window._SERVER = SERVER
-if (PROD && SERVER) {
-  if (window.location.host.indexOf('localhost:9004') !== -1 || window.location.host.indexOf('localhost:9005') !== -1) {
-    window._SERVER = ''
-  }
-}
-
 // Uncomment the following lines if you need IE11/Edge support
 // require(`quasar/dist/quasar.ie`)
 // require(`quasar/dist/quasar.ie.${__THEME}.css`)
@@ -22,6 +14,15 @@ import Vue from 'vue'
 import Quasar from 'quasar'
 import router from './router'
 import VueClipboard from 'vue-clipboard2'
+
+// check for pfornt SERVER
+Vue.config.flespiServer = SERVER
+if (PROD && SERVER) {
+  if (window.location.host.indexOf('localhost:9004') !== -1 || window.location.host.indexOf('localhost:9005') !== -1) {
+    Vue.config.flespiServer = ''
+  }
+}
+
 let store = require('./store/index').default
 
 Vue.use(VueClipboard)

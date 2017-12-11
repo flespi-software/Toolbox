@@ -166,6 +166,7 @@
       }
     },
     created () {
+      let activeFromLocaleStorage = LocalStorage.get.item('devices')
       this.$store.dispatch('getItems', 'devices')
         .then(() => { this.$store.dispatch('getCustomer') })
         .then(() => {
@@ -177,6 +178,9 @@
             else {
               this.active = null
             }
+          }
+          else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
+            this.active = activeFromLocaleStorage
           }
         })
     },
@@ -217,7 +221,10 @@
         }
       }
     },
-    components: { logs, messages, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip }
+    components: { logs, messages, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip },
+    destroyed () {
+      LocalStorage.set('devices', this.active)
+    }
   }
 </script>
 <style>

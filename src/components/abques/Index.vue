@@ -3,7 +3,7 @@
     <div v-if="!active" class="text-center" style="display: flex; justify-content: center; font-size: 1.5rem">
       <div class="text-grey-3" style="margin-top: 50px">
         <q-btn flat style="display: flex; flex-wrap: nowrap; margin-top: 20px" icon-right="mdi-menu-down" v-if="items.length">
-          Select stream
+          Select abque
           <q-popover fit ref="popoverNotActive">
             <q-list link separator class="scroll">
               <q-item
@@ -14,24 +14,21 @@
               >
                 <q-item-main>
                   <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name}}<q-tooltip v-if="$q.platform.is.desktop">{{item.name}}</q-tooltip></q-item-tile>
-                  <q-item-tile v-if="item.configuration" sublabel><small>{{item.configuration.protocol}}</small></q-item-tile>
-                  <q-item-tile v-if="item.configuration" sublabel><small>{{item.configuration.uri}}</small></q-item-tile>
                 </q-item-main>
                 <q-item-side class="text-right"><small>#{{item.id.toString()}}</small></q-item-side>
               </q-item>
             </q-list>
           </q-popover>
         </q-btn>
-        <div v-if="!items.length">Streams not found</div>
+        <div v-if="!items.length">Abques not found</div>
       </div>
     </div>
     <template v-else>
       <q-toolbar slot="header" color="dark">
         <q-item class="no-padding" style="max-width: 50%">
           <q-item-main>
-            <q-tooltip><small>{{selectedItem.configuration.protocol}}</small></q-tooltip>
             <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name}}</q-item-tile>
-            <q-item-tile sublabel style="font-size: 0.8rem">{{selectedItem.configuration.uri}}</q-item-tile>
+            <q-item-tile sublabel style="font-size: 0.8rem">{{selectedItem.id}}</q-item-tile>
           </q-item-main>
           <q-item-side class="text-right"><q-icon color="white" size="2rem" name="mdi-menu-down" /></q-item-side>
           <q-popover fit ref="popoverActive">
@@ -43,8 +40,6 @@
               >
                 <q-item-main>
                   <q-item-tile label class="ellipsis overflow-hidden">{{item.name}}</q-item-tile>
-                  <q-item-tile sublabel><small>{{item.configuration.protocol}}</small></q-item-tile>
-                  <q-item-tile sublabel><small>{{item.configuration.uri}}</small></q-item-tile>
                 </q-item-main>
                 <q-item-side class="text-right"><small>#{{item.id.toString()}}</small></q-item-side>
               </q-item>
@@ -61,7 +56,7 @@
         v-if="isCustomer"
         :mode="mode"
         :activeId="active"
-        originPattern="registry/streams/:id"
+        originPattern="storage/abques/:id"
         :isEnabled="true"
         :delay="delay"
         :config="config.logs"
@@ -119,8 +114,8 @@
       }
     },
     created () {
-      let activeFromLocaleStorage = LocalStorage.get.item('streams')
-      this.$store.dispatch('getItems', 'streams')
+      let activeFromLocaleStorage = LocalStorage.get.item('abques')
+      this.$store.dispatch('getItems', 'abques')
         .then(() => { this.$store.dispatch('getCustomer') })
         .then(() => {
           this.isInit = true
@@ -152,12 +147,12 @@
         }
       },
       active (val) {
-        val ? this.$router.push(`/streams/${val}`) : this.$router.push('/streams')
+        val ? this.$router.push(`/abques/${val}`) : this.$router.push('/abques')
       }
     },
     components: { logs, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip },
     destroyed () {
-      LocalStorage.set('streams', this.active)
+      LocalStorage.set('abques', this.active)
     }
   }
 </script>
@@ -167,4 +162,3 @@
     margin-top: 0;
   }
 </style>
-

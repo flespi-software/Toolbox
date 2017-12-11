@@ -119,6 +119,7 @@
       }
     },
     created () {
+      let activeFromLocaleStorage = LocalStorage.get.item('modems')
       this.$store.dispatch('getItems', 'modems')
         .then(() => { this.$store.dispatch('getCustomer') })
         .then(() => {
@@ -130,6 +131,9 @@
             else {
               this.active = null
             }
+          }
+          else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
+            this.active = activeFromLocaleStorage
           }
         })
     },
@@ -151,7 +155,10 @@
         val ? this.$router.push(`/modems/${val}`) : this.$router.push('/modems')
       }
     },
-    components: { logs, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip }
+    components: { logs, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip },
+    destroyed () {
+      LocalStorage.set('modems', this.active)
+    }
   }
 </script>
 <style>

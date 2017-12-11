@@ -329,5 +329,89 @@
         "controlsInverted": true
       }
     }
+  },
+  "containers": {
+    "label": "Containers",
+    "icon": "mdi-featured-play-list",
+    "logs": {
+      "vuexModuleName": "containersLogs",
+      "cols": [
+        {
+          "name": "timestamp",
+          "width": 100,
+          "display": true,
+          "description": "Log event time"
+        },
+        {
+          "name": "event_code",
+          "title": "event",
+          "width": 450,
+          "display": true,
+          "description": "Log event code and description"
+        },
+        {
+          "name": "host",
+          "width": 80,
+          "display": true,
+          "description": "IP address from which HTTP request was received"
+        }
+      ],
+      "actions": [],
+      "viewConfig": {
+        "needShowFilter": true,
+        "needShowMode": false,
+        "needShowPageScroll": "right left",
+        "needShowDate": true,
+        "needShowEtc": true
+      },
+      "theme": {
+        "color": "white",
+        "bgColor": "dark",
+        "contentInverted": true,
+        "controlsInverted": true
+      }
+    }
+  },
+  "abques": {
+    "label": "Abques",
+    "icon": "reorder",
+    "logs": {
+      "vuexModuleName": "abquesLogs",
+      "cols": [
+        {
+          "name": "timestamp",
+          "width": 100,
+          "display": true,
+          "description": "Log event time"
+        },
+        {
+          "name": "event_code",
+          "title": "event",
+          "width": 450,
+          "display": true,
+          "description": "Log event code and description"
+        },
+        {
+          "name": "host",
+          "width": 80,
+          "display": true,
+          "description": "IP address from which HTTP request was received"
+        }
+      ],
+      "actions": [],
+      "viewConfig": {
+        "needShowFilter": true,
+        "needShowMode": false,
+        "needShowPageScroll": "right left",
+        "needShowDate": true,
+        "needShowEtc": true
+      },
+      "theme": {
+        "color": "white",
+        "bgColor": "dark",
+        "contentInverted": true,
+        "controlsInverted": true
+      }
+    }
   }
 }

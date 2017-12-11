@@ -25,6 +25,16 @@ async function getItems ({ state, commit }, entity) {
         params = {fields: 'id,name,configuration'}
         break
       }
+      case 'containers': {
+        queryString = `${state.server}/storage/containers/all`
+        params = {fields: 'id,name'}
+        break
+      }
+      case 'abques': {
+        queryString = `${state.server}/storage/abques/all`
+        params = {fields: 'id,name'}
+        break
+      }
     }
     if (state.token) {
       try {

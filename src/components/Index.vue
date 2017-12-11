@@ -1,18 +1,17 @@
 <template>
   <q-layout ref="layout" v-model="sides" view="hHh LpR lFf" :page-style="{background: '#333'}" :right-class="{'bg-dark':true}">
     <q-toolbar slot="header" color="dark" class="header__main-toolbar" v-if="isVisibleToolbar">
-      <q-toolbar-title style="min-width: 100px">
+      <q-toolbar-title :style="{minWidth: $q.platform.is.mobile ? '100px' : '210px'}">
         <img :src="$q.platform.is.mobile ? 'statics/toolbox_mobile.png':'statics/toolbox50.png'" alt="Track it!" style="height: 30px"> <sup>{{version}}</sup>
       </q-toolbar-title>
-      <q-tabs color="dark" v-model="tabModel" :style="{maxWidth: $q.platform.is.mobile ? '45%' : ''}" v-if="$q.platform.is.desktop">
+      <q-tabs color="dark" v-model="tabModel" :style="{maxWidth: 'calc(100% - 270px)'}" v-if="$q.platform.is.desktop">
         <q-route-tab
           v-for="(moduleConfig, moduleName, index) in config"
           :key="index"
           slot="title"
           :name="`${moduleName}`"
-          :label="$q.platform.is.desktop ? moduleConfig.label : ''"
+          :label="moduleConfig.label"
           hide="label"
-          :icon="$q.platform.is.mobile ? moduleConfig.icon : ''"
           :to="`/${moduleName}`"
         />
       </q-tabs>
@@ -20,7 +19,7 @@
         <q-item style="padding-left: 0; padding-right: 0">
           <q-item-side :icon="configByEntity.icon" style="min-width: 20px" color="white"/>
           <q-item-main>
-            <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{configByEntity.label}}</q-item-tile>
+            <q-item-tile label class="ellipsis overflow-hidden">{{configByEntity.label}}</q-item-tile>
           </q-item-main>
           <q-item-side right icon="mdi-menu-down" style="min-width: 20px; margin-left: 10px" color="white"/>
         </q-item>

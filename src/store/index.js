@@ -11,7 +11,7 @@ Vue.use(Vuex)
 
 let state = {
   token: '',
-  server: window._SERVER,
+  server: Vue.config.flespiServer,
   items: [],
   offline: false,
   isCustomer: false

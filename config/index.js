@@ -66,6 +66,11 @@ module.exports = {
         target: 'https://localhost:9005',
         changeOrigin: true,
         secure: false
+      },
+      '/storage': {
+        target: 'https://localhost:9005',
+        changeOrigin: true,
+        secure: false
       }
     }
   }
