@@ -4,7 +4,7 @@
       <q-toolbar-title style="min-width: 100px">
         <img :src="$q.platform.is.mobile ? 'statics/toolbox_mobile.png':'statics/toolbox50.png'" alt="Track it!" style="height: 30px"> <sup>{{version}}</sup>
       </q-toolbar-title>
-      <q-tabs color="dark" v-model="tabModel" :style="{maxWidth: $q.platform.is.mobile ? '45%' : ''}">
+      <q-tabs color="dark" v-model="tabModel" :style="{maxWidth: $q.platform.is.mobile ? '45%' : ''}" v-if="$q.platform.is.desktop">
         <q-route-tab
           v-for="(moduleConfig, moduleName, index) in config"
           :key="index"
@@ -16,6 +16,31 @@
           :to="`/${moduleName}`"
         />
       </q-tabs>
+      <q-btn flat style="display: flex; flex-wrap: nowrap; width: 50%" v-if="$q.platform.is.mobile">
+        <q-item style="padding-left: 0; padding-right: 0">
+          <q-item-side :icon="configByEntity.icon" style="min-width: 20px" color="white"/>
+          <q-item-main>
+            <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{configByEntity.label}}</q-item-tile>
+          </q-item-main>
+          <q-item-side right icon="mdi-menu-down" style="min-width: 20px; margin-left: 10px" color="white"/>
+        </q-item>
+        <q-popover fit ref="popoverTab">
+          <q-list link separator class="scroll">
+            <q-item
+              v-for="(moduleConfig, moduleName, index) in config"
+              :key="index"
+              :to="`/${moduleName}`"
+            >
+              <q-item style="padding: 0" @click="tabModel = moduleName, $refs.popoverTab.close()">
+                <q-item-side :icon="moduleConfig.icon"/>
+                <q-item-main>
+                  <q-item-tile label>{{moduleName}}</q-item-tile>
+                </q-item-main>
+              </q-item>
+            </q-item>
+          </q-list>
+        </q-popover>
+      </q-btn>
       <q-btn @click="settingsHandler" small flat round icon="mdi-settings"/>
       <q-btn @click="confirmExitHandler" small  flat round icon="mdi-exit-to-app"/>
     </q-toolbar>
@@ -46,7 +71,7 @@
 </template>
 
 <script>
-  import { QLayout, QToolbar, QToolbarTitle, QBtn, QIcon, QTabs, QRouteTab, LocalStorage, Dialog, Toast, Alert, date } from 'quasar-framework'
+  import { QLayout, QToolbar, QToolbarTitle, QBtn, QIcon, QTabs, QRouteTab, LocalStorage, Dialog, Toast, Alert, date, QItem, QItemMain, QItemTile, QItemSide, QPopover, QList } from 'quasar-framework'
   import config from '../config.json'
   import 'quasar-extras/animate/bounceInRight.css'
   import 'quasar-extras/animate/bounceOutRight.css'
@@ -263,7 +288,7 @@
         }
       }
     },
-    components: { QLayout, QToolbar, QToolbarTitle, QBtn, QIcon, QTabs, QRouteTab, ObjectViewer, RawViewer }
+    components: { QLayout, QToolbar, QToolbarTitle, QBtn, QIcon, QTabs, QRouteTab, ObjectViewer, RawViewer, QItem, QItemMain, QItemTile, QItemSide, QPopover, QList }
   }
 </script>
 

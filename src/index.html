@@ -28,7 +28,7 @@
           if (file.match(/\.(js|css)$/)) { %>
     <link rel="<%= chunk.initial?'preload':'prefetch' %>" href="<%= htmlWebpackPlugin.files.publicPath + file %>" as="<%= file.match(/\.css$/)?'style':'script' %>"><% }}} %>
     <script>
-      if (window.location.href.indexOf('toolbox.flespi.io') !== -1 || window.location.href.indexOf('flespi-software.github.io/Toolbox') !== -1) {
+      if (window.location.href.indexOf('flespi.io') !== -1 || window.location.href.indexOf('flespi-software.github.io/Toolbox') !== -1) {
         (function (i, s, o, g, r, a, m) {
           i['GoogleAnalyticsObject'] = r;
           i[r] = i[r] || function () {
