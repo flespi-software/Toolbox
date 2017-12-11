@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.5.4] - 2017-12-11
+[feature] header tabs rebased to select
+[fix] build for prod
+[fix] analytics
 ### [0.5.3] - 2017-12-08
 [feature] expanded deploy command
 [feature] title added to item list

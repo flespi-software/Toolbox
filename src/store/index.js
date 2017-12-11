@@ -11,7 +11,7 @@ Vue.use(Vuex)
 
 let state = {
   token: '',
-  server: SERVER,
+  server: window._SERVER,
   items: [],
   offline: false,
   isCustomer: false

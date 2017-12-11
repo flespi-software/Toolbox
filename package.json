@@ -1,6 +1,6 @@
 {
   "name": "ToolboX",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "ToolboX",
   "author": "Siarhei Buntsevich",
   "scripts": {
@@ -10,7 +10,7 @@
     "build": "node build/script.build.js mat flespi",
     "build_local": "node build/script.build.js",
     "lint": "eslint --ext .js,.vue src",
-    "deploy": "npm run build && rm -rf deploy && mkdir deploy && cp -R dist/* misc CNAME LICENSE package.json deploy && cp README.md deploy/README.md && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rhttps://sebu@git.gurtam.net/flespi/frontend/toolbox.git && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rhttps://github.com/flespi-software/Toolbox.git && rm -rf deploy"
+    "deploy": "npm run build && rm -rf deploy && mkdir deploy && cp -R dist/* misc CNAME LICENSE package.json deploy && cp README.md deploy/README.md && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages && && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rhttps://github.com/flespi-software/Toolbox.git && rm -rf deploy"
   },
   "dependencies": {
     "babel-runtime": "^6.25.0",
