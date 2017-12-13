@@ -246,7 +246,13 @@
       }
     },
     async created () {
-      this.$store.registerModule(this.moduleName, logsModule(this.$store, Vue))
+      if (!this.$store.state[this.moduleName]) {
+        this.$store.registerModule(this.moduleName, logsModule(this.$store, Vue))
+      }
+      else {
+        this.$store.commit(`${this.moduleName}/clearTimer`)
+        this.$store.commit(`${this.moduleName}/clear`)
+      }
       this.currentLimit = this.limit
       this.currentDelay = this.delay
       if (this.activeId) {
@@ -260,7 +266,6 @@
     destroyed () {
       this.$store.commit(`${this.moduleName}/clearTimer`)
       this.$store.commit(`${this.moduleName}/clear`)
-      this.$store.unregisterModule(this.moduleName)
     },
     mixins: [filterMessages],
     components: { VirtualScrollList, LogsListItem }

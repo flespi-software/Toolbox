@@ -207,7 +207,12 @@
       }
     },
     async created () {
-      this.$store.registerModule(this.moduleName, channelsMessagesModule(this.$store, Vue))
+      if (!this.$store.state[this.moduleName]) {
+        this.$store.registerModule(this.moduleName, channelsMessagesModule(this.$store, Vue))
+      }
+      else {
+        this.$store.commit(`${this.moduleName}/clear`)
+      }
       this.currentLimit = this.limit
       if (this.activeId) {
         this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
@@ -219,7 +224,6 @@
     },
     destroyed () {
       this.$store.commit(`${this.moduleName}/clear`)
-      this.$store.unregisterModule(this.moduleName)
     },
     mixins: [filterMessages],
     components: { VirtualScrollList, MessagesListItem }

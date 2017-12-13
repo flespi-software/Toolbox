@@ -14,7 +14,8 @@ let state = {
   server: Vue.config.flespiServer,
   items: [],
   offline: false,
-  isCustomer: false
+  isCustomer: false,
+  isLoading: false
 }
 
 export default new Vuex.Store(

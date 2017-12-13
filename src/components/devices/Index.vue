@@ -47,11 +47,11 @@
             </q-list>
           </q-popover>
         </q-item>
-        <q-btn flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
+        <q-btn v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
           <q-tooltip>Mode (Real-time/History)</q-tooltip>
           {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
         </q-btn>
-        <q-icon v-if="isCustomer" size="1.5rem" style="position: absolute;right: 0;" class="on-left cursor-pointer" name="mdi-format-align-middle" @click="settingsClickHandler">
+        <q-icon v-if="isCustomer && !selectedItem.deleted" size="1.5rem" style="position: absolute;right: 0;" class="on-left cursor-pointer" name="mdi-format-align-middle" @click="settingsClickHandler">
           <q-tooltip>Section ratio</q-tooltip>
         </q-icon>
       </q-toolbar>
@@ -79,6 +79,7 @@
         :style="{minHeight: `calc(${size[1]}vh - ${+size[0] ? '50px' : '100px'})`, position: 'relative'}"
         :config="config.messages"
       />
+      <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="!isCustomer && selectedItem.deleted">Nothing to show by device &#171{{selectedItem.name || `#${selectedItem.id}`}}&#187 <div style="font-size: 0.9rem">or you haven`t access</div></div>
     </template>
   </div>
 </template>
@@ -119,7 +120,7 @@
         return this.$store.state.items
       },
       selectedItem () {
-        return this.items.filter(item => item.id === this.active)[0]
+        return this.items.filter(item => item.id === this.active)[0] || {}
       },
       modeModel: {
         get () {
@@ -167,8 +168,8 @@
     },
     created () {
       let activeFromLocaleStorage = LocalStorage.get.item('devices')
-      this.$store.dispatch('getItems', 'devices')
-        .then(() => { this.$store.dispatch('getCustomer') })
+      this.$store.dispatch('getCustomer')
+        .then(() => { this.$store.dispatch('getItems', 'devices') })
         .then(() => {
           this.isInit = true
           if (this.$route.params && this.$route.params.id) {
@@ -181,6 +182,11 @@
           }
           else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
             this.active = activeFromLocaleStorage
+          }
+          // deleted item logic
+          if (this.selectedItem.deleted) {
+            this.mode = 0
+            if (this.isCustomer) { this.ratio = '100/0' }
           }
         })
     },
@@ -210,7 +216,17 @@
         }
       },
       active (val) {
-        val ? this.$router.push(`/devices/${val}`) : this.$router.push('/devices')
+        let currentItem = this.items.filter(item => item.id === val)[0] || {}
+        if (val) {
+          LocalStorage.set('devices', val)
+          this.$router.push(`/devices/${val}`)
+        }
+        else {
+          this.$router.push('/devices')
+        }
+        if (this.isCustomer) {
+          this.ratio = currentItem.deleted ? '100/0' : '50/50'
+        }
       },
       isCustomer (val) {
         if (!val) {
@@ -221,10 +237,7 @@
         }
       }
     },
-    components: { logs, messages, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip },
-    destroyed () {
-      LocalStorage.set('devices', this.active)
-    }
+    components: { logs, messages, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip }
   }
 </script>
 <style>
