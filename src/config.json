@@ -7,7 +7,7 @@
       "cols": [
         {
           "name": "timestamp",
-          "width": 100,
+          "width": 165,
           "display": true,
           "description": "Log event time"
         },
@@ -111,7 +111,7 @@
       "cols": [
         {
           "name": "timestamp",
-          "width": 100,
+          "width": 165,
           "display": true,
           "description": "Log event time"
         },
@@ -278,7 +278,7 @@
       "cols": [
         {
           "name": "timestamp",
-          "width": 100,
+          "width": 165,
           "display": true,
           "description": "Log event time"
         },
@@ -338,7 +338,7 @@
       "cols": [
         {
           "name": "timestamp",
-          "width": 100,
+          "width": 165,
           "display": true,
           "description": "Log event time"
         },
@@ -380,7 +380,7 @@
       "cols": [
         {
           "name": "timestamp",
-          "width": 100,
+          "width": 165,
           "display": true,
           "description": "Log event time"
         },

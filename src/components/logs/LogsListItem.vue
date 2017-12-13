@@ -172,7 +172,7 @@
           res = this.description
         }
         if (prop.name === 'timestamp') {
-          res = date.formatDate(this.item[prop.name] * 1000, 'HH:mm:ss')
+          res = date.formatDate(this.item[prop.name] * 1000, 'MM/DD/YYYY HH:mm:ss')
         }
         if (prop.name === 'host') {
           res = this.item['host'] || this.item['source'] || ''

@@ -1,76 +1,81 @@
 <template>
-  <q-layout ref="layout" v-model="sides" view="hHh LpR lFf" :page-style="{background: '#333'}" :right-class="{'bg-dark':true}">
-    <q-toolbar slot="header" color="dark" class="header__main-toolbar" v-if="isVisibleToolbar">
-      <q-toolbar-title :style="{minWidth: $q.platform.is.mobile ? '100px' : '210px'}">
-        <img :src="$q.platform.is.mobile ? 'statics/toolbox_mobile.png':'statics/toolbox50.png'" alt="Track it!" style="height: 30px"> <sup>{{version}}</sup>
-      </q-toolbar-title>
-      <q-tabs color="dark" v-model="tabModel" :style="{maxWidth: 'calc(100% - 270px)'}" v-if="$q.platform.is.desktop">
-        <q-route-tab
-          v-for="(moduleConfig, moduleName, index) in config"
-          :key="index"
-          slot="title"
-          :name="`${moduleName}`"
-          :label="moduleConfig.label"
-          hide="label"
-          :to="`/${moduleName}`"
-        />
-      </q-tabs>
-      <q-btn flat style="display: flex; flex-wrap: nowrap; width: 50%" v-if="$q.platform.is.mobile">
-        <q-item style="padding-left: 0; padding-right: 0">
-          <q-item-side :icon="configByEntity.icon" style="min-width: 20px" color="white"/>
-          <q-item-main>
-            <q-item-tile label class="ellipsis overflow-hidden">{{configByEntity.label}}</q-item-tile>
-          </q-item-main>
-          <q-item-side right icon="mdi-menu-down" style="min-width: 20px; margin-left: 10px" color="white"/>
-        </q-item>
-        <q-popover fit ref="popoverTab">
-          <q-list link separator class="scroll">
-            <q-item
-              v-for="(moduleConfig, moduleName, index) in config"
-              :key="index"
-              :to="`/${moduleName}`"
-            >
-              <q-item style="padding: 0" @click="tabModel = moduleName, $refs.popoverTab.close()">
-                <q-item-side :icon="moduleConfig.icon"/>
-                <q-item-main>
-                  <q-item-tile label>{{moduleName}}</q-item-tile>
-                </q-item-main>
+  <div>
+    <q-layout ref="layout" v-model="sides" view="hHh LpR lFf" :page-style="{background: '#333'}" :right-class="{'bg-dark':true}">
+      <q-toolbar slot="header" color="dark" class="header__main-toolbar" v-if="isVisibleToolbar">
+        <q-toolbar-title :style="{minWidth: $q.platform.is.mobile ? '100px' : '210px'}">
+          <img :src="$q.platform.is.mobile ? 'statics/toolbox_mobile.png':'statics/toolbox50.png'" alt="Track it!" style="height: 30px"> <sup>{{version}}</sup>
+        </q-toolbar-title>
+        <q-tabs color="dark" v-model="tabModel" :style="{maxWidth: 'calc(100% - 270px)'}" v-if="$q.platform.is.desktop">
+          <q-route-tab
+            v-for="(moduleConfig, moduleName, index) in config"
+            :key="index"
+            slot="title"
+            :name="`${moduleName}`"
+            :label="moduleConfig.label"
+            hide="label"
+            :to="`/${moduleName}`"
+          />
+        </q-tabs>
+        <q-btn flat style="display: flex; flex-wrap: nowrap; width: 50%" v-if="$q.platform.is.mobile">
+          <q-item style="padding-left: 0; padding-right: 0">
+            <q-item-side :icon="configByEntity.icon" style="min-width: 20px" color="white"/>
+            <q-item-main>
+              <q-item-tile label class="ellipsis overflow-hidden">{{configByEntity.label}}</q-item-tile>
+            </q-item-main>
+            <q-item-side right icon="mdi-menu-down" style="min-width: 20px; margin-left: 10px" color="white"/>
+          </q-item>
+          <q-popover fit ref="popoverTab">
+            <q-list link separator class="scroll">
+              <q-item
+                v-for="(moduleConfig, moduleName, index) in config"
+                :key="index"
+                :to="`/${moduleName}`"
+              >
+                <q-item style="padding: 0" @click="tabModel = moduleName, $refs.popoverTab.close()">
+                  <q-item-side :icon="moduleConfig.icon"/>
+                  <q-item-main>
+                    <q-item-tile label>{{moduleName}}</q-item-tile>
+                  </q-item-main>
+                </q-item>
               </q-item>
-            </q-item>
-          </q-list>
-        </q-popover>
-      </q-btn>
-      <q-btn @click="settingsHandler" small flat round icon="mdi-settings"/>
-      <q-btn @click="confirmExitHandler" small  flat round icon="mdi-exit-to-app"/>
-    </q-toolbar>
-    <object-viewer
-      slot="right"
-      @close="hideRightHandler"
-      :object="currentMessage"
-      v-if="Object.keys(currentMessage).length"
-    />
-    <raw-viewer
-      ref="rawViewer"
-      :config="rawConfig"
-      inverted
-    />
-    <router-view
-      ref='main'
-      v-if="configByEntity"
-      @view-data="viewDataHandler"
-      @view-data-hide="$refs.layout.hideRight(), currentMessage = {}"
-      @view-log-message="viewLogMessagesHandler"
-      :limit="limit"
-      :delay="delay"
-      :isCustomer="isCustomer"
-      :config="configByEntity"
-    >
-    </router-view>
-  </q-layout>
+            </q-list>
+          </q-popover>
+        </q-btn>
+        <q-btn @click="settingsHandler" small flat round icon="mdi-settings"/>
+        <q-btn @click="confirmExitHandler" small  flat round icon="mdi-exit-to-app"/>
+      </q-toolbar>
+      <object-viewer
+        slot="right"
+        @close="hideRightHandler"
+        :object="currentMessage"
+        v-if="Object.keys(currentMessage).length"
+      />
+      <raw-viewer
+        ref="rawViewer"
+        :config="rawConfig"
+        inverted
+      />
+      <router-view
+        ref='main'
+        v-if="configByEntity"
+        @view-data="viewDataHandler"
+        @view-data-hide="$refs.layout.hideRight(), currentMessage = {}"
+        @view-log-message="viewLogMessagesHandler"
+        :limit="limit"
+        :delay="delay"
+        :isCustomer="isCustomer"
+        :config="configByEntity"
+      >
+      </router-view>
+    </q-layout>
+    <q-inner-loading :visible="loadingFlag" style="z-index: 2001" dark>
+      <q-spinner-gears size="100px" color="white" />
+    </q-inner-loading>
+  </div>
 </template>
 
 <script>
-  import { QLayout, QToolbar, QToolbarTitle, QBtn, QIcon, QTabs, QRouteTab, LocalStorage, Dialog, Toast, Alert, date, QItem, QItemMain, QItemTile, QItemSide, QPopover, QList } from 'quasar-framework'
+  import { debounce, QLayout, QToolbar, QToolbarTitle, QBtn, QIcon, QTabs, QRouteTab, LocalStorage, Dialog, Toast, Alert, date, QItem, QItemMain, QItemTile, QItemSide, QPopover, QList, QInnerLoading, QSpinnerGears } from 'quasar-framework'
   import config from '../config.json'
   import 'quasar-extras/animate/bounceInRight.css'
   import 'quasar-extras/animate/bounceOutRight.css'
@@ -95,13 +100,15 @@
         rawConfig: {},
         config: config,
         tabModel: 'channels',
-        isVisibleToolbar: true
+        isVisibleToolbar: true,
+        loadingFlag: false
       }
     },
     computed: {
       ...mapState({
         token: (state) => state.token,
-        isCustomer: (state) => state.isCustomer
+        isCustomer: (state) => state.isCustomer,
+        isLoading: (state) => state.isLoading
       }),
       configByEntity () {
         return this.config[this.tabModel]
@@ -248,7 +255,10 @@
             timeout: 1500
           })
         }
-      }
+      },
+      disableLoading: debounce((ctx) => {
+        ctx.loadingFlag = false
+      }, 200)
     },
     watch: {
       token (val) {
@@ -261,6 +271,10 @@
           this.$router.push('/channels')
         }
         this.hideRight()
+      },
+      isLoading (flag) {
+        if (flag) { this.loadingFlag = flag }
+        else { this.disableLoading(this) }
       }
     },
     created () {
@@ -287,7 +301,7 @@
         }
       }
     },
-    components: { QLayout, QToolbar, QToolbarTitle, QBtn, QIcon, QTabs, QRouteTab, ObjectViewer, RawViewer, QItem, QItemMain, QItemTile, QItemSide, QPopover, QList }
+    components: { QLayout, QToolbar, QToolbarTitle, QBtn, QIcon, QTabs, QRouteTab, ObjectViewer, RawViewer, QItem, QItemMain, QItemTile, QItemSide, QPopover, QList, QInnerLoading, QSpinnerGears }
   }
 </script>
 

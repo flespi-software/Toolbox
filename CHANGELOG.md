@@ -1,5 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.6.1] - 2017-12-13
+[feature] loading status processing and setting
+[feature] show removed instances logs
+[feature] rebased storage server from global variable to vue config
+[fix] timestamp in logs list item component
 ### [0.6.0] - 2017-12-11
 [feature] abques logs viewer added
 [feature] containers logs viewer added

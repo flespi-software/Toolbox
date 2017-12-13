@@ -29,9 +29,9 @@
       <q-toolbar slot="header" color="dark">
         <q-item class="no-padding" style="max-width: 50%">
           <q-item-main>
-            <q-tooltip><small>{{selectedItem.configuration.protocol}}</small></q-tooltip>
+            <q-tooltip v-if="selectedItem.configuration && selectedItem.configuration.protocol"><small>{{selectedItem.configuration.protocol}}</small></q-tooltip>
             <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name}}</q-item-tile>
-            <q-item-tile sublabel style="font-size: 0.8rem">{{selectedItem.configuration.uri}}</q-item-tile>
+            <q-item-tile sublabel style="font-size: 0.8rem" v-if="selectedItem.configuration && selectedItem.configuration.uri">{{selectedItem.configuration.uri}}</q-item-tile>
           </q-item-main>
           <q-item-side class="text-right"><q-icon color="white" size="2rem" name="mdi-menu-down" /></q-item-side>
           <q-popover fit ref="popoverActive">
@@ -43,15 +43,15 @@
               >
                 <q-item-main>
                   <q-item-tile label class="ellipsis overflow-hidden">{{item.name}}</q-item-tile>
-                  <q-item-tile sublabel><small>{{item.configuration.source_addr}}</small></q-item-tile>
-                  <q-item-tile sublabel><small>{{item.configuration.uri}}</small></q-item-tile>
+                  <q-item-tile sublabel v-if="item.configuration && item.configuration.source_addr"><small>{{item.configuration.source_addr}}</small></q-item-tile>
+                  <q-item-tile sublabel v-if="item.configuration && item.configuration.uri"><small>{{item.configuration.uri}}</small></q-item-tile>
                 </q-item-main>
                 <q-item-side class="text-right"><small>#{{item.id.toString()}}</small></q-item-side>
               </q-item>
             </q-list>
           </q-popover>
         </q-item>
-        <q-btn flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
+        <q-btn v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
           <q-tooltip>Mode (Real-time/History)</q-tooltip>
           {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
         </q-btn>
@@ -68,6 +68,7 @@
         :style="{minHeight: `calc(100vh - 100px)`, position: 'relative'}"
         @view-log-message="viewLogMessagesHandler"
       />
+      <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="!isCustomer || selectedItem.deleted">Nothing to show by modem &#171{{selectedItem.name}}&#187 <div style="font-size: 0.9rem">or you haven`t access</div></div>
     </template>
   </div>
 </template>
@@ -96,7 +97,7 @@
         return this.$store.state.items
       },
       selectedItem () {
-        return this.items.filter(item => item.id === this.active)[0]
+        return this.items.filter(item => item.id === this.active)[0] || {}
       },
       modeModel: {
         get () {
@@ -120,8 +121,8 @@
     },
     created () {
       let activeFromLocaleStorage = LocalStorage.get.item('modems')
-      this.$store.dispatch('getItems', 'modems')
-        .then(() => { this.$store.dispatch('getCustomer') })
+      this.$store.dispatch('getCustomer')
+        .then(() => { this.$store.dispatch('getItems', 'modems') })
         .then(() => {
           this.isInit = true
           if (this.$route.params && this.$route.params.id) {
@@ -134,6 +135,10 @@
           }
           else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
             this.active = activeFromLocaleStorage
+          }
+          // deleted item logic
+          if (this.selectedItem.deleted) {
+            this.mode = 0
           }
         })
     },
@@ -152,13 +157,16 @@
         }
       },
       active (val) {
-        val ? this.$router.push(`/modems/${val}`) : this.$router.push('/modems')
+        if (val) {
+          LocalStorage.set('modems', val)
+          this.$router.push(`/modems/${val}`)
+        }
+        else {
+          this.$router.push('/modems')
+        }
       }
     },
-    components: { logs, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip },
-    destroyed () {
-      LocalStorage.set('modems', this.active)
-    }
+    components: { logs, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip }
   }
 </script>
 <style>

@@ -46,7 +46,7 @@
             </q-list>
           </q-popover>
         </q-item>
-        <q-btn flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
+        <q-btn v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
           <q-tooltip>Mode (Real-time/History)</q-tooltip>
           {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
         </q-btn>
@@ -63,6 +63,7 @@
         :style="{minHeight: `calc(100vh - 100px)`, position: 'relative'}"
         @view-log-message="viewLogMessagesHandler"
       />
+      <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="!isCustomer || selectedItem.deleted">Nothing to show by abque &#171{{selectedItem.name}}&#187 <div style="font-size: 0.9rem">or you haven`t access</div></div>
     </template>
   </div>
 </template>
@@ -91,7 +92,7 @@
         return this.$store.state.items
       },
       selectedItem () {
-        return this.items.filter(item => item.id === this.active)[0]
+        return this.items.filter(item => item.id === this.active)[0] || {}
       },
       modeModel: {
         get () {
@@ -115,8 +116,8 @@
     },
     created () {
       let activeFromLocaleStorage = LocalStorage.get.item('abques')
-      this.$store.dispatch('getItems', 'abques')
-        .then(() => { this.$store.dispatch('getCustomer') })
+      this.$store.dispatch('getCustomer')
+        .then(() => { this.$store.dispatch('getItems', 'abques') })
         .then(() => {
           this.isInit = true
           if (this.$route.params && this.$route.params.id) {
@@ -129,6 +130,10 @@
           }
           else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
             this.active = activeFromLocaleStorage
+          }
+          // deleted item logic
+          if (this.selectedItem.deleted) {
+            this.mode = 0
           }
         })
     },
@@ -147,13 +152,16 @@
         }
       },
       active (val) {
-        val ? this.$router.push(`/abques/${val}`) : this.$router.push('/abques')
+        if (val) {
+          LocalStorage.set('abques', val)
+          this.$router.push(`/abques/${val}`)
+        }
+        else {
+          this.$router.push('/abques')
+        }
       }
     },
-    components: { logs, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip },
-    destroyed () {
-      LocalStorage.set('abques', this.active)
-    }
+    components: { logs, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip }
   }
 </script>
 <style>
