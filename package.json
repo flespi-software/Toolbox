@@ -1,6 +1,6 @@
 {
   "name": "ToolboX",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "ToolboX",
   "author": "Siarhei Buntsevich",
   "scripts": {
@@ -34,7 +34,7 @@
     "babel-preset-stage-2": "^6.0.0",
     "colors": "^1.1.2",
     "connect-history-api-fallback": "^1.5.0",
-    "copy-webpack-plugin": "^4.2.1",
+    "copy-webpack-plugin": "^4.3.0",
     "css-loader": "^0.28.7",
     "es6-promise": "^4.1.1",
     "eslint": "^4.13.1",
