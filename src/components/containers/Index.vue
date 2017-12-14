@@ -20,7 +20,7 @@
             </q-list>
           </q-popover>
         </q-btn>
-        <div v-if="!items.length">Containers not found</div>
+        <div v-if="!items.length">{{isLoading ? 'Fetching data..' : 'Containers not found'}}</div>
       </div>
     </div>
     <template v-else>
@@ -77,6 +77,7 @@
       'limit',
       'delay',
       'isCustomer',
+      'isLoading',
       'config'
     ],
     data () {
@@ -117,25 +118,30 @@
     created () {
       let activeFromLocaleStorage = LocalStorage.get.item('containers')
       this.$store.dispatch('getCustomer')
-        .then(() => { this.$store.dispatch('getItems', 'containers') })
         .then(() => {
-          this.isInit = true
-          if (this.$route.params && this.$route.params.id) {
-            if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
-              this.active = Number(this.$route.params.id)
-            }
-            else {
-              this.active = null
-            }
-          }
-          else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
-            this.active = activeFromLocaleStorage
-          }
-          // deleted item logic
-          if (this.selectedItem.deleted) {
-            this.mode = 0
-          }
+          this.$store.dispatch('getItems', 'containers')
+            .then(() => {
+              this.isInit = true
+              if (this.$route.params && this.$route.params.id) {
+                if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
+                  this.active = Number(this.$route.params.id)
+                }
+                else {
+                  this.active = null
+                }
+              }
+              else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
+                this.active = activeFromLocaleStorage
+              }
+              // deleted item logic
+              if (this.selectedItem.deleted) {
+                this.mode = 0
+              }
+            })
         })
+    },
+    destroyed () {
+      this.$store.commit('clearItems')
     },
     watch: {
       $route (route) {
@@ -152,12 +158,18 @@
         }
       },
       active (val) {
+        let currentItem = this.items.filter(item => item.id === val)[0] || {}
         if (val) {
           LocalStorage.set('containers', val)
           this.$router.push(`/containers/${val}`)
         }
         else {
           this.$router.push('/containers')
+        }
+        if (this.isCustomer) {
+          if (currentItem.deleted) {
+            this.mode = 0
+          }
         }
       }
     },

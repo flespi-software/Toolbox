@@ -20,7 +20,7 @@
             </q-list>
           </q-popover>
         </q-btn>
-        <div v-if="!items.length">Devices not found</div>
+        <div v-if="!items.length">{{isLoading ? 'Fetching data..' : 'Devices not found'}}</div>
       </div>
     </div>
     <template v-else>
@@ -94,6 +94,7 @@
       'limit',
       'delay',
       'isCustomer',
+      'isLoading',
       'config'
     ],
     data () {
@@ -169,26 +170,31 @@
     created () {
       let activeFromLocaleStorage = LocalStorage.get.item('devices')
       this.$store.dispatch('getCustomer')
-        .then(() => { this.$store.dispatch('getItems', 'devices') })
         .then(() => {
-          this.isInit = true
-          if (this.$route.params && this.$route.params.id) {
-            if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
-              this.active = Number(this.$route.params.id)
-            }
-            else {
-              this.active = null
-            }
-          }
-          else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
-            this.active = activeFromLocaleStorage
-          }
-          // deleted item logic
-          if (this.selectedItem.deleted) {
-            this.mode = 0
-            if (this.isCustomer) { this.ratio = '100/0' }
-          }
+          this.$store.dispatch('getItems', 'devices')
+            .then(() => {
+              this.isInit = true
+              if (this.$route.params && this.$route.params.id) {
+                if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
+                  this.active = Number(this.$route.params.id)
+                }
+                else {
+                  this.active = null
+                }
+              }
+              else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
+                this.active = activeFromLocaleStorage
+              }
+              // deleted item logic
+              if (this.selectedItem.deleted) {
+                this.mode = 0
+                if (this.isCustomer) { this.ratio = '100/0' }
+              }
+            })
         })
+    },
+    destroyed () {
+      this.$store.commit('clearItems')
     },
     watch: {
       ratio (val) {
@@ -225,7 +231,13 @@
           this.$router.push('/devices')
         }
         if (this.isCustomer) {
-          this.ratio = currentItem.deleted ? '100/0' : '50/50'
+          if (currentItem.deleted) {
+            this.ratio = '100/0'
+            this.mode = 0
+          }
+          else {
+            this.ratio = currentItem.deleted ? '100/0' : '50/50'
+          }
         }
       },
       isCustomer (val) {

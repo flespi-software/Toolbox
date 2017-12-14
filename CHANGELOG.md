@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.6.2] - 2017-12-14
+[fix] init by localStorage active value
+[fix] more info link on logs
+[fix] change message for 'fetching data'
 ### [0.6.1] - 2017-12-13
 [feature] loading status processing and setting
 [feature] show removed instances logs

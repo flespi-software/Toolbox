@@ -10,7 +10,7 @@
     </span>
     <span v-for="(prop, k) in cols" :key="prop.name + k" class="list__item" :class="{[`item_${k}`]: true}" :title="JSON.stringify(getValueOfProp(prop))">
       <!--<q-tooltip>{{getValueOfProp(prop)}}</q-tooltip>-->
-      <a target="_blank" :class="[color]" :href="eventLinkMore" v-if="prop.name === 'event_code'"><q-icon name="mdi-information-outline"/></a>
+      <a :class="[color]" @click.prevent.stop="linkMoreClickHandler" v-if="prop.name === 'event_code'"><q-icon name="mdi-information-outline"/></a>
       {{getValueOfProp(prop)}}
       <q-icon name="mdi-alert-circle-outline" v-if="prop.name === 'event_code' && !!item['error_text']"><q-tooltip>{{item['error_text']}}</q-tooltip></q-icon>
     </span>
@@ -19,7 +19,7 @@
 </template>
 
 <script>
-  import { date, QTooltip, QIcon } from 'quasar-framework'
+  import { date, QTooltip, QIcon, openURL } from 'quasar-framework'
   import events from './events.json'
 
   export default {
@@ -165,6 +165,9 @@
       },
       clickHandler (index, type, content) {
         this.$emit(`action`, {index, type, content})
+      },
+      linkMoreClickHandler () {
+        openURL(this.eventLinkMore)
       },
       getValueOfProp (prop) {
         let res = prop.custom ? JSON.stringify(this.item[prop.name]) : this.item[prop.name]

@@ -31,6 +31,9 @@ function reqFailed (state, payload) {
 function setItems (state, channels) {
   Vue.set(state, 'items', channels)
 }
+function clearItems (state) {
+  Vue.set(state, 'items', [])
+}
 function setOfflineFlag (state, flag) {
   Vue.set(state, 'offline', flag)
 }
@@ -63,5 +66,6 @@ export default {
   reqFailed,
   setToken,
   clearToken,
-  setOfflineFlag
+  setOfflineFlag,
+  clearItems
 }

@@ -64,6 +64,7 @@
         :limit="limit"
         :delay="delay"
         :isCustomer="isCustomer"
+        :isLoading="loadingFlag"
         :config="configByEntity"
       >
       </router-view>

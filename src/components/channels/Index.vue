@@ -22,7 +22,7 @@
               </q-list>
             </q-popover>
           </q-btn>
-          <div v-if="!items.length">Channels not found</div>
+          <div v-if="!items.length">{{isLoading ? 'Fetching data..' : 'Channels not found'}}</div>
         </div>
       </div>
     </template>
@@ -30,7 +30,7 @@
       <q-toolbar color="dark">
         <q-item class="no-padding" style="max-width: 50%">
           <q-item-main>
-            <q-tooltip v-if="selectedItem.protocol_name"><small>protocol: {{selectedItem.protocol_name}}</small></q-tooltip>
+            <q-tooltip><small>protocol: {{selectedItem.protocol_name || selectedItem.protocol_id}}</small></q-tooltip>
             <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name}}</q-item-tile>
             <q-item-tile sublabel style="font-size: 0.8rem">{{selectedItem.uri}}</q-item-tile>
           </q-item-main>
@@ -99,6 +99,7 @@
       'limit',
       'delay',
       'isCustomer',
+      'isLoading',
       'config'
     ],
     data () {
@@ -174,26 +175,31 @@
     created () {
       let activeFromLocaleStorage = LocalStorage.get.item('channels')
       this.$store.dispatch('getCustomer')
-        .then(() => { this.$store.dispatch('getItems', 'channels') })
         .then(() => {
-          this.isInit = true
-          if (this.$route.params && this.$route.params.id) {
-            if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
-              this.active = Number(this.$route.params.id)
-            }
-            else {
-              this.active = null
-            }
-          }
-          else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
-            this.active = activeFromLocaleStorage
-          }
-          // deleted item logic
-          if (this.selectedItem.deleted) {
-            this.mode = 0
-            if (this.isCustomer) { this.ratio = '100/0' }
-          }
+          this.$store.dispatch('getItems', 'channels')
+            .then(() => {
+              this.isInit = true
+              if (this.$route.params && this.$route.params.id) {
+                if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
+                  this.active = Number(this.$route.params.id)
+                }
+                else {
+                  this.active = null
+                }
+              }
+              else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
+                this.active = activeFromLocaleStorage
+              }
+              // deleted item logic
+              if (this.selectedItem.deleted) {
+                this.mode = 0
+                if (this.isCustomer) { this.ratio = '100/0' }
+              }
+            })
         })
+    },
+    destroyed () {
+      this.$store.commit('clearItems')
     },
     watch: {
       ratio (val) {
@@ -230,7 +236,13 @@
           this.$router.push('/channels')
         }
         if (this.isCustomer) {
-          this.ratio = currentItem.deleted ? '100/0' : '50/50'
+          if (currentItem.deleted) {
+            this.ratio = '100/0'
+            this.mode = 0
+          }
+          else {
+            this.ratio = currentItem.deleted ? '100/0' : '50/50'
+          }
         }
       },
       isCustomer (val) {
