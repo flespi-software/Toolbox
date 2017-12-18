@@ -18,7 +18,7 @@ import VueClipboard from 'vue-clipboard2'
 // check for pfornt SERVER
 Vue.config.flespiServer = SERVER
 if (PROD && SERVER) {
-  if (window.location.host.indexOf('localhost:9004') !== -1 || window.location.host.indexOf('localhost:9005') !== -1) {
+  if (window.location.host.indexOf('localhost:9004') !== -1 || window.location.host.indexOf('localhost:9005') !== -1 || window.location.host.indexOf('localhost:7004') !== -1) {
     Vue.config.flespiServer = ''
   }
 }

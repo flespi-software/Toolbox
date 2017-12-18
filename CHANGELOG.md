@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.6.3] - 2017-12-18
+[feature] added new codes to logs
+[fix] highlight deleted items
+[fix] replace info tooltip on logs
 ### [0.6.2] - 2017-12-14
 [fix] init by localStorage active value
 [fix] more info link on logs

@@ -332,7 +332,7 @@
   },
   "containers": {
     "label": "Containers",
-    "icon": "mdi-featured-play-list",
+    "icon": "featured_play_list",
     "logs": {
       "vuexModuleName": "containersLogs",
       "cols": [

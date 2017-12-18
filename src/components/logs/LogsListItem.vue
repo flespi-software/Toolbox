@@ -10,9 +10,9 @@
     </span>
     <span v-for="(prop, k) in cols" :key="prop.name + k" class="list__item" :class="{[`item_${k}`]: true}" :title="JSON.stringify(getValueOfProp(prop))">
       <!--<q-tooltip>{{getValueOfProp(prop)}}</q-tooltip>-->
-      <a :class="[color]" @click.prevent.stop="linkMoreClickHandler" v-if="prop.name === 'event_code'"><q-icon name="mdi-information-outline"/></a>
+      <a :class="[color]" @click.prevent.stop="linkMoreClickHandler" v-if="prop.name === 'event_code'"><q-icon name="mdi-open-in-new"/></a>
+      <q-icon name="mdi-alert-outline" v-if="prop.name === 'event_code' && !!item['error_text']"><q-tooltip>{{item['error_text']}}</q-tooltip></q-icon>
       {{getValueOfProp(prop)}}
-      <q-icon name="mdi-alert-circle-outline" v-if="prop.name === 'event_code' && !!item['error_text']"><q-tooltip>{{item['error_text']}}</q-tooltip></q-icon>
     </span>
     <span v-if="etcVisible" class="list__item item_etc">{{etc}}</span>
   </div>
@@ -85,7 +85,8 @@
               case 2: { return 'text-grey-6' }
               case 4:
               case 5:
-              case 6: { return 'text-red' }
+              case 6:
+              case 12: { return 'text-red' }
               case 7:
               case 8:
               case 9:
@@ -175,7 +176,7 @@
           res = this.description
         }
         if (prop.name === 'timestamp') {
-          res = date.formatDate(this.item[prop.name] * 1000, 'MM/DD/YYYY HH:mm:ss')
+          res = date.formatDate(this.item[prop.name] * 1000, 'DD/MM/YYYY HH:mm:ss')
         }
         if (prop.name === 'host') {
           res = this.item['host'] || this.item['source'] || ''

@@ -11,13 +11,17 @@
                 v-for="(item, index) in items"
                 :key="index"
                 @click="active = item.id, $refs.popoverNotActive.close()"
+                :class="{'text-grey-8': item.deleted}"
               >
                 <q-item-main>
                   <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name}}<q-tooltip v-if="$q.platform.is.desktop">{{item.name}}</q-tooltip></q-item-tile>
                   <q-item-tile v-if="item.configuration" sublabel><small>{{item.configuration.protocol}}</small></q-item-tile>
                   <q-item-tile v-if="item.configuration" sublabel><small>{{item.configuration.uri}}</small></q-item-tile>
                 </q-item-main>
-                <q-item-side class="text-right"><small>#{{item.id.toString()}}</small></q-item-side>
+                <q-item-side class="text-center">
+                  <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
+                  <q-item-tile><small>#{{item.id.toString()}}</small></q-item-tile>
+                </q-item-side>
               </q-item>
             </q-list>
           </q-popover>
@@ -40,13 +44,17 @@
                 v-for="(item, index) in items"
                 :key="index"
                 @click="active = item.id, $refs.popoverActive.close(), $emit('view-data-hide')"
+                :class="{'text-grey-8': item.deleted}"
               >
                 <q-item-main>
                   <q-item-tile label class="ellipsis overflow-hidden">{{item.name}}</q-item-tile>
                   <q-item-tile sublabel v-if="item.configuration && item.configuration.protocol"><small>{{item.configuration.protocol}}</small></q-item-tile>
                   <q-item-tile sublabel v-if="item.configuration && item.configuration.uri"><small>{{item.configuration.uri}}</small></q-item-tile>
                 </q-item-main>
-                <q-item-side class="text-right"><small>#{{item.id.toString()}}</small></q-item-side>
+                <q-item-side class="text-center">
+                  <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
+                  <q-item-tile><small>#{{item.id.toString()}}</small></q-item-tile>
+                </q-item-side>
               </q-item>
             </q-list>
           </q-popover>
@@ -185,6 +193,14 @@
   .no-top-bottom-margin {
     margin-bottom: 0;
     margin-top: 0;
+  }
+  .cheap-modifier {
+    font-size: .7rem;
+    font-weight: bolder;
+    border-radius: 3px;
+    background-color: #90a4ae;
+    color: white;
+    padding: 0 3px
   }
 </style>
 
