@@ -63,12 +63,12 @@
         ref="logs"
         v-if="isCustomer"
         :mode="mode"
-        :activeId="active"
+        :item="selectedItem"
         originPattern="storage/containers/:id"
         :isEnabled="true"
         :delay="delay"
         :config="config.logs"
-        :style="{minHeight: `calc(100vh - 100px)`, position: 'relative'}"
+        :style="{minHeight: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
         @view-log-message="viewLogMessagesHandler"
       />
       <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="!isCustomer || selectedItem.deleted">Nothing to show by container &#171{{selectedItem.name}}&#187 <div style="font-size: 0.9rem">or you haven`t access</div></div>
@@ -86,6 +86,7 @@
       'delay',
       'isCustomer',
       'isLoading',
+      'isVisibleToolbar',
       'config'
     ],
     data () {

@@ -49,7 +49,7 @@
   export default {
     props: [
       'mode',
-      'activeId',
+      'item',
       'delay',
       'limit',
       'originPattern',
@@ -150,6 +150,11 @@
         set (val) {
           val ? this.$store.commit(`${this.moduleName}/setLimit`, val) : this.$store.commit(`${this.moduleName}/setLimit`, 1000)
         }
+      },
+      originByPattern () {
+        return this.originPattern.replace(/\/:(\w*)(\/)?/g, (match, p1, p2) => {
+          return `/${this.item[p1]}${p2 || ''}`
+        })
       }
     },
     methods: {
@@ -211,11 +216,6 @@
         timestamp = this.messages.length ? this.messages[this.messages.length - 1].timestamp * 1000 : 0
         this.$store.dispatch(`${this.moduleName}/get`, {name: 'paginationNext', payload: timestamp})
       },
-      getOriginByPattern (values) {
-        return this.originPattern.replace(/\/:(\w*)(\/)?/g, (match, p1, p2) => {
-          return `/${values[p1]}${p2 || ''}`
-        })
-      },
       actionHandler ({index, type, content}) {
         switch (type) {
           case 'view': {
@@ -229,8 +229,8 @@
       }
     },
     watch: {
-      activeId (val) {
-        this.origin = this.getOriginByPattern({id: val})
+      item (val) {
+        this.origin = this.originByPattern
       },
       mode (mode) {
         this.modeChange(mode)
@@ -255,8 +255,8 @@
       }
       this.currentLimit = this.limit
       this.currentDelay = this.delay
-      if (this.activeId) {
-        this.$store.commit(`${this.moduleName}/setOrigin`, this.getOriginByPattern({id: this.activeId}))
+      if (this.item) {
+        this.$store.commit(`${this.moduleName}/setOrigin`, this.originByPattern)
         this.cols = this.config.cols
       }
       if (this.$store.state[this.moduleName].mode === null) {

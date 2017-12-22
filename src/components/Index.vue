@@ -65,6 +65,7 @@
         :delay="delay"
         :isCustomer="isCustomer"
         :isLoading="loadingFlag"
+        :isVisibleToolbar="isVisibleToolbar"
         :config="configByEntity"
       >
       </router-view>
@@ -100,7 +101,7 @@
         delay: 2,
         rawConfig: {},
         config: config,
-        tabModel: 'channels',
+        tabModel: '',
         isVisibleToolbar: true,
         loadingFlag: false
       }
@@ -268,8 +269,26 @@
         }
       },
       $route (route) {
-        if (route.path === '/') {
-          this.$router.push('/channels')
+        if (route.params.token && route.params.id && route.params.type) {
+          this.isVisibleToolbar = !route.params.fullscreen
+          this.setToken(route.params.token)
+          if (Object.keys(config).includes(route.params.type)) {
+            this.$router.push(`/${route.params.type}/${route.params.id}`)
+          }
+          else {
+            this.$router.push('/channels')
+          }
+        }
+        else if (!this.token) { // if not logged in
+          this.$router.push('/login')
+        }
+        else {
+          if (route.path === '/') { // if main route
+            this.$router.push('/channels')
+          }
+          else { // go to send route
+            this.$router.push(route.path)
+          }
         }
         this.hideRight()
       },
@@ -281,11 +300,16 @@
     created () {
       let localStorageToken = LocalStorage.get.item('X-Flespi-Token')
       if (this.$route.params.token && this.$route.params.id && this.$route.params.type) {
-        if (this.$route.params.fullscreen) {
-          this.isVisibleToolbar = false
-        }
+        this.isVisibleToolbar = !this.$route.params.fullscreen
         this.setToken(this.$route.params.token)
-        this.$router.push(`/${this.$route.params.type}/${this.$route.params.id}`)
+        if (Object.keys(config).includes(this.$route.params.type)) {
+          this.tabModel = this.$route.params.type
+          this.$router.push(`/${this.$route.params.type}/${this.$route.params.id}`)
+        }
+        else {
+          this.tabModel = 'channels'
+          this.$router.push('/channels')
+        }
       }
       else if (!this.token && !localStorageToken) { // if not logged in
         this.$router.push('/login')
@@ -295,6 +319,7 @@
           this.setToken(localStorageToken)
         }
         if (this.$route.path === '/') { // if main route
+          this.tabModel = 'channels'
           this.$router.push('/channels')
         }
         else { // go to send route

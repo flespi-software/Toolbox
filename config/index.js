@@ -71,6 +71,11 @@ module.exports = {
         target: 'https://localhost:9005',
         changeOrigin: true,
         secure: false
+      },
+      '/mqtt': {
+        target: 'https://localhost:9005',
+        changeOrigin: true,
+        secure: false
       }
     }
   }

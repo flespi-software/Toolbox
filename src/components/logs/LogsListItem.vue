@@ -54,6 +54,8 @@
           case 300:
           case 401:
           case 410:
+          case 500:
+          case 510:
             return 'text-green'
           case 2:
           case 3:
@@ -64,12 +66,16 @@
           case 314:
           case 411:
           case 412:
+          case 502:
+          case 511:
             return 'text-yellow'
           case 113:
           case 301:
           case 310:
           case 313:
           case 404:
+          case 503:
+          case 512:
             return 'text-grey-6'
           case 20:
           case 114:
@@ -78,6 +84,7 @@
           case 312:
           case 402:
           case 403:
+          case 501:
             return 'text-red'
           case 102: {
             switch (this.item.close_code) {
@@ -133,6 +140,13 @@
           case 410:
           case 411:
           case 412: { return `${SERVER}/docs/#/registry/!/streams` }
+          case 500:
+          case 501:
+          case 502:
+          case 503:
+          case 510:
+          case 511:
+          case 512: { return `${SERVER}/docs/#/mqtt/!/sessions` }
           default: { return '' }
         }
       },

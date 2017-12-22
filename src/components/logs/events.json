@@ -31,7 +31,14 @@
     "404": "stream has sent messages",
     "410": "new subscription was created for stream",
     "411": "stream subscription was updated",
-    "412": "stream subscription was deleted"
+    "412": "stream subscription was deleted",
+    "500": "mqtt session connection was accepted",
+    "501": "mqtt session connection was blocked",
+    "502": "mqtt session connection was rejected",
+    "503": "mqtt session connection was closed",
+    "510": "new subscription was created for MQTT session via REST API",
+    "511": "MQTT session subscription was updated via REST API",
+    "512": "MQTT session subscription was deleted via REST API"
   },
   "closeCodes": {
     "2": "connection closed by tracking device",

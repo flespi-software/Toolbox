@@ -66,12 +66,12 @@
       <logs
         ref="logs"
         :mode="mode"
-        :activeId="active"
+        :item="selectedItem"
         originPattern="registry/devices/:id"
         :isEnabled="!!+size[0]"
         :delay="delay"
         v-if="isCustomer && +size[0]"
-        :style="{minHeight: `calc(${size[0]}vh - ${+size[1] ? '50px' : '100px'})`, position: 'relative'}"
+        :style="{minHeight: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
         @view-log-message="viewLogMessagesHandler"
         :config="config.logs"
       />
@@ -84,7 +84,7 @@
         :delay="delay"
         :limit="limit"
         v-if="+size[1]"
-        :style="{minHeight: `calc(${size[1]}vh - ${+size[0] ? '50px' : '100px'})`, position: 'relative'}"
+        :style="{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
         :config="config.messages"
       />
       <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="!isCustomer && selectedItem.deleted">Nothing to show by device &#171{{selectedItem.name || `#${selectedItem.id}`}}&#187 <div style="font-size: 0.9rem">or you haven`t access</div></div>
@@ -103,6 +103,7 @@
       'delay',
       'isCustomer',
       'isLoading',
+      'isVisibleToolbar',
       'config'
     ],
     data () {

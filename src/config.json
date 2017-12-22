@@ -229,7 +229,7 @@
       "cols": [
         {
           "name": "timestamp",
-          "width": 100,
+          "width": 165,
           "display": true,
           "description": "Log event time"
         },
@@ -396,6 +396,60 @@
           "width": 80,
           "display": true,
           "description": "IP address from which HTTP request was received"
+        }
+      ],
+      "actions": [],
+      "viewConfig": {
+        "needShowFilter": true,
+        "needShowMode": false,
+        "needShowPageScroll": "right left",
+        "needShowDate": true,
+        "needShowEtc": true
+      },
+      "theme": {
+        "color": "white",
+        "bgColor": "dark",
+        "contentInverted": true,
+        "controlsInverted": true
+      }
+    }
+  },
+  "mqtt": {
+    "label": "MQTT",
+    "icon": "mdi-access-point-network",
+    "logs": {
+      "vuexModuleName": "mqttLogs",
+      "cols": [
+        {
+          "name": "timestamp",
+          "width": 165,
+          "display": true,
+          "description": "Log event time"
+        },
+        {
+          "name": "event_code",
+          "title": "event",
+          "width": 450,
+          "display": true,
+          "description": "Log event code and description"
+        },
+        {
+          "name": "client_id",
+          "width": 150,
+          "display": true,
+          "description": "session client id"
+        },
+        {
+          "name": "published",
+          "width": 80,
+          "display": true,
+          "description": "amount of messages published by session"
+        },
+        {
+          "name": "received",
+          "width": 80,
+          "display": true,
+          "description": "amount of messages received by session"
         }
       ],
       "actions": [],
