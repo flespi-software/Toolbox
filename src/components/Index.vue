@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="tabModel">
     <q-layout ref="layout" v-model="sides" view="hHh LpR lFf" :page-style="{background: '#333'}" :right-class="{'bg-dark':true}">
       <q-toolbar slot="header" color="dark" class="header__main-toolbar" v-if="isVisibleToolbar">
         <q-toolbar-title :style="{minWidth: $q.platform.is.mobile ? '100px' : '210px'}">
@@ -17,7 +17,7 @@
           />
         </q-tabs>
         <q-btn flat style="display: flex; flex-wrap: nowrap; width: 50%" v-if="$q.platform.is.mobile">
-          <q-item style="padding-left: 0; padding-right: 0">
+          <q-item style="padding-left: 0; padding-right: 0"  v-if="configByEntity">
             <q-item-side :icon="configByEntity.icon" style="min-width: 20px" color="white"/>
             <q-item-main>
               <q-item-tile label class="ellipsis overflow-hidden">{{configByEntity.label}}</q-item-tile>
@@ -273,9 +273,11 @@
           this.isVisibleToolbar = !route.params.fullscreen
           this.setToken(route.params.token)
           if (Object.keys(config).includes(route.params.type)) {
+            this.tabModel = this.$route.params.type
             this.$router.push(`/${route.params.type}/${route.params.id}`)
           }
           else {
+            this.tabModel = 'channels'
             this.$router.push('/channels')
           }
         }
@@ -284,13 +286,16 @@
         }
         else {
           if (route.path === '/') { // if main route
+            this.tabModel = 'channels'
             this.$router.push('/channels')
           }
           else { // go to send route
+            this.tabModel = this.$route.path.split('/')[1] // rebase logic
             this.$router.push(route.path)
           }
         }
-        this.hideRight()
+        this.$refs.layout.hideRight()
+        this.currentMessage = {}
       },
       isLoading (flag) {
         if (flag) { this.loadingFlag = flag }
@@ -323,6 +328,7 @@
           this.$router.push('/channels')
         }
         else { // go to send route
+          this.tabModel = this.$route.path.split('/')[1] // rebase logic
           this.$router.push(this.$route.path)
         }
       }
