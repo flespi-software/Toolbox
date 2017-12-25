@@ -13,11 +13,13 @@ function getIndexChildrenRoutes (config) {
   return Object.keys(config).reduce((result, moduleName) => {
     result.push({
       path: moduleName,
-      component: load(`${moduleName}/Index`)
+      component: load(`${moduleName}/Index`),
+      meta: {moduleName}
     })
     result.push({
       path: `${moduleName}/:id`,
-      component: load(`${moduleName}/Index`)
+      component: load(`${moduleName}/Index`),
+      meta: {moduleName}
     })
     return result
   }, [])
@@ -40,7 +42,14 @@ export default new VueRouter({
     {
       path: '/',
       component: load('Index'),
-      children: getIndexChildrenRoutes(config)
+      children: [
+        ...getIndexChildrenRoutes(config),
+        {
+          path: 'view/:type/:id',
+          name: 'module',
+          component: load('Index')
+        }
+      ]
     },
     { path: '/token/:token/type/:type/id/:id', component: load('Index') },
     { path: '/token/:token/type/:type/id/:id/fullscreen/:fullscreen', component: load('Index') },

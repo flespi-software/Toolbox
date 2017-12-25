@@ -64,7 +64,7 @@
           }
           else if (vals[propName]) {
             let value = this.item[propName]
-            if (propName === 'timestamp') {
+            if (propName.indexOf('timestamp') !== -1) {
               value = date.formatDate(value * 1000, 'DD/MM/YYYY HH:mm:ss')
             }
             vals[propName].value = value

@@ -290,12 +290,18 @@
             this.$router.push('/channels')
           }
           else { // go to send route
-            this.tabModel = this.$route.path.split('/')[1] // rebase logic
-            this.$router.push(route.path)
+            if (this.$route.meta.moduleName) {
+              this.tabModel = this.$route.meta.moduleName
+              this.$router.push(`/${this.$route.meta.moduleName}${this.$route.params.id ? `/${this.$route.params.id}` : ''}`)
+            }
+            else {
+              this.$router.push(this.$route.path)
+            }
           }
         }
-        this.$refs.layout.hideRight()
-        this.currentMessage = {}
+        if (this.$refs.layout) {
+          this.hideRight()
+        }
       },
       isLoading (flag) {
         if (flag) { this.loadingFlag = flag }
@@ -328,8 +334,13 @@
           this.$router.push('/channels')
         }
         else { // go to send route
-          this.tabModel = this.$route.path.split('/')[1] // rebase logic
-          this.$router.push(this.$route.path)
+          if (this.$route.meta.moduleName) {
+            this.tabModel = this.$route.meta.moduleName
+            this.$router.push(`/${this.$route.meta.moduleName}${this.$route.params.id ? `/${this.$route.params.id}` : ''}`)
+          }
+          else {
+            this.$router.push(this.$route.path)
+          }
         }
       }
     },

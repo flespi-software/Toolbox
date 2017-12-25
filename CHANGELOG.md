@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.6.5] - 2017-12-25
+[fix] generate routes
+[fix] names of some fields
 ### [0.6.4] - 2017-12-22
 [feature] added MQTT logs
 [fix] router for some routes

@@ -241,8 +241,7 @@
           "description": "Log event code and description"
         },
         {
-          "name": "messages_count",
-          "title": "messages",
+          "name": "messages",
           "width": 100,
           "display": true,
           "description": "Number of messages has sent"
