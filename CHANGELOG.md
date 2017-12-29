@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.6.6] - 2017-12-29
+[fix] new event_code added
 ### [0.6.5] - 2017-12-25
 [fix] generate routes
 [fix] names of some fields

@@ -82,6 +82,7 @@
           case 203:
           case 204:
           case 312:
+          case 315:
           case 402:
           case 403:
           case 501:
@@ -132,7 +133,8 @@
           case 311:
           case 312:
           case 313:
-          case 314: { return `${SERVER}/docs/#/registry/!/devices` }
+          case 314:
+          case 315: { return `${SERVER}/docs/#/registry/!/devices` }
           case 401:
           case 402:
           case 403:

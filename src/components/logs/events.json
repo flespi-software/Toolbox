@@ -25,6 +25,7 @@
     "312": "REST API (DELETE) request to delete current device setting value",
     "313": "Platform originated request to synchronize setting value from device",
     "314": "Device setting value was modified",
+    "315": "Device setting failed",
     "401": "stream connected successfully",
     "402": "stream has lost connection",
     "403": "stream failed to connect",

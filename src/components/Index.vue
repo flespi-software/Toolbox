@@ -166,6 +166,11 @@
               wrapper: JsonTree,
               data: this.currentData.http_data
             },
+            'properties': {
+              title: 'properties',
+              wrapper: JsonTree,
+              data: this.currentData.properties
+            },
             'current': {
               title: `${this.currentData.name} [upd:${date.formatDate(this.currentData.updated * 1000, 'HH:mm:ss')}]`,
               wrapper: JsonTree,
