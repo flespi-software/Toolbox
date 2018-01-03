@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.6.7] - 2018-01-03
+[fix] new event_code and send_code added
+[fix] configure cols
 ### [0.6.6] - 2017-12-29
 [fix] new event_code added
 ### [0.6.5] - 2017-12-25

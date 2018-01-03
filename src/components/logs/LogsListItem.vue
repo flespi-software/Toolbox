@@ -37,7 +37,7 @@
       etc () {
         let etcKeys = Object.keys(this.item).filter(key => !this.hasInCols(key))
         return etcKeys.reduce((acc, key) => {
-          if (key === 'delimiter' || key === 'event_origin' || key === 'event_text' || key === 'item_data' || key === 'source' || key === 'error_text' || key === 'close_code' || key === 'http_data' || key === 'current' || key === 'updated' || key === 'error_code' || key === 'smpp_code') { return acc }
+          if (key === 'delimiter' || key === 'event_origin' || key === 'event_text' || key === 'item_data' || key === 'source' || key === 'error_text' || key === 'close_code' || key === 'http_data' || key === 'current' || key === 'updated' || key === 'error_code' || key === 'send_code') { return acc }
           acc += `${key}: ${JSON.stringify(this.item[key])}; `
           return acc
         }, '') || '*Empty*'
@@ -49,7 +49,6 @@
           case 101:
           case 110:
           case 200:
-          case 201:
           case 202:
           case 300:
           case 401:
@@ -62,6 +61,8 @@
           case 21:
           case 111:
           case 112:
+          case 302:
+          case 303:
           case 311:
           case 314:
           case 411:
@@ -87,6 +88,10 @@
           case 403:
           case 501:
             return 'text-red'
+          case 201: {
+            if (this.item.send_code < 0) { return 'text-red' }
+            else { return 'text-green' }
+          }
           case 102: {
             switch (this.item.close_code) {
               case 3: { return 'text-green' }
@@ -129,6 +134,8 @@
           case 204: { return `${SERVER}/docs/#/gw/!/modems` }
           case 300:
           case 301:
+          case 302:
+          case 303:
           case 310:
           case 311:
           case 312:
@@ -156,7 +163,7 @@
         let types = events.types,
           closeCodes = events.closeCodes,
           errorCodes = events.errorCodes,
-          smppCodes = events.smppCodes
+          sendCodes = events.sendCodes
         let res = types[this.item.event_code] ? `${this.item.event_code}: ${types[this.item.event_code]}` : this.item.event_code
         res += this.item.close_code
           ? ` (${closeCodes[this.item.close_code]})`
@@ -164,14 +171,14 @@
             ? `(${this.item.close_code})`
             : '')
         res += this.item.error_code
-          ? ` (${this.item.error_code}: ${errorCodes[this.item.error_code]})`
-          : (errorCodes[this.item.error_code]
+          ? ` (${this.item.error_code}: ${errorCodes[this.item.event_code][this.item.error_code]})`
+          : (errorCodes[this.item.event_code] && errorCodes[this.item.event_code][this.item.error_code]
             ? `(${this.item.error_code})`
             : '')
-        res += this.item.smpp_code
-          ? ` (${this.item.smpp_code}: ${smppCodes[this.item.smpp_code]})`
-          : (errorCodes[this.item.smpp_code]
-            ? `(${this.item.smpp_code})`
+        res += this.item.send_code
+          ? ` (${this.item.send_code}: ${sendCodes[this.item.send_code]})`
+          : (errorCodes[this.item.event_code] && errorCodes[this.item.event_code][this.item.send_code]
+            ? `(${this.item.send_code})`
             : '')
         return res
       }

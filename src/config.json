@@ -289,16 +289,16 @@
           "description": "Log event code and description"
         },
         {
-          "name": "source_addr",
+          "name": "address",
           "width": 100,
           "display": true,
-          "description": "SMS source address"
+          "description": "SMS source address or SMS destination address"
         },
         {
-          "name": "dest_addr",
+          "name": "type",
           "width": 100,
           "display": true,
-          "description": "SMS destination address"
+          "description": "hex or text"
         },
         {
           "name": "text",
