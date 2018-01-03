@@ -62,30 +62,44 @@
         <q-icon v-if="isCustomer && !selectedItem.deleted" size="1.5rem" style="position: absolute;right: 0;" class="on-left cursor-pointer" name="mdi-format-align-middle" @click="settingsClickHandler">
           <q-tooltip>Section ratio</q-tooltip>
         </q-icon>
+        <q-icon v-if="$q.platform.is.desktop" size="1.5rem" style="position: absolute;right: 34px;" class="on-left cursor-pointer" name="mdi-map" @click="isVisibleMap = !isVisibleMap">
+          <q-tooltip>Map</q-tooltip>
+        </q-icon>
       </q-toolbar>
-      <logs
-        ref="logs"
-        :mode="mode"
-        :item="selectedItem"
-        originPattern="registry/devices/:id"
-        :isEnabled="!!+size[0]"
-        :delay="delay"
-        v-if="isCustomer && +size[0]"
-        :style="{minHeight: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
-        @view-log-message="viewLogMessagesHandler"
-        :config="config.logs"
-      />
-      <messages
-        ref="messages"
-        @view-data="viewDataHandler"
-        :mode="mode"
-        :activeId="active"
-        :isEnabled="!!+size[1]"
-        :delay="delay"
-        :limit="limit"
-        v-if="+size[1]"
-        :style="{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
-        :config="config.messages"
+      <div>
+        <logs
+          ref="logs"
+          :mode="mode"
+          :item="selectedItem"
+          originPattern="registry/devices/:id"
+          :isEnabled="!!+size[0]"
+          :delay="delay"
+          v-if="isCustomer && +size[0]"
+          :style="[{minHeight: `calc(${size[0]}vh - ${+size[1] ? '50px' : '100px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'logs' ? '66%' : ''}]"
+          @view-log-message="viewLogMessagesHandler"
+          :config="config.logs"
+        />
+        <messages
+          ref="messages"
+          @view-data="viewDataHandler"
+          :mode="mode"
+          :activeId="active"
+          :isEnabled="!!+size[1]"
+          :delay="delay"
+          :limit="limit"
+          v-if="+size[1]"
+          :style="[{minHeight: `calc(${size[1]}vh - ${+size[0] ? '50px' : '100px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'messages' ? '66%' : ''}]"
+          :config="config.messages"
+        />
+      </div>
+      <map-component
+        ref="map"
+        v-if="active && $store.state[config.messages.vuexModuleName] && $store.state[config.messages.vuexModuleName].messages.length && $q.platform.is.desktop && isVisibleMap"
+        :messages="$store.state[config.messages.vuexModuleName].messages"
+        :device="selectedItem"
+        :siblingHeight="siblingHeight"
+        @map:close="isVisibleMap = false"
+        @map:minimize="mapMinimizeHandler"
       />
       <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="!isCustomer && selectedItem.deleted">Nothing to show by device &#171{{selectedItem.name || `#${selectedItem.id}`}}&#187 <div style="font-size: 0.9rem">or you haven`t access</div></div>
     </template>
@@ -96,6 +110,7 @@
   import { QToolbar, QSelect, QInput, Dialog, QIcon, QBtn, LocalStorage, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip } from 'quasar-framework'
   import logs from '../logs/Index.vue'
   import messages from './messages/Index.vue'
+  import MapComponent from './MapComponent'
 
   export default {
     props: [
@@ -119,7 +134,10 @@
           {label: '50/50', value: '50/50'},
           {label: '40/60', value: '40/60'},
           {label: 'only messages', value: '0/100'}
-        ]
+        ],
+        isVisibleMap: false,
+        mapMinimizedOptions: {},
+        siblingHeight: null
       }
     },
     computed: {
@@ -168,12 +186,21 @@
       },
       viewDataHandler (content) {
         this.$emit('view-data', content)
+        if (this.isVisibleMap && content['position.latitude'] && content['position.longitude']) {
+          this.$refs.map.flyTo([content['position.latitude'], content['position.longitude']])
+        }
       },
       viewLogMessagesHandler (content) {
         this.$emit('view-log-message', content)
       },
       unselect () {
         this.$refs.messages.unselect()
+      },
+      mapMinimizeHandler (options) {
+        this.mapMinimizedOptions = options
+        if (options.type === 'messages') { this.siblingHeight = this.size[1] }
+        else if (options.type === 'logs') { this.siblingHeight = this.size[0] }
+        else { this.siblingHeight = null }
       }
     },
     created () {
@@ -258,7 +285,7 @@
         }
       }
     },
-    components: { logs, messages, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip }
+    components: { logs, messages, MapComponent, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip }
   }
 </script>
 <style>

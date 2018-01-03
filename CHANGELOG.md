@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.7.0] - 2018-01-03
+[feature] floated map on devices
 ### [0.6.7] - 2018-01-03
 [fix] new event_code and send_code added
 [fix] configure cols
