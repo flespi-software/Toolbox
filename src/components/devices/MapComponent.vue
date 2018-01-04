@@ -52,9 +52,6 @@
       }
     },
     computed: {
-      messagesWithPosition () {
-        return this.messages.filter(message => !!message['position.latitude'] && !!message['position.longitude'])
-      },
       mapStyles () {
         if (this.device && this.messages && this.messages.length) {
           return {
@@ -77,7 +74,7 @@
     methods: {
       initMap () {
         if (!this.map) {
-          let lastMessage = this.messagesWithPosition.length ? this.messagesWithPosition[this.messagesWithPosition.length - 1] : {}
+          let lastMessage = this.messages.length ? this.messages[this.messages.length - 1] : {}
           let position = lastMessage['position.latitude'] && lastMessage['position.longitude'] ? [lastMessage['position.latitude'], lastMessage['position.longitude']] : [51.50853, -0.12574]
           this.map = L.map('map', {
             center: position,
@@ -180,7 +177,7 @@
         return L.divIcon({
           className: `my-div-icon icon-${this.device.id}`,
           iconSize: new L.Point(20, 20),
-          html: `<div style="border-color: ${this.color}; transform: rotate(${(this.messagesWithPosition[this.messagesWithPosition.length - 1]['position.direction'] || 0) - 45}deg)" class="my-div-icon__inner"></div><div class="my-div-icon__name">${this.device.name}</div>`
+          html: `<div style="border-color: ${this.color}; transform: rotate(${(this.messages[this.messages.length - 1]['position.direction'] || 0) - 45}deg)" class="my-div-icon__inner"></div><div class="my-div-icon__name">${this.device.name}</div>`
         })
       },
       onResize () {
@@ -257,7 +254,7 @@
         }
       },
       getLatLngArr () {
-        return this.messagesWithPosition.reduce((acc, message) => {
+        return this.messages.reduce((acc, message) => {
           acc.push([message['position.latitude'], message['position.longitude']])
           return acc
         }, [])
@@ -268,7 +265,7 @@
         }
       },
       initMarker () {
-        let lastMessage = this.messagesWithPosition[this.messagesWithPosition.length - 1]
+        let lastMessage = this.messages[this.messages.length - 1]
         let position = [lastMessage['position.latitude'], lastMessage['position.longitude']]
         this.marker = L.marker(position, {
           icon: this.generateIcon(),
@@ -287,13 +284,13 @@
       updateDeviceOnMap () {
         let currentArrPos = this.getLatLngArr(),
           markerWatchedPos = this.marker && this.marker instanceof L.Marker ? this.marker.getLatLng() : {},
-          isWatchedPosChanged = this.messagesWithPosition && this.messagesWithPosition.length &&
-            markerWatchedPos.lat && markerWatchedPos.lat !== this.messagesWithPosition[this.messagesWithPosition.length - 1]['position.latitude'] &&
-            markerWatchedPos.lng && markerWatchedPos.lng !== this.messagesWithPosition[this.messagesWithPosition.length - 1]['position.longitude']
+          isWatchedPosChanged = this.messages && this.messages.length &&
+            markerWatchedPos.lat && markerWatchedPos.lat !== this.messages[this.messages.length - 1]['position.latitude'] &&
+            markerWatchedPos.lng && markerWatchedPos.lng !== this.messages[this.messages.length - 1]['position.longitude']
         if (isWatchedPosChanged) {
-          this.map.flyTo(currentArrPos[this.messagesWithPosition.length - 1], this.zoom)
+          this.map.flyTo(currentArrPos[this.messages.length - 1], this.zoom)
         }
-        if (this.messagesWithPosition.length) {
+        if (this.messages.length) {
           if (!(this.marker instanceof L.Marker)) {
             this.initMarker()
           }
@@ -301,7 +298,7 @@
             this.track = L.polyline(this.getLatLngArr(), {color: this.color}).addTo(this.map)
           }
         }
-        this.marker.setLatLng(currentArrPos[this.messagesWithPosition.length - 1]).update()
+        this.marker.setLatLng(currentArrPos[this.messages.length - 1]).update()
         this.marker.setOpacity(1)
         this.track.setLatLngs(currentArrPos)
       }
@@ -313,7 +310,7 @@
       this.winWidth = document.documentElement.clientWidth
     },
     watch: {
-      messagesWithPosition (messages) {
+      messages (messages) {
         this.updateDeviceOnMap()
       },
       minimizeTo (minimizeTo) {

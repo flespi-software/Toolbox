@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.7.1] - 2018-01-04
+[fix] fix padding in full-screen mode
+[fix] empty map with messages out of position
+[fix] get messages in devices by cols
 ### [0.7.0] - 2018-01-03
 [feature] floated map on devices
 ### [0.6.7] - 2018-01-03

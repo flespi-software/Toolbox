@@ -62,7 +62,7 @@
         <q-icon v-if="isCustomer && !selectedItem.deleted" size="1.5rem" style="position: absolute;right: 0;" class="on-left cursor-pointer" name="mdi-format-align-middle" @click="settingsClickHandler">
           <q-tooltip>Section ratio</q-tooltip>
         </q-icon>
-        <q-icon v-if="$q.platform.is.desktop" size="1.5rem" style="position: absolute;right: 34px;" class="on-left cursor-pointer" name="mdi-map" @click="isVisibleMap = !isVisibleMap">
+        <q-icon v-if="messagesWithPosition.length && $q.platform.is.desktop" size="1.5rem" style="position: absolute;right: 34px;" class="on-left cursor-pointer" name="mdi-map" @click="isVisibleMap = !isVisibleMap">
           <q-tooltip>Map</q-tooltip>
         </q-icon>
       </q-toolbar>
@@ -75,7 +75,7 @@
           :isEnabled="!!+size[0]"
           :delay="delay"
           v-if="isCustomer && +size[0]"
-          :style="[{minHeight: `calc(${size[0]}vh - ${+size[1] ? '50px' : '100px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'logs' ? '66%' : ''}]"
+          :style="[{minHeight: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'logs' ? '66%' : ''}]"
           @view-log-message="viewLogMessagesHandler"
           :config="config.logs"
         />
@@ -88,14 +88,14 @@
           :delay="delay"
           :limit="limit"
           v-if="+size[1]"
-          :style="[{minHeight: `calc(${size[1]}vh - ${+size[0] ? '50px' : '100px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'messages' ? '66%' : ''}]"
+          :style="[{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'messages' ? '66%' : ''}]"
           :config="config.messages"
         />
       </div>
       <map-component
         ref="map"
-        v-if="active && $store.state[config.messages.vuexModuleName] && $store.state[config.messages.vuexModuleName].messages.length && $q.platform.is.desktop && isVisibleMap"
-        :messages="$store.state[config.messages.vuexModuleName].messages"
+        v-if="active && messagesWithPosition.length && $q.platform.is.desktop && isVisibleMap"
+        :messages="messagesWithPosition"
         :device="selectedItem"
         :siblingHeight="siblingHeight"
         @map:close="isVisibleMap = false"
@@ -143,6 +143,11 @@
     computed: {
       size () {
         return this.ratio.split('/')
+      },
+      messagesWithPosition () {
+        return this.$store.state[this.config.messages.vuexModuleName]
+          ? this.$store.state[this.config.messages.vuexModuleName].messages.filter(message => !!message['position.latitude'] && !!message['position.longitude'])
+          : []
       },
       items () {
         return this.$store.state.items
