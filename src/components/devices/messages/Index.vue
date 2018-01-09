@@ -107,7 +107,7 @@
           return this.$store.state[this.moduleName].cols
         },
         set (val) {
-          this.$store.commit(`${this.moduleName}/setCols`, val)
+          this.$store.commit(`${this.moduleName}/updateCols`, val)
         }
       },
       filter: {
@@ -266,7 +266,7 @@
     },
     async created () {
       if (!this.$store.state[this.moduleName]) {
-        this.$store.registerModule(this.moduleName, devicesMessagesModule(this.$store, Vue))
+        this.$store.registerModule(this.moduleName, devicesMessagesModule(this.$store, Vue, LocalStorage, this.moduleName))
       }
       else {
         this.$store.commit(`${this.moduleName}/clearTimer`)

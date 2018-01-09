@@ -59,8 +59,32 @@
           <q-tooltip>Mode (Real-time/History)</q-tooltip>
           {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
         </q-btn>
-        <q-icon v-if="isCustomer && !selectedItem.deleted" size="1.5rem" style="position: absolute;right: 0;" class="on-left cursor-pointer" name="mdi-format-align-middle" @click="settingsClickHandler">
+        <q-icon v-if="isCustomer && !selectedItem.deleted" size="1.5rem" style="position: absolute;right: 0;" class="on-left cursor-pointer" name="mdi-format-align-middle">
           <q-tooltip>Section ratio</q-tooltip>
+          <q-popover ref="ratioPopover">
+            <q-item style="width: 25rem; height: 100px" class="bg-dark">
+              <q-item-side class="text-center">
+                <q-item-tile color="grey-6">Logs</q-item-tile>
+              </q-item-side>
+              <q-item-main>
+                <q-item-tile label class="ellipsis overflow-hidden" color="white">Ratio</q-item-tile>
+                <q-item-tile sublabel>
+                  <q-slider
+                    v-model="ratio"
+                    color="grey-6"
+                    :min="0"
+                    :max="100"
+                    :step="25"
+                    label
+                    snap
+                  />
+                </q-item-tile>
+              </q-item-main>
+              <q-item-side class="text-center" right>
+                <q-item-tile color="grey-6">Messages</q-item-tile>
+              </q-item-side>
+            </q-item>
+          </q-popover>
         </q-icon>
         <q-icon v-if="messagesWithPosition.length && $q.platform.is.desktop" size="1.5rem" style="position: absolute;right: 34px;" class="on-left cursor-pointer" name="mdi-map" @click="isVisibleMap = !isVisibleMap">
           <q-tooltip>Map</q-tooltip>
@@ -107,7 +131,7 @@
 </template>
 
 <script>
-  import { QToolbar, QSelect, QInput, Dialog, QIcon, QBtn, LocalStorage, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip } from 'quasar-framework'
+  import { QToolbar, QSelect, QInput, QIcon, QBtn, LocalStorage, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip, QSlider } from 'quasar-framework'
   import logs from '../logs/Index.vue'
   import messages from './messages/Index.vue'
   import MapComponent from './MapComponent'
@@ -126,15 +150,8 @@
       return {
         mode: typeof mode === 'number' ? mode : 1,
         active: null,
-        ratio: this.isCustomer ? '50/50' : '0/100',
+        ratio: this.isCustomer ? 50 : 100,
         isInit: false,
-        ratioOptions: [
-          {label: 'only logs', value: '100/0'},
-          {label: '60/40', value: '60/40'},
-          {label: '50/50', value: '50/50'},
-          {label: '40/60', value: '40/60'},
-          {label: 'only messages', value: '0/100'}
-        ],
         isVisibleMap: false,
         mapMinimizedOptions: {},
         siblingHeight: null
@@ -142,10 +159,10 @@
     },
     computed: {
       size () {
-        return this.ratio.split('/')
+        return [this.ratio, 100 - this.ratio]
       },
       messagesWithPosition () {
-        return this.$store.state[this.config.messages.vuexModuleName]
+        return this.config && this.config.messages && this.$store.state[this.config.messages.vuexModuleName]
           ? this.$store.state[this.config.messages.vuexModuleName].messages.filter(message => !!message['position.latitude'] && !!message['position.longitude'])
           : []
       },
@@ -168,27 +185,6 @@
       }
     },
     methods: {
-      settingsClickHandler () {
-        Dialog.create({
-          title: 'Ratio',
-          form: {
-            ratio: {
-              type: 'radio',
-              model: this.ratio,
-              items: this.ratioOptions
-            }
-          },
-          buttons: [
-            'Cancel',
-            {
-              label: 'Ok',
-              handler: (data) => {
-                this.ratio = data.ratio
-              }
-            }
-          ]
-        })
-      },
       viewDataHandler (content) {
         this.$emit('view-data', content)
         if (this.isVisibleMap && content['position.latitude'] && content['position.longitude']) {
@@ -229,7 +225,7 @@
               // deleted item logic
               if (this.selectedItem.deleted) {
                 this.mode = 0
-                if (this.isCustomer) { this.ratio = '100/0' }
+                if (this.isCustomer) { this.ratio = 100 }
               }
             })
         })
@@ -273,24 +269,24 @@
         }
         if (this.isCustomer) {
           if (currentItem.deleted) {
-            this.ratio = '100/0'
+            this.ratio = 100
             this.mode = 0
           }
           else {
-            this.ratio = currentItem.deleted ? '100/0' : '50/50'
+            this.ratio = currentItem.deleted ? 100 : 50
           }
         }
       },
       isCustomer (val) {
         if (!val) {
-          this.ratio = '0/100'
+          this.ratio = 0
         }
         else {
-          this.ratio = '50/50'
+          this.ratio = 50
         }
       }
     },
-    components: { logs, messages, MapComponent, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip }
+    components: { logs, messages, MapComponent, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip, QSlider }
   }
 </script>
 <style>

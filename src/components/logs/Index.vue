@@ -82,7 +82,7 @@
         async set (val) {
           this.$store.commit(`${this.moduleName}/setOrigin`, val)
           this.$store.commit(`${this.moduleName}/clearMessages`)
-          this.cols = this.config.cols
+          this.$store.commit(`${this.moduleName}/setCols`, this.config.cols)
           if (this.mode === 0) {
             await this.$store.dispatch(`${this.moduleName}/initTime`)
             await this.$store.dispatch(`${this.moduleName}/get`)
@@ -108,7 +108,7 @@
           return this.$store.state[this.moduleName].cols
         },
         set (val) {
-          this.$store.commit(`${this.moduleName}/setCols`, val)
+          this.$store.commit(`${this.moduleName}/updateCols`, val)
         }
       },
       filter: {
@@ -247,7 +247,7 @@
     },
     async created () {
       if (!this.$store.state[this.moduleName]) {
-        this.$store.registerModule(this.moduleName, logsModule(this.$store, Vue))
+        this.$store.registerModule(this.moduleName, logsModule(this.$store, Vue, LocalStorage, this.moduleName))
       }
       else {
         this.$store.commit(`${this.moduleName}/clearTimer`)
@@ -257,7 +257,7 @@
       this.currentDelay = this.delay
       if (this.item) {
         this.$store.commit(`${this.moduleName}/setOrigin`, this.originByPattern)
-        this.cols = this.config.cols
+        this.$store.commit(`${this.moduleName}/setCols`, this.config.cols)
       }
       if (this.$store.state[this.moduleName].mode === null) {
         this.modeChange(this.mode)

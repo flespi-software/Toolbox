@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.7.2] - 2018-01-08
+[feature] added ability to drag cols in cols configurator and in table
+[feature] new view for ratio control
+[fix] empty info
 ### [0.7.1] - 2018-01-04
 [fix] fix padding in full-screen mode
 [fix] empty map with messages out of position
