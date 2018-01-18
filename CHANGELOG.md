@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.7.3] - 2018-01-18
+[feature] hide exit button in iframe
+[feature] new event codes
+[fix] offline mode
 ### [0.7.2] - 2018-01-08
 [feature] added ability to drag cols in cols configurator and in table
 [feature] new view for ratio control

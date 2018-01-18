@@ -136,6 +136,7 @@
         }
         else {
           clearInterval(this.offlineIntervalId)
+          this.offlineIntervalId = 0
           this.checkHasToken()
         }
       }

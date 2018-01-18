@@ -42,7 +42,7 @@
           </q-popover>
         </q-btn>
         <q-btn @click="settingsHandler" small flat round icon="mdi-settings"/>
-        <q-btn @click="confirmExitHandler" small  flat round icon="mdi-exit-to-app"/>
+        <q-btn class="within-iframe-hide" @click="confirmExitHandler" small  flat round icon="mdi-exit-to-app"/>
       </q-toolbar>
       <object-viewer
         slot="right"

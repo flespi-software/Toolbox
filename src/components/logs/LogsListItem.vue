@@ -77,6 +77,8 @@
           case 404:
           case 503:
           case 512:
+          case 700:
+          case 800:
             return 'text-grey-6'
           case 20:
           case 114:
@@ -156,6 +158,8 @@
           case 510:
           case 511:
           case 512: { return `${SERVER}/docs/#/mqtt/!/sessions` }
+          case 700: { return `${SERVER}/docs/#/storage/!/containers` }
+          case 800: { return `${SERVER}/docs/#/storage/!/abques` }
           default: { return '' }
         }
       },

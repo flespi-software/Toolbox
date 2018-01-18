@@ -41,7 +41,9 @@
     "503": "mqtt session connection was closed",
     "510": "new subscription was created for MQTT session via REST API",
     "511": "MQTT session subscription was updated via REST API",
-    "512": "MQTT session subscription was deleted via REST API"
+    "512": "MQTT session subscription was deleted via REST API",
+    "700": "container size has been changed",
+    "800": "abque size has been changed"
   },
   "closeCodes": {
     "2": "connection closed by tracking device",
