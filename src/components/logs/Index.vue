@@ -50,7 +50,6 @@
     props: [
       'mode',
       'item',
-      'delay',
       'limit',
       'originPattern',
       'config'
@@ -80,6 +79,7 @@
       },
       origin: {
         async set (val) {
+          await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active entity */
           this.$store.commit(`${this.moduleName}/setOrigin`, val)
           this.$store.commit(`${this.moduleName}/clearMessages`)
           this.$store.commit(`${this.moduleName}/setCols`, this.config.cols)
@@ -93,14 +93,6 @@
         },
         get () {
           return this.$store.state[this.moduleName].origin
-        }
-      },
-      currentDelay: {
-        get () {
-          return this.$store.state[this.moduleName].delay
-        },
-        set (val) {
-          this.$store.commit(`${this.moduleName}/setDelay`, val * 1000)
         }
       },
       cols: {
@@ -186,7 +178,6 @@
           }
           case 1: {
             if (this.origin) {
-              this.currentDelay = this.delay
               this.$store.dispatch(`${this.moduleName}/pollingGet`)
             }
             break
@@ -237,12 +228,6 @@
       },
       limit (limit) {
         this.currentLimit = limit
-      },
-      delay (delay) {
-        if (this.mode === 1) {
-          this.currentDelay = this.delay
-          this.$store.dispatch(`${this.moduleName}/pollingGet`)
-        }
       }
     },
     async created () {
@@ -250,11 +235,9 @@
         this.$store.registerModule(this.moduleName, logsModule(this.$store, Vue, LocalStorage, this.moduleName))
       }
       else {
-        this.$store.commit(`${this.moduleName}/clearTimer`)
         this.$store.commit(`${this.moduleName}/clear`)
       }
       this.currentLimit = this.limit
-      this.currentDelay = this.delay
       if (this.item) {
         this.$store.commit(`${this.moduleName}/setOrigin`, this.originByPattern)
         this.$store.commit(`${this.moduleName}/setCols`, this.config.cols)
@@ -264,7 +247,6 @@
       }
     },
     destroyed () {
-      this.$store.commit(`${this.moduleName}/clearTimer`)
       this.$store.commit(`${this.moduleName}/clear`)
     },
     mixins: [filterMessages],

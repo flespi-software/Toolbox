@@ -14,14 +14,29 @@ import Vue from 'vue'
 import Quasar from 'quasar'
 import router from './router'
 import VueClipboard from 'vue-clipboard2'
+import VueConnection from 'flespi-io-js/dist/vue-plugin'
 
-// check for pfornt SERVER
-Vue.config.flespiServer = SERVER
-if (PROD && SERVER) {
-  if (window.location.host.indexOf('localhost:9004') !== -1 || window.location.host.indexOf('localhost:9005') !== -1 || window.location.host.indexOf('localhost:7004') !== -1) {
-    Vue.config.flespiServer = ''
+let connectionConfig = {}
+
+/* if local dev build */
+if (DEV && !SERVER) {
+  connectionConfig = {
+    httpConfig: { server: 'https://localhost', port: 9005 },
+    mqttConfig: { server: `ws://localhost:9016` }
   }
 }
+
+// check for pfront SERVER
+if (PROD && SERVER) {
+  if (window.location.host.indexOf('localhost:9004') !== -1 || window.location.host.indexOf('localhost:9005') !== -1 || window.location.host.indexOf('localhost:7004') !== -1) {
+    connectionConfig = {
+      httpConfig: { server: 'https://localhost', port: 9005 },
+      mqttConfig: { server: `ws://localhost:9016` }
+    }
+  }
+}
+
+Vue.use(VueConnection, connectionConfig)
 
 let store = require('./store/index').default
 

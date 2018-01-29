@@ -11,7 +11,7 @@ function reqFailed (state, payload) {
     console.log('Failed Request')
     console.log(payload)
   }
-  switch (payload.status) {
+  switch (payload.response.status) {
     case 0: {
       setOfflineFlag(state, true)
       Vue.set(state, 'token', '')
@@ -40,13 +40,13 @@ function setOfflineFlag (state, flag) {
 function setToken (state, val) {
   let token = val.replace('FlespiToken ', '')
   if (val && token.match(/^[a-z0-9]+$/i)) {
-    Vue.http.headers.common['Authorization'] = `FlespiToken ${token}`
     LocalStorage.set('X-Flespi-Token', token)
   }
   else {
     token = ''
     clearToken(state)
   }
+  Vue.connector.token = `FlespiToken ${token}`
   Vue.set(state, 'token', token)
 }
 function clearToken (state) {
@@ -56,7 +56,7 @@ function clearToken (state) {
     Cookies.remove('X-Flespi-Token')
   }
   LocalStorage.remove('X-Flespi-Token')
-  Vue.http.headers.common['Authorization'] = ''
+  Vue.connector.token = ''
   Vue.set(state, 'token', '')
 }
 

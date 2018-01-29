@@ -97,7 +97,6 @@
           :item="selectedItem"
           originPattern="registry/devices/:id"
           :isEnabled="!!+size[0]"
-          :delay="delay"
           v-if="isCustomer && +size[0]"
           :style="[{minHeight: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'logs' ? '66%' : ''}]"
           @view-log-message="viewLogMessagesHandler"
@@ -109,7 +108,6 @@
           :mode="mode"
           :activeId="active"
           :isEnabled="!!+size[1]"
-          :delay="delay"
           :limit="limit"
           v-if="+size[1]"
           :style="[{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'messages' ? '66%' : ''}]"
@@ -139,7 +137,6 @@
   export default {
     props: [
       'limit',
-      'delay',
       'isCustomer',
       'isLoading',
       'isVisibleToolbar',

@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.7.4] - 2018-01-29
+[feature] rebase to flespi-io-js
 ### [0.7.3] - 2018-01-18
 [feature] hide exit button in iframe
 [feature] new event codes

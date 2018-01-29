@@ -62,7 +62,6 @@
         @view-data-hide="$refs.layout.hideRight(), currentMessage = {}"
         @view-log-message="viewLogMessagesHandler"
         :limit="limit"
-        :delay="delay"
         :isCustomer="isCustomer"
         :isLoading="loadingFlag"
         :isVisibleToolbar="isVisibleToolbar"
@@ -98,7 +97,6 @@
           right: false
         },
         currentLimit: 1000,
-        delay: 2,
         rawConfig: {},
         config: config,
         tabModel: '',
@@ -225,12 +223,6 @@
         Dialog.create({
           title: 'Settings',
           form: {
-            delay: {
-              type: 'number',
-              label: 'Real-time logs refresh time, sec',
-              model: this.delay,
-              min: 2
-            },
             limit: {
               type: 'number',
               label: 'Page row count',
@@ -244,7 +236,6 @@
               label: 'Ok',
               handler: (data) => {
                 this.limit = data.limit
-                this.delay = data.delay
               }
             }
           ]

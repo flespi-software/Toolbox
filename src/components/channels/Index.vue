@@ -98,7 +98,6 @@
         :item="selectedItem"
         :isEnabled="!!+size[0]"
         originPattern="gw/channels/:id"
-        :delay="delay"
         :config="config.logs"
         v-if="isCustomer && +size[0]"
         :style="{minHeight: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
@@ -110,7 +109,6 @@
         :mode="mode"
         :activeId="active"
         :isEnabled="!!+size[1]"
-        :delay="delay"
         :limit="limit"
         :config="config.messages"
         v-if="+size[1]"
@@ -129,7 +127,6 @@
   export default {
     props: [
       'limit',
-      'delay',
       'isCustomer',
       'isLoading',
       'isVisibleToolbar',

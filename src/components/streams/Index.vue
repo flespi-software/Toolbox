@@ -71,7 +71,6 @@
         :item="selectedItem"
         originPattern="registry/streams/:id"
         :isEnabled="true"
-        :delay="delay"
         :config="config.logs"
         :style="{minHeight: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
         @view-log-message="viewLogMessagesHandler"
@@ -88,7 +87,6 @@
   export default {
     props: [
       'limit',
-      'delay',
       'isCustomer',
       'isLoading',
       'isVisibleToolbar',

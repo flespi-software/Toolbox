@@ -77,6 +77,7 @@
           return this.$store.state[this.moduleName].active
         },
         async set (val) {
+          await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active channel */
           this.$store.commit(`${this.moduleName}/setActive`, val)
           await this.$store.dispatch(`${this.moduleName}/getCols`)
           this.modeChange(this.mode)

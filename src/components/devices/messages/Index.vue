@@ -51,7 +51,6 @@
     props: [
       'mode',
       'activeId',
-      'delay',
       'limit',
       'config'
     ],
@@ -82,6 +81,7 @@
           return this.$store.state[this.moduleName].active
         },
         async set (val) {
+          await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active device */
           this.$store.commit(`${this.moduleName}/setActive`, val)
           this.$store.commit(`${this.moduleName}/clearMessages`)
           await this.$store.dispatch(`${this.moduleName}/getCols`)
@@ -92,14 +92,6 @@
           else if (this.mode === 1) {
             this.$store.dispatch(`${this.moduleName}/pollingGet`)
           }
-        }
-      },
-      currentDelay: {
-        get () {
-          return this.$store.state[this.moduleName].delay
-        },
-        set (val) {
-          this.$store.commit(`${this.moduleName}/setDelay`, val * 1000)
         }
       },
       cols: {
@@ -180,7 +172,6 @@
           }
           case 1: {
             if (this.active) {
-              this.currentDelay = this.delay
               this.$store.dispatch(`${this.moduleName}/pollingGet`)
             }
             break
@@ -256,12 +247,6 @@
       },
       limit (limit) {
         this.currentLimit = limit
-      },
-      delay (delay) {
-        if (this.mode === 1) {
-          this.currentDelay = this.delay
-          this.$store.dispatch(`${this.moduleName}/pollingGet`)
-        }
       }
     },
     async created () {
@@ -269,11 +254,9 @@
         this.$store.registerModule(this.moduleName, devicesMessagesModule(this.$store, Vue, LocalStorage, this.moduleName))
       }
       else {
-        this.$store.commit(`${this.moduleName}/clearTimer`)
         this.$store.commit(`${this.moduleName}/clear`)
       }
       this.currentLimit = this.limit
-      this.currentDelay = this.delay
       if (this.activeId) {
         this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
         await this.$store.dispatch(`${this.moduleName}/getCols`)
@@ -283,7 +266,6 @@
       }
     },
     destroyed () {
-      this.$store.commit(`${this.moduleName}/clearTimer`)
       this.$store.commit(`${this.moduleName}/clear`)
     },
     mixins: [filterMessages],
