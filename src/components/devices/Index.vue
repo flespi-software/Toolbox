@@ -147,7 +147,7 @@
       return {
         mode: typeof mode === 'number' ? mode : 1,
         active: null,
-        ratio: this.isCustomer ? 50 : 100,
+        ratio: this.isCustomer ? 50 : 0,
         isInit: false,
         isVisibleMap: false,
         mapMinimizedOptions: {},

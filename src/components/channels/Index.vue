@@ -137,12 +137,14 @@
       return {
         mode: typeof mode === 'number' ? mode : 1,
         active: null,
-        ratio: this.isCustomer ? 50 : 100,
+        ratio: this.isCustomer ? 50 : 0,
         isInit: false
       }
     },
     computed: {
       size () {
+        return [this.ratio, 100 - this.ratio]
+        console.log([this.ratio, 100 - this.ratio])
         return [this.ratio, 100 - this.ratio]
       },
       items () {
