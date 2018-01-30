@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.7.5] - 2018-01-30
+[feature] packages updated
+[fix] isCustomer logic
 ### [0.7.4] - 2018-01-29
 [feature] rebase to flespi-io-js
 ### [0.7.3] - 2018-01-18
