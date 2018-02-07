@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.7.8] - 2018-02-07
+[fix] service worker
 ### [0.7.7] - 2018-02-07
 [feature] icons for address
 [feature] pending in jsonViewer

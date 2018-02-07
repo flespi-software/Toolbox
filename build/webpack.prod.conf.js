@@ -90,7 +90,7 @@ module.exports = merge(baseWebpackConfig, {
     ]),
     // service worker caching
     new SWPrecacheWebpackPlugin({
-      cacheId: 'toolbox-' + package["version"],
+      cacheId: 'toolbox-cache',
       filename: 'service-worker.js',
       staticFileGlobs: ['dist/**/*.{js,html,css,woff,ttf,eof,woff2,json,svg,gif,jpg,png,mp3}'],
       minify: true,
