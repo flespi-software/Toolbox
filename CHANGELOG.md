@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.7.7] - 2018-02-07
+[feature] icons for address
+[feature] pending in jsonViewer
 ### [0.7.6] - 2018-02-07
 [fix] device logs texts
 ### [0.7.5] - 2018-01-30

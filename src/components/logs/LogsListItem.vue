@@ -8,11 +8,16 @@
         <q-tooltip>{{action.label}}</q-tooltip>
       </q-icon>
     </span>
-    <span v-for="(prop, k) in cols" :key="prop.name + k" class="list__item" :class="{[`item_${k}`]: true}" :title="JSON.stringify(getValueOfProp(prop))">
+    <span v-for="(prop, k) in cols" :key="prop.name + k" class="list__item" :class="{[`item_${k}`]: true}">
       <!--<q-tooltip>{{getValueOfProp(prop)}}</q-tooltip>-->
       <a :class="[color]" @click.prevent.stop="linkMoreClickHandler" v-if="prop.name === 'event_code'"><q-icon name="mdi-open-in-new"/></a>
+      <template v-if="prop.name === 'event_code' && item.http_data && item.http_data.address">
+        <q-icon v-if="item.http_data.address === 'connection'" name="mdi-ethernet" title="address: connection"/>
+        <q-icon v-if="item.http_data.address === 'sms'" name="mdi-email-outline"  title="address: sms"/>
+        <q-icon v-if="item.http_data.address === 'local'" name="mdi-content-save-outline"  title="address: local"/>
+      </template>
       <q-icon name="mdi-alert-outline" v-if="prop.name === 'event_code' && !!item['error_text']"><q-tooltip>{{item['error_text']}}</q-tooltip></q-icon>
-      {{getValueOfProp(prop)}}
+      <span :title="JSON.stringify(getValueOfProp(prop))">{{getValueOfProp(prop)}}</span>
     </span>
     <span v-if="etcVisible" class="list__item item_etc">{{etc}}</span>
   </div>
@@ -51,6 +56,7 @@
           case 200:
           case 202:
           case 300:
+          case 312:
           case 401:
           case 410:
           case 500:
@@ -84,7 +90,6 @@
           case 114:
           case 203:
           case 204:
-          case 312:
           case 315:
           case 402:
           case 403:

@@ -169,6 +169,11 @@
               wrapper: JsonTree,
               data: this.currentData.properties
             },
+            'pending': {
+              title: 'pending',
+              wrapper: JsonTree,
+              data: this.currentData.pending
+            },
             'current': {
               title: `${this.currentData.name} [upd:${date.formatDate(this.currentData.updated * 1000, 'HH:mm:ss')}]`,
               wrapper: JsonTree,
