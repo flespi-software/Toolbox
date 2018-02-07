@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.7.6] - 2018-02-07
+[fix] device logs texts
 ### [0.7.5] - 2018-01-30
 [feature] packages updated
 [fix] isCustomer logic
@@ -48,7 +50,7 @@ All notable changes to this project will be documented in this file.
 [feature] abques logs viewer added
 [feature] containers logs viewer added
 [feature] last active entity saved to localeStorage
-[fix] main tabs view 
+[fix] main tabs view
 ### [0.5.4] - 2017-12-11
 [feature] header tabs rebased to select
 [fix] build for prod
