@@ -57,6 +57,7 @@
           case 202:
           case 300:
           case 312:
+          case 313:
           case 401:
           case 410:
           case 500:
@@ -79,7 +80,6 @@
           case 113:
           case 301:
           case 310:
-          case 313:
           case 404:
           case 503:
           case 512:
@@ -106,12 +106,12 @@
               case 4:
               case 5:
               case 6:
+              case 11:
               case 12: { return 'text-red' }
               case 7:
               case 8:
               case 9:
-              case 10:
-              case 11: { return 'text-yellow' }
+              case 10: { return 'text-yellow' }
               default: { return '' }
             }
           }

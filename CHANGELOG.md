@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.7.10] - 2018-02-09
+[update] text and colors of events
 ### [0.7.9] - 2018-02-09
 [feature] migrate to new version of flespi-io-js
 [fix] icon for address

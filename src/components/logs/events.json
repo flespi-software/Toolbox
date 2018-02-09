@@ -55,7 +55,7 @@
     "8": "channel protocol was modified on the server",
     "9": "channel's parameters changed",
     "10": "connection closed upon user's request",
-    "11": "terminal mode ended",
+    "11": "failed to establish connection",
     "12": "outgoing connection failed"
   },
   "errorCodes": {
