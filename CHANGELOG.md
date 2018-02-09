@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.7.9] - 2018-02-09
+[feature] migrate to new version of flespi-io-js
+[fix] icon for address
+[fix] service worker
 ### [0.7.8] - 2018-02-07
 [fix] service worker
 ### [0.7.7] - 2018-02-07

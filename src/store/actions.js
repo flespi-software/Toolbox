@@ -52,7 +52,7 @@ async function getItems ({ state, commit }, entity) {
         let active = activeResp.data
         let deleted = []
         if (state.isCustomer) {
-          let deletedResp = await Vue.connector.getCustomerLogs({data: JSON.stringify(deletedParams)})
+          let deletedResp = await Vue.connector.platform.getCustomerLogs({data: JSON.stringify(deletedParams)})
           let deletedData = deletedResp.data
           deleted = deletedData.result && deletedData.result.length ? deletedData.result : []
         }
@@ -99,7 +99,7 @@ async function getCustomer ({ state, commit }) {
     if (typeof state.isLoading !== 'undefined') {
       state.isLoading = true
     }
-    let resp = await Vue.connector.getCustomer()
+    let resp = await Vue.connector.platform.getCustomer()
     let data = resp.data
     if (data.result && data.result.length) {
       state.isCustomer = true

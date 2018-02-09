@@ -11,10 +11,10 @@
     <span v-for="(prop, k) in cols" :key="prop.name + k" class="list__item" :class="{[`item_${k}`]: true}">
       <!--<q-tooltip>{{getValueOfProp(prop)}}</q-tooltip>-->
       <a :class="[color]" @click.prevent.stop="linkMoreClickHandler" v-if="prop.name === 'event_code'"><q-icon name="mdi-open-in-new"/></a>
-      <template v-if="prop.name === 'event_code' && item.http_data && item.http_data.address">
-        <q-icon v-if="item.http_data.address === 'connection'" name="mdi-ethernet" title="address: connection"/>
-        <q-icon v-if="item.http_data.address === 'sms'" name="mdi-email-outline"  title="address: sms"/>
-        <q-icon v-if="item.http_data.address === 'local'" name="mdi-content-save-outline"  title="address: local"/>
+      <template v-if="prop.name === 'event_code' && item.address">
+        <q-icon v-if="item.address === 'connection'" name="mdi-ethernet" title="address: connection"/>
+        <q-icon v-if="item.address === 'sms'" name="mdi-email-outline"  title="address: sms"/>
+        <q-icon v-if="item.address === 'local'" name="mdi-content-save-outline"  title="address: local"/>
       </template>
       <q-icon name="mdi-alert-outline" v-if="prop.name === 'event_code' && !!item['error_text']"><q-tooltip>{{item['error_text']}}</q-tooltip></q-icon>
       <span :title="JSON.stringify(getValueOfProp(prop))">{{getValueOfProp(prop)}}</span>
@@ -42,7 +42,7 @@
       etc () {
         let etcKeys = Object.keys(this.item).filter(key => !this.hasInCols(key))
         return etcKeys.reduce((acc, key) => {
-          if (key === 'delimiter' || key === 'event_origin' || key === 'event_text' || key === 'item_data' || key === 'source' || key === 'error_text' || key === 'close_code' || key === 'http_data' || key === 'current' || key === 'updated' || key === 'error_code' || key === 'send_code') { return acc }
+          if (key === 'delimiter' || key === 'event_origin' || key === 'event_text' || key === 'item_data' || key === 'source' || key === 'error_text' || key === 'close_code' || key === 'http_data' || key === 'current' || key === 'updated' || key === 'error_code' || key === 'send_code' || key === 'address') { return acc }
           acc += `${key}: ${JSON.stringify(this.item[key])}; `
           return acc
         }, '') || '*Empty*'
