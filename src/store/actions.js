@@ -82,14 +82,17 @@ async function getItems ({ state, commit }, entity) {
 
 async function checkConnection ({ state, commit }) {
   try {
-    let resp = await Vue.connector.http.get(`./statics/icons/favicon-16x16.png?_=${(new Date()).getTime()}`)
-    if (resp.status === 200) {
+    let resp = await Vue.connector.http.external.get(`./statics/icons/favicon-16x16.png?_=${(new Date()).getTime()}`)
+    if (resp.status === 200 && state.offline) {
       commit('setOfflineFlag', false)
     }
   }
   catch (e) {
     if (DEV) {
       console.log(e)
+    }
+    if (!state.offline) {
+      commit('setOfflineFlag', true)
     }
   }
 }
