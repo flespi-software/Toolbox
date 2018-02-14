@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.7.11] - 2018-02-14
+[feature] packages updated
+[fix] offline mode
 ### [0.7.10] - 2018-02-09
 [update] text and colors of events
 ### [0.7.9] - 2018-02-09

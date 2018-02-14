@@ -4,7 +4,7 @@
     <div class="login-back flex items-center justify-center">
       <div class="login-code flex items-center justify-center"></div>
     </div>
-    <div v-if="!$route.params.token && !offline">
+    <div v-if="!$route.params.token">
       <div class="login-card shadow-4 bg-white column items-center justify-center no-wrap">
         <p class="text-center">Swiss knife to view and analyze flespi data</p>
         <div class="row full-width">
@@ -36,15 +36,6 @@
         </div>
       </div>
     </div>
-    <div v-else-if="offline" class="login-card shadow-4 bg-white">
-      <div class="column items-center justify-center no-wrap text-grey-6 uppercase" style="font-size: 10vmax;">
-        Offline
-      </div>
-      <q-progress indeterminate color="grey-6" style="width: 100%; height: 3px" />
-      <div class="text-center text-grey-6 uppercase">
-        waiting for reconnection
-      </div>
-    </div>
     <div v-else>
       <div class="login-card shadow-4 bg-white column items-center justify-center no-wrap">
         <q-progress indeterminate color="positive" style="width: 100%; height: 45px" />
@@ -55,17 +46,14 @@
 
 <script>
   import { QInput, QBtn, QIcon, Cookies, QProgress, Dialog, LocalStorage } from 'quasar-framework'
-  import { mapState, mapActions } from 'vuex'
 
   export default {
     data () {
       return {
-        token: '',
-        offlineIntervalId: 0
+        token: ''
       }
     },
     computed: {
-      ...mapState(['offline']),
       model: {
         get () {
           return this.token
@@ -76,7 +64,6 @@
       }
     },
     methods: {
-      ...mapActions(['checkConnection']),
       logIn () {
         this.$store.commit('setToken', this.token)
         this.$nextTick(() => {
@@ -127,29 +114,10 @@
         if (val.params && val.params.token) {
           this.autoLogin()
         }
-      },
-      offline (val) {
-        if (val) {
-          if (!this.offlineIntervalId) {
-            this.offlineIntervalId = setInterval(this.checkConnection, 5000)
-          }
-        }
-        else {
-          clearInterval(this.offlineIntervalId)
-          this.offlineIntervalId = 0
-          this.checkHasToken()
-        }
       }
     },
     created () {
-      if (!this.offline) {
-        this.checkHasToken()
-      }
-      else {
-        if (!this.offlineIntervalId) {
-          this.offlineIntervalId = setInterval(this.checkConnection, 5000)
-        }
-      }
+      this.checkHasToken()
     },
     components: {
       QInput,
