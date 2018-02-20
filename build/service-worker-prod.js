@@ -42,6 +42,7 @@
                             .map(function (cacheName) { return caches.delete(cacheName) })
                         })
                       }
+                      window.location.reload()
                     }
                     break;
 

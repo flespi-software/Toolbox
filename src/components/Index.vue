@@ -5,18 +5,19 @@
         <q-toolbar-title :style="{minWidth: $q.platform.is.mobile ? '100px' : '210px'}">
           <img :src="$q.platform.is.mobile ? 'statics/toolbox_mobile.png':'statics/toolbox50.png'" alt="Track it!" style="height: 30px"> <sup>{{version}}</sup>
         </q-toolbar-title>
-        <q-tabs color="dark" v-model="tabModel" :style="{maxWidth: 'calc(100% - 270px)'}" v-if="$q.platform.is.desktop">
+        <q-window-resize-observable @resize="onResizeWindow" />
+        <q-tabs color="dark" v-model="tabModel" :style="{maxWidth: 'calc(100% - 270px)'}" v-if="$q.platform.is.desktop && isTabsVisible">
           <q-route-tab
-            v-for="(moduleConfig, moduleName, index) in config"
+            v-for="(moduleName, index) in tabsByGroup"
             :key="index"
             slot="title"
             :name="`${moduleName}`"
-            :label="moduleConfig.label"
+            :label="config[moduleName].label"
             hide="label"
             :to="`/${moduleName}`"
           />
         </q-tabs>
-        <q-btn flat style="display: flex; flex-wrap: nowrap; width: 50%" v-if="$q.platform.is.mobile">
+        <q-btn flat style="display: flex; flex-wrap: nowrap; width: 50%" v-if="$q.platform.is.mobile || ($q.platform.is.desktop && !isTabsVisible)">
           <q-item style="padding-left: 0; padding-right: 0"  v-if="configByEntity">
             <q-item-side :icon="configByEntity.icon" style="min-width: 20px" color="white"/>
             <q-item-main>
@@ -27,12 +28,12 @@
           <q-popover fit ref="popoverTab">
             <q-list link separator class="scroll">
               <q-item
-                v-for="(moduleConfig, moduleName, index) in config"
+                v-for="(moduleName, index) in tabsByGroup"
                 :key="index"
                 :to="`/${moduleName}`"
               >
                 <q-item style="padding: 0" @click="tabModel = moduleName, $refs.popoverTab.close()">
-                  <q-item-side :icon="moduleConfig.icon"/>
+                  <q-item-side :icon="config[moduleName].icon"/>
                   <q-item-main>
                     <q-item-tile label>{{moduleName}}</q-item-tile>
                   </q-item-main>
@@ -76,7 +77,7 @@
 </template>
 
 <script>
-  import { debounce, QLayout, QToolbar, QToolbarTitle, QBtn, QIcon, QTabs, QRouteTab, LocalStorage, Dialog, Toast, Alert, date, QItem, QItemMain, QItemTile, QItemSide, QPopover, QList, QInnerLoading, QSpinnerGears } from 'quasar-framework'
+  import { debounce, QLayout, QToolbar, QWindowResizeObservable, QToolbarTitle, QBtn, QIcon, QTabs, QRouteTab, LocalStorage, Dialog, Toast, Alert, date, QItem, QItemMain, QItemTile, QItemSide, QPopover, QList, QInnerLoading, QSpinnerGears } from 'quasar-framework'
   import config from '../config.json'
   import 'quasar-extras/animate/bounceInRight.css'
   import 'quasar-extras/animate/bounceOutRight.css'
@@ -101,7 +102,9 @@
         config: config,
         tabModel: '',
         isVisibleToolbar: true,
-        loadingFlag: false
+        loadingFlag: false,
+        isTabsVisible: true,
+        tabsByGroup: Object.keys(config)
       }
     },
     computed: {
@@ -195,6 +198,9 @@
         this.clearToken()
         this.$router.push('/login')
       },
+      onResizeWindow (size) {
+        size.width > 767 ? this.isTabsVisible = true : this.isTabsVisible = false
+      },
       viewDataHandler (content) {
         this.currentMessage = JSON.parse(JSON.stringify(content))
         this.$refs.layout.showRight()
@@ -270,16 +276,49 @@
         }
       },
       $route (route) {
-        if (route.params.token && route.params.id && route.params.type) {
+        if (this.$route.params.group) {
+          let groups = this.$route.params.group.split(',')
+          let tabsByGroups = groups.reduce((result, group) => {
+            if (['hub', 'storage', 'mqtt'].includes(group)) {
+              switch (group) {
+                case 'hub': {
+                  result.push('channels')
+                  result.push('devices')
+                  result.push('streams')
+                  result.push('modems')
+                  break
+                }
+                case 'storage': {
+                  result.push('containers')
+                  result.push('abques')
+                  break
+                }
+                case 'mqtt': {
+                  result.push('mqtt')
+                  break
+                }
+              }
+            }
+            return result
+          }, [])
+          if (tabsByGroups.length) { this.tabsByGroup = tabsByGroups }
+        }
+        if (route.params.token) {
           this.isVisibleToolbar = !route.params.fullscreen
           this.setToken(route.params.token)
-          if (Object.keys(config).includes(route.params.type)) {
-            this.tabModel = this.$route.params.type
-            this.$router.push(`/${route.params.type}/${route.params.id}`)
+          if (route.params.id && route.params.type) {
+            if (Object.keys(config).includes(route.params.type)) {
+              this.tabModel = this.$route.params.type
+              this.$router.push(`/${route.params.type}/${route.params.id}`)
+            }
+            else {
+              this.tabModel = 'channels'
+              this.$router.push('/channels')
+            }
           }
           else {
-            this.tabModel = 'channels'
-            this.$router.push('/channels')
+            this.tabModel = this.tabsByGroup[0]
+            this.$router.push(`/${this.tabsByGroup[0]}`)
           }
         }
         else if (!this.token) { // if not logged in
@@ -287,8 +326,8 @@
         }
         else {
           if (route.path === '/') { // if main route
-            this.tabModel = 'channels'
-            this.$router.push('/channels')
+            this.tabModel = this.tabsByGroup[0]
+            this.$router.push(`/${this.tabsByGroup[0]}`)
           }
           else { // go to send route
             if (this.$route.meta.moduleName) {
@@ -311,16 +350,49 @@
     },
     created () {
       let localStorageToken = LocalStorage.get.item('X-Flespi-Token')
-      if (this.$route.params.token && this.$route.params.id && this.$route.params.type) {
+      if (this.$route.params.group) {
+        let groups = this.$route.params.group.split(',')
+        let tabsByGroups = groups.reduce((result, group) => {
+          if (['hub', 'storage', 'mqtt'].includes(group)) {
+            switch (group) {
+              case 'hub': {
+                result.push('channels')
+                result.push('devices')
+                result.push('streams')
+                result.push('modems')
+                break
+              }
+              case 'storage': {
+                result.push('containers')
+                result.push('abques')
+                break
+              }
+              case 'mqtt': {
+                result.push('mqtt')
+                break
+              }
+            }
+          }
+          return result
+        }, [])
+        if (tabsByGroups.length) { this.tabsByGroup = tabsByGroups }
+      }
+      if (this.$route.params.token) {
         this.isVisibleToolbar = !this.$route.params.fullscreen
         this.setToken(this.$route.params.token)
-        if (Object.keys(config).includes(this.$route.params.type)) {
-          this.tabModel = this.$route.params.type
-          this.$router.push(`/${this.$route.params.type}/${this.$route.params.id}`)
+        if (this.$route.params.id && this.$route.params.type) {
+          if (Object.keys(config).includes(this.$route.params.type)) {
+            this.tabModel = this.$route.params.type
+            this.$router.push(`/${this.$route.params.type}/${this.$route.params.id}`)
+          }
+          else {
+            this.tabModel = 'channels'
+            this.$router.push('/channels')
+          }
         }
         else {
-          this.tabModel = 'channels'
-          this.$router.push('/channels')
+          this.tabModel = this.tabsByGroup[0]
+          this.$router.push(`/${this.tabsByGroup[0]}`)
         }
       }
       else if (!this.token && !localStorageToken) { // if not logged in
@@ -331,8 +403,8 @@
           this.setToken(localStorageToken)
         }
         if (this.$route.path === '/') { // if main route
-          this.tabModel = 'channels'
-          this.$router.push('/channels')
+          this.tabModel = this.tabsByGroup[0]
+          this.$router.push(`/${this.tabsByGroup[0]}`)
         }
         else { // go to send route
           if (this.$route.meta.moduleName) {
@@ -345,7 +417,7 @@
         }
       }
     },
-    components: { QLayout, QToolbar, QToolbarTitle, QBtn, QIcon, QTabs, QRouteTab, ObjectViewer, RawViewer, QItem, QItemMain, QItemTile, QItemSide, QPopover, QList, QInnerLoading, QSpinnerGears }
+    components: { QLayout, QToolbar, QToolbarTitle, QBtn, QIcon, QTabs, QRouteTab, ObjectViewer, RawViewer, QItem, QItemMain, QItemTile, QItemSide, QPopover, QList, QInnerLoading, QSpinnerGears, QWindowResizeObservable }
   }
 </script>
 

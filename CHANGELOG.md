@@ -1,5 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.7.12] - 2018-02-20
+[feature] group route fot hub, mqtt, and storage
+[fix] reload page after getting new cache
+[fix] fix process request error
+[fix] resize tabs
 ### [0.7.11] - 2018-02-14
 [feature] packages updated
 [fix] offline mode
