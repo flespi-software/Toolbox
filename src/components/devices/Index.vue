@@ -95,7 +95,7 @@
           ref="logs"
           :mode="mode"
           :item="selectedItem"
-          originPattern="registry/devices/:id"
+          originPattern="gw/devices/:id"
           :isEnabled="!!+size[0]"
           v-if="isCustomer && +size[0]"
           :style="[{minHeight: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'logs' ? '66%' : ''}]"

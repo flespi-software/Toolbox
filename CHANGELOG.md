@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.7.13] - 2018-02-22
+[feature] migrate from registry to gw
 ### [0.7.12] - 2018-02-20
 [feature] group route fot hub, mqtt, and storage
 [fix] reload page after getting new cache

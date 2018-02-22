@@ -7,7 +7,7 @@
         <div class="offline-code flex items-center justify-center"></div>
       </div>
       <div class="offline-card shadow-4 bg-white">
-        <div class="column items-center justify-center no-wrap text-grey-6 uppercase" style="font-size: 10vmax;">
+        <div class="column items-center justify-center no-wrap text-grey-6 uppercase" style="font-size: 7vmax;">
           Offline
         </div>
         <q-progress indeterminate color="grey-6" style="width: 100%; height: 3px" />

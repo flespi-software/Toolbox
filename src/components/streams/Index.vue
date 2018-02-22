@@ -69,7 +69,7 @@
         v-if="isCustomer"
         :mode="mode"
         :item="selectedItem"
-        originPattern="registry/streams/:id"
+        originPattern="gw/streams/:id"
         :isEnabled="true"
         :config="config.logs"
         :style="{minHeight: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"

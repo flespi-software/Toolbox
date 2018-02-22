@@ -41,6 +41,7 @@ function setOfflineFlag (state, flag) {
 }
 function setToken (state, val) {
   let token = val.replace('FlespiToken ', '')
+  if (token === state.token) { return false }
   if (val && token.match(/^[a-z0-9]+$/i)) {
     LocalStorage.set('X-Flespi-Token', token)
   }

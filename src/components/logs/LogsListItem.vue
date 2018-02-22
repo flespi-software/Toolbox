@@ -148,14 +148,14 @@
           case 312:
           case 313:
           case 314:
-          case 315: { return `${SERVER}/docs/#/registry/!/devices` }
+          case 315: { return `${SERVER}/docs/#/gw/!/devices` }
           case 401:
           case 402:
           case 403:
           case 404:
           case 410:
           case 411:
-          case 412: { return `${SERVER}/docs/#/registry/!/streams` }
+          case 412: { return `${SERVER}/docs/#/gw/!/streams` }
           case 500:
           case 501:
           case 502:

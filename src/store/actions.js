@@ -7,9 +7,9 @@ async function getItems ({ state, commit }, entity) {
       deletedParams = {}
     switch (entity) {
       case 'devices': {
-        queryString = `/registry/devices/all`
+        queryString = `/gw/devices/all`
         params = {fields: 'id,name,ident'}
-        deletedParams = {fields: 'item_data', filter: 'event_origin=registry/devices/*,event_code=3'}
+        deletedParams = {fields: 'item_data', filter: 'event_origin=gw/devices/*,event_code=3'}
         break
       }
       case 'channels': {
@@ -19,9 +19,9 @@ async function getItems ({ state, commit }, entity) {
         break
       }
       case 'streams': {
-        queryString = `/registry/streams/all`
+        queryString = `/gw/streams/all`
         params = {fields: 'id,name,configuration'}
-        deletedParams = {fields: 'item_data', filter: 'event_origin=registry/streams/*,event_code=3'}
+        deletedParams = {fields: 'item_data', filter: 'event_origin=gw/streams/*,event_code=3'}
         break
       }
       case 'modems': {
