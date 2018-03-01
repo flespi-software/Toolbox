@@ -18,8 +18,7 @@ function reqFailed (state, payload) {
         Vue.set(state, 'token', '')
         break
       }
-      case 401:
-      case 403: {
+      case 401: {
         clearToken(state)
         break
       }
