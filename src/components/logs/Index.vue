@@ -87,9 +87,7 @@
             await this.$store.dispatch(`${this.moduleName}/initTime`)
             await this.$store.dispatch(`${this.moduleName}/get`)
           }
-          else if (this.mode === 1) {
-            this.$store.dispatch(`${this.moduleName}/pollingGet`)
-          }
+          await this.$store.dispatch(`${this.moduleName}/pollingGet`)
         },
         get () {
           return this.$store.state[this.moduleName].origin
@@ -165,25 +163,16 @@
       modeChange (val) {
         val = +val
         this.$store.commit(`${this.moduleName}/clearMessages`)
-        this.$store.commit(`${this.moduleName}/setMode`, val)
-        switch (val) {
-          case 0: {
-            if (this.origin) {
-              this.$store.dispatch(`${this.moduleName}/initTime`) // if need init time by last messages
-                .then(() => {
-                  this.$store.dispatch(`${this.moduleName}/get`)
-                })
-            }
-            break
-          }
-          case 1: {
-            if (this.origin) {
-              this.$store.dispatch(`${this.moduleName}/pollingGet`)
-            }
-            break
-          }
+        if (val === 1 && this.origin && this.$store.state[this.moduleName].mode !== null) {
+          this.$store.dispatch(`${this.moduleName}/getHistory`, 200)
         }
-        LocalStorage.set('Toolbox-mode', val)
+        this.$store.commit(`${this.moduleName}/setMode`, val)
+        if (val === 0 && this.origin) {
+          this.$store.dispatch(`${this.moduleName}/initTime`) // if need init time by last messages
+            .then(() => {
+              this.$store.dispatch(`${this.moduleName}/get`)
+            })
+        }
       },
       updateColsHandler (cols) {
         this.cols = cols
@@ -244,6 +233,7 @@
       }
       if (this.$store.state[this.moduleName].mode === null) {
         this.modeChange(this.mode)
+        this.$store.dispatch(`${this.moduleName}/pollingGet`)
       }
     },
     destroyed () {

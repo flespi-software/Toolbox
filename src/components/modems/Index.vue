@@ -30,7 +30,7 @@
       </div>
     </div>
     <template v-else>
-      <q-toolbar slot="header" color="dark">
+      <q-toolbar slot="header" color="dark" class="justify-between">
         <q-item class="no-padding" style="max-width: 50%">
           <q-item-main>
             <q-tooltip v-if="selectedItem.configuration && selectedItem.configuration.protocol"><small>{{selectedItem.configuration.protocol}}</small></q-tooltip>
@@ -62,7 +62,13 @@
         <q-btn v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
           <q-tooltip>Mode (Real-time/History)</q-tooltip>
           {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
+          <q-chip small square pointing="left" color="red" v-if="newMessagesCount" class="cursor-pointer">{{newMessagesCount}}</q-chip>
         </q-btn>
+        <div>
+          <q-icon size="1.5rem" class="cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click="clearHandler">
+            <q-tooltip>Clear all panes</q-tooltip>
+          </q-icon>
+        </div>
       </q-toolbar>
       <logs
         ref="logs"
@@ -81,8 +87,9 @@
 </template>
 
 <script>
-  import { QToolbar, QSelect, QInput, QIcon, QBtn, LocalStorage, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip } from 'quasar-framework'
+  import { QToolbar, QSelect, QInput, QIcon, QBtn, LocalStorage, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip, QChip, Dialog } from 'quasar-framework'
   import logs from '../logs/Index.vue'
+  import { mapState } from 'vuex'
 
   export default {
     props: [
@@ -93,14 +100,21 @@
       'config'
     ],
     data () {
-      let mode = LocalStorage.get.item('Toolbox-mode')
       return {
-        mode: typeof mode === 'number' ? mode : 1,
+        mode: 1,
         active: null,
         isInit: false
       }
     },
     computed: {
+      ...mapState({
+        newMessagesCount (state) {
+          return state[this.config.logs.vuexModuleName] ? state[this.config.logs.vuexModuleName].newMessagesCount : 0
+        },
+        isEmptyMessages (state) {
+          return state[this.config.logs.vuexModuleName] ? !state[this.config.logs.vuexModuleName].messages.length : false
+        }
+      }),
       items () {
         return this.$store.state.items
       },
@@ -125,6 +139,21 @@
       },
       viewLogMessagesHandler (content) {
         this.$emit('view-log-message', content)
+      },
+      clearHandler () {
+        Dialog.create({
+          title: 'Confirm',
+          message: 'Do you really want to clear all data from the panes?',
+          buttons: [
+            'No',
+            {
+              label: 'Yes',
+              handler: () => {
+                this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`)
+              }
+            }
+          ]
+        })
       }
     },
     created () {
@@ -185,7 +214,7 @@
         }
       }
     },
-    components: { logs, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip }
+    components: { logs, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip, QChip }
   }
 </script>
 <style>

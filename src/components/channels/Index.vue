@@ -31,8 +31,8 @@
       </div>
     </template>
     <template v-else>
-      <q-toolbar color="dark">
-        <q-item class="no-padding" style="max-width: 50%">
+      <q-toolbar color="dark" class="justify-between">
+        <q-item class="no-padding">
           <q-item-main>
             <q-tooltip><small>protocol: {{selectedItem.protocol_name || selectedItem.protocol_id}}</small></q-tooltip>
             <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name}}</q-item-tile>
@@ -61,36 +61,42 @@
           </q-popover>
         </q-item>
         <q-btn v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'" :rounded="$q.platform.is.mobile">
-          <q-tooltip>Mode (Real-time/History)</q-tooltip>
           {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
+          <q-chip small square pointing="left" color="red" v-if="newMessagesCount" class="cursor-pointer">{{newMessagesCount}}</q-chip>
+          <q-tooltip>Mode (Real-time/History)</q-tooltip>
         </q-btn>
-        <q-icon v-if="isCustomer && !selectedItem.deleted" size="1.5rem" style="position: absolute;right: 0;" class="on-left cursor-pointer" name="mdi-format-align-middle">
-          <q-tooltip>Section ratio</q-tooltip>
-          <q-popover ref="ratioPopover">
-            <q-item style="width: 25rem; height: 100px" class="bg-dark">
-              <q-item-side class="text-center">
-                <q-item-tile color="grey-6">Logs</q-item-tile>
-              </q-item-side>
-              <q-item-main>
-                <q-item-tile label class="ellipsis overflow-hidden" color="white">Ratio</q-item-tile>
-                <q-item-tile sublabel>
-                  <q-slider
-                    v-model="ratio"
-                    color="grey-6"
-                    :min="0"
-                    :max="100"
-                    :step="25"
-                    label
-                    snap
-                  />
-                </q-item-tile>
-              </q-item-main>
-              <q-item-side class="text-center" right>
-                <q-item-tile color="grey-6">Messages</q-item-tile>
-              </q-item-side>
-            </q-item>
-          </q-popover>
-        </q-icon>
+        <div>
+          <q-icon v-if="isCustomer && !selectedItem.deleted" size="1.5rem" class="cursor-pointer pull-right" name="mdi-format-align-middle">
+            <q-tooltip>Section ratio</q-tooltip>
+            <q-popover ref="ratioPopover">
+              <q-item style="width: 25rem; height: 100px" class="bg-dark">
+                <q-item-side class="text-center">
+                  <q-item-tile color="grey-6">Logs</q-item-tile>
+                </q-item-side>
+                <q-item-main>
+                  <q-item-tile label class="ellipsis overflow-hidden" color="white">Ratio</q-item-tile>
+                  <q-item-tile sublabel>
+                    <q-slider
+                      v-model="ratio"
+                      color="grey-6"
+                      :min="0"
+                      :max="100"
+                      :step="25"
+                      label
+                      snap
+                    />
+                  </q-item-tile>
+                </q-item-main>
+                <q-item-side class="text-center" right>
+                  <q-item-tile color="grey-6">Messages</q-item-tile>
+                </q-item-side>
+              </q-item>
+            </q-popover>
+          </q-icon>
+          <q-icon size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click="clearHandler">
+            <q-tooltip>Clear all panes</q-tooltip>
+          </q-icon>
+        </div>
       </q-toolbar>
       <logs
         ref="logs"
@@ -120,9 +126,10 @@
 </template>
 
 <script>
-  import { QToolbar, QSelect, QInput, QIcon, QBtn, LocalStorage, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip, QSlider } from 'quasar-framework'
+  import { QToolbar, QSelect, QInput, QIcon, QBtn, LocalStorage, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip, QSlider, QChip, Dialog } from 'quasar-framework'
   import logs from '../logs/Index.vue'
   import messages from './messages/Index.vue'
+  import { mapState } from 'vuex'
 
   export default {
     props: [
@@ -133,15 +140,24 @@
       'config'
     ],
     data () {
-      let mode = LocalStorage.get.item('Toolbox-mode')
       return {
-        mode: typeof mode === 'number' ? mode : 1,
+        mode: 1,
         active: null,
         ratio: this.isCustomer ? 50 : 0,
         isInit: false
       }
     },
     computed: {
+      ...mapState({
+        newMessagesCount (state) {
+          let messagesCount = this.config.messages && state[this.config.messages.vuexModuleName] ? state[this.config.messages.vuexModuleName].newMessagesCount : 0,
+            logsCount = this.config.logs && state[this.config.logs.vuexModuleName] ? state[this.config.logs.vuexModuleName].newMessagesCount : 0
+          return messagesCount + logsCount
+        },
+        isEmptyMessages (state) {
+          return this.config.messages && this.config.logs && state[this.config.messages.vuexModuleName] ? !state[this.config.messages.vuexModuleName].messages.length && !state[this.config.logs.vuexModuleName].messages.length : false
+        }
+      }),
       size () {
         return [this.ratio, 100 - this.ratio]
       },
@@ -172,6 +188,22 @@
       },
       unselect () {
         this.$refs.messages.unselect()
+      },
+      clearHandler () {
+        Dialog.create({
+          title: 'Confirm',
+          message: 'Do you really want to clear all data from the panes?',
+          buttons: [
+            'No',
+            {
+              label: 'Yes',
+              handler: () => {
+                this.$store.commit(`${this.config.messages.vuexModuleName}/clearMessages`)
+                this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`)
+              }
+            }
+          ]
+        })
       }
     },
     created () {
@@ -256,7 +288,7 @@
         }
       }
     },
-    components: { logs, messages, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip, QSlider }
+    components: { logs, messages, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip, QSlider, QChip }
   }
 </script>
 <style>

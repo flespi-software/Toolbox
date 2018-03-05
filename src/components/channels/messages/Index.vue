@@ -81,6 +81,7 @@
           this.$store.commit(`${this.moduleName}/setActive`, val)
           await this.$store.dispatch(`${this.moduleName}/getCols`)
           this.modeChange(this.mode)
+          this.$store.dispatch(`${this.moduleName}/pollingGet`)
         }
       },
       cols: {
@@ -137,17 +138,10 @@
         val = +val
         this.$store.commit(`${this.moduleName}/clearMessages`)
         this.$store.commit(`${this.moduleName}/setMode`, val)
-        LocalStorage.set('Toolbox-mode', val)
         switch (val) {
           case 0: {
             if (this.active) {
               this.$store.dispatch(`${this.moduleName}/get`)
-            }
-            break
-          }
-          case 1: {
-            if (this.active) {
-              this.$store.dispatch(`${this.moduleName}/pollingGet`)
             }
             break
           }
@@ -221,6 +215,7 @@
       }
       if (this.$store.state[this.moduleName].mode === null) {
         this.modeChange(this.mode)
+        this.$store.dispatch(`${this.moduleName}/pollingGet`)
       }
     },
     destroyed () {

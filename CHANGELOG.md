@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.7.16] - 2018-03-05
+[feature] notify about new messages
+[feature] remove save mode from localStorage
+[feature] clear panes in real-time mode
 ### [0.7.15] - 2018-03-01
 [feature] 403 codes removed
 ### [0.7.14] - 2018-02-27
