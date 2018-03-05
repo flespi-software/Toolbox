@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.7.17] - 2018-03-05
+[update] packages
 ### [0.7.16] - 2018-03-05
 [feature] notify about new messages
 [feature] remove save mode from localStorage
