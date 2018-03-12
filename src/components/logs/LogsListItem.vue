@@ -1,7 +1,8 @@
 <template>
   <div
+    v-if="!item['__connectionStatus']"
     class="cursor-pointer"
-    :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, borderBottom: item.delimiter ? 'solid 1px #f40' : ''}" :class="[color]"
+    :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, borderBottom: item.delimiter ? 'solid 1px #f40' : ''}" :class="[color, item.__status ? 'missed-items' : '']"
     @click="itemClickHandler(index, item)">
     <span class="list__item item_actions text-white" v-if="actionsVisible">
       <q-icon v-for="(action, i) in actions" :key="i" @click.stop="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
@@ -20,6 +21,23 @@
       <span :title="JSON.stringify(getValueOfProp(prop))">{{getValueOfProp(prop)}}</span>
     </span>
     <span v-if="etcVisible" class="list__item item_etc">{{etc}}</span>
+  </div>
+  <div
+    v-else
+    :style="{
+      height: `${itemHeight}px`,
+      width: `${rowWidth}px`,
+      borderTop: item.__connectionStatus === 'offline' ? 'solid 1px #000' : '',
+      borderBottom: item.__connectionStatus === 'reconnected' ? 'solid 1px #000' : '',
+      color: '#000',
+      fontWeight: 'bold',
+      backgroundColor: '#ff0',
+      backgroundImage: 'url(/statics/police.png)',
+      overflow: 'hidden',
+      opacity: '.7'
+    }" :class="[color]"
+  >
+    <span style="padding: 0 5px; margin-left: 150px; background-color: #ff0" class="uppercase" v-for="n in Array(10)">{{item['__connectionStatus']}}</span>
   </div>
 </template>
 
@@ -42,7 +60,7 @@
       etc () {
         let etcKeys = Object.keys(this.item).filter(key => !this.hasInCols(key))
         return etcKeys.reduce((acc, key) => {
-          if (key === 'delimiter' || key === 'event_origin' || key === 'event_text' || key === 'item_data' || key === 'source' || key === 'error_text' || key === 'close_code' || key === 'http_data' || key === 'current' || key === 'updated' || key === 'error_code' || key === 'send_code' || key === 'address') { return acc }
+          if (key === 'delimiter' || key === 'event_origin' || key === 'event_text' || key === 'item_data' || key === 'source' || key === 'error_text' || key === 'close_code' || key === 'http_data' || key === 'current' || key === 'updated' || key === 'error_code' || key === 'send_code' || key === 'address' || key === '__status') { return acc }
           acc += `${key}: ${JSON.stringify(this.item[key])}; `
           return acc
         }, '') || '*Empty*'
@@ -230,4 +248,8 @@
     margin 0 10px 0 5px
     text-overflow ellipsis
     overflow hidden
+  .message-viewer .q-w-list>.missed-items
+    background-color rgba(255,255,255,.05)
+    &:nth-child(odd)
+      background-color rgba(255,255,255,.1)
 </style>

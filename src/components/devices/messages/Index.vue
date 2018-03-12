@@ -254,8 +254,19 @@
         this.modeChange(this.mode)
         this.$store.dispatch(`${this.moduleName}/pollingGet`)
       }
+      Vue.connector.socket.on('offline', () => { this.$store.commit(`${this.moduleName}/setOffline`, this.mode === 1) })
+      Vue.connector.socket.on('connect', () => {
+        if (this.$store.state[this.moduleName].offline) {
+          this.$store.commit(`${this.moduleName}/setReconnected`, this.mode === 1)
+          if (this.mode === 1) {
+            this.$store.dispatch(`${this.moduleName}/getMissedMessages`)
+          }
+        }
+      })
     },
     destroyed () {
+      Vue.connector.socket.off('offline')
+      Vue.connector.socket.off('connect')
       this.$store.commit(`${this.moduleName}/clear`)
     },
     mixins: [filterMessages],

@@ -1,7 +1,9 @@
 <template>
   <div
+    v-if="!item['__connectionStatus']"
     @click="itemClickHandler(index, item)"
     class="cursor-pointer"
+    :class="[item.__status ? 'missed-items' : '']"
     :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, backgroundColor: selected ? 'rgba(255,255,255,0.7)': '', color: selected ? '#333' : ''}">
     <span class="list__item item_actions" v-if="actionsVisible">
       <q-icon v-for="(action, i) in actions" :key="i" @click.stop="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
@@ -13,6 +15,23 @@
       {{values[prop.name].value}}
     </span>
     <span v-if="etcVisible" class="list__item item_etc">{{values.etc.value || '*Empty*'}}</span>
+  </div>
+  <div
+    v-else
+    :style="{
+      height: `${itemHeight}px`,
+      width: `${rowWidth}px`,
+      borderTop: item.__connectionStatus === 'offline' ? 'solid 1px #000' : '',
+      borderBottom: item.__connectionStatus === 'reconnected' ? 'solid 1px #000' : '',
+      color: '#000',
+      fontWeight: 'bold',
+      backgroundColor: '#ff0',
+      backgroundImage: 'url(/statics/police.png)',
+      overflow: 'hidden',
+      opacity: '.7'
+    }"
+  >
+    <span style="padding: 0 5px; margin-left: 150px; background-color: #ff0" class="uppercase" v-for="n in Array(10)">{{item['__connectionStatus']}}</span>
   </div>
 </template>
 
@@ -63,6 +82,7 @@
             vals[propName].value = value
           }
           else {
+            if (propName === '__status') { return false }
             vals.etc.value += `${propName}: ${this.item[propName]}; `
           }
         })
@@ -112,4 +132,8 @@
     margin 0 10px 0 5px
     text-overflow ellipsis
     overflow hidden
+  .message-viewer .q-w-list>.missed-items
+    background-color rgba(255,255,255,.05)
+    &:nth-child(odd)
+      background-color rgba(255,255,255,.1)
 </style>

@@ -3,16 +3,10 @@
   <div id="q-app">
     <router-view v-if="!$store.state.offline"></router-view>
     <div v-else class="offline-page window-height window-width bg-light column items-center no-wrap">
-      <div class="offline-back flex items-center justify-center">
-        <div class="offline-code flex items-center justify-center"></div>
-      </div>
-      <div class="offline-card shadow-4 bg-white">
-        <div class="column items-center justify-center no-wrap text-grey-6 uppercase" style="font-size: 7vmax;">
-          Offline
-        </div>
-        <q-progress indeterminate color="grey-6" style="width: 100%; height: 3px" />
-        <div class="text-center text-grey-6 uppercase">
-          waiting for reconnection
+      <div class="offline-back">
+        <div class="offline-code"></div>
+        <div class="offline-line">
+          <span v-for="n in Array(20)">offline</span>
         </div>
       </div>
     </div>
@@ -48,11 +42,10 @@ export default {
   .offline-page
     .offline-back
       width 100%
-      height 50vh
+      height 100vh
       overflow hidden
-      padding-top 15vh
       font-size 10vmax
-      background-image url(./statics/mountain.svg)
+      background-image url(./statics/corpse.png)
       background-position center 100px
       background-size contain
       background-repeat no-repeat
@@ -66,14 +59,22 @@ export default {
         background-position center
         background-size contain
         background-repeat no-repeat
-    .offline-card
-      border-radius 2px
-      margin-top -50px
-      width 80vw
-      max-width 600px
-      padding 25px
-      > i
-        font-size 5rem
+        margin 0 auto
+      .offline-line
+        overflow hidden
+        width 160%
+        transform rotate(-20deg) translate(-50%)
+        background-color #ff0
+        background-image url(./statics/police50.png)
+        margin -30% 50%
+        font-size 3rem
+        & > span
+          margin 10rem
+          padding 0 20px
+          text-transform uppercase
+          font-weight bold
+          color: #000
+          background-color #ff0
   @media (min-width 767px) {
     .modify {
       border-right: 1px solid #ccc;

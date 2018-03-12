@@ -13,7 +13,7 @@
     "112": "channel's command was deleted",
     "113": "channel's command executed or discarded",
     "114": "channel configuration is invalid",
-    "200": "SMS was received via modem",
+    "200": "SMS(delivery receipt) received via modem",
     "201": "SMS was sent via modem",
     "202": "modem has successfully connected to SMS gateway",
     "203": "modem has lost connection to SMS gateway server",
