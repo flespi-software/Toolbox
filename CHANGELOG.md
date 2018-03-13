@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.8.0] - 2018-03-13
+[update] packages
+[feature] new offline view
+[fix] urls for picture
 ### [0.7.18] - 2018-03-12
 [feature] offline processing
 [feature] new offline page

@@ -1,8 +1,8 @@
 <template>
   <!-- Don't drop "q-app" class -->
   <div id="q-app">
-    <router-view v-if="!$store.state.offline"></router-view>
-    <div v-else class="offline-page window-height window-width bg-light column items-center no-wrap">
+    <router-view></router-view>
+    <div v-if="$store.state.offline" class="offline-page window-height window-width bg-light column items-center no-wrap">
       <div class="offline-back">
         <div class="offline-code"></div>
         <div class="offline-line">
@@ -40,6 +40,13 @@ export default {
     overflow hidden !important
     padding-right 0 !important
   .offline-page
+    position absolute
+    top 0
+    bottom 0
+    left 0
+    right 0
+    z-index 10020
+    opacity .7
     .offline-back
       width 100%
       height 100vh

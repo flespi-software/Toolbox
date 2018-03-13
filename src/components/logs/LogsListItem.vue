@@ -32,10 +32,11 @@
       color: '#000',
       fontWeight: 'bold',
       backgroundColor: '#ff0',
-      backgroundImage: 'url(/statics/police.png)',
+      backgroundImage: 'url(./statics/police.png)',
       overflow: 'hidden',
       opacity: '.7'
     }" :class="[color]"
+    :title="date.formatDate(item.timestamp, 'DD/MM/YYYY HH:mm:ss')"
   >
     <span style="padding: 0 5px; margin-left: 150px; background-color: #ff0" class="uppercase" v-for="n in Array(10)">{{item['__connectionStatus']}}</span>
   </div>
@@ -56,6 +57,11 @@
       'itemHeight',
       'rowWidth'
     ],
+    data () {
+      return {
+        date: date
+      }
+    },
     computed: {
       etc () {
         let etcKeys = Object.keys(this.item).filter(key => !this.hasInCols(key))

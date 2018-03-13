@@ -26,10 +26,11 @@
       color: '#000',
       fontWeight: 'bold',
       backgroundColor: '#ff0',
-      backgroundImage: 'url(/statics/police.png)',
+      backgroundImage: 'url(./statics/police.png)',
       overflow: 'hidden',
       opacity: '.7'
     }"
+    :title="date.formatDate(item.timestamp, 'DD/MM/YYYY HH:mm:ss')"
   >
     <span style="padding: 0 5px; margin-left: 150px; background-color: #ff0" class="uppercase" v-for="n in Array(10)">{{item['__connectionStatus']}}</span>
   </div>
@@ -50,6 +51,11 @@
       'actionsVisible',
       'selected'
     ],
+    data () {
+      return {
+        date: date
+      }
+    },
     computed: {
       values () {
         let vals = this.cols.reduce((res, col, index, arr) => {

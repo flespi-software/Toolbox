@@ -2,8 +2,8 @@
   <div v-if="tabModel">
     <q-layout ref="layout" v-model="sides" view="hHh LpR lFf" :page-style="{background: '#333'}" :right-class="{'bg-dark':true}">
       <q-toolbar slot="header" color="dark" class="header__main-toolbar" v-if="isVisibleToolbar">
-        <q-toolbar-title :style="{minWidth: $q.platform.is.mobile ? '100px' : '210px'}">
-          <img :src="$q.platform.is.mobile ? 'statics/toolbox_mobile.png':'statics/toolbox50.png'" alt="Track it!" style="height: 30px"> <sup>{{version}}</sup>
+        <q-toolbar-title :style="{minWidth: $q.platform.is.mobile ? '60px' : '210px'}">
+          <img :src="$q.platform.is.mobile ? 'statics/toolbox_mobile.png':'statics/toolbox50.png'" alt="Track it!" style="height: 30px"> <sup class="gt-sm">{{version}}</sup>
         </q-toolbar-title>
         <q-window-resize-observable @resize="onResizeWindow" />
         <q-tabs color="dark" v-model="tabModel" :style="{maxWidth: 'calc(100% - 270px)'}" v-if="$q.platform.is.desktop && isTabsVisible">
