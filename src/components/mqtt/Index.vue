@@ -24,7 +24,7 @@
         v-if="isCustomer"
         :mode="mode"
         :item="true"
-        originPattern="mqtt/sessions/*"
+        originPattern="mqtt/*"
         :isEnabled="true"
         :config="config.logs"
         :style="{minHeight: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"

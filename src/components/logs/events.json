@@ -4,7 +4,7 @@
     "2": "item was updated, usually by customer via REST API",
     "3": "item was deleted, usually by customer via REST API",
     "20": "item was blocked",
-    "21": "item was deleted",
+    "21": "item was unblocked",
     "100": "channel has accepted connection",
     "101": "channel connection was identified",
     "102": "channel connection was closed",
