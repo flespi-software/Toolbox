@@ -85,11 +85,14 @@
           this.$store.commit(`${this.moduleName}/setActive`, val)
           this.$store.commit(`${this.moduleName}/clearMessages`)
           await this.$store.dispatch(`${this.moduleName}/getCols`)
-          if (this.mode === 0) {
+          if (this.$store.state[this.moduleName].mode === 0) {
             await this.$store.dispatch(`${this.moduleName}/initTime`)
             await this.$store.dispatch(`${this.moduleName}/get`)
           }
           this.$store.dispatch(`${this.moduleName}/pollingGet`)
+          if (this.$store.state[this.moduleName].mode === 1 && !this.item.deleted) {
+            await this.$store.dispatch(`${this.moduleName}/getHistory`)
+          }
         }
       },
       cols: {
@@ -155,13 +158,14 @@
         }
       },
       modeChange (val) {
+        let modeInitValueIsNull = this.$store.state[this.moduleName].mode === null
         val = +val
         this.$store.commit(`${this.moduleName}/clearMessages`)
         if (val === 1 && this.active && this.$store.state[this.moduleName].mode !== null) {
           this.$store.dispatch(`${this.moduleName}/getHistory`, 200)
         }
         this.$store.commit(`${this.moduleName}/setMode`, val)
-        if (val === 0 && this.active) {
+        if (val === 0 && this.active && (!this.item.deleted || modeInitValueIsNull)) {
           this.$store.dispatch(`${this.moduleName}/initTime`) // if need init time by last messages
             .then(() => {
               this.$store.dispatch(`${this.moduleName}/get`)
@@ -253,6 +257,9 @@
       if (this.$store.state[this.moduleName].mode === null) {
         this.modeChange(this.mode)
         this.$store.dispatch(`${this.moduleName}/pollingGet`)
+        if (this.mode === 1) {
+          await this.$store.dispatch(`${this.moduleName}/getHistory`)
+        }
       }
       Vue.connector.socket.on('offline', () => { this.$store.commit(`${this.moduleName}/setOffline`, this.mode === 1) })
       Vue.connector.socket.on('connect', () => {

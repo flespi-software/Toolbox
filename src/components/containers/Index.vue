@@ -34,7 +34,10 @@
             <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name}}</q-item-tile>
             <q-item-tile sublabel style="font-size: 0.8rem">{{selectedItem.id}}</q-item-tile>
           </q-item-main>
-          <q-item-side class="text-right"><q-icon color="white" size="2rem" name="mdi-menu-down" /></q-item-side>
+          <q-item-side class="text-right">
+            <q-item-tile style="display: inline-block" stamp color="white" class="text-center"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id.toString()}}</q-item-tile>
+            <q-item-tile  style="display: inline-block" stamp color="white" size="2rem" icon="mdi-menu-down" />
+          </q-item-side>
           <q-popover fit ref="popoverActive">
             <q-list link separator class="scroll">
               <q-item
@@ -223,6 +226,7 @@
     border-radius: 3px;
     background-color: #90a4ae;
     color: white;
-    padding: 0 3px
+    padding: 0 3px;
+    margin-bottom: 3px;
   }
 </style>
