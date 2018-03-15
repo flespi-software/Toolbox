@@ -48,7 +48,7 @@ async function getItems ({ state, commit }, entity) {
         if (typeof state.isLoading !== 'undefined') {
           state.isLoading = true
         }
-        let activeResp = await Vue.connector.http.get(queryString, params)
+        let activeResp = await Vue.connector.http.get(queryString, { params })
         let active = activeResp.data
         let deleted = []
         if (state.isCustomer) {

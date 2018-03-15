@@ -79,6 +79,8 @@
         async set (val) {
           await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active channel */
           this.$store.commit(`${this.moduleName}/setActive`, val)
+          let activeItem = this.$store.state.items.filter((item) => { return val === item.id })[0] || {}
+          Vue.set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
           await this.$store.dispatch(`${this.moduleName}/getCols`)
           this.modeChange(this.mode)
           this.$store.dispatch(`${this.moduleName}/pollingGet`)
@@ -211,6 +213,8 @@
       this.currentLimit = this.limit
       if (this.activeId) {
         this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
+        let activeItem = this.$store.state.items.filter((item) => { return this.activeId === item.id })[0] || {}
+        Vue.set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
         await this.$store.dispatch(`${this.moduleName}/getCols`)
       }
       if (this.$store.state[this.moduleName].mode === null) {

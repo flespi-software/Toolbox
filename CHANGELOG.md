@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.8.3] - 2018-03-15
+[feature] offline in external component
+[update] packages
 ### [0.8.2] - 2018-03-13
 [feature] added ids
 [fix] pooling
