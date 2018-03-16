@@ -23,7 +23,8 @@
       <q-item v-if="Object.keys(filteredObject).length" v-for="(key, index) in Object.keys(filteredObject)" :key="key">
         <q-item-main>
           <q-item-tile label class="ellipsis text-bold text-white">{{key}}<q-tooltip>{{key}}</q-tooltip></q-item-tile>
-          <q-item-tile sublabel class="ellipsis text-white">{{filteredObject[key]}}<q-tooltip>{{filteredObject[key]}}</q-tooltip></q-item-tile>
+          <q-item-tile v-if="key.indexOf('image.bin.') === -1" sublabel class="ellipsis text-white">{{filteredObject[key]}}<q-tooltip>{{filteredObject[key]}}</q-tooltip></q-item-tile>
+          <q-item-tile v-else sublabel><img class="image-bin" :src="`data:image/${key.split('.')[2]};base64, ${filteredObject[key]}`" :alt="key"></q-item-tile>
         </q-item-main>
       </q-item>
     </q-list>
@@ -58,5 +59,8 @@
   .no-top-bottom-margin {
     margin-bottom: 0;
     margin-top: 0;
+  }
+  .image-bin {
+    max-width: 265px;
   }
 </style>

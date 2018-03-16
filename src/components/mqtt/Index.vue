@@ -46,6 +46,7 @@
       'isCustomer',
       'isLoading',
       'isVisibleToolbar',
+      'isNeedSelect',
       'config'
     ],
     data () {

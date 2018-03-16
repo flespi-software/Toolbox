@@ -66,6 +66,7 @@
         :isCustomer="isCustomer"
         :isLoading="loadingFlag"
         :isVisibleToolbar="isVisibleToolbar"
+        :isNeedSelect="isNeedSelect"
         :config="configByEntity"
       >
       </router-view>
@@ -104,7 +105,8 @@
         isVisibleToolbar: true,
         loadingFlag: false,
         isTabsVisible: true,
-        tabsByGroup: Object.keys(config)
+        tabsByGroup: Object.keys(config),
+        isNeedSelect: true
       }
     },
     computed: {
@@ -304,6 +306,7 @@
           if (tabsByGroups.length) { this.tabsByGroup = tabsByGroups }
         }
         if (route.params.token) {
+          this.isNeedSelect = !this.$route.params.noselect
           this.isVisibleToolbar = !route.params.fullscreen
           this.setToken(route.params.token)
           if (route.params.id && route.params.type) {
@@ -378,6 +381,7 @@
         if (tabsByGroups.length) { this.tabsByGroup = tabsByGroups }
       }
       if (this.$route.params.token) {
+        this.isNeedSelect = !this.$route.params.noselect
         this.isVisibleToolbar = !this.$route.params.fullscreen
         this.setToken(this.$route.params.token)
         if (this.$route.params.id && this.$route.params.type) {

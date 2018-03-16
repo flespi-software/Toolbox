@@ -50,6 +50,7 @@
   export default {
     props: [
       'mode',
+      'item',
       'activeId',
       'limit',
       'config'

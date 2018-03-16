@@ -54,6 +54,7 @@ export default new VueRouter({
     { path: '/token/:token/type/:type/id/:id', component: load('Index') },
     { path: '/token/:token/group/:group', component: load('Index') },
     { path: '/token/:token/type/:type/id/:id/fullscreen/:fullscreen', component: load('Index') },
+    { path: '/token/:token/type/:type/id/:id/fullscreen/:fullscreen/noselect/:noselect', component: load('Index') },
     { path: '/login', component: load('Login') },
     { path: '/login/:token', component: load('Login') }
   ]

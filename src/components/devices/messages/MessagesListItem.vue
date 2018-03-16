@@ -92,11 +92,19 @@
             if (propName.indexOf('timestamp') !== -1) {
               value = date.formatDate(value * 1000, 'DD/MM/YYYY HH:mm:ss')
             }
+            if (propName.indexOf('image.bin.') !== -1) {
+              value = '<binary image>'
+            }
             vals[propName].value = value
           }
           else {
             if (propName === 'delimiter' || propName === '__status') { return false }
-            vals.etc.value += `${propName}: ${this.item[propName]}; `
+            if (propName.indexOf('image.bin.') !== -1) {
+              vals.etc.value += `${propName}: <binary image>`
+            }
+            else {
+              vals.etc.value += `${propName}: ${this.item[propName]}; `
+            }
           }
         })
         Object.keys(vals).forEach((key) => {

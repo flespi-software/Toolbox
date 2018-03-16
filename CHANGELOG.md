@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.8.4] - 2018-03-16
+[feature] images support in telegram protocol
+[feature] new param in route 'noselect'
+[fix] devices messages init
 ### [0.8.3] - 2018-03-15
 [feature] offline in external component
 [update] packages

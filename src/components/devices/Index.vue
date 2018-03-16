@@ -29,16 +29,16 @@
     </div>
     <template v-else>
       <q-toolbar slot="header" color="dark" class="justify-between">
-        <q-item class="no-padding" style="max-width: 50%">
+        <q-item class="no-padding" style="max-width: 50%" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
           <q-item-main>
             <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name || `#${selectedItem.id}`}}</q-item-tile>
             <q-item-tile sublabel style="font-size: 0.8rem" v-if="selectedItem.ident">{{selectedItem.ident}}</q-item-tile>
           </q-item-main>
           <q-item-side class="text-right">
             <q-item-tile style="display: inline-block" stamp color="white" class="text-center"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id.toString()}}</q-item-tile>
-            <q-item-tile  style="display: inline-block" stamp color="white" size="2rem" icon="mdi-menu-down" />
+            <q-item-tile v-if="isNeedSelect" style="display: inline-block" stamp color="white" size="2rem" icon="mdi-menu-down" />
           </q-item-side>
-          <q-popover fit ref="popoverActive">
+          <q-popover fit ref="popoverActive" v-if="isNeedSelect">
             <q-list link separator class="scroll">
               <q-item
                 v-for="(item, index) in items"
@@ -115,6 +115,7 @@
           ref="messages"
           @view-data="viewDataHandler"
           :mode="mode"
+          :item="selectedItem"
           :activeId="active"
           :isEnabled="!!+size[1]"
           :limit="limit"
@@ -150,6 +151,7 @@
       'isCustomer',
       'isLoading',
       'isVisibleToolbar',
+      'isNeedSelect',
       'config'
     ],
     data () {

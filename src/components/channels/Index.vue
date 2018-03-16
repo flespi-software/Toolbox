@@ -32,7 +32,7 @@
     </template>
     <template v-else>
       <q-toolbar color="dark" class="justify-between">
-        <q-item class="no-padding">
+        <q-item class="no-padding" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
           <q-item-main>
             <q-tooltip><small>protocol: {{selectedItem.protocol_name || selectedItem.protocol_id}}</small></q-tooltip>
             <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name}}</q-item-tile>
@@ -40,9 +40,9 @@
           </q-item-main>
           <q-item-side class="text-right">
             <q-item-tile style="display: inline-block" stamp color="white" class="text-center"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id.toString()}}</q-item-tile>
-            <q-item-tile  style="display: inline-block" stamp color="white" size="2rem" icon="mdi-menu-down" />
+            <q-item-tile v-if="isNeedSelect" style="display: inline-block" stamp color="white" size="2rem" icon="mdi-menu-down" />
           </q-item-side>
-          <q-popover fit ref="popoverActive">
+          <q-popover fit ref="popoverActive" v-if="isNeedSelect">
             <q-list link separator class="scroll">
               <q-item
                 v-for="(item, index) in items"
@@ -140,6 +140,7 @@
       'isCustomer',
       'isLoading',
       'isVisibleToolbar',
+      'isNeedSelect',
       'config'
     ],
     data () {
