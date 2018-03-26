@@ -21,8 +21,8 @@
 
 ## Prerequisites:
 
-- [Node.js](https://nodejs.org/en/) (>=6.x)
-- npm version 3+ and [Git](https://git-scm.com/).
+- [Node.js](https://nodejs.org/en/) (>=9.x)
+- npm version 5+ and [Git](https://git-scm.com/).
 
 ## Build Setup
 
@@ -35,19 +35,16 @@ $ cd mytoolbox
 $ npm install
 
 # serve with hot reload at localhost:7007 for flespi.io
-$ quasar dev
+$ npm run dev
 
 # build for production with minification for flespi.io
-$ quasar build
+$ npm run build
 
 # lint code
 $ quasar lint
 
 # serve with hot reload at localhost:7007 for localhost:9005
 $ npm run dev_local
-
-# build for production with minification for current host
-$ npm run build_local
 ```
 
 ## License
