@@ -5,7 +5,7 @@
       <q-item-main>
         <q-item-tile label class="ellipsis text-bold text-white">Message</q-item-tile>
       </q-item-main>
-      <q-item-side right><q-icon color="white" class="pull-right cursor-pointer" name="mdi-close" @click="$emit('close')" size="1.8rem" /></q-item-side>
+      <q-item-side right><q-icon color="white" class="pull-right cursor-pointer" name="mdi-close" @click.native="$emit('close')" size="1.8rem" /></q-item-side>
     </q-item>
     <q-item>
       <q-item-main>
@@ -20,7 +20,7 @@
           <q-item-tile v-if="!Object.keys(filteredObject).length && this.search" sublabel class="ellipsis text-center text-white">Nothing found on your search</q-item-tile>
         </q-item-main>
       </q-item>
-      <q-item v-if="Object.keys(filteredObject).length" v-for="(key, index) in Object.keys(filteredObject)" :key="key">
+      <q-item v-if="Object.keys(filteredObject).length" v-for="(key) in Object.keys(filteredObject)" :key="key">
         <q-item-main>
           <q-item-tile label class="ellipsis text-bold text-white">{{key}}<q-tooltip>{{key}}</q-tooltip></q-item-tile>
           <q-item-tile v-if="key.indexOf('image.bin.') === -1" sublabel class="ellipsis text-white">{{filteredObject[key]}}<q-tooltip>{{filteredObject[key]}}</q-tooltip></q-item-tile>
@@ -32,27 +32,24 @@
 </template>
 
 <script>
-  import { QList, QListHeader, QItem, QItemMain, QItemSide, QItemTile, QTooltip, QIcon, QInput } from 'quasar-framework'
-
-  export default {
-    props: ['object'],
-    data () {
-      return {
-        search: ''
-      }
-    },
-    computed: {
-      filteredObject () {
-        return Object.keys(this.object).reduce((acc, key) => {
-          if (key.indexOf(this.search) !== -1) {
-            acc[key] = this.object[key]
-          }
-          return acc
-        }, {})
-      }
-    },
-    components: { QList, QListHeader, QItem, QItemMain, QItemSide, QItemTile, QTooltip, QIcon, QInput }
+export default {
+  props: ['object'],
+  data () {
+    return {
+      search: ''
+    }
+  },
+  computed: {
+    filteredObject () {
+      return Object.keys(this.object).reduce((acc, key) => {
+        if (key.indexOf(this.search) !== -1) {
+          acc[key] = this.object[key]
+        }
+        return acc
+      }, {})
+    }
   }
+}
 </script>
 
 <style>

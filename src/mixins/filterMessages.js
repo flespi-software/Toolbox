@@ -10,28 +10,22 @@ export default {
           if (filter.indexOf('!=') !== -1) {
             parts = filter.split('!=')
             operation = '!='
-          }
-          else if (filter.indexOf('<=') !== -1) {
+          } else if (filter.indexOf('<=') !== -1) {
             parts = filter.split('<=')
             operation = '<='
-          }
-          else if (filter.indexOf('>=') !== -1) {
+          } else if (filter.indexOf('>=') !== -1) {
             parts = filter.split('>=')
             operation = '>='
-          }
-          else if (filter.indexOf('=') !== -1) {
+          } else if (filter.indexOf('=') !== -1) {
             parts = filter.split('=')
             operation = '='
-          }
-          else if (filter.indexOf('<') !== -1) {
+          } else if (filter.indexOf('<') !== -1) {
             parts = filter.split('<')
             operation = '<'
-          }
-          else if (filter.indexOf('>') !== -1) {
+          } else if (filter.indexOf('>') !== -1) {
             parts = filter.split('>')
             operation = '>'
-          }
-          else {
+          } else {
             parts = [filter, null]
             operation = 'exist'
           }

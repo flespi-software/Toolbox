@@ -12,12 +12,12 @@
  */
 import Offline from './components/Offline'
 export default {
+  name: 'App',
   components: { Offline }
 }
 </script>
 
 <style lang="stylus">
-  @import '~variables'
   .with-modal
     overflow hidden !important
     padding-right 0 !important

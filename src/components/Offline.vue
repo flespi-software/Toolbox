@@ -3,31 +3,31 @@
     <div class="offline-back" :style="{backgroundImage: `url(${logo})`}">
       <div class="offline-code"></div>
       <div class="offline-line">
-        <span v-for="n in Array(20)">offline</span>
+        <span v-for="n in Array(20)" :key="n">offline</span>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-  /* for copying that components need to copy 'checkConnection' action, to add 'offline' property to root state */
-  /* and pictures 'corpse.png' and 'police50.png' must be in statics folder of project */
-  /* prop logo must be in relative path that component */
+/* for copying that components need to copy 'checkConnection' action, to add 'offline' property to root state */
+/* and pictures 'corpse.png' and 'police50.png' must be in statics folder of project */
+/* prop logo must be in relative path that component */
 
-  export default {
-    name: 'offline',
-    props: [
-      'logo'
-    ],
-    data () {
-      return {
-        intervalId: 0
-      }
-    },
-    created () {
-      this.intervalId = setInterval(() => { this.$store.dispatch('checkConnection') }, 5000)
+export default {
+  name: 'offline',
+  props: [
+    'logo'
+  ],
+  data () {
+    return {
+      intervalId: 0
     }
+  },
+  created () {
+    this.intervalId = setInterval(() => { this.$store.dispatch('checkConnection') }, 5000)
   }
+}
 </script>
 
 <style lang="stylus">

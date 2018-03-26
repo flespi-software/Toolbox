@@ -9,7 +9,7 @@
               <q-item
                 v-for="(item, index) in items"
                 :key="index"
-                @click="active = item.id, $refs.popoverNotActive.close()"
+                @click.native="active = item.id, $refs.popoverNotActive.hide()"
                 :class="{'text-grey-8': item.deleted}"
               >
                 <q-item-main>
@@ -43,7 +43,7 @@
               <q-item
                 v-for="(item, index) in items"
                 :key="index"
-                @click="active = item.id, $refs.popoverActive.close(), $emit('view-data-hide')"
+                @click.native="active = item.id, $refs.popoverActive.hide(), $emit('view-data-hide')"
                 :class="{'text-grey-8': item.deleted}"
               >
                 <q-item-main>
@@ -64,6 +64,12 @@
           <q-chip small square pointing="left" color="red" v-if="newMessagesCount" class="cursor-pointer">{{newMessagesCount}}</q-chip>
         </q-btn>
         <div>
+          <q-icon v-if="messagesWithPosition.length && $q.platform.is.desktop" size="1.5rem" class="on-left cursor-pointer pull-right" name="mdi-map" @click.native="isVisibleMap = !isVisibleMap">
+            <q-tooltip>Map</q-tooltip>
+          </q-icon>
+          <q-icon size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler">
+            <q-tooltip>Clear all panes</q-tooltip>
+          </q-icon>
           <q-icon v-if="isCustomer && !selectedItem.deleted" size="1.5rem" class="cursor-pointer pull-right" name="mdi-format-align-middle">
             <q-tooltip>Section ratio</q-tooltip>
             <q-popover ref="ratioPopover">
@@ -90,12 +96,6 @@
                 </q-item-side>
               </q-item>
             </q-popover>
-          </q-icon>
-          <q-icon v-if="messagesWithPosition.length && $q.platform.is.desktop" size="1.5rem" class="on-left cursor-pointer pull-right" name="mdi-map" @click="isVisibleMap = !isVisibleMap">
-            <q-tooltip>Map</q-tooltip>
-          </q-icon>
-          <q-icon size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click="clearHandler">
-            <q-tooltip>Clear all panes</q-tooltip>
           </q-icon>
         </div>
       </q-toolbar>
@@ -133,195 +133,185 @@
         @map:close="isVisibleMap = false"
         @map:minimize="mapMinimizeHandler"
       />
-      <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="!isCustomer && selectedItem.deleted">Nothing to show by device &#171{{selectedItem.name || `#${selectedItem.id}`}}&#187 <div style="font-size: 0.9rem">or you haven`t access</div></div>
+      <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="!isCustomer && selectedItem.deleted">Nothing to show by device &#171;{{selectedItem.name || `#${selectedItem.id}`}}&#187; <div style="font-size: 0.9rem">or you haven`t access</div></div>
     </template>
   </div>
 </template>
 
 <script>
-  import { QToolbar, QSelect, QInput, QIcon, QBtn, LocalStorage, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip, QSlider, QChip, Dialog } from 'quasar-framework'
-  import logs from '../logs/Index.vue'
-  import messages from './messages/Index.vue'
-  import MapComponent from './MapComponent'
-  import { mapState } from 'vuex'
+import logs from '../logs/Index.vue'
+import messages from './messages/Index.vue'
+import MapComponent from './MapComponent'
+import { mapState } from 'vuex'
 
-  export default {
-    props: [
-      'limit',
-      'isCustomer',
-      'isLoading',
-      'isVisibleToolbar',
-      'isNeedSelect',
-      'config'
-    ],
-    data () {
-      return {
-        mode: 1,
-        active: null,
-        ratio: this.isCustomer ? 50 : 0,
-        isInit: false,
-        isVisibleMap: false,
-        mapMinimizedOptions: {},
-        siblingHeight: null
+export default {
+  props: [
+    'limit',
+    'isCustomer',
+    'isLoading',
+    'isVisibleToolbar',
+    'isNeedSelect',
+    'config'
+  ],
+  data () {
+    return {
+      mode: 1,
+      active: null,
+      ratio: this.isCustomer ? 50 : 0,
+      isInit: false,
+      isVisibleMap: false,
+      mapMinimizedOptions: {},
+      siblingHeight: null
+    }
+  },
+  computed: {
+    ...mapState({
+      newMessagesCount (state) {
+        let messagesCount = this.config.messages && state[this.config.messages.vuexModuleName] ? state[this.config.messages.vuexModuleName].newMessagesCount : 0,
+          logsCount = this.config.logs && state[this.config.logs.vuexModuleName] ? state[this.config.logs.vuexModuleName].newMessagesCount : 0
+        return messagesCount + logsCount
+      },
+      isEmptyMessages (state) {
+        return this.config.messages && this.config.logs && state[this.config.messages.vuexModuleName] ? !state[this.config.messages.vuexModuleName].messages.length && !state[this.config.logs.vuexModuleName].messages.length : false
+      }
+    }),
+    size () {
+      return [this.ratio, 100 - this.ratio]
+    },
+    messagesWithPosition () {
+      return this.config && this.config.messages && this.$store.state[this.config.messages.vuexModuleName]
+        ? this.$store.state[this.config.messages.vuexModuleName].messages.filter(message => !!message['position.latitude'] && !!message['position.longitude'])
+        : []
+    },
+    items () {
+      return this.$store.state.items
+    },
+    selectedItem () {
+      return this.items.filter(item => item.id === this.active)[0] || {}
+    },
+    modeModel: {
+      get () {
+        return !!this.mode
+      },
+      set (val) {
+        let now = Date.now()
+        this.date = val ? 0 : now - (now % 86400000)
+        this.mode = Number(val)
+        this.$emit('view-data-hide')
+      }
+    }
+  },
+  methods: {
+    viewDataHandler (content) {
+      this.$emit('view-data', content)
+      if (this.isVisibleMap && content['position.latitude'] && content['position.longitude']) {
+        this.$refs.map.flyTo([content['position.latitude'], content['position.longitude']])
       }
     },
-    computed: {
-      ...mapState({
-        newMessagesCount (state) {
-          let messagesCount = this.config.messages && state[this.config.messages.vuexModuleName] ? state[this.config.messages.vuexModuleName].newMessagesCount : 0,
-            logsCount = this.config.logs && state[this.config.logs.vuexModuleName] ? state[this.config.logs.vuexModuleName].newMessagesCount : 0
-          return messagesCount + logsCount
-        },
-        isEmptyMessages (state) {
-          return this.config.messages && this.config.logs && state[this.config.messages.vuexModuleName] ? !state[this.config.messages.vuexModuleName].messages.length && !state[this.config.logs.vuexModuleName].messages.length : false
-        }
-      }),
-      size () {
-        return [this.ratio, 100 - this.ratio]
-      },
-      messagesWithPosition () {
-        return this.config && this.config.messages && this.$store.state[this.config.messages.vuexModuleName]
-          ? this.$store.state[this.config.messages.vuexModuleName].messages.filter(message => !!message['position.latitude'] && !!message['position.longitude'])
-          : []
-      },
-      items () {
-        return this.$store.state.items
-      },
-      selectedItem () {
-        return this.items.filter(item => item.id === this.active)[0] || {}
-      },
-      modeModel: {
-        get () {
-          return !!this.mode
-        },
-        set (val) {
-          let now = Date.now()
-          this.date = val ? 0 : now - (now % 86400000)
-          this.mode = Number(val)
+    viewLogMessagesHandler (content) {
+      this.$emit('view-log-message', content)
+    },
+    unselect () {
+      this.$refs.messages.unselect()
+    },
+    mapMinimizeHandler (options) {
+      this.mapMinimizedOptions = options
+      if (options.type === 'messages') {
+        this.siblingHeight = this.size[1]
+      } else if (options.type === 'logs') {
+        this.siblingHeight = this.size[0]
+      } else { this.siblingHeight = null }
+    },
+    clearHandler () {
+      this.$q.dialog({
+        title: 'Confirm',
+        message: 'Do you really want to clear all data from the panes?',
+        ok: true,
+        cancel: true
+      }).then(() => {
+        this.$store.commit(`${this.config.messages.vuexModuleName}/clearMessages`)
+        this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`)
+      })
+        .catch(() => {})
+    }
+  },
+  created () {
+    let activeFromLocaleStorage = this.$q.localStorage.get.item('devices')
+    this.$store.dispatch('getCustomer')
+      .then(() => {
+        this.$store.dispatch('getItems', 'devices')
+          .then(() => {
+            this.isInit = true
+            if (this.$route.params && this.$route.params.id) {
+              if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
+                this.active = Number(this.$route.params.id)
+              } else {
+                this.active = null
+              }
+            } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
+              this.active = activeFromLocaleStorage
+            }
+            // deleted item logic
+            if (this.selectedItem.deleted) {
+              this.mode = 0
+              if (this.isCustomer) { this.ratio = 100 }
+            }
+          })
+      })
+  },
+  destroyed () {
+    this.$store.commit('clearItems')
+  },
+  watch: {
+    ratio (val) {
+      this.$nextTick(() => {
+        if (+this.size[0] && this.active) {
+          this.$refs.logs.resetParams()
           this.$emit('view-data-hide')
         }
-      }
-    },
-    methods: {
-      viewDataHandler (content) {
-        this.$emit('view-data', content)
-        if (this.isVisibleMap && content['position.latitude'] && content['position.longitude']) {
-          this.$refs.map.flyTo([content['position.latitude'], content['position.longitude']])
+        if (+this.size[1] && this.active) {
+          this.$refs.messages.resetParams()
         }
-      },
-      viewLogMessagesHandler (content) {
-        this.$emit('view-log-message', content)
-      },
-      unselect () {
-        this.$refs.messages.unselect()
-      },
-      mapMinimizeHandler (options) {
-        this.mapMinimizedOptions = options
-        if (options.type === 'messages') { this.siblingHeight = this.size[1] }
-        else if (options.type === 'logs') { this.siblingHeight = this.size[0] }
-        else { this.siblingHeight = null }
-      },
-      clearHandler () {
-        Dialog.create({
-          title: 'Confirm',
-          message: 'Do you really want to clear all data from the panes?',
-          buttons: [
-            'No',
-            {
-              label: 'Yes',
-              handler: () => {
-                this.$store.commit(`${this.config.messages.vuexModuleName}/clearMessages`)
-                this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`)
-              }
-            }
-          ]
-        })
-      }
+      })
     },
-    created () {
-      let activeFromLocaleStorage = LocalStorage.get.item('devices')
-      this.$store.dispatch('getCustomer')
-        .then(() => {
-          this.$store.dispatch('getItems', 'devices')
-            .then(() => {
-              this.isInit = true
-              if (this.$route.params && this.$route.params.id) {
-                if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
-                  this.active = Number(this.$route.params.id)
-                }
-                else {
-                  this.active = null
-                }
-              }
-              else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
-                this.active = activeFromLocaleStorage
-              }
-              // deleted item logic
-              if (this.selectedItem.deleted) {
-                this.mode = 0
-                if (this.isCustomer) { this.ratio = 100 }
-              }
-            })
-        })
-    },
-    destroyed () {
-      this.$store.commit('clearItems')
-    },
-    watch: {
-      ratio (val) {
-        this.$nextTick(() => {
-          if (+this.size[0] && this.active) {
-            this.$refs.logs.resetParams()
-            this.$emit('view-data-hide')
-          }
-          if (+this.size[1] && this.active) {
-            this.$refs.messages.resetParams()
-          }
-        })
-      },
-      $route (route) {
-        if (route.params && route.params.id) {
-          if (this.items.filter(item => item.id === Number(route.params.id)).length) {
-            this.active = Number(route.params.id)
-          }
-          else if (this.isInit) {
-            this.active = null
-          }
-        }
-        else if (route.params && !route.params.id) {
+    $route (route) {
+      if (route.params && route.params.id) {
+        if (this.items.filter(item => item.id === Number(route.params.id)).length) {
+          this.active = Number(route.params.id)
+        } else if (this.isInit) {
           this.active = null
         }
-      },
-      active (val) {
-        let currentItem = this.items.filter(item => item.id === val)[0] || {}
-        if (val) {
-          LocalStorage.set('devices', val)
-          this.$router.push(`/devices/${val}`)
-        }
-        else {
-          this.$router.push('/devices')
-        }
-        if (this.isCustomer) {
-          if (currentItem.deleted) {
-            this.ratio = 100
-            this.mode = 0
-          }
-          else {
-            this.ratio = currentItem.deleted ? 100 : 50
-          }
-        }
-      },
-      isCustomer (val) {
-        if (!val) {
-          this.ratio = 0
-        }
-        else {
-          this.ratio = 50
+      } else if (route.params && !route.params.id) {
+        this.active = null
+      }
+    },
+    active (val) {
+      let currentItem = this.items.filter(item => item.id === val)[0] || {}
+      if (val) {
+        this.$q.localStorage.set('devices', val)
+        this.$router.push(`/devices/${val}`)
+      } else {
+        this.$router.push('/devices')
+      }
+      if (this.isCustomer) {
+        if (currentItem.deleted) {
+          this.ratio = 100
+          this.mode = 0
+        } else {
+          this.ratio = currentItem.deleted ? 100 : 50
         }
       }
     },
-    components: { logs, messages, MapComponent, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip, QSlider, QChip }
-  }
+    isCustomer (val) {
+      if (!val) {
+        this.ratio = 0
+      } else {
+        this.ratio = 50
+      }
+    }
+  },
+  components: { logs, messages, MapComponent }
+}
 </script>
 <style>
   .no-top-bottom-margin {
@@ -338,4 +328,3 @@
     margin-bottom: 3px;
   }
 </style>
-

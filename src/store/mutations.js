@@ -1,4 +1,4 @@
-import { Cookies, LocalStorage } from 'quasar-framework'
+import { Cookies, LocalStorage } from 'quasar'
 import Vue from 'vue'
 
 function reqStart (state) {
@@ -44,8 +44,7 @@ function setToken (state, val) {
   if (token === state.token) { return false }
   if (val && token.match(/^[a-z0-9]+$/i)) {
     LocalStorage.set('X-Flespi-Token', token)
-  }
-  else {
+  } else {
     token = ''
     clearToken(state)
   }

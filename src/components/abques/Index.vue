@@ -10,7 +10,7 @@
                 v-if="items.length"
                 v-for="(item, index) in items"
                 :key="index"
-                @click="active = item.id, $refs.popoverNotActive.close()"
+                @click.native="active = item.id, $refs.popoverNotActive.hide()"
                 :class="{'text-grey-8': item.deleted}"
               >
                 <q-item-main>
@@ -43,7 +43,7 @@
               <q-item
                 v-for="(item, index) in items"
                 :key="index"
-                @click="active = item.id, $refs.popoverActive.close(), $emit('view-data-hide')"
+                @click.native="active = item.id, $refs.popoverActive.hide(), $emit('view-data-hide')"
                 :class="{'text-grey-8': item.deleted}"
               >
                 <q-item-main>
@@ -57,13 +57,13 @@
             </q-list>
           </q-popover>
         </q-item>
-        <q-btn v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
+        <q-btn v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'" :rounded="$q.platform.is.mobile">
           <q-tooltip>Mode (Real-time/History)</q-tooltip>
           {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
           <q-chip small square pointing="left" color="red" v-if="newMessagesCount" class="cursor-pointer">{{newMessagesCount}}</q-chip>
         </q-btn>
         <div>
-          <q-icon size="1.5rem" class="cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click="clearHandler">
+          <q-icon size="1.5rem" class="cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler">
             <q-tooltip>Clear all panes</q-tooltip>
           </q-icon>
         </div>
@@ -79,142 +79,130 @@
         :style="{minHeight: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
         @view-log-message="viewLogMessagesHandler"
       />
-      <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="!isCustomer || selectedItem.deleted">Nothing to show by abque &#171{{selectedItem.name}}&#187 <div style="font-size: 0.9rem">or you haven`t access</div></div>
+      <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="!isCustomer || selectedItem.deleted">Nothing to show by abque &#171;{{selectedItem.name}}&#187; <div style="font-size: 0.9rem">or you haven`t access</div></div>
     </template>
   </div>
 </template>
 
 <script>
-  import { QToolbar, QSelect, QInput, QIcon, QBtn, LocalStorage, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip, QChip, Dialog } from 'quasar-framework'
-  import logs from '../logs/Index.vue'
-  import { mapState } from 'vuex'
+import logs from '../logs/Index.vue'
+import { mapState } from 'vuex'
 
-  export default {
-    props: [
-      'limit',
-      'isCustomer',
-      'isLoading',
-      'isVisibleToolbar',
-      'isNeedSelect',
-      'config'
-    ],
-    data () {
-      return {
-        mode: 1,
-        active: null,
-        isInit: false
+export default {
+  props: [
+    'limit',
+    'isCustomer',
+    'isLoading',
+    'isVisibleToolbar',
+    'isNeedSelect',
+    'config'
+  ],
+  data () {
+    return {
+      mode: 1,
+      active: null,
+      isInit: false
+    }
+  },
+  computed: {
+    ...mapState({
+      newMessagesCount (state) {
+        return this.config.logs.vuexModuleName && state[this.config.logs.vuexModuleName] ? state[this.config.logs.vuexModuleName].newMessagesCount : 0
+      },
+      isEmptyMessages (state) {
+        return state[this.config.logs.vuexModuleName] ? !state[this.config.logs.vuexModuleName].messages.length : false
       }
+    }),
+    items () {
+      return this.$store.state.items
     },
-    computed: {
-      ...mapState({
-        newMessagesCount (state) {
-          return this.config.logs.vuexModuleName && state[this.config.logs.vuexModuleName] ? state[this.config.logs.vuexModuleName].newMessagesCount : 0
-        },
-        isEmptyMessages (state) {
-          return state[this.config.logs.vuexModuleName] ? !state[this.config.logs.vuexModuleName].messages.length : false
-        }
-      }),
-      items () {
-        return this.$store.state.items
+    selectedItem () {
+      return this.items.filter(item => item.id === this.active)[0] || {}
+    },
+    modeModel: {
+      get () {
+        return !!this.mode
       },
-      selectedItem () {
-        return this.items.filter(item => item.id === this.active)[0] || {}
-      },
-      modeModel: {
-        get () {
-          return !!this.mode
-        },
-        set (val) {
-          let now = Date.now()
-          this.date = val ? 0 : now - (now % 86400000)
-          this.mode = Number(val)
-          this.$emit('view-data-hide')
-        }
+      set (val) {
+        let now = Date.now()
+        this.date = val ? 0 : now - (now % 86400000)
+        this.mode = Number(val)
+        this.$emit('view-data-hide')
       }
+    }
+  },
+  methods: {
+    viewDataHandler (content) {
+      this.$emit('view-data', content)
     },
-    methods: {
-      viewDataHandler (content) {
-        this.$emit('view-data', content)
-      },
-      viewLogMessagesHandler (content) {
-        this.$emit('view-log-message', content)
-      },
-      clearHandler () {
-        Dialog.create({
-          title: 'Confirm',
-          message: 'Do you really want to clear all data from the panes?',
-          buttons: [
-            'No',
-            {
-              label: 'Yes',
-              handler: () => {
-                this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`)
+    viewLogMessagesHandler (content) {
+      this.$emit('view-log-message', content)
+    },
+    clearHandler () {
+      this.$q.dialog({
+        title: 'Confirm',
+        message: 'Do you really want to clear all data from the panes?',
+        ok: true,
+        cancel: true
+      }).then(() => { this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`) })
+        .catch(() => {})
+    }
+  },
+  created () {
+    let activeFromLocaleStorage = this.$q.localStorage.get.item('abques')
+    this.$store.dispatch('getCustomer')
+      .then(() => {
+        this.$store.dispatch('getItems', 'abques')
+          .then(() => {
+            this.isInit = true
+            if (this.$route.params && this.$route.params.id) {
+              if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
+                this.active = Number(this.$route.params.id)
+              } else {
+                this.active = null
               }
+            } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
+              this.active = activeFromLocaleStorage
             }
-          ]
-        })
-      }
-    },
-    created () {
-      let activeFromLocaleStorage = LocalStorage.get.item('abques')
-      this.$store.dispatch('getCustomer')
-        .then(() => {
-          this.$store.dispatch('getItems', 'abques')
-            .then(() => {
-              this.isInit = true
-              if (this.$route.params && this.$route.params.id) {
-                if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
-                  this.active = Number(this.$route.params.id)
-                }
-                else {
-                  this.active = null
-                }
-              }
-              else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
-                this.active = activeFromLocaleStorage
-              }
-              // deleted item logic
-              if (this.selectedItem.deleted) {
-                this.mode = 0
-              }
-            })
-        })
-    },
-    destroyed () {
-      this.$store.commit('clearItems')
-    },
-    watch: {
-      $route (route) {
-        if (route.params && route.params.id) {
-          if (this.items.filter(item => item.id === Number(route.params.id)).length) {
-            this.active = Number(route.params.id)
-          }
-          else if (this.isInit) {
-            this.active = null
-          }
-        }
-        else if (route.params && !route.params.id) {
+            // deleted item logic
+            if (this.selectedItem.deleted) {
+              this.mode = 0
+            }
+          })
+      })
+  },
+  destroyed () {
+    this.$store.commit('clearItems')
+  },
+  watch: {
+    $route (route) {
+      if (route.params && route.params.id) {
+        if (this.items.filter(item => item.id === Number(route.params.id)).length) {
+          this.active = Number(route.params.id)
+        } else if (this.isInit) {
           this.active = null
         }
-      },
-      active (val) {
-        let currentItem = this.items.filter(item => item.id === val)[0] || {}
-        if (val) {
-          LocalStorage.set('abques', val)
-          this.$router.push(`/abques/${val}`)
-        }
-        else {
-          this.$router.push('/abques')
-        }
-        if (this.isCustomer) {
-          if (currentItem.deleted) {
-            this.mode = 0
-          }
-        }
+      } else if (route.params && !route.params.id) {
+        this.active = null
       }
     },
-    components: { logs, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip, QChip }
-  }
+    active (val) {
+      let currentItem = this.items.filter(item => item.id === val)[0] || {}
+      if (val) {
+        this.$q.localStorage.set('abques', val)
+        this.$router.push(`/abques/${val}`)
+      } else {
+        this.$router.push('/abques')
+      }
+      if (this.isCustomer) {
+        if (currentItem.deleted) {
+          this.mode = 0
+        }
+      }
+    }
+  },
+  components: { logs }
+}
 </script>
 <style>
   .no-top-bottom-margin {

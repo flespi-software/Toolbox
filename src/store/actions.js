@@ -68,8 +68,7 @@ async function getItems ({ state, commit }, entity) {
         if (typeof state.isLoading !== 'undefined') {
           state.isLoading = false
         }
-      }
-      catch (e) {
+      } catch (e) {
         commit('reqFailed', e)
         commit('setItems', [])
         if (typeof state.isLoading !== 'undefined') {
@@ -86,8 +85,7 @@ async function checkConnection ({ state, commit }) {
     if (resp.status === 200 && state.offline) {
       commit('setOfflineFlag', false)
     }
-  }
-  catch (e) {
+  } catch (e) {
     if (DEV) {
       console.log(e)
     }
@@ -110,8 +108,7 @@ async function getCustomer ({ state, commit }) {
     if (typeof state.isLoading !== 'undefined') {
       state.isLoading = false
     }
-  }
-  catch (e) {
+  } catch (e) {
     if (DEV) {
       console.log(e)
     }

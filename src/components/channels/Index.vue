@@ -10,7 +10,7 @@
                 <q-item
                   v-for="(item, index) in items"
                   :key="index"
-                  @click="active = item.id, $refs.popoverNotActive.close()"
+                  @click.native="active = item.id, $refs.popoverNotActive.hide()"
                   :class="{'text-grey-8': item.deleted}"
                 >
                   <q-item-main>
@@ -47,7 +47,7 @@
               <q-item
                 v-for="(item, index) in items"
                 :key="index"
-                @click="active = item.id, $refs.popoverActive.close(), $emit('view-data-hide')"
+                @click.native="active = item.id, $refs.popoverActive.hide(), $emit('view-data-hide')"
                 :class="{'text-grey-8': item.deleted}"
               >
                 <q-item-main>
@@ -69,6 +69,9 @@
           <q-tooltip>Mode (Real-time/History)</q-tooltip>
         </q-btn>
         <div>
+          <q-icon size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler">
+            <q-tooltip>Clear all panes</q-tooltip>
+          </q-icon>
           <q-icon v-if="isCustomer && !selectedItem.deleted" size="1.5rem" class="cursor-pointer pull-right" name="mdi-format-align-middle">
             <q-tooltip>Section ratio</q-tooltip>
             <q-popover ref="ratioPopover">
@@ -96,9 +99,6 @@
               </q-item>
             </q-popover>
           </q-icon>
-          <q-icon size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click="clearHandler">
-            <q-tooltip>Clear all panes</q-tooltip>
-          </q-icon>
         </div>
       </q-toolbar>
       <logs
@@ -123,177 +123,165 @@
         v-if="+size[1]"
         :style="{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
       />
-      <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="!isCustomer && selectedItem.deleted">Nothing to show by channel &#171{{selectedItem.name}}&#187 <div style="font-size: 0.9rem">or you haven`t access</div></div>
+      <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="!isCustomer && selectedItem.deleted">Nothing to show by channel &#171;{{selectedItem.name}}&#187; <div style="font-size: 0.9rem">or you haven`t access</div></div>
     </template>
   </div>
 </template>
 
 <script>
-  import { QToolbar, QSelect, QInput, QIcon, QBtn, LocalStorage, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip, QSlider, QChip, Dialog } from 'quasar-framework'
-  import logs from '../logs/Index.vue'
-  import messages from './messages/Index.vue'
-  import { mapState } from 'vuex'
+import logs from '../logs/Index.vue'
+import messages from './messages/Index.vue'
+import { mapState } from 'vuex'
 
-  export default {
-    props: [
-      'limit',
-      'isCustomer',
-      'isLoading',
-      'isVisibleToolbar',
-      'isNeedSelect',
-      'config'
-    ],
-    data () {
-      return {
-        mode: 1,
-        active: null,
-        ratio: this.isCustomer ? 50 : 0,
-        isInit: false
+export default {
+  props: [
+    'limit',
+    'isCustomer',
+    'isLoading',
+    'isVisibleToolbar',
+    'isNeedSelect',
+    'config'
+  ],
+  data () {
+    return {
+      mode: 1,
+      active: null,
+      ratio: this.isCustomer ? 50 : 0,
+      isInit: false
+    }
+  },
+  computed: {
+    ...mapState({
+      newMessagesCount (state) {
+        let messagesCount = this.config.messages && state[this.config.messages.vuexModuleName] ? state[this.config.messages.vuexModuleName].newMessagesCount : 0,
+          logsCount = this.config.logs && state[this.config.logs.vuexModuleName] ? state[this.config.logs.vuexModuleName].newMessagesCount : 0
+        return messagesCount + logsCount
+      },
+      isEmptyMessages (state) {
+        return this.config.messages && this.config.logs && state[this.config.messages.vuexModuleName] ? !state[this.config.messages.vuexModuleName].messages.length && !state[this.config.logs.vuexModuleName].messages.length : false
       }
+    }),
+    size () {
+      return [this.ratio, 100 - this.ratio]
     },
-    computed: {
-      ...mapState({
-        newMessagesCount (state) {
-          let messagesCount = this.config.messages && state[this.config.messages.vuexModuleName] ? state[this.config.messages.vuexModuleName].newMessagesCount : 0,
-            logsCount = this.config.logs && state[this.config.logs.vuexModuleName] ? state[this.config.logs.vuexModuleName].newMessagesCount : 0
-          return messagesCount + logsCount
-        },
-        isEmptyMessages (state) {
-          return this.config.messages && this.config.logs && state[this.config.messages.vuexModuleName] ? !state[this.config.messages.vuexModuleName].messages.length && !state[this.config.logs.vuexModuleName].messages.length : false
-        }
-      }),
-      size () {
-        return [this.ratio, 100 - this.ratio]
+    items () {
+      return this.$store.state.items
+    },
+    selectedItem () {
+      return this.items.filter(item => item.id === this.active)[0] || {}
+    },
+    modeModel: {
+      get () {
+        return !!this.mode
       },
-      items () {
-        return this.$store.state.items
-      },
-      selectedItem () {
-        return this.items.filter(item => item.id === this.active)[0] || {}
-      },
-      modeModel: {
-        get () {
-          return !!this.mode
-        },
-        set (val) {
-          let now = Date.now()
-          this.date = val ? 0 : now - (now % 86400000)
-          this.mode = Number(val)
+      set (val) {
+        let now = Date.now()
+        this.date = val ? 0 : now - (now % 86400000)
+        this.mode = Number(val)
+        this.$emit('view-data-hide')
+      }
+    }
+  },
+  methods: {
+    viewDataHandler (content) {
+      this.$emit('view-data', content)
+    },
+    viewLogMessagesHandler (content) {
+      this.$emit('view-log-message', content)
+    },
+    unselect () {
+      this.$refs.messages.unselect()
+    },
+    clearHandler () {
+      this.$q.dialog({
+        title: 'Confirm',
+        message: 'Do you really want to clear all data from the panes?',
+        ok: true,
+        cancel: true
+      }).then(() => {
+        this.$store.commit(`${this.config.messages.vuexModuleName}/clearMessages`)
+        this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`)
+      })
+        .catch(() => {})
+    }
+  },
+  created () {
+    let activeFromLocaleStorage = this.$q.localStorage.get.item('channels')
+    this.$store.dispatch('getCustomer')
+      .then(() => {
+        this.$store.dispatch('getItems', 'channels')
+          .then(() => {
+            this.isInit = true
+            if (this.$route.params && this.$route.params.id) {
+              if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
+                this.active = Number(this.$route.params.id)
+              } else {
+                this.active = null
+              }
+            } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
+              this.active = activeFromLocaleStorage
+            }
+            // deleted item logic
+            if (this.selectedItem.deleted) {
+              this.mode = 0
+              if (this.isCustomer) { this.ratio = 100 }
+            }
+          })
+      })
+  },
+  destroyed () {
+    this.$store.commit('clearItems')
+  },
+  watch: {
+    ratio (val) {
+      this.$nextTick(() => {
+        if (+this.size[0] && this.active) {
+          this.$refs.logs.resetParams()
           this.$emit('view-data-hide')
         }
-      }
-    },
-    methods: {
-      viewDataHandler (content) {
-        this.$emit('view-data', content)
-      },
-      viewLogMessagesHandler (content) {
-        this.$emit('view-log-message', content)
-      },
-      unselect () {
-        this.$refs.messages.unselect()
-      },
-      clearHandler () {
-        Dialog.create({
-          title: 'Confirm',
-          message: 'Do you really want to clear all data from the panes?',
-          buttons: [
-            'No',
-            {
-              label: 'Yes',
-              handler: () => {
-                this.$store.commit(`${this.config.messages.vuexModuleName}/clearMessages`)
-                this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`)
-              }
-            }
-          ]
-        })
-      }
-    },
-    created () {
-      let activeFromLocaleStorage = LocalStorage.get.item('channels')
-      this.$store.dispatch('getCustomer')
-        .then(() => {
-          this.$store.dispatch('getItems', 'channels')
-            .then(() => {
-              this.isInit = true
-              if (this.$route.params && this.$route.params.id) {
-                if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
-                  this.active = Number(this.$route.params.id)
-                }
-                else {
-                  this.active = null
-                }
-              }
-              else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
-                this.active = activeFromLocaleStorage
-              }
-              // deleted item logic
-              if (this.selectedItem.deleted) {
-                this.mode = 0
-                if (this.isCustomer) { this.ratio = 100 }
-              }
-            })
-        })
-    },
-    destroyed () {
-      this.$store.commit('clearItems')
-    },
-    watch: {
-      ratio (val) {
-        this.$nextTick(() => {
-          if (+this.size[0] && this.active) {
-            this.$refs.logs.resetParams()
-            this.$emit('view-data-hide')
-          }
-          if (+this.size[1] && this.active) {
-            this.$refs.messages.resetParams()
-          }
-        })
-      },
-      $route (route) {
-        if (route.params && route.params.id) {
-          if (this.items.filter(item => item.id === Number(route.params.id)).length) {
-            this.active = Number(route.params.id)
-          }
-          else if (this.isInit) {
-            this.active = null
-          }
+        if (+this.size[1] && this.active) {
+          this.$refs.messages.resetParams()
         }
-        else if (route.params && !route.params.id) {
+      })
+    },
+    $route (route) {
+      if (route.params && route.params.id) {
+        if (this.items.filter(item => item.id === Number(route.params.id)).length) {
+          this.active = Number(route.params.id)
+        } else if (this.isInit) {
           this.active = null
         }
-      },
-      active (val) {
-        let currentItem = this.items.filter(item => item.id === val)[0] || {}
-        if (val) {
-          LocalStorage.set('channels', val)
-          this.$router.push(`/channels/${val}`)
-        }
-        else {
-          this.$router.push('/channels')
-        }
-        if (this.isCustomer) {
-          if (currentItem.deleted) {
-            this.ratio = 100
-            this.mode = 0
-          }
-          else {
-            this.ratio = currentItem.deleted ? 100 : 50
-          }
-        }
-      },
-      isCustomer (val) {
-        if (!val) {
-          this.ratio = 0
-        }
-        else {
-          this.ratio = 50
+      } else if (route.params && !route.params.id) {
+        this.active = null
+      }
+    },
+    active (val) {
+      let currentItem = this.items.filter(item => item.id === val)[0] || {}
+      if (val) {
+        this.$q.localStorage.set('channels', val)
+        this.$router.push(`/channels/${val}`)
+      } else {
+        this.$router.push('/channels')
+      }
+      if (this.isCustomer) {
+        if (currentItem.deleted) {
+          this.ratio = 100
+          this.mode = 0
+        } else {
+          this.ratio = currentItem.deleted ? 100 : 50
         }
       }
     },
-    components: { logs, messages, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip, QSlider, QChip }
-  }
+    isCustomer (val) {
+      if (!val) {
+        this.ratio = 0
+      } else {
+        this.ratio = 50
+      }
+    }
+  },
+  components: { logs, messages }
+}
 </script>
 <style>
   .no-top-bottom-margin {
@@ -310,4 +298,3 @@
     margin-bottom: 3px;
   }
 </style>
-

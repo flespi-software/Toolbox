@@ -14,7 +14,7 @@
           <q-chip small square pointing="left" color="red" v-if="newMessagesCount" class="cursor-pointer">{{newMessagesCount}}</q-chip>
         </q-btn>
         <div>
-          <q-icon size="1.5rem" class="cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click="clearHandler">
+          <q-icon size="1.5rem" class="cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler">
             <q-tooltip>Clear all panes</q-tooltip>
           </q-icon>
         </div>
@@ -36,78 +36,71 @@
 </template>
 
 <script>
-  import { QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip, QChip, Dialog } from 'quasar-framework'
-  import logs from '../logs/Index.vue'
-  import { mapState } from 'vuex'
+import logs from '../logs/Index.vue'
+import { mapState } from 'vuex'
 
-  export default {
-    props: [
-      'limit',
-      'isCustomer',
-      'isLoading',
-      'isVisibleToolbar',
-      'isNeedSelect',
-      'config'
-    ],
-    data () {
-      return {
-        mode: 1,
-        isInit: false
-      }
-    },
-    computed: {
-      ...mapState({
-        newMessagesCount (state) {
-          return state[this.config.logs.vuexModuleName] ? state[this.config.logs.vuexModuleName].newMessagesCount : 0
-        },
-        isEmptyMessages (state) {
-          return state[this.config.logs.vuexModuleName] ? !state[this.config.logs.vuexModuleName].messages.length : false
-        }
-      }),
-      modeModel: {
-        get () {
-          return !!this.mode
-        },
-        set (val) {
-          let now = Date.now()
-          this.date = val ? 0 : now - (now % 86400000)
-          this.mode = Number(val)
-          this.$emit('view-data-hide')
-        }
-      }
-    },
-    methods: {
-      viewDataHandler (content) {
-        this.$emit('view-data', content)
+export default {
+  props: [
+    'limit',
+    'isCustomer',
+    'isLoading',
+    'isVisibleToolbar',
+    'isNeedSelect',
+    'config'
+  ],
+  data () {
+    return {
+      mode: 1,
+      isInit: false
+    }
+  },
+  computed: {
+    ...mapState({
+      newMessagesCount (state) {
+        return state[this.config.logs.vuexModuleName] ? state[this.config.logs.vuexModuleName].newMessagesCount : 0
       },
-      viewLogMessagesHandler (content) {
-        this.$emit('view-log-message', content)
-      },
-      clearHandler () {
-        Dialog.create({
-          title: 'Confirm',
-          message: 'Do you really want to clear all data from the panes?',
-          buttons: [
-            'No',
-            {
-              label: 'Yes',
-              handler: () => {
-                this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`)
-              }
-            }
-          ]
-        })
+      isEmptyMessages (state) {
+        return state[this.config.logs.vuexModuleName] ? !state[this.config.logs.vuexModuleName].messages.length : false
       }
+    }),
+    modeModel: {
+      get () {
+        return !!this.mode
+      },
+      set (val) {
+        let now = Date.now()
+        this.date = val ? 0 : now - (now % 86400000)
+        this.mode = Number(val)
+        this.$emit('view-data-hide')
+      }
+    }
+  },
+  methods: {
+    viewDataHandler (content) {
+      this.$emit('view-data', content)
     },
-    created () {
-      this.$store.dispatch('getCustomer')
-        .then(() => { this.isInit = true })
+    viewLogMessagesHandler (content) {
+      this.$emit('view-log-message', content)
     },
-    destroyed () {
-      this.$store.commit('clearItems')
-    },
-    components: { logs, QToolbar, QSelect, QInput, QIcon, QBtn, QPopover, QList, QItem, QItemMain, QItemSide, QItemTile, QTooltip, QChip }
-  }
+    clearHandler () {
+      this.$q.dialog({
+        title: 'Confirm',
+        message: 'Do you really want to clear all data from the panes?',
+        ok: true,
+        cancel: true
+      }).then(() => { this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`) })
+        .catch(() => {})
+    }
+  },
+  created () {
+    this.$store.dispatch('getCustomer')
+      .then(() => { this.isInit = true })
+  },
+  destroyed () {
+    this.$store.commit('clearItems')
+  },
+  components: { logs }
+}
 </script>
 <style>
   .no-top-bottom-margin {
