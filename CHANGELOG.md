@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.8.6] - 2018-03-26
+[fix] packages
 ### [0.8.5] - 2018-03-26
 [feature] upgrade quasar version 
 ### [0.8.4] - 2018-03-16
