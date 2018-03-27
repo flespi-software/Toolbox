@@ -175,14 +175,14 @@ export default {
       this.$emit('view-data', content)
     },
     copyMessageHandler ({index, content}) {
-      this.$copyText(JSON.stringify(content)).then(function (e) {
+      this.$copyText(JSON.stringify(content)).then((e) => {
         this.$q.notify({
           type: 'positive',
           icon: 'content_copy',
           message: `Message copied`,
           timeout: 1000
         })
-      }, function (e) {
+      }, (e) => {
         this.$q.notify({
           type: 'negative',
           icon: 'content_copy',

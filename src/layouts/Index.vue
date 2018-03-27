@@ -278,6 +278,7 @@ export default {
               case 'storage': {
                 result.push('containers')
                 result.push('abques')
+                result.push('cdns')
                 break
               }
               case 'mqtt': {
@@ -350,6 +351,7 @@ export default {
             case 'storage': {
               result.push('containers')
               result.push('abques')
+              result.push('cdns')
               break
             }
             case 'mqtt': {

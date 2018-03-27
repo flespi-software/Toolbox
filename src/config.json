@@ -466,5 +466,65 @@
         "controlsInverted": true
       }
     }
+  },
+  "cdns": {
+    "label": "CDNS",
+    "icon": "mdi-harddisk",
+    "logs": {
+      "vuexModuleName": "cdnsLogs",
+      "cols": [
+        {
+          "name": "timestamp",
+          "width": 165,
+          "display": true,
+          "description": "Log event time"
+        },
+        {
+          "name": "event_code",
+          "title": "event",
+          "width": 450,
+          "display": true,
+          "description": "Log event code and description"
+        },
+        {
+          "name": "host",
+          "width": 150,
+          "display": true,
+          "description": "IP address from which HTTP request was received"
+        },
+        {
+          "name": "mime",
+          "width": 80,
+          "display": true,
+          "description": "mime type of file"
+        },
+        {
+          "name": "name",
+          "width": 250,
+          "display": true,
+          "description": "name of file"
+        },
+        {
+          "name": "size",
+          "width": 80,
+          "display": true,
+          "description": ""
+        }
+      ],
+      "actions": [],
+      "viewConfig": {
+        "needShowFilter": true,
+        "needShowMode": false,
+        "needShowPageScroll": "right left",
+        "needShowDate": true,
+        "needShowEtc": true
+      },
+      "theme": {
+        "color": "white",
+        "bgColor": "dark",
+        "contentInverted": true,
+        "controlsInverted": true
+      }
+    }
   }
 }

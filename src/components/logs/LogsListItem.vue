@@ -18,7 +18,8 @@
         <q-icon v-if="item.address === 'local'" name="mdi-content-save-outline"  title="address: local"/>
       </template>
       <q-icon name="mdi-alert-outline" v-if="prop.name === 'event_code' && !!item['error_text']"><q-tooltip>{{item['error_text']}}</q-tooltip></q-icon>
-      <span :title="JSON.stringify(getValueOfProp(prop))">{{getValueOfProp(prop)}}</span>
+      <a @click.stop="" target="_blank" class="text-green" v-if="item.event_code === 901 && prop.name === 'name'" :href="`${SERVER ? ' https://cdn.flespi.io/' : 'https://localhost:9019/'}file/${item.uuid}`">{{getValueOfProp(prop)}}</a>
+      <span v-else :title="JSON.stringify(getValueOfProp(prop))">{{getValueOfProp(prop)}}</span>
     </span>
     <span v-if="etcVisible" class="list__item item_etc">{{etc}}</span>
   </div>
@@ -58,14 +59,15 @@ export default {
   ],
   data () {
     return {
-      date: date
+      date: date,
+      SERVER: SERVER
     }
   },
   computed: {
     etc () {
       let etcKeys = Object.keys(this.item).filter(key => !this.hasInCols(key))
       return etcKeys.reduce((acc, key) => {
-        if (key === 'delimiter' || key === 'event_origin' || key === 'event_text' || key === 'item_data' || key === 'source' || key === 'error_text' || key === 'close_code' || key === 'http_data' || key === 'current' || key === 'updated' || key === 'error_code' || key === 'send_code' || key === 'address' || key === '__status') { return acc }
+        if (key === 'delimiter' || key === 'event_origin' || key === 'event_text' || key === 'item_data' || key === 'source' || key === 'error_text' || key === 'close_code' || key === 'http_data' || key === 'current' || key === 'updated' || key === 'error_code' || key === 'send_code' || key === 'address' || key === '__status' || key === 'uuid') { return acc }
         acc += `${key}: ${JSON.stringify(this.item[key])}; `
         return acc
       }, '') || '*Empty*'
@@ -85,6 +87,7 @@ export default {
         case 410:
         case 500:
         case 510:
+        case 901:
           return 'text-green'
         case 2:
         case 3:
@@ -99,6 +102,7 @@ export default {
         case 412:
         case 502:
         case 511:
+        case 900:
           return 'text-yellow'
         case 113:
         case 301:
@@ -149,22 +153,22 @@ export default {
       switch (this.item.event_code) {
         case 1:
         case 2:
-        case 3: { return `${SERVER}/docs/#/platform` }
+        case 3: { return `${SERVER || 'https:localhost:9005'}/docs/#/platform` }
         case 20:
-        case 21: { return `${SERVER}/docs/#/platform/!/counters` }
+        case 21: { return `${SERVER || 'https:localhost:9005'}/docs/#/platform/!/counters` }
         case 100:
         case 101:
-        case 102: { return `${SERVER}/docs/#/gw/!/connections` }
+        case 102: { return `${SERVER || 'https:localhost:9005'}/docs/#/gw/!/connections` }
         case 110:
         case 111:
         case 112:
-        case 113: { return `${SERVER}/docs/#/gw/!/commands` }
-        case 114: { return `${SERVER}/docs/#/gw/!/channels` }
+        case 113: { return `${SERVER || 'https:localhost:9005'}/docs/#/gw/!/commands` }
+        case 114: { return `${SERVER || 'https:localhost:9005'}/docs/#/gw/!/channels` }
         case 200:
         case 201:
         case 202:
         case 203:
-        case 204: { return `${SERVER}/docs/#/gw/!/modems` }
+        case 204: { return `${SERVER || 'https:localhost:9005'}/docs/#/gw/!/modems` }
         case 300:
         case 301:
         case 302:
@@ -174,23 +178,25 @@ export default {
         case 312:
         case 313:
         case 314:
-        case 315: { return `${SERVER}/docs/#/gw/!/devices` }
+        case 315: { return `${SERVER || 'https:localhost:9005'}/docs/#/gw/!/devices` }
         case 401:
         case 402:
         case 403:
         case 404:
         case 410:
         case 411:
-        case 412: { return `${SERVER}/docs/#/gw/!/streams` }
+        case 412: { return `${SERVER || 'https:localhost:9005'}/docs/#/gw/!/streams` }
         case 500:
         case 501:
         case 502:
         case 503:
         case 510:
         case 511:
-        case 512: { return `${SERVER}/docs/#/mqtt/!/sessions` }
-        case 700: { return `${SERVER}/docs/#/storage/!/containers` }
-        case 800: { return `${SERVER}/docs/#/storage/!/abques` }
+        case 512: { return `${SERVER || 'https:localhost:9005'}/docs/#/mqtt/!/sessions` }
+        case 700: { return `${SERVER || 'https:localhost:9005'}/docs/#/storage/!/containers` }
+        case 800: { return `${SERVER || 'https:localhost:9005'}/docs/#/storage/!/abques` }
+        case 900:
+        case 901: { return `${SERVER || 'https:localhost:9005'}/docs/#/storage/!/cdns` }
         default: { return '' }
       }
     },

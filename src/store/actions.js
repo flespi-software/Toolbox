@@ -42,6 +42,12 @@ async function getItems ({ state, commit }, entity) {
         deletedParams = {fields: 'item_data', filter: 'event_origin=storage/abques/*,event_code=3'}
         break
       }
+      case 'cdns': {
+        queryString = `/storage/cdns/all`
+        params = {fields: 'id,name'}
+        deletedParams = {fields: 'item_data', filter: 'event_origin=storage/cdns/*,event_code=3'}
+        break
+      }
     }
     if (state.token) {
       try {

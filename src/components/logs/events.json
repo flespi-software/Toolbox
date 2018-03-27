@@ -43,7 +43,9 @@
     "511": "MQTT session subscription was updated via REST API",
     "512": "MQTT session subscription was deleted via REST API",
     "700": "container size has been changed",
-    "800": "abque size has been changed"
+    "800": "abque size has been changed",
+    "900": "cdn size has been changed",
+    "901": "file was placed on cdn"
   },
   "closeCodes": {
     "2": "connection closed by tracking device",

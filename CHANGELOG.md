@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.8.7] - 2018-03-26
+[feature] logs for cdns added
 ### [0.8.6] - 2018-03-26
 [fix] packages
 ### [0.8.5] - 2018-03-26
