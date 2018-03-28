@@ -77,7 +77,11 @@ export default {
         let position = lastMessage['position.latitude'] && lastMessage['position.longitude'] ? [lastMessage['position.latitude'], lastMessage['position.longitude']] : [51.50853, -0.12574]
         this.map = L.map('map', {
           center: position,
-          zoom: this.zoom
+          zoom: this.zoom,
+          maxBounds: [
+            [90, -180],
+            [-90, 180]
+          ]
         })
         this.map.addEventListener('zoom', e => {
           this.zoom = e.target.getZoom()
@@ -85,7 +89,7 @@ export default {
         this.map.addEventListener('mousedown', e => {
           e.originalEvent.stopPropagation()
         })
-        L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map)
+        L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {minZoom: 3, noWrap: true}).addTo(this.map)
       }
     },
     flyTo (position) {

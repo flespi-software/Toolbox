@@ -158,7 +158,7 @@ export default {
         return messagesCount + logsCount
       },
       isEmptyMessages (state) {
-        return this.config.messages && this.config.logs && state[this.config.messages.vuexModuleName] ? !state[this.config.messages.vuexModuleName].messages.length && !state[this.config.logs.vuexModuleName].messages.length : false
+        return this.config.messages && this.config.logs && state[this.config.messages.vuexModuleName] ? !state[this.config.messages.vuexModuleName].messages.length || (state[this.config.logs.vuexModuleName] && state[this.config.logs.vuexModuleName].messages && !state[this.config.logs.vuexModuleName].messages.length) : false
       }
     }),
     size () {
