@@ -91,7 +91,7 @@ export default {
         }
         this.$store.dispatch(`${this.moduleName}/pollingGet`)
         if (this.$store.state[this.moduleName].mode === 1 && !this.item.deleted) {
-          await this.$store.dispatch(`${this.moduleName}/getHistory`)
+          await this.$store.dispatch(`${this.moduleName}/getHistory`, 200)
         }
       }
     },
@@ -263,7 +263,7 @@ export default {
       this.modeChange(this.mode)
       this.$store.dispatch(`${this.moduleName}/pollingGet`)
       if (this.mode === 1) {
-        await this.$store.dispatch(`${this.moduleName}/getHistory`)
+        await this.$store.dispatch(`${this.moduleName}/getHistory`, 200)
       }
     }
     Vue.connector.socket.on('offline', () => { this.$store.commit(`${this.moduleName}/setOffline`, this.mode === 1) })

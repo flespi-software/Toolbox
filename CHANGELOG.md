@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.8.9] - 2018-03-29
+[fix] fix for history loading
 ### [0.8.8] - 2018-03-28
 [fix] check empty messages
 [feature] fixed map
