@@ -1,4 +1,46 @@
 {
+  "platform": {
+    "label": "Platform",
+    "icon": "icon-flespi2-01",
+    "logs": {
+      "vuexModuleName": "platformLogs",
+      "cols": [
+        {
+          "name": "timestamp",
+          "width": 165,
+          "display": true,
+          "description": "Log event time"
+        },
+        {
+          "name": "event_code",
+          "title": "event",
+          "width": 450,
+          "display": true,
+          "description": "Log event code and description"
+        },
+        {
+          "name": "host",
+          "width": 150,
+          "display": true,
+          "description": "Connected device's address (source) or IP address from which HTTP request was received (host)"
+        }
+      ],
+      "actions": [],
+      "viewConfig": {
+        "needShowFilter": true,
+        "needShowMode": false,
+        "needShowPageScroll": "right left",
+        "needShowDate": true,
+        "needShowEtc": true
+      },
+      "theme": {
+        "color": "white",
+        "bgColor": "dark",
+        "contentInverted": true,
+        "controlsInverted": true
+      }
+    }
+  },
   "channels": {
     "label": "Channels",
     "icon": "merge_type",

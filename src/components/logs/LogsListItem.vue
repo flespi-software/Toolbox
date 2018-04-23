@@ -2,7 +2,8 @@
   <div
     v-if="!item['__connectionStatus']"
     class="cursor-pointer"
-    :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, borderBottom: item.delimiter ? 'solid 1px #f40' : ''}" :class="[color, item.__status ? 'missed-items' : '']"
+    :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, borderBottom: item.delimiter ? 'solid 1px #f40' : '', boxSizing: 'border-box'}"
+    :class="[color, item.__status ? 'missed-items' : '']"
     @click="itemClickHandler(index, item)">
     <span class="list__item item_actions text-white" v-if="actionsVisible">
       <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
@@ -18,8 +19,12 @@
         <q-icon v-if="item.address === 'local'" name="mdi-content-save-outline"  title="address: local"/>
       </template>
       <q-icon name="mdi-alert-outline" v-if="prop.name === 'event_code' && !!item['error_text']"><q-tooltip>{{item['error_text']}}</q-tooltip></q-icon>
-      <a @click.stop="" target="_blank" class="text-green" v-if="item.event_code === 901 && prop.name === 'name'" :href="`${SERVER ? ' https://cdn.flespi.io/' : 'https://localhost:9019/'}file/${item.uuid}`">{{getValueOfProp(prop)}}</a>
-      <span v-else :title="JSON.stringify(getValueOfProp(prop))">{{getValueOfProp(prop)}}</span>
+      <a @click.stop="" target="_blank" class="text-green" v-if="item.event_code === 901 && prop.name === 'name'" :href="`${SERVER ? ' https://cdn.flespi.io/' : 'https://localhost:9019/'}file/${item.uuid}`">
+        {{getValueOfProp(prop)}}
+      </a>
+      <span v-else :title="JSON.stringify(getValueOfProp(prop))">
+        {{getValueOfProp(prop)}}
+      </span>
     </span>
     <span v-if="etcVisible" class="list__item item_etc">{{etc}}</span>
   </div>
@@ -102,6 +107,7 @@ export default {
         case 412:
         case 502:
         case 511:
+        case 600:
         case 900:
           return 'text-yellow'
         case 113:
@@ -193,6 +199,7 @@ export default {
         case 510:
         case 511:
         case 512: { return `${SERVER || 'https:localhost:9005'}/docs/#/mqtt/!/sessions` }
+        case 600: { return `${SERVER || 'https:localhost:9005'}/docs/#/platform/!/tokens` }
         case 700: { return `${SERVER || 'https:localhost:9005'}/docs/#/storage/!/containers` }
         case 800: { return `${SERVER || 'https:localhost:9005'}/docs/#/storage/!/abques` }
         case 900:

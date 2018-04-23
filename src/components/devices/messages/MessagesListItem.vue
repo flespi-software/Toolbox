@@ -13,7 +13,9 @@
     <span v-for="(prop, k) in cols" :key="prop.name + k" class="list__item" :class="{[`item_${k}`]: true}" :title="JSON.stringify(values[prop.name].value)">
       {{values[prop.name].value}}
     </span>
-    <span v-if="etcVisible" class="list__item item_etc">{{values.etc.value || '*Empty*'}}</span>
+    <span v-if="etcVisible" class="list__item item_etc">
+      {{values.etc.value || '*Empty*'}}
+    </span>
   </div>
   <div
     v-else
@@ -30,7 +32,9 @@
     }"
     :title="date.formatDate(item.timestamp, 'DD/MM/YYYY HH:mm:ss')"
   >
-    <span style="padding: 0 5px; margin-left: 150px;" :style="{ backgroundColor: item.__connectionStatus === 'offline' ? '#ff0' : '#0f0'}" class="uppercase" v-for="n in Array(10)" :key="n">{{item['__connectionStatus']}}</span>
+    <span style="padding: 0 5px; margin-left: 150px;" :style="{ backgroundColor: item.__connectionStatus === 'offline' ? '#ff0' : '#0f0'}" class="uppercase" v-for="n in Array(10)" :key="n">
+      {{item['__connectionStatus']}}
+    </span>
   </div>
 </template>
 

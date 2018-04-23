@@ -28,7 +28,7 @@
         :rowWidth="rowWidth"
         :etcVisible="etcVisible"
         :actionsVisible="actionsVisible"
-        :selected="`${JSON.stringify(item)}${index}` === selectedItemKey"
+        :selected="index === selected"
         @action="actionHandler"
         @item-click="viewMessagesHandler"
       />
@@ -53,7 +53,6 @@ export default {
   ],
   data () {
     return {
-      selectedItemKey: null,
       theme: this.config.theme,
       i18n: {},
       viewConfig: this.config.viewConfig,
@@ -125,6 +124,14 @@ export default {
       set (val) {
         val ? this.$store.commit(`${this.moduleName}/setLimit`, val) : this.$store.commit(`${this.moduleName}/setLimit`, 1000)
       }
+    },
+    selected: {
+      get () {
+        return this.$store.state[this.moduleName].selected
+      },
+      set (val) {
+        this.$store.commit(`${this.moduleName}/setSelected`, val)
+      }
     }
   },
   methods: {
@@ -171,7 +178,7 @@ export default {
       }
     },
     viewMessagesHandler ({index, content}) {
-      this.selectedItemKey = `${JSON.stringify(content)}${index}`
+      this.selected = index
       this.$emit('view-data', content)
     },
     copyMessageHandler ({index, content}) {
@@ -192,8 +199,8 @@ export default {
       })
     },
     unselect () {
-      if (this.selectedItemKey) {
-        this.selectedItemKey = null
+      if (this.selected) {
+        this.selected = null
       }
     }
   },

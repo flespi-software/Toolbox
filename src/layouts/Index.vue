@@ -47,7 +47,7 @@
           <q-btn class="within-iframe-hide" @click="confirmExitHandler" small  flat round icon="mdi-exit-to-app"/>
         </q-toolbar>
       </q-layout-header>
-      <q-layout-drawer side="right" v-model="sides.right" :content-class="{'bg-dark':true}">
+      <q-layout-drawer side="right" no-swipe-open no-swipe-close v-model="sides.right" :content-class="{'bg-dark':true}">
         <object-viewer
           @close="hideRightHandler"
           :object="currentMessage"
@@ -266,7 +266,7 @@ export default {
       if (this.$route.params.group) {
         let groups = this.$route.params.group.split(',')
         let tabsByGroups = groups.reduce((result, group) => {
-          if (['hub', 'storage', 'mqtt'].includes(group)) {
+          if (['hub', 'storage', 'mqtt', 'platform'].includes(group)) {
             switch (group) {
               case 'hub': {
                 result.push('channels')
@@ -285,6 +285,10 @@ export default {
                 result.push('mqtt')
                 break
               }
+              case 'platform': {
+                result.push('mqtt')
+                break
+              }
             }
           }
           return result
@@ -300,8 +304,8 @@ export default {
             this.tabModel = this.$route.params.type
             this.$router.push(`/${route.params.type}/${route.params.id}`)
           } else {
-            this.tabModel = 'channels'
-            this.$router.push('/channels')
+            this.tabModel = 'platform'
+            this.$router.push('/platform')
           }
         } else {
           this.tabModel = this.tabsByGroup[0]
@@ -339,7 +343,7 @@ export default {
     if (this.$route.params.group) {
       let groups = this.$route.params.group.split(',')
       let tabsByGroups = groups.reduce((result, group) => {
-        if (['hub', 'storage', 'mqtt'].includes(group)) {
+        if (['hub', 'storage', 'mqtt', 'platform'].includes(group)) {
           switch (group) {
             case 'hub': {
               result.push('channels')
@@ -358,6 +362,10 @@ export default {
               result.push('mqtt')
               break
             }
+            case 'platform': {
+              result.push('platform')
+              break
+            }
           }
         }
         return result
@@ -373,8 +381,8 @@ export default {
           this.tabModel = this.$route.params.type
           this.$router.push(`/${this.$route.params.type}/${this.$route.params.id}`)
         } else {
-          this.tabModel = 'channels'
-          this.$router.push('/channels')
+          this.tabModel = 'platform'
+          this.$router.push('/platform')
         }
       } else {
         this.tabModel = this.tabsByGroup[0]

@@ -1,6 +1,6 @@
 <template>
   <div v-if="$store.state.offline" class="offline-page window-height window-width bg-light column items-center no-wrap">
-    <div class="offline-back" :style="{backgroundImage: `url(${logo})`}">
+    <div class="offline-back">
       <div class="offline-code"></div>
       <div class="offline-line">
         <span v-for="n in Array(20)" :key="n">offline</span>
@@ -11,14 +11,11 @@
 
 <script>
 /* for copying that components need to copy 'checkConnection' action, to add 'offline' property to root state */
-/* and pictures 'corpse.png' and 'police50.png' must be in statics folder of project */
+/* and pictures 'corpse.png', 'police50.png' and logo must be in statics folder of project */
 /* prop logo must be in relative path that component */
 
 export default {
   name: 'offline',
-  props: [
-    'logo'
-  ],
   data () {
     return {
       intervalId: 0
@@ -39,6 +36,7 @@ export default {
     right 0
     z-index 10020
     opacity .7
+    background-image url(../statics/toolbox.png)
     .offline-back
       width 100%
       height 100vh

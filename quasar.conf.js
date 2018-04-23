@@ -10,7 +10,8 @@ module.exports = function (ctx) {
     plugins: [
       'i18n',
       'flespi-io',
-      'clipboard'
+      'clipboard',
+      'icomoon'
     ],
     css: [
       'app.styl'

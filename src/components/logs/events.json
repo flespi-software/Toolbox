@@ -42,6 +42,7 @@
     "510": "new subscription was created for MQTT session via REST API",
     "511": "MQTT session subscription was updated via REST API",
     "512": "MQTT session subscription was deleted via REST API",
+    "600": "token expired and has been deleted",
     "700": "container size has been changed",
     "800": "abque size has been changed",
     "900": "cdn size has been changed",

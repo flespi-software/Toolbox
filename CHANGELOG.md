@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.0] - 2018-04-23
+[feature] platform logs added
 ### [0.8.9] - 2018-03-29
 [fix] fix for history loading
 ### [0.8.8] - 2018-03-28

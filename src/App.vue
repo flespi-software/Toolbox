@@ -2,7 +2,7 @@
   <!-- Don't drop "q-app" class -->
   <div id="q-app">
     <router-view></router-view>
-    <offline logo="../statics/toolbox.png"/>
+    <offline/>
   </div>
 </template>
 
