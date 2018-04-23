@@ -65,13 +65,13 @@ export default {
     logIn () {
       this.$store.commit('setToken', this.token)
       this.$nextTick(() => {
-        this.$router.push('/channels')
+        this.$router.push('/platform')
       })
     },
     autoLogin () {
       this.$store.commit('setToken', this.$route.params.token)
       setTimeout(() => {
-        this.$router.push('/channels')
+        this.$router.push('/platform')
       }, 1000)
     },
     checkHasToken () {

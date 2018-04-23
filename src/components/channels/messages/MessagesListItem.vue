@@ -1,24 +1,27 @@
 <template>
-  <div
-    v-if="!item['__connectionStatus']"
-    @click="itemClickHandler(index, item)"
-    class="cursor-pointer"
-    :class="[item.__status ? 'missed-items' : '']"
-    :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, backgroundColor: selected ? 'rgba(255,255,255,0.7)': '', color: selected ? '#333' : ''}">
+  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}">
+    <div
+      v-if="!item['__connectionStatus']"
+      @click="itemClickHandler(index, item)"
+      class="cursor-pointer"
+      :class="[item.__status ? 'missed-items' : '']"
+      :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, backgroundColor: selected ? 'rgba(255,255,255,0.7)': '', color: selected ? '#333' : ''}">
     <span class="list__item item_actions" v-if="actionsVisible">
       <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
         <q-tooltip>{{action.label}}</q-tooltip>
       </q-icon>
     </span>
-    <span v-for="(prop, k) in cols" :key="prop.name + k" class="list__item" :class="{[`item_${k}`]: true}" :title="JSON.stringify(values[prop.name].value)">
+      <span v-for="(prop, k) in cols" :key="prop.name + k" class="list__item" :class="{[`item_${k}`]: true}" :title="JSON.stringify(values[prop.name].value)">
       <!--<q-tooltip>{{values[prop.name].value}}</q-tooltip>-->
       {{values[prop.name].value}}
     </span>
-    <span v-if="etcVisible" class="list__item item_etc">{{values.etc.value || '*Empty*'}}</span>
-  </div>
-  <div
-    v-else
-    :style="{
+      <span v-if="etcVisible" class="list__item item_etc">
+      {{values.etc.value || '*Empty*'}}
+    </span>
+    </div>
+    <div
+      v-else
+      :style="{
       height: `${itemHeight}px`,
       width: `${rowWidth}px`,
       border: 'solid 1px #000',
@@ -29,9 +32,10 @@
       overflow: 'hidden',
       opacity: '.7'
     }"
-    :title="date.formatDate(item.timestamp, 'DD/MM/YYYY HH:mm:ss')"
-  >
-    <span style="padding: 0 5px; margin-left: 150px;" :style="{ backgroundColor: item.__connectionStatus === 'offline' ? '#ff0' : '#0f0'}" class="uppercase" v-for="n in Array(10)" :key="n">{{item['__connectionStatus']}}</span>
+      :title="date.formatDate(item.timestamp, 'DD/MM/YYYY HH:mm:ss')"
+    >
+      <span style="padding: 0 5px; margin-left: 150px;" :style="{ backgroundColor: item.__connectionStatus === 'offline' ? '#ff0' : '#0f0'}" class="uppercase" v-for="n in Array(10)" :key="n">{{item['__connectionStatus']}}</span>
+    </div>
   </div>
 </template>
 

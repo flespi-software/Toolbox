@@ -1,16 +1,17 @@
 <template>
-  <div
-    v-if="!item['__connectionStatus']"
-    class="cursor-pointer"
-    :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, borderBottom: item.delimiter ? 'solid 1px #f40' : '', boxSizing: 'border-box'}"
-    :class="[color, item.__status ? 'missed-items' : '']"
-    @click="itemClickHandler(index, item)">
+  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}">
+    <div
+      v-if="!item['__connectionStatus']"
+      class="cursor-pointer"
+      :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, borderBottom: item.delimiter ? 'solid 1px #f40' : '', boxSizing: 'border-box'}"
+      :class="[color, item.__status ? 'missed-items' : '']"
+      @click="itemClickHandler(index, item)">
     <span class="list__item item_actions text-white" v-if="actionsVisible">
       <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
         <q-tooltip>{{action.label}}</q-tooltip>
       </q-icon>
     </span>
-    <span v-for="(prop, k) in cols" :key="prop.name + k" class="list__item" :class="{[`item_${k}`]: true}">
+      <span v-for="(prop, k) in cols" :key="prop.name + k" class="list__item" :class="{[`item_${k}`]: true}">
       <!--<q-tooltip>{{getValueOfProp(prop)}}</q-tooltip>-->
       <a :class="[color]" @click.prevent.stop="linkMoreClickHandler" v-if="prop.name === 'event_code'"><q-icon name="mdi-open-in-new"/></a>
       <template v-if="prop.name === 'event_code' && item.address">
@@ -26,11 +27,11 @@
         {{getValueOfProp(prop)}}
       </span>
     </span>
-    <span v-if="etcVisible" class="list__item item_etc">{{etc}}</span>
-  </div>
-  <div
-    v-else
-    :style="{
+      <span v-if="etcVisible" class="list__item item_etc">{{etc}}</span>
+    </div>
+    <div
+      v-else
+      :style="{
       height: `${itemHeight}px`,
       width: `${rowWidth}px`,
       border: 'solid 1px #000',
@@ -41,9 +42,10 @@
       overflow: 'hidden',
       opacity: '.7'
     }" :class="[color]"
-    :title="date.formatDate(item.timestamp, 'DD/MM/YYYY HH:mm:ss')"
-  >
-    <span style="padding: 0 5px; margin-left: 150px;" :style="{ backgroundColor: item.__connectionStatus === 'offline' ? '#ff0' : '#0f0'}"  class="uppercase" v-for="n in Array(10)" :key="n">{{item['__connectionStatus']}}</span>
+      :title="date.formatDate(item.timestamp, 'DD/MM/YYYY HH:mm:ss')"
+    >
+      <span style="padding: 0 5px; margin-left: 150px;" :style="{ backgroundColor: item.__connectionStatus === 'offline' ? '#ff0' : '#0f0'}"  class="uppercase" v-for="n in Array(10)" :key="n">{{item['__connectionStatus']}}</span>
+    </div>
   </div>
 </template>
 
