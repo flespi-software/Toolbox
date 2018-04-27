@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.2] - 2018-04-27
+[fix] count on logs in history
 ### [0.9.1] - 2018-04-23
 [fix] lint
 ### [0.9.0] - 2018-04-23
