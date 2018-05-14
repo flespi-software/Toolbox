@@ -39,6 +39,7 @@
     "501": "mqtt session connection was blocked",
     "502": "mqtt session connection was rejected",
     "503": "mqtt session connection was closed",
+    "504": "persistent session was overflowed and deleted",
     "510": "new subscription was created for MQTT session via REST API",
     "511": "MQTT session subscription was updated via REST API",
     "512": "MQTT session subscription was deleted via REST API",
@@ -58,8 +59,7 @@
     "8": "channel protocol was modified on the server",
     "9": "channel's parameters changed",
     "10": "connection closed upon user's request",
-    "11": "failed to establish connection",
-    "12": "outgoing connection failed"
+    "11": "outgoing connection failed"
   },
   "errorCodes": {
     "204": {

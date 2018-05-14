@@ -186,7 +186,7 @@
         },
         {
           "name": "recv",
-          "title": "recived",
+          "title": "received",
           "width": 85,
           "display": true,
           "description": "Number of bytes received"

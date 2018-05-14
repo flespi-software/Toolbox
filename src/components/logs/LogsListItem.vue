@@ -108,6 +108,7 @@ export default {
         case 411:
         case 412:
         case 502:
+        case 504:
         case 511:
         case 600:
         case 900:
@@ -198,6 +199,7 @@ export default {
         case 501:
         case 502:
         case 503:
+        case 504:
         case 510:
         case 511:
         case 512: { return `${SERVER || 'https:localhost:9005'}/docs/#/mqtt/!/sessions` }

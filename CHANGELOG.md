@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.3] - 2018-05-07
+[feature] added new events
+[fix] config
 ### [0.9.2] - 2018-04-27
 [fix] count on logs in history
 ### [0.9.1] - 2018-04-23
