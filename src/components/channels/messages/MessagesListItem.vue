@@ -76,6 +76,9 @@ export default {
           if (vals[name]) {
             if (!vals[name].value) {
               vals[name].value = {}
+            } else if (typeof vals[name].value !== 'object') {
+              let value = vals[name].value
+              vals[name].value = { [index - 1]: value }
             }
             vals[name].value[index] = this.item[propName]
           } else {

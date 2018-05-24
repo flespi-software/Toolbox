@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.5] - 2018-05-24
+[fix] list items
 ### [0.9.4] - 2018-05-14
 [update] packages
 ### [0.9.3] - 2018-05-07
