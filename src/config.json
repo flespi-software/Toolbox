@@ -2,6 +2,7 @@
   "platform": {
     "label": "Platform",
     "icon": "icon-flespi2-01",
+    "isDrawable": true,
     "logs": {
       "vuexModuleName": "platformLogs",
       "cols": [
@@ -44,6 +45,8 @@
   "channels": {
     "label": "Channels",
     "icon": "merge_type",
+    "acl": ["protocols", "channels"],
+    "isDrawable": true,
     "logs": {
       "vuexModuleName": "channelsLogs",
       "cols": [
@@ -148,6 +151,8 @@
   "devices": {
     "label": "Devices",
     "icon": "mdi-developer-board",
+    "acl": ["devices"],
+    "isDrawable": true,
     "logs": {
       "vuexModuleName": "devicesLogs",
       "cols": [
@@ -266,6 +271,8 @@
   "streams": {
     "label": "Streams",
     "icon": "mdi-call-split",
+    "acl": ["streams"],
+    "isDrawable": true,
     "logs": {
       "vuexModuleName": "streamsLogs",
       "cols": [
@@ -314,6 +321,8 @@
   "modems": {
     "label": "Modems",
     "icon": "router",
+    "acl": ["modems"],
+    "isDrawable": true,
     "logs": {
       "vuexModuleName": "modemsLogs",
       "cols": [
@@ -374,6 +383,8 @@
   "containers": {
     "label": "Containers",
     "icon": "featured_play_list",
+    "acl": ["containers"],
+    "isDrawable": true,
     "logs": {
       "vuexModuleName": "containersLogs",
       "cols": [
@@ -416,6 +427,8 @@
   "abques": {
     "label": "Abques",
     "icon": "reorder",
+    "acl": ["abques"],
+    "isDrawable": true,
     "logs": {
       "vuexModuleName": "abquesLogs",
       "cols": [
@@ -458,6 +471,8 @@
   "mqtt": {
     "label": "MQTT",
     "icon": "mdi-access-point-network",
+    "acl": ["mqtt"],
+    "isDrawable": true,
     "logs": {
       "vuexModuleName": "mqttLogs",
       "cols": [
@@ -512,6 +527,8 @@
   "cdns": {
     "label": "CDNS",
     "icon": "mdi-harddisk",
+    "acl": ["cdns"],
+    "isDrawable": true,
     "logs": {
       "vuexModuleName": "cdnsLogs",
       "cols": [

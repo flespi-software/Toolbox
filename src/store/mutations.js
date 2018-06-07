@@ -1,5 +1,6 @@
-import { Cookies, LocalStorage } from 'quasar'
+import { Cookies, LocalStorage, Notify } from 'quasar'
 import Vue from 'vue'
+import config from '../config'
 
 function reqStart (state) {
   if (DEV) {
@@ -50,6 +51,7 @@ function setToken (state, val) {
   }
   Vue.connector.token = `FlespiToken ${token}`
   Vue.set(state, 'token', token)
+  clearErrors(state)
 }
 function clearToken (state) {
   let cookieToken = Cookies.get('X-Flespi-Token'),
@@ -60,6 +62,34 @@ function clearToken (state) {
   LocalStorage.remove('X-Flespi-Token')
   Vue.connector.token = ''
   Vue.set(state, 'token', '')
+  clearTokenInfo(state)
+  setConfig(state, config)
+}
+
+function setConfig (state, config) {
+  Vue.set(state, 'config', config)
+}
+
+function addError (state, message) {
+  Notify.create({
+    type: 'negative',
+    icon: 'warning',
+    message: `${message}`,
+    timeout: 1000
+  })
+  state.errors.push(message)
+}
+
+function clearErrors (state) {
+  state.errors = []
+}
+
+function setTokenInfo (state, info) {
+  Vue.set(state, 'tokenInfo', info)
+}
+
+function clearTokenInfo (state) {
+  state.tokenInfo = {}
 }
 
 export default {
@@ -69,5 +99,10 @@ export default {
   setToken,
   clearToken,
   setOfflineFlag,
-  clearItems
+  clearItems,
+  setConfig,
+  addError,
+  clearErrors,
+  setTokenInfo,
+  clearTokenInfo
 }

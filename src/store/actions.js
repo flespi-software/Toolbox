@@ -57,7 +57,7 @@ async function getItems ({ state, commit }, entity) {
         let activeResp = await Vue.connector.http.get(queryString, { params })
         let active = activeResp.data
         let deleted = []
-        if (state.isCustomer) {
+        if (state.tokenInfo.access.type === 1) {
           let deletedResp = await Vue.connector.platform.getCustomerLogs({data: JSON.stringify(deletedParams)})
           let deletedData = deletedResp.data
           deleted = deletedData.result && deletedData.result.length ? deletedData.result : []
@@ -101,26 +101,61 @@ async function checkConnection ({ state, commit }) {
   }
 }
 
-async function getCustomer ({ state, commit }) {
+async function getTokenInfo ({ state, commit }, token) {
+  let tokenInfoData = {}
   try {
-    if (typeof state.isLoading !== 'undefined') {
-      state.isLoading = true
-    }
-    let resp = await Vue.connector.platform.getCustomer()
-    let data = resp.data
-    if (data.result && data.result.length) {
-      state.isCustomer = true
-    }
-    if (typeof state.isLoading !== 'undefined') {
-      state.isLoading = false
-    }
+    tokenInfoData = await Vue.connector.auth.getInfo()
   } catch (e) {
     if (DEV) {
       console.log(e)
     }
-    state.isCustomer = false
-    if (typeof state.isLoading !== 'undefined') {
-      state.isLoading = false
+  }
+  let tokenInfo = tokenInfoData.data.result[0]
+  commit('setTokenInfo', tokenInfo)
+  // agregate to config
+  switch (tokenInfo.access.type) {
+    // standart token
+    case 0: {
+      Vue.set(state.config.platform, 'isDrawable', false)
+      break
+    }
+    // master
+    case 1: {
+      break
+    }
+    // acl
+    case 2: {
+      Vue.set(state.config.platform, 'isDrawable', false)
+      let rights = tokenInfo.access.acl.reduce((result, acl) => {
+        if (acl.uri === 'gw') {
+          if (acl.methods.includes('GET')) {
+            return [...result, 'channels', 'devices', 'streams', 'modems', 'protocols']
+          }
+          return result
+        }
+        if (acl.uri === 'storage') {
+          if (acl.methods.includes('GET')) {
+            return [...result, 'containers', 'abques', 'cdns']
+          }
+          return result
+        }
+        let entity = acl.uri.split('/')[1] || acl.uri.split('/')[0]
+        if (!result.includes(entity) && (!acl.methods || (acl.methods && acl.methods.includes('GET')))) {
+          result.push(entity)
+        }
+        return result
+      }, [])
+      Object.keys(state.config).forEach((entity) => {
+        let entityConfig = state.config[entity]
+        if (!entityConfig.acl) { return false }
+        let access = entityConfig.acl.reduce((result, req) => {
+          return result && rights.includes(req)
+        }, true)
+        if (!access) {
+          state.config[entity].isDrawable = false
+        }
+      })
+      break
     }
   }
 }
@@ -128,5 +163,5 @@ async function getCustomer ({ state, commit }) {
 export default {
   getItems,
   checkConnection,
-  getCustomer
+  getTokenInfo
 }

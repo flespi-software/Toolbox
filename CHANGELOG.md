@@ -1,5 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.6] - 2018-06-06
+[feature] adaptive interface by token info
+[feature] virtual scroll lists for lists of entities
+[feature] sw rebased
+[fix] object fields
 ### [0.9.5] - 2018-05-24
 [fix] list items
 ### [0.9.4] - 2018-05-14

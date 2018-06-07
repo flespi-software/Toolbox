@@ -6,23 +6,30 @@
           Select modem
           <q-popover fit ref="popoverNotActive">
             <q-list link separator class="scroll">
-              <q-item
-                v-if="items.length"
-                v-for="(item, index) in items"
-                :key="index"
-                @click.native="active = item.id, $refs.popoverNotActive.hide()"
-                :class="{'text-grey-8': item.deleted}"
+              <VirtualList
+                :size="76"
+                :remain="items.length > 6 ? 6 : items.length"
               >
-                <q-item-main>
-                  <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name}}<q-tooltip v-if="$q.platform.is.desktop">{{item.name}}</q-tooltip></q-item-tile>
-                  <q-item-tile v-if="item.configuration" sublabel><small>{{item.configuration.source_addr}}</small></q-item-tile>
-                  <q-item-tile v-if="item.configuration" sublabel><small>{{item.configuration.uri}}</small></q-item-tile>
-                </q-item-main>
-                <q-item-side class="text-center">
-                  <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
-                  <q-item-tile><small>#{{item.id.toString()}}</small></q-item-tile>
-                </q-item-side>
-              </q-item>
+                <q-item
+                  v-if="items.length"
+                  v-for="(item, index) in items"
+                  :key="index"
+                  @click.native="active = item.id, $refs.popoverNotActive.hide()"
+                  class="cursor-pointer"
+                  :class="{'text-grey-8': item.deleted}"
+                  highlight
+                >
+                  <q-item-main>
+                    <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || '&lt;noname&gt;'}}<q-tooltip v-if="$q.platform.is.desktop">{{item.name}}</q-tooltip></q-item-tile>
+                    <q-item-tile v-if="item.configuration" sublabel><small>{{item.configuration.source_addr || '&lt;no address&gt;'}}</small></q-item-tile>
+                    <q-item-tile v-if="item.configuration" sublabel><small>{{item.configuration.uri || '&lt;no uri&gt;'}}</small></q-item-tile>
+                  </q-item-main>
+                  <q-item-side class="text-center">
+                    <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
+                    <q-item-tile><small>#{{item.id.toString()}}</small></q-item-tile>
+                  </q-item-side>
+                </q-item>
+              </VirtualList>
             </q-list>
           </q-popover>
         </q-btn>
@@ -43,22 +50,29 @@
           </q-item-side>
           <q-popover fit ref="popoverActive" v-if="isNeedSelect">
             <q-list link separator class="scroll">
-              <q-item
-                v-for="(item, index) in items"
-                :key="index"
-                @click.native="active = item.id, $refs.popoverActive.hide(), $emit('view-data-hide')"
-                :class="{'text-grey-8': item.deleted}"
+              <VirtualList
+                :size="76"
+                :remain="items.length > 6 ? 6 : items.length"
               >
-                <q-item-main>
-                  <q-item-tile label class="ellipsis overflow-hidden">{{item.name}}</q-item-tile>
-                  <q-item-tile sublabel v-if="item.configuration && item.configuration.source_addr"><small>{{item.configuration.source_addr}}</small></q-item-tile>
-                  <q-item-tile sublabel v-if="item.configuration && item.configuration.uri"><small>{{item.configuration.uri}}</small></q-item-tile>
-                </q-item-main>
-                <q-item-side class="text-center">
-                  <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
-                  <q-item-tile><small>#{{item.id.toString()}}</small></q-item-tile>
-                </q-item-side>
-              </q-item>
+                <q-item
+                  v-for="(item, index) in items"
+                  :key="index"
+                  @click.native="active = item.id, $refs.popoverActive.hide(), $emit('view-data-hide')"
+                  class="cursor-pointer"
+                  :class="{'text-grey-8': item.deleted}"
+                  highlight
+                >
+                  <q-item-main>
+                    <q-item-tile label class="ellipsis overflow-hidden">{{item.name || '&lt;noname&gt;'}}</q-item-tile>
+                    <q-item-tile sublabel v-if="item.configuration"><small>{{item.configuration.source_addr || '&lt;no address&gt;'}}</small></q-item-tile>
+                    <q-item-tile sublabel v-if="item.configuration"><small>{{item.configuration.uri || '&lt;no uri&gt;'}}</small></q-item-tile>
+                  </q-item-main>
+                  <q-item-side class="text-center">
+                    <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
+                    <q-item-tile><small>#{{item.id.toString()}}</small></q-item-tile>
+                  </q-item-side>
+                </q-item>
+              </VirtualList>
             </q-list>
           </q-popover>
         </q-item>
@@ -75,7 +89,6 @@
       </q-toolbar>
       <logs
         ref="logs"
-        v-if="isCustomer"
         :mode="mode"
         :item="selectedItem"
         originPattern="gw/modems/:id"
@@ -84,7 +97,7 @@
         :style="{minHeight: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
         @view-log-message="viewLogMessagesHandler"
       />
-      <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="!isCustomer || selectedItem.deleted">Nothing to show by modem &#171;{{selectedItem.name}}&#187; <div style="font-size: 0.9rem">or you haven`t access</div></div>
+      <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="selectedItem.deleted">Nothing to show by modem &#171;{{selectedItem.name}}&#187; <div style="font-size: 0.9rem">or you haven`t access</div></div>
     </template>
   </div>
 </template>
@@ -92,11 +105,11 @@
 <script>
 import logs from '../logs/Index.vue'
 import { mapState } from 'vuex'
+import VirtualList from 'vue-virtual-scroll-list'
 
 export default {
   props: [
     'limit',
-    'isCustomer',
     'isLoading',
     'isVisibleToolbar',
     'isNeedSelect',
@@ -155,25 +168,22 @@ export default {
   },
   created () {
     let activeFromLocaleStorage = this.$q.localStorage.get.item('modems')
-    this.$store.dispatch('getCustomer')
+    this.$store.dispatch('getItems', 'modems')
       .then(() => {
-        this.$store.dispatch('getItems', 'modems')
-          .then(() => {
-            this.isInit = true
-            if (this.$route.params && this.$route.params.id) {
-              if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
-                this.active = Number(this.$route.params.id)
-              } else {
-                this.active = null
-              }
-            } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
-              this.active = activeFromLocaleStorage
-            }
-            // deleted item logic
-            if (this.selectedItem.deleted) {
-              this.mode = 0
-            }
-          })
+        this.isInit = true
+        if (this.$route.params && this.$route.params.id) {
+          if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
+            this.active = Number(this.$route.params.id)
+          } else {
+            this.active = null
+          }
+        } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
+          this.active = activeFromLocaleStorage
+        }
+        // deleted item logic
+        if (this.selectedItem.deleted) {
+          this.mode = 0
+        }
       })
   },
   destroyed () {
@@ -199,14 +209,12 @@ export default {
       } else {
         this.$router.push('/modems')
       }
-      if (this.isCustomer) {
-        if (currentItem.deleted) {
-          this.mode = 0
-        }
+      if (currentItem.deleted) {
+        this.mode = 0
       }
     }
   },
-  components: { logs }
+  components: { logs, VirtualList }
 }
 </script>
 <style>
