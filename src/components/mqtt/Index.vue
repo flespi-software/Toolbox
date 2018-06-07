@@ -21,7 +21,6 @@
       </q-toolbar>
       <logs
         ref="logs"
-        v-if="isCustomer"
         :mode="mode"
         :item="true"
         originPattern="mqtt/*"
@@ -30,7 +29,6 @@
         :style="{minHeight: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
         @view-log-message="viewLogMessagesHandler"
       />
-      <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="!isCustomer">Nothing to show by MQTT <div style="font-size: 0.9rem">or you haven`t access</div></div>
     </template>
   </div>
 </template>
@@ -42,7 +40,6 @@ import { mapState } from 'vuex'
 export default {
   props: [
     'limit',
-    'isCustomer',
     'isLoading',
     'isVisibleToolbar',
     'isNeedSelect',
@@ -93,8 +90,7 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('getCustomer')
-      .then(() => { this.isInit = true })
+    this.isInit = true
   },
   destroyed () {
     this.$store.commit('clearItems')

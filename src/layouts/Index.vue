@@ -9,7 +9,7 @@
           <q-window-resize-observable @resize="onResizeWindow" />
           <q-tabs color="dark" v-model="tabModel" :style="{maxWidth: 'calc(100% - 270px)'}" v-if="$q.platform.is.desktop && isTabsVisible">
             <q-route-tab
-              v-for="(moduleName, index) in tabsByGroup"
+              v-for="(moduleName, index) in renderEntities"
               :key="index"
               slot="title"
               :name="`${moduleName}`"
@@ -29,7 +29,7 @@
             <q-popover fit ref="popoverTab">
               <q-list link separator class="scroll">
                 <q-item
-                  v-for="(moduleName, index) in tabsByGroup"
+                  v-for="(moduleName, index) in renderEntities"
                   :key="index"
                   :to="`/${moduleName}`"
                 >
@@ -68,7 +68,6 @@
             @view-data-hide="sides.right = false, currentMessage = {}"
             @view-log-message="viewLogMessagesHandler"
             :limit="limit"
-            :isCustomer="isCustomer"
             :isLoading="loadingFlag"
             :isVisibleToolbar="isVisibleToolbar"
             :isNeedSelect="isNeedSelect"
@@ -85,9 +84,9 @@
 </template>
 
 <script>
+// import Vue from 'vue'
 import { debounce, date } from 'quasar'
-import config from '../config.json'
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapMutations, mapActions } from 'vuex'
 import dist from '../../package.json'
 import ObjectViewer from '../components/ObjectViewer.vue'
 import RawViewer from '../components/RawViewer.vue'
@@ -105,23 +104,28 @@ export default {
       },
       currentLimit: 1000,
       rawConfig: {},
-      config: config,
       tabModel: '',
       isVisibleToolbar: true,
       loadingFlag: false,
       isTabsVisible: true,
-      tabsByGroup: Object.keys(config),
+      tabsByGroup: ['platform', 'channels', 'devices', 'streams', 'modems', 'containers', 'abques', 'cdns', 'mqtt'],
       isNeedSelect: true
     }
   },
   computed: {
     ...mapState({
       token: (state) => state.token,
-      isCustomer: (state) => state.isCustomer,
-      isLoading: (state) => state.isLoading
+      isLoading: (state) => state.isLoading,
+      config: state => state.config,
+      errors: state => state.errors
     }),
     configByEntity () {
       return this.config[this.tabModel]
+    },
+    renderEntities () {
+      return this.tabsByGroup.filter((name) => {
+        return this.config[name].isDrawable
+      })
     },
     limit: {
       get () {
@@ -197,12 +201,10 @@ export default {
   methods: {
     ...mapMutations([
       'setToken',
-      'clearToken'
+      'clearToken',
+      'addError'
     ]),
-    exitHandler () {
-      this.clearToken()
-      this.$router.push('/login')
-    },
+    ...mapActions(['getTokenInfo']),
     onResizeWindow (size) {
       size.width > 767 ? this.isTabsVisible = true : this.isTabsVisible = false
     },
@@ -224,7 +226,7 @@ export default {
         message: 'Do you really want to exit?',
         cancel: true,
         ok: true
-      }).then(() => { this.exitHandler() })
+      }).then(() => { this.reset() })
         .catch(() => {})
     },
     settingsHandler () {
@@ -254,95 +256,9 @@ export default {
     },
     disableLoading: debounce((ctx) => {
       ctx.loadingFlag = false
-    }, 200)
-  },
-  watch: {
-    token (val) {
-      if (!val) {
-        this.$router.push('/login')
-      }
-    },
-    $route (route) {
-      if (this.$route.params.group) {
-        let groups = this.$route.params.group.split(',')
-        let tabsByGroups = groups.reduce((result, group) => {
-          if (['hub', 'storage', 'mqtt', 'platform'].includes(group)) {
-            switch (group) {
-              case 'hub': {
-                result.push('channels')
-                result.push('devices')
-                result.push('streams')
-                result.push('modems')
-                break
-              }
-              case 'storage': {
-                result.push('containers')
-                result.push('abques')
-                result.push('cdns')
-                break
-              }
-              case 'mqtt': {
-                result.push('mqtt')
-                break
-              }
-              case 'platform': {
-                result.push('mqtt')
-                break
-              }
-            }
-          }
-          return result
-        }, [])
-        if (tabsByGroups.length) { this.tabsByGroup = tabsByGroups }
-      }
-      if (route.params.token) {
-        this.isNeedSelect = !this.$route.params.noselect
-        this.isVisibleToolbar = !route.params.fullscreen
-        this.setToken(route.params.token)
-        if (route.params.id && route.params.type) {
-          if (Object.keys(config).includes(route.params.type)) {
-            this.tabModel = this.$route.params.type
-            this.$router.push(`/${route.params.type}/${route.params.id}`)
-          } else {
-            this.tabModel = 'platform'
-            this.$router.push('/platform')
-          }
-        } else {
-          this.tabModel = this.tabsByGroup[0]
-          this.$router.push(`/${this.tabsByGroup[0]}`)
-        }
-      } else if (!this.token) { // if not logged in
-        this.$router.push('/login')
-      } else {
-        if (route.path === '/') { // if main route
-          this.tabModel = this.tabsByGroup[0]
-          this.$router.push(`/${this.tabsByGroup[0]}`)
-        } else { // go to send route
-          if (this.$route.meta.moduleName) {
-            this.tabModel = this.$route.meta.moduleName
-            this.$router.push(`/${this.$route.meta.moduleName}${this.$route.params.id ? `/${this.$route.params.id}` : ''}`)
-          } else {
-            this.$router.push(this.$route.path)
-          }
-        }
-      }
-      if (this.$refs.layout) {
-        this.hideRight()
-      }
-    },
-    isLoading (flag) {
-      if (flag) {
-        this.loadingFlag = flag
-      } else {
-        this.disableLoading(this)
-      }
-    }
-  },
-  created () {
-    let localStorageToken = this.$q.localStorage.get.item('X-Flespi-Token')
-    if (this.$route.params.group) {
-      let groups = this.$route.params.group.split(',')
-      let tabsByGroups = groups.reduce((result, group) => {
+    }, 200),
+    getGroups (groups) {
+      return groups.reduce((result, group) => {
         if (['hub', 'storage', 'mqtt', 'platform'].includes(group)) {
           switch (group) {
             case 'hub': {
@@ -370,33 +286,56 @@ export default {
         }
         return result
       }, [])
-      if (tabsByGroups.length) { this.tabsByGroup = tabsByGroups }
-    }
-    if (this.$route.params.token) {
-      this.isNeedSelect = !this.$route.params.noselect
-      this.isVisibleToolbar = !this.$route.params.fullscreen
-      this.setToken(this.$route.params.token)
-      if (this.$route.params.id && this.$route.params.type) {
-        if (Object.keys(config).includes(this.$route.params.type)) {
-          this.tabModel = this.$route.params.type
-          this.$router.push(`/${this.$route.params.type}/${this.$route.params.id}`)
-        } else {
-          this.tabModel = 'platform'
-          this.$router.push('/platform')
-        }
+    },
+    reset (errMessage) {
+      this.clearToken()
+      this.$router.push(`/login`)
+      if (errMessage) {
+        this.addError(errMessage)
+      }
+    },
+    setDefaultTabModel () {
+      if (this.renderEntities.length) {
+        this.tabModel = this.renderEntities[0]
+        this.$router.push(`/${this.renderEntities[0]}`)
       } else {
-        this.tabModel = this.tabsByGroup[0]
-        this.$router.push(`/${this.tabsByGroup[0]}`)
+        this.reset('Nothing to show by current token')
       }
-    } else if (!this.token && !localStorageToken) { // if not logged in
-      this.$router.push('/login')
-    } else {
-      if (localStorageToken) { // if token saved in local-storage
-        this.setToken(localStorageToken)
+    },
+    routeProcess (route) {
+      if (route.params.group) {
+        let groups = this.$route.params.group.split(','),
+          tabsByGroups = this.getGroups(groups)
+        if (tabsByGroups.length) { this.tabsByGroup = tabsByGroups }
       }
-      if (this.$route.path === '/') { // if main route
-        this.tabModel = this.tabsByGroup[0]
-        this.$router.push(`/${this.tabsByGroup[0]}`)
+      if (route.params.token) {
+        this.routeParamsProcess(route)
+      } else if (!this.token) { // if not logged in
+        this.$router.push('/login')
+      } else {
+        this.routeMainProcess(route)
+      }
+    },
+    routeParamsProcess (route) {
+      this.isNeedSelect = !this.$route.params.noselect
+      this.isVisibleToolbar = !route.params.fullscreen
+      this.setToken(route.params.token)
+      this.getTokenInfo().then(() => {
+        if (route.params.id && route.params.type) {
+          if (this.renderEntities.includes(route.params.type)) {
+            this.tabModel = this.$route.params.type
+            this.$router.push(`/${route.params.type}/${route.params.id}`)
+          } else {
+            this.reset('Nothing to show by current token')
+          }
+        } else {
+          this.setDefaultTabModel()
+        }
+      })
+    },
+    routeMainProcess (route) {
+      if (route.path === '/') { // if main route
+        this.setDefaultTabModel()
       } else { // go to send route
         if (this.$route.meta.moduleName) {
           this.tabModel = this.$route.meta.moduleName
@@ -406,6 +345,32 @@ export default {
         }
       }
     }
+  },
+  watch: {
+    token (val) {
+      if (!val) {
+        this.$router.push('/login')
+      }
+    },
+    $route (route) {
+      this.routeProcess(route)
+      if (this.$refs.layout) {
+        this.hideRight()
+      }
+    },
+    isLoading (flag) {
+      if (flag) {
+        this.loadingFlag = flag
+      } else {
+        this.disableLoading(this)
+      }
+    }
+  },
+  created () {
+    this.routeProcess(this.$route)
+    // Vue.connector.socket.on('error', (error) => {
+    //   this.addError(error.message)
+    // })
   },
   components: { ObjectViewer, RawViewer }
 }

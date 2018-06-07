@@ -6,21 +6,27 @@
           Select device
           <q-popover fit ref="popoverNotActive">
             <q-list link separator class="scroll">
-              <q-item
-                v-for="(item, index) in items"
-                :key="index"
-                @click.native="active = item.id, $refs.popoverNotActive.hide()"
-                :class="{'text-grey-8': item.deleted}"
+              <VirtualList
+                :size="40"
+                :remain="items.length > 6 ? 6 : items.length"
               >
-                <q-item-main>
-                  <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || `#${item.id}`}}<q-tooltip v-if="$q.platform.is.desktop && item.name">{{item.name}}</q-tooltip></q-item-tile>
-                  <q-item-tile sublabel><small>{{item.ident}}</small></q-item-tile>
-                </q-item-main>
-                <q-item-side class="text-center">
-                  <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
-                  <q-item-tile><small>#{{item.id.toString()}}</small></q-item-tile>
-                </q-item-side>
-              </q-item>
+                <q-item
+                  v-for="(item, index) in items"
+                  :key="index"
+                  @click.native="active = item.id, $refs.popoverNotActive.hide()"
+                  class="cursor-pointer"
+                  :class="{'text-grey-8': item.deleted}"
+                >
+                  <q-item-main>
+                    <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || `#${item.id}`}}<q-tooltip v-if="$q.platform.is.desktop && item.name">{{item.name}}</q-tooltip></q-item-tile>
+                    <q-item-tile sublabel><small>{{item.ident}}</small></q-item-tile>
+                  </q-item-main>
+                  <q-item-side class="text-center">
+                    <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
+                    <q-item-tile><small>#{{item.id.toString()}}</small></q-item-tile>
+                  </q-item-side>
+                </q-item>
+              </VirtualList>
             </q-list>
           </q-popover>
         </q-btn>
@@ -40,21 +46,27 @@
           </q-item-side>
           <q-popover fit ref="popoverActive" v-if="isNeedSelect">
             <q-list link separator class="scroll">
-              <q-item
-                v-for="(item, index) in items"
-                :key="index"
-                @click.native="active = item.id, $refs.popoverActive.hide(), $emit('view-data-hide')"
-                :class="{'text-grey-8': item.deleted}"
+              <VirtualList
+                :size="40"
+                :remain="items.length > 6 ? 6 : items.length"
               >
-                <q-item-main>
-                  <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || `#${item.id}`}}</q-item-tile>
-                  <q-item-tile sublabel><small>{{item.ident}}</small></q-item-tile>
-                </q-item-main>
-                <q-item-side class="text-center">
-                  <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
-                  <q-item-tile><small>#{{item.id.toString()}}</small></q-item-tile>
-                </q-item-side>
-              </q-item>
+                <q-item
+                  v-for="(item, index) in items"
+                  :key="index"
+                  @click.native="active = item.id, $refs.popoverActive.hide(), $emit('view-data-hide')"
+                  class="cursor-pointer"
+                  :class="{'text-grey-8': item.deleted}"
+                >
+                  <q-item-main>
+                    <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || `#${item.id}`}}</q-item-tile>
+                    <q-item-tile sublabel><small>{{item.ident}}</small></q-item-tile>
+                  </q-item-main>
+                  <q-item-side class="text-center">
+                    <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
+                    <q-item-tile><small>#{{item.id.toString()}}</small></q-item-tile>
+                  </q-item-side>
+                </q-item>
+              </VirtualList>
             </q-list>
           </q-popover>
         </q-item>
@@ -70,7 +82,7 @@
           <q-icon size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler">
             <q-tooltip>Clear all panes</q-tooltip>
           </q-icon>
-          <q-icon v-if="isCustomer && !selectedItem.deleted" size="1.5rem" class="cursor-pointer pull-right" name="mdi-format-align-middle">
+          <q-icon v-if="!selectedItem.deleted" size="1.5rem" class="cursor-pointer pull-right" name="mdi-format-align-middle">
             <q-tooltip>Section ratio</q-tooltip>
             <q-popover ref="ratioPopover">
               <q-item style="width: 25rem; height: 100px" class="bg-dark">
@@ -106,7 +118,7 @@
           :item="selectedItem"
           originPattern="gw/devices/:id"
           :isEnabled="!!+size[0]"
-          v-if="isCustomer && +size[0]"
+          v-if="+size[0]"
           :style="[{minHeight: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'logs' ? '66%' : ''}]"
           @view-log-message="viewLogMessagesHandler"
           :config="config.logs"
@@ -133,7 +145,7 @@
         @map:close="isVisibleMap = false"
         @map:minimize="mapMinimizeHandler"
       />
-      <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="!isCustomer && selectedItem.deleted">Nothing to show by device &#171;{{selectedItem.name || `#${selectedItem.id}`}}&#187; <div style="font-size: 0.9rem">or you haven`t access</div></div>
+      <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="selectedItem.deleted">Nothing to show by device &#171;{{selectedItem.name || `#${selectedItem.id}`}}&#187; <div style="font-size: 0.9rem">or you haven`t access</div></div>
     </template>
   </div>
 </template>
@@ -143,11 +155,11 @@ import logs from '../logs/Index.vue'
 import messages from './messages/Index.vue'
 import MapComponent from './MapComponent'
 import { mapState } from 'vuex'
+import VirtualList from 'vue-virtual-scroll-list'
 
 export default {
   props: [
     'limit',
-    'isCustomer',
     'isLoading',
     'isVisibleToolbar',
     'isNeedSelect',
@@ -157,7 +169,7 @@ export default {
     return {
       mode: 1,
       active: null,
-      ratio: this.isCustomer ? 50 : 0,
+      ratio: 50,
       isInit: false,
       isVisibleMap: false,
       mapMinimizedOptions: {},
@@ -239,26 +251,23 @@ export default {
   },
   created () {
     let activeFromLocaleStorage = this.$q.localStorage.get.item('devices')
-    this.$store.dispatch('getCustomer')
+    this.$store.dispatch('getItems', 'devices')
       .then(() => {
-        this.$store.dispatch('getItems', 'devices')
-          .then(() => {
-            this.isInit = true
-            if (this.$route.params && this.$route.params.id) {
-              if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
-                this.active = Number(this.$route.params.id)
-              } else {
-                this.active = null
-              }
-            } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
-              this.active = activeFromLocaleStorage
-            }
-            // deleted item logic
-            if (this.selectedItem.deleted) {
-              this.mode = 0
-              if (this.isCustomer) { this.ratio = 100 }
-            }
-          })
+        this.isInit = true
+        if (this.$route.params && this.$route.params.id) {
+          if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
+            this.active = Number(this.$route.params.id)
+          } else {
+            this.active = null
+          }
+        } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
+          this.active = activeFromLocaleStorage
+        }
+        // deleted item logic
+        if (this.selectedItem.deleted) {
+          this.mode = 0
+          this.ratio = 100
+        }
       })
   },
   destroyed () {
@@ -295,24 +304,15 @@ export default {
       } else {
         this.$router.push('/devices')
       }
-      if (this.isCustomer) {
-        if (currentItem.deleted) {
-          this.ratio = 100
-          this.mode = 0
-        } else {
-          this.ratio = currentItem.deleted ? 100 : 50
-        }
-      }
-    },
-    isCustomer (val) {
-      if (!val) {
-        this.ratio = 0
+      if (currentItem.deleted) {
+        this.ratio = 100
+        this.mode = 0
       } else {
-        this.ratio = 50
+        this.ratio = currentItem.deleted ? 100 : 50
       }
     }
   },
-  components: { logs, messages, MapComponent }
+  components: { logs, messages, MapComponent, VirtualList }
 }
 </script>
 <style>

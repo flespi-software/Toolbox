@@ -64,15 +64,19 @@ export default {
   methods: {
     logIn () {
       this.$store.commit('setToken', this.token)
-      this.$nextTick(() => {
-        this.$router.push('/platform')
+      this.$store.dispatch('getTokenInfo', this.token).then(() => {
+        this.$nextTick(() => {
+          this.$router.push('/')
+        })
       })
     },
     autoLogin () {
       this.$store.commit('setToken', this.$route.params.token)
-      setTimeout(() => {
-        this.$router.push('/platform')
-      }, 1000)
+      this.$store.dispatch('getTokenInfo', this.token).then(() => {
+        setTimeout(() => {
+          this.$router.push('/')
+        }, 1000)
+      })
     },
     checkHasToken () {
       let authCookie = this.$q.cookies.get('X-Flespi-Token'),

@@ -75,6 +75,7 @@ module.exports = function (ctx) {
         'QInput',
         'QProgress',
         'QWindowResizeObservable',
+        'QResizeObservable',
         'QTabs',
         'QTab',
         'QTabPane',
