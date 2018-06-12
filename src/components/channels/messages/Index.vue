@@ -217,7 +217,7 @@ export default {
   },
   async created () {
     if (!this.$store.state[this.moduleName]) {
-      this.$store.registerModule(this.moduleName, channelsMessagesModule(this.$store, Vue, this.$q.localStorage, this.moduleName))
+      this.$store.registerModule(this.moduleName, channelsMessagesModule({Vue, LocalStorage: this.$q.localStorage, name: this.moduleName, errorHandler: (err) => { this.$store.commit('reqFailed', err) }}))
     } else {
       this.$store.commit(`${this.moduleName}/clear`)
     }
@@ -235,11 +235,13 @@ export default {
     Vue.connector.socket.on('offline', () => {
       if (this.mode === 1) {
         this.$store.commit(`${this.moduleName}/setOffline`, this.mode === 1)
+        this.$store.commit('setSocketOffline', true)
       }
     })
     Vue.connector.socket.on('connect', () => {
       if (this.$store.state[this.moduleName].offline) {
         this.$store.commit(`${this.moduleName}/setReconnected`, this.mode === 1)
+        this.$store.commit('setSocketOffline', false)
       }
     })
   },

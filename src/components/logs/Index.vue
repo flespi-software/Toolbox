@@ -228,7 +228,7 @@ export default {
   },
   async created () {
     if (!this.$store.state[this.moduleName]) {
-      this.$store.registerModule(this.moduleName, logsModule(this.$store, Vue, this.$q.localStorage, this.moduleName))
+      this.$store.registerModule(this.moduleName, logsModule({Vue, LocalStorage: this.$q.localStorage, name: this.moduleName, errorHandler: (err) => { this.$store.commit('reqFailed', err) }}))
     } else {
       this.$store.commit(`${this.moduleName}/clear`)
     }
@@ -244,13 +244,17 @@ export default {
         await this.$store.dispatch(`${this.moduleName}/getHistory`, 200)
       }
     }
-    Vue.connector.socket.on('offline', () => { this.$store.commit(`${this.moduleName}/setOffline`, this.mode === 1) })
+    Vue.connector.socket.on('offline', () => {
+      this.$store.commit(`${this.moduleName}/setOffline`, this.mode === 1)
+      this.$store.commit('setSocketOffline', true)
+    })
     Vue.connector.socket.on('connect', () => {
       if (this.$store.state[this.moduleName].offline) {
         this.$store.commit(`${this.moduleName}/setReconnected`, this.mode === 1)
         if (this.mode === 1) {
           this.$store.dispatch(`${this.moduleName}/getMissedMessages`)
         }
+        this.$store.commit('setSocketOffline', false)
       }
     })
   },

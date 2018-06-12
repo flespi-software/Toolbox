@@ -27,8 +27,13 @@ function reqFailed (state, payload) {
         if (DEV) {
           console.log(`${payload.status} - ${payload.statusText}`)
         }
+        if (payload.response.data && payload.response.data.errors && payload.response.data.errors.length) {
+          payload.response.data.errors.forEach((e) => { addError(state, e.reason) })
+        }
       }
     }
+  } else {
+    addError(state, payload.message)
   }
 }
 function setItems (state, channels) {
@@ -77,6 +82,7 @@ function addError (state, message) {
     message: `${message}`,
     timeout: 1000
   })
+  state.newNotificationCounter++
   state.errors.push(message)
 }
 
@@ -92,6 +98,12 @@ function clearTokenInfo (state) {
   state.tokenInfo = {}
 }
 
+function setSocketOffline (state, flag) {
+  Vue.set(state, 'socketOffline', flag)
+}
+
+function clearNotificationCounter (state) { state.newNotificationCounter = 0 }
+
 export default {
   reqStart,
   setItems,
@@ -104,5 +116,7 @@ export default {
   addError,
   clearErrors,
   setTokenInfo,
-  clearTokenInfo
+  clearTokenInfo,
+  setSocketOffline,
+  clearNotificationCounter
 }

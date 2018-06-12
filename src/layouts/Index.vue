@@ -43,6 +43,22 @@
               </q-list>
             </q-popover>
           </q-btn>
+          <q-btn v-if="errors.length" @click="clearNotificationCounter" small flat round icon="notifications">
+            <q-chip v-if="newNotificationCounter" floating color="red">{{newNotificationCounter}}</q-chip>
+            <q-popover fit ref="popoverError">
+              <q-list no-border style="max-height: 200px" link separator class="scroll">
+                <q-item
+                  v-for="(error, index) in errors"
+                  :key="index"
+                  style="cursor: default"
+                >
+                  <q-item-main>
+                    <q-item-tile label>{{error}}</q-item-tile>
+                  </q-item-main>
+                </q-item>
+              </q-list>
+            </q-popover>
+          </q-btn>
           <q-btn @click="settingsHandler" small flat round icon="mdi-settings"/>
           <q-btn class="within-iframe-hide" @click="confirmExitHandler" small  flat round icon="mdi-exit-to-app"/>
         </q-toolbar>
@@ -84,7 +100,7 @@
 </template>
 
 <script>
-// import Vue from 'vue'
+import Vue from 'vue'
 import { debounce, date } from 'quasar'
 import { mapState, mapMutations, mapActions } from 'vuex'
 import dist from '../../package.json'
@@ -117,7 +133,8 @@ export default {
       token: (state) => state.token,
       isLoading: (state) => state.isLoading,
       config: state => state.config,
-      errors: state => state.errors
+      errors: state => state.errors,
+      newNotificationCounter: state => state.newNotificationCounter
     }),
     configByEntity () {
       return this.config[this.tabModel]
@@ -202,7 +219,9 @@ export default {
     ...mapMutations([
       'setToken',
       'clearToken',
-      'addError'
+      'reqFailed',
+      'addError',
+      'clearNotificationCounter'
     ]),
     ...mapActions(['getTokenInfo']),
     onResizeWindow (size) {
@@ -288,6 +307,7 @@ export default {
       }, [])
     },
     reset (errMessage) {
+      Vue.connector.socket.off('error')
       this.clearToken()
       this.$router.push(`/login`)
       if (errMessage) {
@@ -368,9 +388,12 @@ export default {
   },
   created () {
     this.routeProcess(this.$route)
-    // Vue.connector.socket.on('error', (error) => {
-    //   this.addError(error.message)
-    // })
+    Vue.connector.socket.on('error', (error) => {
+      this.reqFailed(error)
+    })
+  },
+  beforeDestroy () {
+    Vue.connector.socket.off('error')
   },
   components: { ObjectViewer, RawViewer }
 }

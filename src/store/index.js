@@ -10,10 +10,12 @@ let state = {
   token: '',
   items: [],
   offline: false,
+  socketOffline: false,
   isLoading: false,
   config: JSON.parse(JSON.stringify(config)),
   errors: [],
-  tokenInfo: {}
+  tokenInfo: {},
+  newNotificationCounter: 0
 }
 
 const store = new Vuex.Store(
