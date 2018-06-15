@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.8] - 2018-06-15
+[feature] login by providers
 ### [0.9.7] - 2018-06-08
 [feature] error handling
 [fix] clear token by broken info

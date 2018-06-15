@@ -7,6 +7,7 @@ import config from '../config'
 Vue.use(Vuex)
 
 let state = {
+  providers: {},
   token: '',
   items: [],
   offline: false,
