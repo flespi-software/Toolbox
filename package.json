@@ -1,6 +1,6 @@
 {
   "name": "ToolboX",
-  "version": "0.9.8",
+  "version": "0.9.9",
   "description": "ToolboX",
   "productName": "ToolboX",
   "cordovaId": "org.cordova.quasar.app",
@@ -20,8 +20,8 @@
     "shelljs": "^0.8.2",
     "vue-clipboard2": "0.0.8",
     "vue-draggable-resizable": "^1.7.1",
-    "vue-i18n": "^7.8.0",
-    "vue-virtual-scroll-list": "^1.2.5"
+    "vue-i18n": "^7.8.1",
+    "vue-virtual-scroll-list": "^1.2.6"
   },
   "devDependencies": {
     "babel-eslint": "^8.2.3",
