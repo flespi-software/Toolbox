@@ -23,6 +23,7 @@
         ref="logs"
         :mode="mode"
         :item="true"
+        :limit="limit"
         originPattern="mqtt/*"
         :isEnabled="true"
         :config="config.logs"

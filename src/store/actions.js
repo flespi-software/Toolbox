@@ -1,51 +1,44 @@
 import Vue from 'vue'
+import { Notify } from 'quasar'
 
 async function getItems ({ state, commit }, entity) {
   if (entity) {
     let queryString = '',
-      params = {},
-      deletedParams = {}
+      params = {}
     switch (entity) {
       case 'devices': {
         queryString = `/gw/devices/all`
         params = {fields: 'id,name,ident'}
-        deletedParams = {fields: 'item_data', filter: 'event_origin=gw/devices/*,event_code=3'}
         break
       }
       case 'channels': {
         queryString = `/gw/channels/all`
         params = {fields: 'id,name,uri,protocol_name'}
-        deletedParams = {fields: 'item_data', filter: 'event_origin=gw/channels/*,event_code=3'}
         break
       }
       case 'streams': {
         queryString = `/gw/streams/all`
         params = {fields: 'id,name,configuration'}
-        deletedParams = {fields: 'item_data', filter: 'event_origin=gw/streams/*,event_code=3'}
         break
       }
       case 'modems': {
         queryString = `/gw/modems/all`
         params = {fields: 'id,name,configuration'}
-        deletedParams = {fields: 'item_data', filter: 'event_origin=gw/modems/*,event_code=3'}
         break
       }
       case 'containers': {
         queryString = `/storage/containers/all`
         params = {fields: 'id,name'}
-        deletedParams = {fields: 'item_data', filter: 'event_origin=storage/containers/*,event_code=3'}
         break
       }
       case 'abques': {
         queryString = `/storage/abques/all`
         params = {fields: 'id,name'}
-        deletedParams = {fields: 'item_data', filter: 'event_origin=storage/abques/*,event_code=3'}
         break
       }
       case 'cdns': {
         queryString = `/storage/cdns/all`
         params = {fields: 'id,name'}
-        deletedParams = {fields: 'item_data', filter: 'event_origin=storage/cdns/*,event_code=3'}
         break
       }
     }
@@ -61,6 +54,60 @@ async function getItems ({ state, commit }, entity) {
             commit('addError', error.reason)
           })
         }
+        let result = active.result
+        commit('setItems', result)
+        if (typeof state.isLoading !== 'undefined') {
+          state.isLoading = false
+        }
+      } catch (e) {
+        commit('reqFailed', e)
+        commit('setItems', [])
+        if (typeof state.isLoading !== 'undefined') {
+          state.isLoading = false
+        }
+      }
+    }
+  }
+}
+
+async function getDeleted ({state, commit}, entity) {
+  if (entity) {
+    let deletedParams = {fields: 'item_data', count: 2000, reverse: true}
+    switch (entity) {
+      case 'devices': {
+        deletedParams = Object.assign(deletedParams, {filter: 'event_origin=gw/devices/*,event_code=3'})
+        break
+      }
+      case 'channels': {
+        deletedParams = Object.assign(deletedParams, {filter: 'event_origin=gw/channels/*,event_code=3'})
+        break
+      }
+      case 'streams': {
+        deletedParams = Object.assign(deletedParams, {filter: 'event_origin=gw/streams/*,event_code=3'})
+        break
+      }
+      case 'modems': {
+        deletedParams = Object.assign(deletedParams, {filter: 'event_origin=gw/modems/*,event_code=3'})
+        break
+      }
+      case 'containers': {
+        deletedParams = Object.assign(deletedParams, {filter: 'event_origin=storage/containers/*,event_code=3'})
+        break
+      }
+      case 'abques': {
+        deletedParams = Object.assign(deletedParams, {filter: 'event_origin=storage/abques/*,event_code=3'})
+        break
+      }
+      case 'cdns': {
+        deletedParams = Object.assign(deletedParams, {filter: 'event_origin=storage/cdns/*,event_code=3'})
+        break
+      }
+    }
+    if (state.token) {
+      try {
+        if (typeof state.isLoading !== 'undefined') {
+          state.isLoading = true
+        }
         let deleted = []
         if (state.tokenInfo.access.type === 1) {
           let deletedResp = await Vue.connector.platform.getCustomerLogs({data: JSON.stringify(deletedParams)})
@@ -70,10 +117,16 @@ async function getItems ({ state, commit }, entity) {
               commit('addError', error.reason)
             })
           }
-          deleted = deletedData.result && deletedData.result.length ? deletedData.result : []
+          deleted = deletedData.result && deletedData.result.length ? deletedData.result.reverse() : []
+        }
+        if (!deleted.length) {
+          Notify.create({
+            message: `Deleted ${entity} was not found.`,
+            timeout: 1000
+          })
         }
         let result = [
-          ...active.result,
+          ...state.items,
           ...deleted.map(item => {
             let itemObj = item.item_data
             itemObj.deleted = true
@@ -194,5 +247,6 @@ export default {
   getItems,
   checkConnection,
   getTokenInfo,
-  getLoginProviders
+  getLoginProviders,
+  getDeleted
 }

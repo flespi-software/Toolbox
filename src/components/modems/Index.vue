@@ -31,6 +31,7 @@
                 </q-item>
               </VirtualList>
             </q-list>
+            <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">get deleted</q-btn>
           </q-popover>
         </q-btn>
         <div v-if="!items.length">{{isLoading ? 'Fetching data..' : 'Modems not found'}}</div>
@@ -41,7 +42,7 @@
         <q-item class="no-padding" style="max-width: 50%" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
           <q-item-main>
             <q-tooltip v-if="selectedItem.configuration && selectedItem.configuration.protocol"><small>{{selectedItem.configuration.protocol}}</small></q-tooltip>
-            <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name}}</q-item-tile>
+            <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name || '&lt;noname&gt;'}}</q-item-tile>
             <q-item-tile sublabel style="font-size: 0.8rem" v-if="selectedItem.configuration && selectedItem.configuration.uri">{{selectedItem.configuration.uri}}</q-item-tile>
           </q-item-main>
           <q-item-side class="text-right">
@@ -74,6 +75,7 @@
                 </q-item>
               </VirtualList>
             </q-list>
+            <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">get deleted</q-btn>
           </q-popover>
         </q-item>
         <q-btn v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
@@ -91,6 +93,7 @@
         ref="logs"
         :mode="mode"
         :item="selectedItem"
+        :limit="limit"
         originPattern="gw/modems/:id"
         :isEnabled="true"
         :config="config.logs"
@@ -104,7 +107,7 @@
 
 <script>
 import logs from '../logs/Index.vue'
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import VirtualList from 'vue-virtual-scroll-list'
 
 export default {
@@ -119,7 +122,8 @@ export default {
     return {
       mode: 1,
       active: null,
-      isInit: false
+      isInit: false,
+      needShowGetDeletedAction: true
     }
   },
   computed: {
@@ -129,7 +133,8 @@ export default {
       },
       isEmptyMessages (state) {
         return state[this.config.logs.vuexModuleName] ? !state[this.config.logs.vuexModuleName].messages.length : false
-      }
+      },
+      tokenType (state) { return state.tokenInfo.access ? state.tokenInfo.access.type : -1 }
     }),
     items () {
       return this.$store.state.items
@@ -150,6 +155,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['getDeleted']),
     viewDataHandler (content) {
       this.$emit('view-data', content)
     },
@@ -164,6 +170,10 @@ export default {
         cancel: true
       }).then(() => { this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`) })
         .catch(() => {})
+    },
+    async getDeletedHandler () {
+      await this.getDeleted('modems')
+      this.needShowGetDeletedAction = false
     }
   },
   created () {
@@ -230,5 +240,13 @@ export default {
     color: white;
     padding: 0 3px;
     margin-bottom: 3px;
+  }
+  .deleted-action {
+    width: 100%;
+    color: #999;
+    background-color: #eee;
+    font-size: .7rem;
+    padding-top: 0;
+    padding-bottom: 0
   }
 </style>

@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.10] - 2018-06-25
+[fix] deleted items get
+[fix] limit count
+[fix] fix naming in items
 ### [0.9.9] - 2018-06-22
 [fix] clear message event
 [feature] rebase telemetry getting

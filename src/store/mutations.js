@@ -36,8 +36,8 @@ function reqFailed (state, payload) {
     addError(state, payload.message)
   }
 }
-function setItems (state, channels) {
-  Vue.set(state, 'items', channels)
+function setItems (state, items) {
+  Vue.set(state, 'items', items)
 }
 function clearItems (state) {
   Vue.set(state, 'items', [])

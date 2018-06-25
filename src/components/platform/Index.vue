@@ -23,6 +23,7 @@
         ref="logs"
         :mode="mode"
         :item="true"
+        :limit="limit"
         originPattern="platform/customer/*"
         :isEnabled="true"
         :config="config.logs"
