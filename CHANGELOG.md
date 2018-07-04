@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.13] - 2018-07-04
+[fix] timestamps on offline/reconnect messages
 ### [0.9.12] - 2018-07-04
 [fix] filter with *
 ### [0.9.11] - 2018-07-04

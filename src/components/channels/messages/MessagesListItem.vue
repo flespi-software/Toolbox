@@ -32,7 +32,7 @@
       overflow: 'hidden',
       opacity: '.7'
     }"
-      :title="date.formatDate(item.timestamp, 'DD/MM/YYYY HH:mm:ss')"
+      :title="date.formatDate(item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')"
     >
       <span style="padding: 0 5px; margin-left: 150px;" :style="{ backgroundColor: item.__connectionStatus === 'offline' ? '#ff0' : '#0f0'}" class="uppercase" v-for="n in Array(10)" :key="n">{{item['__connectionStatus']}}</span>
     </div>
