@@ -68,8 +68,6 @@
     },
     "403": {
       "-99": "certificate error",
-      "-2": "failed to establish TCP connection",
-      "-1": "connection closed by flespi platform due to internal error",
       "1": "unacceptable protocol version",
       "2": "identifier rejected",
       "3": "server unavailable",

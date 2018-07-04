@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.11] - 2018-07-04
+[feature] rebase error codes in logs
 ### [0.9.10] - 2018-06-25
 [fix] deleted items get
 [fix] limit count
