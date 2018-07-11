@@ -56,7 +56,11 @@ export default {
       this.setToken(this.token)
       this.$store.dispatch('getTokenInfo', this.token).then(() => {
         this.$nextTick(() => {
-          this.$router.push('/')
+          if (this.$route.params && this.$route.params.goto) {
+            this.$router.push(this.$route.params.goto)
+          } else {
+            this.$router.push('/')
+          }
         })
       })
     },

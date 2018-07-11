@@ -118,7 +118,7 @@ module.exports = function (ctx) {
         short_name: 'ToolboX',
         // description: 'Best PWA App in town!',
         display: 'standalone',
-        orientation: 'portrait',
+        orientation: 'any',
         background_color: '#333333',
         theme_color: '#333333',
         icons: [

@@ -79,7 +79,7 @@
           />
           <router-view
             ref='main'
-            v-if="configByEntity"
+            v-if="configByEntity && isInit"
             @view-data="viewDataHandler"
             @view-data-hide="sides.right = false, currentMessage = {}"
             @view-log-message="viewLogMessagesHandler"
@@ -125,7 +125,8 @@ export default {
       loadingFlag: false,
       isTabsVisible: true,
       tabsByGroup: ['platform', 'channels', 'devices', 'streams', 'modems', 'containers', 'abques', 'cdns', 'mqtt'],
-      isNeedSelect: true
+      isNeedSelect: true,
+      isInit: false
     }
   },
   computed: {
@@ -331,7 +332,7 @@ export default {
       if (route.params.token) {
         this.routeParamsProcess(route)
       } else if (!this.token) { // if not logged in
-        this.$router.push('/login')
+        this.$router.push({name: 'simpleLogin', params: { goto: route.path }})
       } else {
         this.routeMainProcess(route)
       }
@@ -391,9 +392,15 @@ export default {
     Vue.connector.socket.on('error', (error) => {
       this.reqFailed(error)
     })
+    this.loadingFlag = true
+    Vue.connector.socket.on('connect', () => {
+      this.isInit = true
+      this.loadingFlag = false
+    })
   },
   beforeDestroy () {
     Vue.connector.socket.off('error')
+    Vue.connector.socket.off('connect')
   },
   components: { ObjectViewer, RawViewer }
 }

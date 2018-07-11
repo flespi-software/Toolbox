@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.15] - 2018-07-11
+[fix] router forwarding
+[fix] clearing socket connection
 ### [0.9.14] - 2018-07-10
 [fix] logs description
 ### [0.9.13] - 2018-07-04

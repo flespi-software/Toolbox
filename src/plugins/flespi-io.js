@@ -24,4 +24,9 @@ if (PROD && SERVER) {
 export default ({Vue}) => {
   Vue.config.productionTip = false
   Vue.use(VueConnection, connectionConfig)
+  if (window) {
+    window.addEventListener('beforeunload', () => {
+      Vue.connector.socket.end(true)
+    })
+  }
 }

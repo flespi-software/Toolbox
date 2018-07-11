@@ -33,6 +33,6 @@ export default [
   { path: '/token/:token/group/:group', component: () => import('layouts/Index') },
   { path: '/token/:token/type/:type/id/:id/fullscreen/:fullscreen', component: () => import('layouts/Index') },
   { path: '/token/:token/type/:type/id/:id/fullscreen/:fullscreen/noselect/:noselect', component: () => import('layouts/Index') },
-  { path: '/login', component: () => import('pages/Login') },
+  { path: '/login', component: () => import('pages/Login'), name: 'simpleLogin' },
   { path: '/login/:token', component: () => import('pages/Login') }
 ]
