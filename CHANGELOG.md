@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.17] - 2018-07-12
+[update] packages
+[fix] clear session
 ### [0.9.16] - 2018-07-11
 [feature] version in client_id
 ### [0.9.15] - 2018-07-11
