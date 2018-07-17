@@ -126,7 +126,7 @@ export default {
       isTabsVisible: true,
       tabsByGroup: ['platform', 'channels', 'devices', 'streams', 'modems', 'containers', 'abques', 'cdns', 'mqtt'],
       isNeedSelect: true,
-      isInit: false
+      isInit: Vue.connector.socket.connected()
     }
   },
   computed: {
@@ -392,11 +392,13 @@ export default {
     Vue.connector.socket.on('error', (error) => {
       this.reqFailed(error)
     })
-    this.loadingFlag = true
-    Vue.connector.socket.on('connect', () => {
-      this.isInit = true
-      this.loadingFlag = false
-    })
+    if (!this.isInit) {
+      this.loadingFlag = true
+      Vue.connector.socket.on('connect', () => {
+        this.isInit = true
+        this.loadingFlag = false
+      })
+    }
   },
   beforeDestroy () {
     Vue.connector.socket.off('error')

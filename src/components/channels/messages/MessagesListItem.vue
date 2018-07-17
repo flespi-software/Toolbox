@@ -11,11 +11,18 @@
         <q-tooltip>{{action.label}}</q-tooltip>
       </q-icon>
     </span>
-      <span v-for="(prop, k) in cols" :key="prop.name + k" class="list__item" :class="{[`item_${k}`]: true}" :title="JSON.stringify(values[prop.name].value)">
+    <span
+      v-for="(prop, k) in cols"
+      :key="prop.name + k"
+      class="list__item"
+      :class="{[`item_${k}`]: true}"
+      :title="JSON.stringify(values[prop.name].value)"
+      :style="{color: item['x-flespi-filter-fields'] && item['x-flespi-filter-fields'].includes(prop.name) ? '#4caf50' : ''}"
+    >
       <!--<q-tooltip>{{values[prop.name].value}}</q-tooltip>-->
       {{values[prop.name].value}}
     </span>
-      <span v-if="etcVisible" class="list__item item_etc">
+    <span v-if="etcVisible" class="list__item item_etc">
       {{values.etc.value || '*Empty*'}}
     </span>
     </div>
@@ -94,7 +101,7 @@ export default {
           }
           vals[propName].value = JSON.stringify(value)
         } else {
-          if (propName === '__status') { return false }
+          if (propName === '__status' || propName === 'x-flespi-filter-fields') { return false }
           vals.etc.value += `${propName}: ${JSON.stringify(this.item[propName])}; `
         }
       })

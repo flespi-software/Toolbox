@@ -11,7 +11,13 @@
         <q-tooltip>{{action.label}}</q-tooltip>
       </q-icon>
     </span>
-      <span v-for="(prop, k) in cols" :key="prop.name + k" class="list__item" :class="{[`item_${k}`]: true}">
+    <span
+      v-for="(prop, k) in cols"
+      :key="prop.name + k"
+      class="list__item"
+      :class="{[`item_${k}`]: true}"
+      :style="{backgroundColor: item['x-flespi-filter-fields'] && item['x-flespi-filter-fields'].includes(prop.name) ? '#666' : ''}"
+    >
       <!--<q-tooltip>{{getValueOfProp(prop)}}</q-tooltip>-->
       <a :class="[color]" @click.prevent.stop="linkMoreClickHandler" v-if="prop.name === 'event_code'"><q-icon name="mdi-open-in-new"/></a>
       <template v-if="prop.name === 'event_code' && item.address">
@@ -74,7 +80,24 @@ export default {
     etc () {
       let etcKeys = Object.keys(this.item).filter(key => !this.hasInCols(key))
       return etcKeys.reduce((acc, key) => {
-        if (key === 'delimiter' || key === 'event_origin' || key === 'event_text' || key === 'item_data' || key === 'source' || key === 'error_text' || key === 'close_code' || key === 'http_data' || key === 'current' || key === 'updated' || key === 'error_code' || key === 'send_code' || key === 'address' || key === '__status' || key === 'uuid') { return acc }
+        if (
+          key === 'delimiter' ||
+          key === 'event_origin' ||
+          key === 'event_text' ||
+          key === 'item_data' ||
+          key === 'source' ||
+          key === 'error_text' ||
+          key === 'close_code' ||
+          key === 'http_data' ||
+          key === 'current' ||
+          key === 'updated' ||
+          key === 'error_code' ||
+          key === 'send_code' ||
+          key === 'address' ||
+          key === '__status' ||
+          key === 'uuid' ||
+          key === 'x-flespi-filter-fields'
+        ) { return acc }
         acc += `${key}: ${JSON.stringify(this.item[key])}; `
         return acc
       }, '') || '*Empty*'

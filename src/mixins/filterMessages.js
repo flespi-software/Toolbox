@@ -42,7 +42,7 @@ export default {
       if (this.filter) {
         let filters = getPartsOfFilter(filter)
         return messages.filter(message => {
-          return filters.reduce((flag, filter) => {
+          let isMessageIncluded = filters.reduce((flag, filter) => {
             /* eslint-disable */
             switch (filter.operation) {
               case '!=': {
@@ -55,7 +55,7 @@ export default {
                 return flag && !!message[filter.field] && message[filter.field] >= filter.value
               }
               case '=': {
-                return flag && !!message[filter.field] && !!message[filter.field].match(`^${filter.value.replace(/\*/g, '.*')}$`)
+                return flag && !!message[filter.field] && !!message[filter.field].toString().match(`^${filter.value.replace(/\*/g, '.*')}$`)
               }
               case '<': {
                 return flag && !!message[filter.field] && message[filter.field] < filter.value
@@ -69,7 +69,20 @@ export default {
             }
             /* eslint-enable */
           }, true)
+          if (isMessageIncluded) {
+            message['x-flespi-filter-fields'] = filters.map(filter => filter.field)
+          }
+          return isMessageIncluded
         })
+      } else {
+        if (this.mode === 0) {
+          return messages.map(message => {
+            if (message['x-flespi-filter-fields']) {
+              delete message['x-flespi-filter-fields']
+            }
+            return message
+          })
+        } else { return messages }
       }
     }
   }

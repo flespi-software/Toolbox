@@ -65,7 +65,7 @@ export default {
       get () {
         let messages = this.$store.state[this.moduleName].messages
         this.setTranslation(messages)
-        return this.filter ? this.filterMessages(this.filter, messages) : messages
+        return this.mode === 1 ? messages : this.filterMessages(this.filter, messages)
       },
       set (val) {
         this.$store.commit(`${this.moduleName}/setMessages`, val)
@@ -217,7 +217,7 @@ export default {
   },
   async created () {
     if (!this.$store.state[this.moduleName]) {
-      this.$store.registerModule(this.moduleName, channelsMessagesModule({Vue, LocalStorage: this.$q.localStorage, name: this.moduleName, errorHandler: (err) => { this.$store.commit('reqFailed', err) }}))
+      this.$store.registerModule(this.moduleName, channelsMessagesModule({Vue, LocalStorage: this.$q.localStorage, name: this.moduleName, errorHandler: (err) => { this.$store.commit('reqFailed', err) }, filterHandler: this.filterMessages}))
     } else {
       this.$store.commit(`${this.moduleName}/clear`)
     }

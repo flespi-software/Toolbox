@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import L from 'leaflet'
+import * as L from 'leaflet'
 import VueDraggableResizable from 'vue-draggable-resizable'
 
 export default {
