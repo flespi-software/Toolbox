@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.19] - 2018-07-20
+[fix] handling errors by MQTT
 ### [0.9.18] - 2018-07-17
 [feature] new filter logic
 ### [0.9.17] - 2018-07-12

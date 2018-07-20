@@ -308,7 +308,6 @@ export default {
       }, [])
     },
     reset (errMessage) {
-      Vue.connector.socket.off('error')
       this.clearToken()
       this.$router.push(`/login`)
       if (errMessage) {
@@ -389,9 +388,6 @@ export default {
   },
   created () {
     this.routeProcess(this.$route)
-    Vue.connector.socket.on('error', (error) => {
-      this.reqFailed(error)
-    })
     if (!this.isInit) {
       this.loadingFlag = true
       Vue.connector.socket.on('connect', () => {
@@ -401,7 +397,6 @@ export default {
     }
   },
   beforeDestroy () {
-    Vue.connector.socket.off('error')
     Vue.connector.socket.off('connect')
   },
   components: { ObjectViewer, RawViewer }
