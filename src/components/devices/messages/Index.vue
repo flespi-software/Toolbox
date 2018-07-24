@@ -69,7 +69,7 @@ export default {
       get () {
         let messages = this.$store.state[this.moduleName].messages
         this.setTranslate(messages)
-        return this.mode === 1 ? messages : this.filterMessages(this.filter, messages)
+        return messages
       },
       set (val) {
         this.$store.commit(`${this.moduleName}/setMessages`, val)

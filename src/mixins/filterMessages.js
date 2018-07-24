@@ -55,7 +55,7 @@ export default {
                 return flag && !!message[filter.field] && message[filter.field] >= filter.value
               }
               case '=': {
-                return flag && !!message[filter.field] && !!message[filter.field].toString().match(`^${filter.value.replace(/\*/g, '.*')}$`)
+                return flag && !!message[filter.field].toString() && !!message[filter.field].toString().match(`^${filter.value.replace(/\*/g, '.*')}$`)
               }
               case '<': {
                 return flag && !!message[filter.field] && message[filter.field] < filter.value
