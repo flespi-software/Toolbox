@@ -55,7 +55,7 @@ export default {
                 return flag && !!message[filter.field] && message[filter.field] >= filter.value
               }
               case '=': {
-                return flag && !!message[filter.field] && !!message[filter.field].toString().match(`^${filter.value.replace(/\*/g, '.*')}$`)
+                return flag && !!JSON.stringify(message[filter.field]) && !!message[filter.field].toString().match(`^${filter.value.replace(/\*/g, '.*')}$`)
               }
               case '<': {
                 return flag && !!message[filter.field] && message[filter.field] < filter.value
@@ -64,7 +64,7 @@ export default {
                 return flag && !!message[filter.field] && message[filter.field] > filter.value
               }
               default: {
-                return flag && !!message[filter.field]
+                return flag && message[filter.field] !== undefined
               }
             }
             /* eslint-enable */

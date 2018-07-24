@@ -1,7 +1,7 @@
 <template>
   <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}">
     <div
-      v-if="!item['__connectionStatus']"
+      v-if="!item['__connectionStatus'] && !item['x-flespi-filter-prev'] && !item['x-flespi-filter-next']"
       class="cursor-pointer"
       :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, borderBottom: item.delimiter ? 'solid 1px #f40' : '', boxSizing: 'border-box'}"
       :class="[color, item.__status ? 'missed-items' : '']"
@@ -34,6 +34,19 @@
       </span>
     </span>
       <span v-if="etcVisible" class="list__item item_etc">{{etc}}</span>
+    </div>
+    <div
+      v-else-if="item['x-flespi-filter-prev'] || item['x-flespi-filter-next']"
+      :style="{
+      height: `${itemHeight}px`,
+      width: `${rowWidth}px`,
+      color: '#000',
+      fontWeight: 'bold',
+      backgroundColor: item['x-flespi-filter-prev'] ? '#819002' : '#ccb300',
+      overflow: 'hidden'
+    }"
+    >
+      <span class="uppercase text-white" style="padding: 0 5px;" >{{item['x-flespi-filter-next'] ? `Next results will be filtered by: "${item['x-flespi-filter-next']}"` : `Filter removed: "${item['x-flespi-filter-prev']}"`}}</span>
     </div>
     <div
       v-else
@@ -96,7 +109,9 @@ export default {
           key === 'address' ||
           key === '__status' ||
           key === 'uuid' ||
-          key === 'x-flespi-filter-fields'
+          key === 'x-flespi-filter-fields' ||
+          key === 'x-flespi-filter-next' ||
+          key === 'x-flespi-filter-prev'
         ) { return acc }
         acc += `${key}: ${JSON.stringify(this.item[key])}; `
         return acc
