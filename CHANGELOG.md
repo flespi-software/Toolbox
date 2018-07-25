@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.21] - 2018-07-25
+[updated] packages
+[fix] deploy command
 ### [0.9.20] - 2018-07-23
 [fix] zero value filtering
 [feature] message about start and end filtering
