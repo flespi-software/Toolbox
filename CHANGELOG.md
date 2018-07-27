@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.23] - 2018-07-27
+[fix] titles
 ### [0.9.22] - 2018-07-26
 [updated] packages
 [feature] migrate to new version of quasar

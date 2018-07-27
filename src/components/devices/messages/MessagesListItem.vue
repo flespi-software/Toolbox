@@ -16,7 +16,7 @@
       :key="prop.name + k"
       class="list__item"
       :class="{[`item_${k}`]: true}"
-      :title="JSON.stringify(values[prop.name].value)"
+      :title="values[prop.name].value"
       :style="{color: item['x-flespi-filter-fields'] && item['x-flespi-filter-fields'].includes(prop.name) ? '#4caf50' : ''}"
     >
       {{values[prop.name].value}}
