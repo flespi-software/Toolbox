@@ -20,6 +20,10 @@ self.__precacheManifest = [
     "url": "statics/icons/icon-192x192.png"
   },
   {
+    "revision": "f1a3251aa28336cc032e0ba4c149e59e",
+    "url": "statics/icons/icon-96x96.png"
+  },
+  {
     "revision": "525061fbc60090f9b92f626b25a2a976",
     "url": "statics/toolbox50.png"
   },
@@ -32,40 +36,36 @@ self.__precacheManifest = [
     "url": "statics/police.png"
   },
   {
-    "revision": "838698af837cf35dfead7869b02ce5b8",
-    "url": "statics/icons/ms-icon-144x144.png"
-  },
-  {
-    "revision": "f1a3251aa28336cc032e0ba4c149e59e",
-    "url": "statics/icons/icon-96x96.png"
-  },
-  {
     "revision": "5387fdaebd7376fc4800f74606651cc1",
     "url": "statics/icons/icon-72x72.png"
+  },
+  {
+    "revision": "838698af837cf35dfead7869b02ce5b8",
+    "url": "statics/icons/ms-icon-144x144.png"
   },
   {
     "revision": "48825872e0cfe76b84a83fbdfce8dba4",
     "url": "statics/icons/icon-152x152.png"
   },
   {
+    "revision": "c3d58f5c2a54890cd4e03371aaaf1e11",
+    "url": "statics/icons/favicon-32x32.png"
+  },
+  {
     "revision": "287016ff97b8f4cf6c7bf6a5b6389cc5",
     "url": "statics/icons/icon-128x128.png"
   },
   {
-    "revision": "82f983ec2277961e9878f2bf014b13fc",
-    "url": "statics/flespi_logo_black.svg"
-  },
-  {
-    "revision": "c3d58f5c2a54890cd4e03371aaaf1e11",
-    "url": "statics/icons/favicon-32x32.png"
+    "revision": "d5da697eec032a743f6a94d6ef4470be",
+    "url": "statics/icons/apple-icon-152x152.png"
   },
   {
     "revision": "fa908e7babb7cad954beac016f56d11e",
     "url": "statics/icons/favicon-16x16.png"
   },
   {
-    "revision": "d5da697eec032a743f6a94d6ef4470be",
-    "url": "statics/icons/apple-icon-152x152.png"
+    "revision": "82f983ec2277961e9878f2bf014b13fc",
+    "url": "statics/flespi_logo_black.svg"
   },
   {
     "revision": "1da4d62342ca95dcdb743a987cfa677a",
@@ -104,8 +104,8 @@ self.__precacheManifest = [
     "url": "statics/corpse.png"
   },
   {
-    "revision": "08ea337ceddb6b51dc4e",
-    "url": "js/11.08ea337.js"
+    "revision": "19cfe44e04bc60b080f0",
+    "url": "js/11.19cfe44.js"
   },
   {
     "revision": "1dd5284c0f31c52a4123",
@@ -128,8 +128,8 @@ self.__precacheManifest = [
     "url": "js/3.eb28ef1.js"
   },
   {
-    "revision": "b0832585c69e942e05ae",
-    "url": "js/app.95f0260.js"
+    "revision": "cca0a2adbbfcac24690f",
+    "url": "js/app.cf87fe0.js"
   },
   {
     "revision": "5c331a4d33b88a31770c",
@@ -140,12 +140,12 @@ self.__precacheManifest = [
     "url": "js/6.98c86d5.js"
   },
   {
-    "revision": "9907ab8e1c7d7b24c87b",
-    "url": "js/7.9907ab8.js"
+    "revision": "1958cd95985b8c8d847a",
+    "url": "js/7.1958cd9.js"
   },
   {
-    "revision": "713ec5d5305dd65240dc",
-    "url": "js/8.713ec5d.js"
+    "revision": "8ec28423ea918766e738",
+    "url": "js/8.8ec2842.js"
   },
   {
     "revision": "bb08d7a2ff94c87538c2",
@@ -156,7 +156,7 @@ self.__precacheManifest = [
     "url": "fonts/KFOlCnqEu92Fr1MmYUtfBBc-.8c2ade5.woff"
   },
   {
-    "revision": "f82e736695653909a75bec078006db98",
+    "revision": "7a5f5eee8165db1155fe1d442f1b9d81",
     "url": "index.html"
   },
   {
@@ -164,8 +164,8 @@ self.__precacheManifest = [
     "url": "js/1.884902d.js"
   },
   {
-    "revision": "1c01888bf149e77924f2",
-    "url": "js/10.1c01888.js"
+    "revision": "6ff143dc5d6d3055051d",
+    "url": "js/10.6ff143d.js"
   },
   {
     "revision": "0e7179ae222cb15e6a1b",
@@ -224,11 +224,11 @@ self.__precacheManifest = [
     "url": "fonts/KFOlCnqEu92Fr1MmEU9fBBc-.de8b743.woff"
   },
   {
-    "revision": "713ec5d5305dd65240dc",
+    "revision": "8ec28423ea918766e738",
     "url": "css/8.381879e5.css"
   },
   {
-    "revision": "b0832585c69e942e05ae",
+    "revision": "cca0a2adbbfcac24690f",
     "url": "css/app.c9711da5.css"
   },
   {
@@ -240,7 +240,7 @@ self.__precacheManifest = [
     "url": "css/9.4d9e337f.css"
   },
   {
-    "revision": "9907ab8e1c7d7b24c87b",
+    "revision": "1958cd95985b8c8d847a",
     "url": "css/7.f713455e.css"
   },
   {
@@ -272,11 +272,11 @@ self.__precacheManifest = [
     "url": "css/12.4465ba77.css"
   },
   {
-    "revision": "08ea337ceddb6b51dc4e",
+    "revision": "19cfe44e04bc60b080f0",
     "url": "css/11.0fb9aeee.css"
   },
   {
-    "revision": "1c01888bf149e77924f2",
+    "revision": "6ff143dc5d6d3055051d",
     "url": "css/10.afb72ad9.css"
   }
 ];
