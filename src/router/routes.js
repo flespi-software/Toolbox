@@ -1,4 +1,4 @@
-import config from '../config'
+import config from '../config.json'
 
 function getIndexChildrenRoutes (config) {
   return Object.keys(config).reduce((result, moduleName) => {

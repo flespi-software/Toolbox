@@ -81,7 +81,7 @@
         </q-item>
         <q-btn v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'" :rounded="$q.platform.is.mobile">
           {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
-          <q-chip small square pointing="left" color="red" v-if="newMessagesCount" class="cursor-pointer">{{newMessagesCount}}</q-chip>
+          <q-chip small square color="red" v-if="newMessagesCount" class="cursor-pointer q-ml-sm">{{newMessagesCount}}</q-chip>
           <q-tooltip>Mode (Real-time/History)</q-tooltip>
         </q-btn>
         <div>

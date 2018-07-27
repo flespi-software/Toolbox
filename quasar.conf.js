@@ -29,6 +29,7 @@ module.exports = function (ctx) {
     build: {
       scopeHoisting: true,
       vueRouterMode: 'hash',
+      basePath: './',
       // gzip: true,
       // analyze: true,
       // extractCSS: false,
@@ -88,12 +89,10 @@ module.exports = function (ctx) {
         'QTooltip',
         'QSelect',
         'QChip',
-        'QResizeObservable',
         'QSlider',
         'QToggle',
         'QDatetime',
         'QSearch',
-        'QSlider',
         'QField',
         'QCheckbox'
       ],
@@ -112,7 +111,14 @@ module.exports = function (ctx) {
     animations: [
     ],
     pwa: {
-      cacheExt: 'js,html,css,ttf,eot,otf,woff,woff2,json,svg,gif,jpg,jpeg,png,wav,ogg,webm,flac,aac,mp4,mp3',
+      workboxOptions: {
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/((localhost:9005)|(flespi\.io))(\/gw\/|\/auth\/|\/platform\/|\/storage\/|\/mqtt\/)/,
+            handler: 'networkOnly'
+          }
+        ]
+      },
       manifest: {
         name: 'Flespi ToolboX',
         short_name: 'ToolboX',

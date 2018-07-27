@@ -1,5 +1,5 @@
 import VueConnection from 'flespi-io-js/dist/vue-plugin'
-import { version } from '../../package'
+import { version } from '../../package.json'
 
 let connectionConfig = {socketConfig: { clientId: `toolbox-${version}-${Math.random().toString(16).substr(2, 8)}`, mqttSettings: { protocolVersion: 5 } }}
 

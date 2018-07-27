@@ -20,6 +20,7 @@
 
 <script>
 import * as L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 import VueDraggableResizable from 'vue-draggable-resizable'
 
 export default {
@@ -327,7 +328,6 @@ export default {
 </script>
 
 <style lang="stylus">
-  @import "~leaflet/dist/leaflet.css";
   .my-div-icon__inner
     border 3px solid
     border-radius 50% 0 50% 50%

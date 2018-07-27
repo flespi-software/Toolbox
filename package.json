@@ -1,6 +1,6 @@
 {
-  "name": "ToolboX",
-  "version": "0.9.20",
+  "name": "toolbox",
+  "version": "0.9.22",
   "description": "ToolboX",
   "productName": "ToolboX",
   "cordovaId": "org.cordova.quasar.app",
@@ -35,7 +35,7 @@
     "eslint-plugin-standard": "^3.1.0",
     "eslint-plugin-vue": "^4.7.1",
     "git-directory-deploy": "^1.5.1",
-    "quasar-cli": "^0.15.20"
+    "quasar-cli": "^0.17.3"
   },
   "engines": {
     "node": ">= 8.9.0",

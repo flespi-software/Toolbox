@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.22] - 2018-07-26
+[updated] packages
+[feature] migrate to new version of quasar
+[feature] date and time in history mode
 ### [0.9.21] - 2018-07-25
 [updated] packages
 [fix] deploy command

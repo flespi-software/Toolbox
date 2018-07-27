@@ -1,6 +1,6 @@
 import { Cookies, LocalStorage, Notify } from 'quasar'
 import Vue from 'vue'
-import config from '../config'
+import config from '../config.json'
 
 function reqStart (state) {
   if (DEV) {

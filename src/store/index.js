@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import actions from './actions'
 import mutations from './mutations'
-import config from '../config'
+import config from '../config.json'
 
 Vue.use(Vuex)
 
