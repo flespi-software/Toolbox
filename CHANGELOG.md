@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.24] - 2018-07-30
+[fix] config for modules
 ### [0.9.23] - 2018-07-27
 [fix] titles
 ### [0.9.22] - 2018-07-26
