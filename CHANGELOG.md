@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.26] - 2018-08-06
+[feature] packages update
+[fix] errors messages
 ### [0.9.25] - 2018-08-01
 [feature] login page rebased to iframe
 ### [0.9.24] - 2018-07-30

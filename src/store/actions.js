@@ -121,7 +121,7 @@ async function getDeleted ({state, commit}, entity) {
         }
         if (!deleted.length) {
           Notify.create({
-            message: `Deleted ${entity} was not found.`,
+            message: `No deleted ${entity} found.`,
             timeout: 1000
           })
         }
