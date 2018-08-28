@@ -192,6 +192,7 @@ export default {
       })
   },
   destroyed () {
+    this.$store.dispatch('unsubscribeItems', 'abques')
     this.$store.commit('clearItems')
   },
   watch: {

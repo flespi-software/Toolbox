@@ -1,61 +1,47 @@
 import Vue from 'vue'
 import { Notify } from 'quasar'
 
+const origins = {
+  devices: '/gw/devices/+/+',
+  channels: '/gw/channels/+/+',
+  streams: '/gw/streams/+/+',
+  modems: '/gw/modems/+/+',
+  containers: '/storage/containers/+/+',
+  abques: '/storage/abques/+/+',
+  cdns: '/storage/cdns/+/+'
+}
+
 async function getItems ({ state, commit }, entity) {
   if (entity) {
-    let queryString = '',
-      params = {}
-    switch (entity) {
-      case 'devices': {
-        queryString = `/gw/devices/all`
-        params = {fields: 'id,name,ident'}
-        break
-      }
-      case 'channels': {
-        queryString = `/gw/channels/all`
-        params = {fields: 'id,name,uri,protocol_name'}
-        break
-      }
-      case 'streams': {
-        queryString = `/gw/streams/all`
-        params = {fields: 'id,name,configuration'}
-        break
-      }
-      case 'modems': {
-        queryString = `/gw/modems/all`
-        params = {fields: 'id,name,configuration'}
-        break
-      }
-      case 'containers': {
-        queryString = `/storage/containers/all`
-        params = {fields: 'id,name'}
-        break
-      }
-      case 'abques': {
-        queryString = `/storage/abques/all`
-        params = {fields: 'id,name'}
-        break
-      }
-      case 'cdns': {
-        queryString = `/storage/cdns/all`
-        params = {fields: 'id,name'}
-        break
-      }
-    }
+    let origin = `flespi/state${origins[entity]}`
     if (state.token) {
       try {
         if (typeof state.isLoading !== 'undefined') {
           state.isLoading = true
         }
-        let activeResp = await Vue.connector.http.get(queryString, { params })
-        let active = activeResp.data
-        if (activeResp.errors) {
-          activeResp.errors.forEach((error) => {
-            commit('addError', error.reason)
-          })
+        // init getting protocols name
+        if (entity === 'channels' && !state.protocols) {
+          let protocolsResp = await Vue.connector.gw.getProtocols('all', {fields: 'name,id'})
+          state.protocols = protocolsResp.data.result.reduce((result, protocol) => {
+            result[protocol.id] = protocol.name
+            return result
+          }, {})
         }
-        let result = active.result
-        commit('setItems', result)
+        await Vue.connector.socket.subscribe({
+          name: origin,
+          handler (value, topic, packet) {
+            let partsOfTopic = topic.split('/').reverse(),
+              name = partsOfTopic.shift(),
+              id = parseInt(partsOfTopic.shift())
+
+            if (name === 'deleted') {
+              commit('deleteItem', id)
+              return false
+            }
+
+            commit('setItemField', {value: JSON.parse(value.toString()), name, id})
+          }}
+        )
         if (typeof state.isLoading !== 'undefined') {
           state.isLoading = false
         }
@@ -66,6 +52,17 @@ async function getItems ({ state, commit }, entity) {
           state.isLoading = false
         }
       }
+    }
+  }
+}
+
+async function unsubscribeItems ({state, commit}, entity) {
+  if (entity) {
+    let origin = `flespi/state${origins[entity]}`
+    try {
+      await Vue.connector.socket.unsubscribe(origin)
+    } catch (e) {
+      commit('reqFailed', e)
     }
   }
 }
@@ -231,6 +228,7 @@ async function getTokenInfo ({ state, commit }, token) {
 
 export default {
   getItems,
+  unsubscribeItems,
   checkConnection,
   getTokenInfo,
   getDeleted

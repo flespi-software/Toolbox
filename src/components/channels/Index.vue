@@ -21,7 +21,7 @@
                   >
                     <q-item-main>
                       <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || '&lt;noname&gt;'}}<q-tooltip v-if="$q.platform.is.desktop">{{item.name}}</q-tooltip></q-item-tile>
-                      <q-item-tile sublabel><small>{{item.protocol_name || '&lt;no protocol&gt;'}}</small></q-item-tile>
+                      <q-item-tile sublabel><small>{{protocols[item.protocol_id] || '&lt;no protocol&gt;'}}</small></q-item-tile>
                       <q-item-tile sublabel><small>{{item.uri || '&lt;no uri&gt;'}}</small></q-item-tile>
                     </q-item-main>
                     <q-item-side class="text-center">
@@ -42,7 +42,7 @@
       <q-toolbar color="dark" class="justify-between">
         <q-item class="no-padding" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
           <q-item-main>
-            <q-tooltip><small>protocol: {{selectedItem.protocol_name || selectedItem.protocol_id}}</small></q-tooltip>
+            <q-tooltip><small>protocol: {{protocols[selectedItem.protocol_id] || selectedItem.protocol_id}}</small></q-tooltip>
             <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name || '&lt;noname&gt;'}}</q-item-tile>
             <q-item-tile sublabel style="font-size: 0.8rem">{{selectedItem.uri}}</q-item-tile>
           </q-item-main>
@@ -66,7 +66,7 @@
                 >
                   <q-item-main>
                     <q-item-tile label class="ellipsis overflow-hidden">{{item.name || '&lt;noname&gt;'}}</q-item-tile>
-                    <q-item-tile sublabel><small>{{item.protocol_name || '&lt;no protocol&gt;'}}</small></q-item-tile>
+                    <q-item-tile sublabel><small>{{protocols[item.protocol_id] || '&lt;no protocol&gt;'}}</small></q-item-tile>
                     <q-item-tile sublabel><small>{{item.uri || '&lt;no uri&gt;'}}</small></q-item-tile>
                   </q-item-main>
                   <q-item-side class="text-center">
@@ -180,13 +180,12 @@ export default {
           hasntLogs = this.config.logs && state[this.config.logs.vuexModuleName] && state[this.config.logs.vuexModuleName].messages && !state[this.config.logs.vuexModuleName].messages.length && this.ratio !== 0
         return hasntMessages && hasntLogs
       },
-      tokenType (state) { return state.tokenInfo.access ? state.tokenInfo.access.type : -1 }
+      tokenType (state) { return state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
+      protocols (state) { return state.protocols },
+      items (state) { return state.items }
     }),
     size () {
       return [this.ratio, 100 - this.ratio]
-    },
-    items () {
-      return this.$store.state.items
     },
     selectedItem () {
       return this.items.filter(item => item.id === this.active)[0] || {}
@@ -253,6 +252,7 @@ export default {
       })
   },
   destroyed () {
+    this.$store.dispatch('unsubscribeItems', 'channels')
     this.$store.commit('clearItems')
   },
   watch: {

@@ -192,6 +192,7 @@ export default {
       })
   },
   destroyed () {
+    this.$store.dispatch('unsubscribeItems', 'containers')
     this.$store.commit('clearItems')
   },
   watch: {

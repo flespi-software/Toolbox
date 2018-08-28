@@ -191,6 +191,7 @@ export default {
       })
   },
   destroyed () {
+    this.$store.dispatch('unsubscribeItems', 'cdns')
     this.$store.commit('clearItems')
   },
   watch: {

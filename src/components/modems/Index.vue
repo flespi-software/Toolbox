@@ -197,6 +197,7 @@ export default {
       })
   },
   destroyed () {
+    this.$store.dispatch('unsubscribeItems', 'modems')
     this.$store.commit('clearItems')
   },
   watch: {

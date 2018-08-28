@@ -36,6 +36,24 @@ function reqFailed (state, payload) {
     addError(state, payload.message)
   }
 }
+function setItemField (state, field) {
+  let existedIndex = -1
+  state.items.forEach((existItem, index) => {
+    if (existItem.id === field.id) { existedIndex = index }
+  })
+  if (existedIndex !== -1) {
+    Vue.set(state.items[existedIndex], field.name, field.value)
+  } else {
+    state.items.push({id: field.id, [field.name]: field.value})
+  }
+}
+function deleteItem (state, id) {
+  let existedIndex = -1
+  state.items.forEach((existItem, index) => {
+    if (existItem.id === id) { existedIndex = index }
+  })
+  state.items.splice(existedIndex, 1)
+}
 function setItems (state, items) {
   Vue.set(state, 'items', items)
 }
@@ -106,7 +124,9 @@ function clearNotificationCounter (state) { state.newNotificationCounter = 0 }
 
 export default {
   reqStart,
+  setItemField,
   setItems,
+  deleteItem,
   reqFailed,
   setToken,
   clearToken,

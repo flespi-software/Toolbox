@@ -283,6 +283,7 @@ export default {
       })
   },
   destroyed () {
+    this.$store.dispatch('unsubscribeItems', 'devices')
     this.$store.commit('clearItems')
   },
   watch: {
