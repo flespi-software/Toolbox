@@ -94,7 +94,8 @@ module.exports = function (ctx) {
         'QDatetime',
         'QSearch',
         'QField',
-        'QCheckbox'
+        'QCheckbox',
+        'QCollapsible'
       ],
       directives: [
 

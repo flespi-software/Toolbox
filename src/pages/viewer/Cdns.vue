@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <q-page>
     <div v-if="!active" class="text-center" style="display: flex; justify-content: center; font-size: 1.5rem">
       <div class="text-grey-3" style="margin-top: 50px">
         <q-btn flat style="display: flex; flex-wrap: nowrap; margin-top: 20px" icon-right="mdi-menu-down" v-if="items.length">
-          Select container
+          Select CDN
           <q-popover fit ref="popoverNotActive">
             <q-list link separator class="scroll">
               <VirtualList
@@ -32,15 +32,14 @@
             <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
           </q-popover>
         </q-btn>
-        <div v-if="!items.length">{{isLoading ? 'Fetching data..' : 'Containers not found'}}</div>
+        <div v-if="!items.length">{{isLoading ? 'Fetching data..' : 'CDN`s not found'}}</div>
       </div>
     </div>
     <template v-else>
-      <q-toolbar slot="header" color="dark" class="justify-between">
+      <q-toolbar color="dark" class="justify-between">
         <q-item class="no-padding" style="max-width: 50%" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
           <q-item-main>
             <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name || '&lt;noname&gt;'}}</q-item-tile>
-            <q-item-tile sublabel style="font-size: 0.8rem">{{selectedItem.id}}</q-item-tile>
           </q-item-main>
           <q-item-side class="text-right">
             <q-item-tile style="display: inline-block" stamp color="white" class="text-center"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id.toString()}}</q-item-tile>
@@ -89,19 +88,19 @@
         :mode="mode"
         :item="selectedItem"
         :limit="limit"
-        originPattern="storage/containers/:id"
+        originPattern="storage/cdns/:id"
         :isEnabled="true"
         :config="config.logs"
         :style="{minHeight: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
         @view-log-message="viewLogMessagesHandler"
       />
-      <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="selectedItem.deleted">Nothing to show by container &#171;{{selectedItem.name}}&#187; <div style="font-size: 0.9rem">or you haven`t access</div></div>
+      <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="selectedItem.deleted">Nothing to show by CDN &#171;{{selectedItem.name}}&#187; <div style="font-size: 0.9rem">or you haven`t access</div></div>
     </template>
-  </div>
+  </q-page>
 </template>
 
 <script>
-import logs from '../logs/Index.vue'
+import logs from '../../components/logs/Index.vue'
 import { mapState, mapActions } from 'vuex'
 import VirtualList from 'vue-virtual-scroll-list'
 
@@ -167,13 +166,13 @@ export default {
         .catch(() => {})
     },
     async getDeletedHandler () {
-      await this.getDeleted('containers')
+      await this.getDeleted('cdns')
       this.needShowGetDeletedAction = false
     }
   },
   created () {
-    let activeFromLocaleStorage = this.$q.localStorage.get.item('containers')
-    this.$store.dispatch('getItems', 'containers')
+    let activeFromLocaleStorage = this.$q.localStorage.get.item('cdns')
+    this.$store.dispatch('getItems', 'cdns')
       .then(() => {
         this.isInit = true
         if (this.$route.params && this.$route.params.id) {
@@ -192,7 +191,7 @@ export default {
       })
   },
   destroyed () {
-    this.$store.dispatch('unsubscribeItems', 'containers')
+    this.$store.dispatch('unsubscribeItems', 'cdns')
     this.$store.commit('clearItems')
   },
   watch: {
@@ -210,10 +209,10 @@ export default {
     active (val) {
       let currentItem = this.items.filter(item => item.id === val)[0] || {}
       if (val) {
-        this.$q.localStorage.set('containers', val)
-        this.$router.push(`/containers/${val}`)
+        this.$q.localStorage.set('cdns', val)
+        this.$router.push(`/cdns/${val}`)
       } else {
-        this.$router.push('/containers')
+        this.$router.push('/cdns')
       }
       if (currentItem.deleted) {
         this.mode = 0

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <q-page>
     <div class="text-center" style="display: flex; justify-content: center; font-size: 1.5rem" v-if="!active">
       <div class="text-grey-3" style="margin-top: 50px">
         <q-btn flat style="display: flex; flex-wrap: nowrap; margin-top: 20px" icon-right="mdi-menu-down" v-if="items.length">
@@ -36,7 +36,7 @@
       </div>
     </div>
     <template v-else>
-      <q-toolbar slot="header" color="dark" class="justify-between">
+      <q-toolbar color="dark" class="justify-between">
         <q-item class="no-padding" style="max-width: 50%" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
           <q-item-main>
             <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name || `#${selectedItem.id}`}}</q-item-tile>
@@ -152,13 +152,13 @@
       />
       <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="selectedItem.deleted">Nothing to show by device &#171;{{selectedItem.name || `#${selectedItem.id}`}}&#187; <div style="font-size: 0.9rem">or you haven`t access</div></div>
     </template>
-  </div>
+  </q-page>
 </template>
 
 <script>
-import logs from '../logs/Index.vue'
-import messages from './messages/Index.vue'
-import MapComponent from './MapComponent'
+import logs from '../../components/logs/Index.vue'
+import messages from '../../components/messages/devices/Index.vue'
+import MapComponent from '../../components/MapComponent'
 import { mapState, mapActions } from 'vuex'
 import VirtualList from 'vue-virtual-scroll-list'
 

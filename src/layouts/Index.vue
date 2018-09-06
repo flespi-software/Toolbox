@@ -3,46 +3,13 @@
     <q-layout ref="layout" view="hHh LpR lFf">
       <q-layout-header v-if="isVisibleToolbar">
         <q-toolbar color="dark" class="header__main-toolbar">
+          <q-btn flat icon="mdi-menu" @click="sides.left = !sides.left"/>
           <q-toolbar-title :style="{minWidth: $q.platform.is.mobile ? '60px' : '210px'}">
-            <img :src="$q.platform.is.mobile ? 'statics/toolbox_mobile.png':'statics/toolbox50.png'" alt="Track it!" style="height: 30px"> <sup class="gt-sm">{{version}}</sup>
+            <img class="gt-sm" src="statics/toolbox50.png" alt="Track it!" style="height: 30px">
+            <img class="lt-md" src="statics/toolbox_mobile.png" alt="Track it!" style="height: 30px">
+            <sup style="position: relative; font-size: .9rem; padding-left: 4px">{{version}}</sup>
+            <span style="position: relative; top: -5px; margin-left: 10px;">{{configByEntity.label}}</span>
           </q-toolbar-title>
-          <q-window-resize-observable @resize="onResizeWindow" />
-          <q-tabs color="dark" v-model="tabModel" :style="{maxWidth: 'calc(100% - 270px)'}" v-if="$q.platform.is.desktop && isTabsVisible">
-            <q-route-tab
-              v-for="(moduleName, index) in renderEntities"
-              :key="index"
-              slot="title"
-              :name="`${moduleName}`"
-              :label="config[moduleName].label"
-              hide="label"
-              :to="`/${moduleName}`"
-            />
-          </q-tabs>
-          <q-btn flat style="display: flex; flex-wrap: nowrap; width: 50%" v-if="$q.platform.is.mobile || ($q.platform.is.desktop && !isTabsVisible)">
-            <q-item style="padding-left: 0; padding-right: 0"  v-if="configByEntity">
-              <q-item-side :icon="configByEntity.icon" style="min-width: 20px" color="white"/>
-              <q-item-main>
-                <q-item-tile label class="ellipsis overflow-hidden">{{configByEntity.label}}</q-item-tile>
-              </q-item-main>
-              <q-item-side right icon="mdi-menu-down" style="min-width: 20px; margin-left: 10px" color="white"/>
-            </q-item>
-            <q-popover fit ref="popoverTab">
-              <q-list link separator class="scroll">
-                <q-item
-                  v-for="(moduleName, index) in renderEntities"
-                  :key="index"
-                  :to="`/${moduleName}`"
-                >
-                  <q-item style="padding: 0" @click="tabModel = moduleName, $refs.popoverTab.close()">
-                    <q-item-side :icon="config[moduleName].icon"/>
-                    <q-item-main>
-                      <q-item-tile label>{{moduleName}}</q-item-tile>
-                    </q-item-main>
-                  </q-item>
-                </q-item>
-              </q-list>
-            </q-popover>
-          </q-btn>
           <q-btn v-if="errors.length" @click="clearNotificationCounter" small flat round icon="notifications">
             <q-chip v-if="newNotificationCounter" floating color="red">{{newNotificationCounter}}</q-chip>
             <q-popover fit ref="popoverError">
@@ -70,27 +37,105 @@
           v-if="Object.keys(currentMessage).length"
         />
       </q-layout-drawer>
+      <q-layout-drawer side="left" v-model="sides.left" :content-class="{'bg-white':true}">
+        <q-list separator>
+          <q-item v-if="renderEntities.includes('platform')" to='/platform' class="q-pt-md q-pb-md">
+            <q-item-side color="red" :icon="config.platform.icon"></q-item-side>
+            <q-item-main><q-item-tile>{{config.platform.label}}</q-item-tile></q-item-main>
+          </q-item>
+          <q-collapsible v-if="renderEntities.includes('channels') || renderEntities.includes('devices') || renderEntities.includes('streams') || renderEntities.includes('modems')" group="menu" label="Telematics Hub" icon="mdi-sitemap"  class="q-pt-md q-pb-md">
+            <div>
+              <q-list class="row">
+                <q-item v-if="renderEntities.includes('channels')" to='/channels' class="col-6">
+                  <q-item-main class="text-center">
+                    <div>
+                      <q-icon :name="config.channels.icon" size="2.6em"/>
+                    </div>
+                    <div>{{config.channels.label}}</div>
+                  </q-item-main>
+                </q-item>
+                <q-item v-if="renderEntities.includes('devices')" to='/devices' class="col-6">
+                  <q-item-main class="text-center">
+                    <div>
+                      <q-icon :name="config.devices.icon" size="2.6em"/>
+                    </div>
+                    <div>{{config.devices.label}}</div>
+                  </q-item-main>
+                </q-item>
+                <q-item v-if="renderEntities.includes('streams')" to='/streams' class="col-6">
+                  <q-item-main class="text-center">
+                    <div>
+                      <q-icon :name="config.streams.icon" size="2.6em"/>
+                    </div>
+                    <div>{{config.streams.label}}</div>
+                  </q-item-main>
+                </q-item>
+                <q-item v-if="renderEntities.includes('modems')" to='/modems' class="col-6">
+                  <q-item-main class="text-center">
+                    <div>
+                      <q-icon :name="config.modems.icon" size="2.6em"/>
+                    </div>
+                    <div>{{config.modems.label}}</div>
+                  </q-item-main>
+                </q-item>
+              </q-list>
+            </div>
+          </q-collapsible>
+          <q-collapsible v-if="renderEntities.includes('containers') || renderEntities.includes('abques') || renderEntities.includes('cdns')" group="menu" label="Storage" icon="mdi-database" class="q-pt-md q-pb-md">
+            <div>
+              <q-list class="row">
+                <q-item v-if="renderEntities.includes('containers')" to='/containers' class="col-6">
+                  <q-item-main class="text-center">
+                    <div>
+                      <q-icon :name="config.containers.icon" size="2.6em"/>
+                    </div>
+                    <div>{{config.containers.label}}</div>
+                  </q-item-main>
+                </q-item>
+                <q-item v-if="renderEntities.includes('abques')" to='/abques' class="col-6">
+                  <q-item-main class="text-center">
+                    <div>
+                      <q-icon :name="config.abques.icon" size="2.6em"/>
+                    </div>
+                    <div>{{config.abques.label}}</div>
+                  </q-item-main>
+                </q-item>
+                <q-item v-if="renderEntities.includes('cdns')" to='/cdns' class="col-6">
+                  <q-item-main class="text-center">
+                    <div>
+                      <q-icon :name="config.cdns.icon" size="2.6em"/>
+                    </div>
+                    <div>{{config.cdns.label}}</div>
+                  </q-item-main>
+                </q-item>
+              </q-list>
+            </div>
+          </q-collapsible>
+          <q-item v-if="renderEntities.includes('mqtt')" to='/mqtt' class="q-pt-md q-pb-md">
+            <q-item-side :icon="config.mqtt.icon"></q-item-side>
+            <q-item-main><q-item-tile>{{config.mqtt.label}}</q-item-tile></q-item-main>
+          </q-item>
+        </q-list>
+      </q-layout-drawer>
       <q-page-container :style="{background: '#333'}">
-        <q-page>
-          <raw-viewer
-            ref="rawViewer"
-            :config="rawConfig"
-            inverted
-          />
-          <router-view
-            ref='main'
-            v-if="configByEntity && isInit"
-            @view-data="viewDataHandler"
-            @view-data-hide="sides.right = false, currentMessage = {}"
-            @view-log-message="viewLogMessagesHandler"
-            :limit="limit"
-            :isLoading="loadingFlag"
-            :isVisibleToolbar="isVisibleToolbar"
-            :isNeedSelect="isNeedSelect"
-            :config="configByEntity"
-          >
-          </router-view>
-        </q-page>
+        <raw-viewer
+          ref="rawViewer"
+          :config="rawConfig"
+          inverted
+        />
+        <router-view
+          ref='main'
+          v-if="configByEntity && isInit"
+          @view-data="viewDataHandler"
+          @view-data-hide="sides.right = false, currentMessage = {}"
+          @view-log-message="viewLogMessagesHandler"
+          :limit="limit"
+          :isLoading="loadingFlag"
+          :isVisibleToolbar="isVisibleToolbar"
+          :isNeedSelect="isNeedSelect"
+          :config="configByEntity"
+        >
+        </router-view>
       </q-page-container>
     </q-layout>
     <q-inner-loading :visible="loadingFlag" style="z-index: 2001" dark>
@@ -225,9 +270,6 @@ export default {
       'clearNotificationCounter'
     ]),
     ...mapActions(['getTokenInfo']),
-    onResizeWindow (size) {
-      size.width > 767 ? this.isTabsVisible = true : this.isTabsVisible = false
-    },
     viewDataHandler (content) {
       this.currentMessage = JSON.parse(JSON.stringify(content))
       setTimeout(() => { this.sides.right = true }, 20)

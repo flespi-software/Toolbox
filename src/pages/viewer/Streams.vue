@@ -1,13 +1,13 @@
 <template>
-  <div>
+  <q-page>
     <div v-if="!active" class="text-center" style="display: flex; justify-content: center; font-size: 1.5rem">
       <div class="text-grey-3" style="margin-top: 50px">
         <q-btn flat style="display: flex; flex-wrap: nowrap; margin-top: 20px" icon-right="mdi-menu-down" v-if="items.length">
-          Select abque
+          Select stream
           <q-popover fit ref="popoverNotActive">
             <q-list link separator class="scroll">
               <VirtualList
-                :size="40"
+                :size="76"
                 :remain="items.length > 6 ? 6 : items.length"
               >
                 <q-item
@@ -20,7 +20,9 @@
                   highlight
                 >
                   <q-item-main>
-                    <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || '&lt;noname&gt;'}}<q-tooltip v-if="$q.platform.is.desktop">{{item.name || '&lt;noname&gt;'}}</q-tooltip></q-item-tile>
+                    <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || '&lt;noname&gt;'}}<q-tooltip v-if="$q.platform.is.desktop">{{item.name}}</q-tooltip></q-item-tile>
+                    <q-item-tile v-if="item.configuration" sublabel><small>{{item.configuration.protocol || '&lt;no protocol&gt;'}}</small></q-item-tile>
+                    <q-item-tile v-if="item.configuration" sublabel><small>{{item.configuration.uri || '&lt;no uri&gt;'}}</small></q-item-tile>
                   </q-item-main>
                   <q-item-side class="text-center">
                     <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
@@ -32,15 +34,16 @@
             <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
           </q-popover>
         </q-btn>
-        <div v-if="!items.length">{{isLoading ? 'Fetching data..' : 'Abques not found'}}</div>
+        <div v-if="!items.length">{{isLoading ? 'Fetching data..' : 'Streams not found'}}</div>
       </div>
     </div>
     <template v-else>
-      <q-toolbar slot="header" color="dark" class="justify-between">
+      <q-toolbar color="dark" class="justify-between">
         <q-item class="no-padding" style="max-width: 50%" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
           <q-item-main>
+            <q-tooltip v-if="selectedItem.configuration && selectedItem.configuration.protocol"><small>{{selectedItem.configuration.protocol}}</small></q-tooltip>
             <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name || '&lt;noname&gt;'}}</q-item-tile>
-            <q-item-tile sublabel style="font-size: 0.8rem">{{selectedItem.id}}</q-item-tile>
+            <q-item-tile sublabel style="font-size: 0.8rem" v-if="selectedItem.configuration && selectedItem.configuration.uri">{{selectedItem.configuration.uri}}</q-item-tile>
           </q-item-main>
           <q-item-side class="text-right">
             <q-item-tile style="display: inline-block" stamp color="white" class="text-center"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id.toString()}}</q-item-tile>
@@ -49,7 +52,7 @@
           <q-popover fit ref="popoverActive" v-if="isNeedSelect">
             <q-list link separator class="scroll">
               <VirtualList
-                :size="40"
+                :size="76"
                 :remain="items.length > 6 ? 6 : items.length"
               >
                 <q-item
@@ -62,6 +65,8 @@
                 >
                   <q-item-main>
                     <q-item-tile label class="ellipsis overflow-hidden">{{item.name || '&lt;noname&gt;'}}</q-item-tile>
+                    <q-item-tile sublabel v-if="item.configuration && item.configuration.protocol"><small>{{item.configuration.protocol || '&lt;no protocol&gt;'}}</small></q-item-tile>
+                    <q-item-tile sublabel v-if="item.configuration && item.configuration.uri"><small>{{item.configuration.uri || '&lt;no uri&gt;'}}</small></q-item-tile>
                   </q-item-main>
                   <q-item-side class="text-center">
                     <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
@@ -73,7 +78,7 @@
             <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
           </q-popover>
         </q-item>
-        <q-btn v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'" :rounded="$q.platform.is.mobile">
+        <q-btn v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
           <q-tooltip>Mode (Real-time/History)</q-tooltip>
           {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
           <q-chip small square color="red" v-if="newMessagesCount" class="cursor-pointer q-ml-sm">{{newMessagesCount}}</q-chip>
@@ -89,19 +94,19 @@
         :mode="mode"
         :item="selectedItem"
         :limit="limit"
-        originPattern="storage/abques/:id"
+        originPattern="gw/streams/:id"
         :isEnabled="true"
         :config="config.logs"
         :style="{minHeight: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
         @view-log-message="viewLogMessagesHandler"
       />
-      <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="selectedItem.deleted">Nothing to show by abque &#171;{{selectedItem.name}}&#187; <div style="font-size: 0.9rem">or you haven`t access</div></div>
+      <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="selectedItem.deleted">Nothing to show by stream &#171;{{selectedItem.name}}&#187; <div style="font-size: 0.9rem">or you haven`t access</div></div>
     </template>
-  </div>
+  </q-page>
 </template>
 
 <script>
-import logs from '../logs/Index.vue'
+import logs from '../../components/logs/Index.vue'
 import { mapState, mapActions } from 'vuex'
 import VirtualList from 'vue-virtual-scroll-list'
 
@@ -124,7 +129,7 @@ export default {
   computed: {
     ...mapState({
       newMessagesCount (state) {
-        return this.config.logs.vuexModuleName && state[this.config.logs.vuexModuleName] ? state[this.config.logs.vuexModuleName].newMessagesCount : 0
+        return state[this.config.logs.vuexModuleName] ? state[this.config.logs.vuexModuleName].newMessagesCount : 0
       },
       isEmptyMessages (state) {
         return state[this.config.logs.vuexModuleName] ? !state[this.config.logs.vuexModuleName].messages.length : false
@@ -167,13 +172,13 @@ export default {
         .catch(() => {})
     },
     async getDeletedHandler () {
-      await this.getDeleted('abques')
+      await this.getDeleted('streams')
       this.needShowGetDeletedAction = false
     }
   },
   created () {
-    let activeFromLocaleStorage = this.$q.localStorage.get.item('abques')
-    this.$store.dispatch('getItems', 'abques')
+    let activeFromLocaleStorage = this.$q.localStorage.get.item('streams')
+    this.$store.dispatch('getItems', 'streams')
       .then(() => {
         this.isInit = true
         if (this.$route.params && this.$route.params.id) {
@@ -192,7 +197,7 @@ export default {
       })
   },
   destroyed () {
-    this.$store.dispatch('unsubscribeItems', 'abques')
+    this.$store.dispatch('unsubscribeItems', 'streams')
     this.$store.commit('clearItems')
   },
   watch: {
@@ -210,10 +215,10 @@ export default {
     active (val) {
       let currentItem = this.items.filter(item => item.id === val)[0] || {}
       if (val) {
-        this.$q.localStorage.set('abques', val)
-        this.$router.push(`/abques/${val}`)
+        this.$q.localStorage.set('streams', val)
+        this.$router.push(`/streams/${val}`)
       } else {
-        this.$router.push('/abques')
+        this.$router.push('/streams')
       }
       if (currentItem.deleted) {
         this.mode = 0

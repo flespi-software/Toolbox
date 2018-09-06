@@ -4,8 +4,8 @@
     <div class="map-container__header" :style="{height: `${headerMapHeight}px`}" v-show="!isMapMinimized && !isMapMaximized">
       <q-icon @mousedown.stop.prevent.native="closeMapHandler" name="mdi-close" class="float-right cursor-pointer" color="white"/>
       <q-icon @mousedown.stop.prevent.native="maximizeHandler" :name="isMapMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" class="float-right cursor-pointer" color="white"/>
-      <q-icon @mousedown.stop.prevent.native="minimizeHandler('messages')" name="mdi-arrow-bottom-right" class="float-right cursor-pointer" color="white"/>
-      <q-icon @mousedown.stop.prevent.native="minimizeHandler('logs')" name="mdi-arrow-top-right" class="float-right cursor-pointer" color="white"/>
+      <q-icon v-if="siblingHeight !== 0" @mousedown.stop.prevent.native="minimizeHandler('messages')" name="mdi-arrow-bottom-right" class="float-right cursor-pointer" color="white"/>
+      <q-icon v-if="siblingHeight !== 100" :class='{[`height${siblingHeight}`]: true}' @mousedown.stop.prevent.native="minimizeHandler('logs')" name="mdi-arrow-top-right" class="float-right cursor-pointer" color="white"/>
     </div>
     <div id="map" :style="mapStyles">
       <q-resize-observable @resize="onResize" />
@@ -139,12 +139,13 @@ export default {
       let parentW = parseInt(this.$el.parentNode.clientWidth, 10),
         parentH = parseInt(this.$el.parentNode.clientHeight, 10)
       this.width = parentW * 0.34
-      this.height = (parentH * (this.siblingHeight / 100)) - 25
+      this.height = ((parentH - 50) * (this.siblingHeight / 100)) - (this.siblingHeight === 100 ? 0 : (50 - this.siblingHeight))
+      console.log(this.height, parentH, this.siblingHeight)
       switch (minimizeTo) {
         case 'messages': {
           this.$nextTick(() => {
             this.$refs.dragResize.left = parentW * 0.66
-            this.$refs.dragResize.top = this.height + 50
+            this.$refs.dragResize.top = parentH - this.height
           })
           break
         }

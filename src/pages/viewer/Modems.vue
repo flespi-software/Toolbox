@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <q-page>
     <div v-if="!active" class="text-center" style="display: flex; justify-content: center; font-size: 1.5rem">
       <div class="text-grey-3" style="margin-top: 50px">
         <q-btn flat style="display: flex; flex-wrap: nowrap; margin-top: 20px" icon-right="mdi-menu-down" v-if="items.length">
@@ -38,7 +38,7 @@
       </div>
     </div>
     <template v-else>
-      <q-toolbar slot="header" color="dark" class="justify-between">
+      <q-toolbar color="dark" class="justify-between">
         <q-item class="no-padding" style="max-width: 50%" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
           <q-item-main>
             <q-tooltip v-if="selectedItem.configuration && selectedItem.configuration.protocol"><small>{{selectedItem.configuration.protocol}}</small></q-tooltip>
@@ -102,11 +102,11 @@
       />
       <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="selectedItem.deleted">Nothing to show by modem &#171;{{selectedItem.name}}&#187; <div style="font-size: 0.9rem">or you haven`t access</div></div>
     </template>
-  </div>
+  </q-page>
 </template>
 
 <script>
-import logs from '../logs/Index.vue'
+import logs from '../../components/logs/Index.vue'
 import { mapState, mapActions } from 'vuex'
 import VirtualList from 'vue-virtual-scroll-list'
 

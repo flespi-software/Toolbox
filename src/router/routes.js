@@ -1,15 +1,17 @@
 import config from '../config.json'
+import capitalize from 'lodash/capitalize'
 
 function getIndexChildrenRoutes (config) {
   return Object.keys(config).reduce((result, moduleName) => {
+    let componentName = capitalize(moduleName)
     result.push({
       path: moduleName,
-      component: () => import(`components/${moduleName}/Index`),
+      component: () => import(`pages/viewer/${componentName}`),
       meta: {moduleName}
     })
     result.push({
       path: `${moduleName}/:id`,
-      component: () => import(`components/${moduleName}/Index`),
+      component: () => import(`pages/viewer/${componentName}`),
       meta: {moduleName}
     })
     return result

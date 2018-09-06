@@ -1,12 +1,12 @@
 <template>
-  <div>
+  <q-page>
     <div v-if="!isInit" class="text-center" style="display: flex; justify-content: center; font-size: 1.5rem">
       <div class="text-grey-3" style="margin-top: 50px">
         <div v-if="isLoading">Fetching data..</div>
       </div>
     </div>
     <template v-else>
-      <q-toolbar slot="header" color="dark" class="justify-between">
+      <q-toolbar color="dark" class="justify-between">
         <div></div>
         <q-btn flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
           <q-tooltip>Mode (Real-time/History)</q-tooltip>
@@ -31,11 +31,11 @@
         @view-log-message="viewLogMessagesHandler"
       />
     </template>
-  </div>
+  </q-page>
 </template>
 
 <script>
-import logs from '../logs/Index.vue'
+import logs from '../../components/logs/Index.vue'
 import { mapState } from 'vuex'
 
 export default {

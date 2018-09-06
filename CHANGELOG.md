@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.31] - 2018-09-06
+[update] rebased menu view
+[fix] map on devices page
+[update] packages
 ### [0.9.30] - 2018-08-29
 [update] packages
 ### [0.9.29] - 2018-08-29

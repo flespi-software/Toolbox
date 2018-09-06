@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <q-page>
     <template  v-if="!active">
       <div class="text-center" style="display: flex; justify-content: center; font-size: 1.5rem">
         <div class="text-grey-3" style="margin-top: 50px">
@@ -142,12 +142,12 @@
       />
       <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="selectedItem.deleted">Nothing to show by channel &#171;{{selectedItem.name}}&#187; <div style="font-size: 0.9rem">or you haven`t access</div></div>
     </template>
-  </div>
+  </q-page>
 </template>
 
 <script>
-import logs from '../logs/Index.vue'
-import messages from './messages/Index.vue'
+import logs from '../../components/logs/Index.vue'
+import messages from '../../components/messages/channels/Index.vue'
 import { mapState, mapActions } from 'vuex'
 import VirtualList from 'vue-virtual-scroll-list'
 
