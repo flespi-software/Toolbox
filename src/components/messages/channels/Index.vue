@@ -28,7 +28,7 @@
         :rowWidth="rowWidth"
         :etcVisible="etcVisible"
         :actionsVisible="actionsVisible"
-        :selected="index === selected"
+        :selected="selected.includes(index)"
         @action="actionHandler"
         @item-click="viewMessagesHandler"
       />
@@ -178,7 +178,7 @@ export default {
       }
     },
     viewMessagesHandler ({index, content}) {
-      this.selected = index
+      this.selected = [index]
       this.$emit('view-data', content)
     },
     copyMessageHandler ({index, content}) {
@@ -199,8 +199,8 @@ export default {
       })
     },
     unselect () {
-      if (this.selected) {
-        this.selected = null
+      if (this.selected.length) {
+        this.selected = []
       }
     }
   },
