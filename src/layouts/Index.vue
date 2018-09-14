@@ -295,6 +295,13 @@ export default {
     ]),
     ...mapActions(['getTokenInfo']),
     viewDataHandler (content) {
+      /* remove system field */
+      content = Object.keys(content).reduce((content, name) => {
+        if (name.indexOf('x-flespi') === 0) {
+          delete content[name]
+        }
+        return content
+      }, content)
       this.currentMessage = JSON.parse(JSON.stringify(content))
       setTimeout(() => { this.sides.right = true }, 20)
     },
