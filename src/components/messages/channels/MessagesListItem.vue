@@ -2,7 +2,7 @@
   <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}">
     <div
       v-if="!item['__connectionStatus'] && !item['x-flespi-filter-prev'] && !item['x-flespi-filter-next']"
-      @click="itemClickHandler(index, item)"
+      @click="(event) => { itemClickHandler(index, item, event) }"
       class="cursor-pointer"
       :class="[item.__status ? 'missed-items' : '']"
       :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, backgroundColor: selected ? 'rgba(255,255,255,0.7)': '', color: selected ? '#333' : ''}">
@@ -163,8 +163,8 @@ export default {
     clickHandler (index, type, content) {
       this.$emit(`action`, {index, type, content})
     },
-    itemClickHandler (index, content) {
-      this.$emit(`item-click`, {index, content})
+    itemClickHandler (index, content, event) {
+      this.$emit(`item-click`, {index, content, event})
     }
   }
 }

@@ -182,7 +182,7 @@ export default {
       this.selected = [index]
       this.$emit('view-data', content)
     },
-    itemClickHandler ({index, content}) {
+    itemClickHandler ({index, content, event}) {
       if (event.shiftKey) {
         if (this.selected[0]) {
           if (this.selected[0] > index) {

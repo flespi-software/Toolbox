@@ -42,7 +42,7 @@
     background-color rgba(255, 255, 255, 0.4)
   .hex-viewer
     padding 10px 10px
-    width 790px
+    width 820px
     font-family 'PT Mono',monospace
     font-size 14.5px
     user-select none
@@ -57,7 +57,7 @@
       width 420px
       display inline-block
     .hex-viewer__text
-      width: 270px
+      width: 300px
       display inline-block
 </style>
 

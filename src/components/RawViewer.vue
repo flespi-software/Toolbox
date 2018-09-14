@@ -1,5 +1,5 @@
 <template>
-  <q-modal @show="openHandler" @hide="tabModel = ''" ref="modal" :content-css="{maxWidth: '100vw', maxHeight: '100vh', width: '700px', height: '700px', padding: '50px 0'}" :content-classes="{'bg-dark': inverted !== undefined, 'modal-tabs': true}">
+  <q-modal @show="openHandler" @hide="tabModel = ''" ref="modal" :content-css="{maxWidth: '100vw', maxHeight: '100vh', width: '700px', height: '700px'}" :content-classes="{'bg-dark': inverted !== undefined, 'modal-tabs': true}">
     <q-modal-layout>
       <q-toolbar slot="footer" color="dark"  style="justify-content: flex-end;">
         <q-btn flat @click="$refs.modal.hide()">Close</q-btn>

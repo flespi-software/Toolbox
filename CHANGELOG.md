@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.35] - 2018-09-14
+[fix] styles
+[fix] event in ff
 ### [0.9.34] - 2018-09-14
 [fix] remove system fields from message view
 ### [0.9.33] - 2018-09-14
