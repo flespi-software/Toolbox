@@ -1,17 +1,19 @@
 import config from '../config.json'
-import capitalize from 'lodash/capitalize'
+import upperFirst from 'lodash/upperFirst'
 
 function getIndexChildrenRoutes (config) {
   return Object.keys(config).reduce((result, moduleName) => {
-    let componentName = capitalize(moduleName)
+    let componentName = upperFirst(moduleName),
+      type = config[moduleName].type,
+      path = config[moduleName].path || moduleName
     result.push({
-      path: moduleName,
-      component: () => import(`pages/viewer/${componentName}`),
+      path: path,
+      component: () => import(`pages/${type}/${componentName}`),
       meta: {moduleName}
     })
     result.push({
-      path: `${moduleName}/:id`,
-      component: () => import(`pages/viewer/${componentName}`),
+      path: `${path}/:id`,
+      component: () => import(`pages/${type}/${componentName}`),
       meta: {moduleName}
     })
     return result

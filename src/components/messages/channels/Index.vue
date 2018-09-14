@@ -30,7 +30,7 @@
         :actionsVisible="actionsVisible"
         :selected="selected.includes(index)"
         @action="actionHandler"
-        @item-click="viewMessagesHandler"
+        @item-click="itemClickHandler"
       />
     </virtual-scroll-list>
   </div>
@@ -42,6 +42,7 @@ import Vue from 'vue'
 import { date } from 'quasar'
 import filterMessages from '../../../mixins/filterMessages'
 import MessagesListItem from './MessagesListItem.vue'
+import range from 'lodash/range'
 
 export default {
   props: [
@@ -180,6 +181,30 @@ export default {
     viewMessagesHandler ({index, content}) {
       this.selected = [index]
       this.$emit('view-data', content)
+    },
+    itemClickHandler ({index, content}) {
+      if (event.shiftKey) {
+        if (this.selected[0]) {
+          if (this.selected[0] > index) {
+            this.selected = range(index, this.selected[0] + 1)
+          } else {
+            this.selected = range(this.selected[0], index + 1)
+          }
+        } else {
+          this.selected = [index]
+        }
+      } else if (event.ctrlKey) {
+        if (this.selected.includes(index)) {
+          let selected = this.selected
+          selected.splice(this.selected.indexOf(index), 1)
+          this.selected = selected
+        } else {
+          this.selected = [...this.selected, index]
+        }
+      } else {
+        this.selected = [index]
+      }
+      this.$emit('view-data', this.messages.filter((message, index) => this.selected.includes(index)))
     },
     copyMessageHandler ({index, content}) {
       this.$copyText(JSON.stringify(content)).then((e) => {

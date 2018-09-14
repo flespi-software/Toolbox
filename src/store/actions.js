@@ -11,6 +11,8 @@ const origins = {
   cdns: '/storage/cdns/+/+'
 }
 
+let itemsSubsId = null
+
 async function getItems ({ state, commit }, entity) {
   if (entity) {
     let origin = `flespi/state${origins[entity]}`
@@ -27,7 +29,7 @@ async function getItems ({ state, commit }, entity) {
             return result
           }, {})
         }
-        await Vue.connector.socket.subscribe({
+        itemsSubsId = await Vue.connector.socket.subscribe({
           name: origin,
           handler (value, topic, packet) {
             let partsOfTopic = topic.split('/').reverse(),
@@ -60,7 +62,7 @@ async function unsubscribeItems ({state, commit}, entity) {
   if (entity) {
     let origin = `flespi/state${origins[entity]}`
     try {
-      await Vue.connector.socket.unsubscribe(origin)
+      await Vue.connector.socket.unsubscribe(origin, Object.keys(itemsSubsId))
     } catch (e) {
       commit('reqFailed', e)
     }

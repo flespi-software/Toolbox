@@ -112,7 +112,17 @@ export default {
           if (propName.indexOf('image.bin.') !== -1) {
             value = '<binary image>'
           }
-          vals[propName].value = JSON.stringify(value)
+          if (propName.indexOf('proxy.event') !== -1) {
+            value = value === 0 ? 'data received' : value === 1 ? 'connected' : 'disconnect'
+          }
+          if (propName.indexOf('proxy.peer') !== -1) {
+            value = value === 0 ? 'channel incoming connection' : `target ${value}`
+          }
+          if (typeof value === 'string') {
+            vals[propName].value = value
+          } else {
+            vals[propName].value = JSON.stringify(value)
+          }
         } else {
           if (
             propName === '__status' ||

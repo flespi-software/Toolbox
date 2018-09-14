@@ -120,7 +120,11 @@ export default {
           if (propName.indexOf('image.bin.') !== -1) {
             value = '<binary image>'
           }
-          vals[propName].value = JSON.stringify(value)
+          if (typeof value === 'string') {
+            vals[propName].value = value
+          } else {
+            vals[propName].value = JSON.stringify(value)
+          }
         } else {
           if (
             propName === 'delimiter' ||

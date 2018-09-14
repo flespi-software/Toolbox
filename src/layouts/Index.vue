@@ -1,14 +1,14 @@
 <template>
-  <div v-if="tabModel">
+  <div>
     <q-layout ref="layout" view="hHh LpR lFf">
       <q-layout-header v-if="isVisibleToolbar">
         <q-toolbar color="dark" class="header__main-toolbar">
           <q-btn flat icon="mdi-menu" @click="sides.left = !sides.left"/>
           <q-toolbar-title :style="{minWidth: $q.platform.is.mobile ? '60px' : '210px'}">
-            <img class="gt-sm" src="statics/toolbox50.png" alt="Track it!" style="height: 30px">
-            <img class="lt-md" src="statics/toolbox_mobile.png" alt="Track it!" style="height: 30px">
+            <img class="gt-sm" src="statics/toolbox50.png" alt="Toolbox" style="height: 30px">
+            <img class="lt-md" src="statics/toolbox_mobile.png" alt="Toolbox" style="height: 30px">
             <sup style="position: relative; font-size: .9rem; padding-left: 4px">{{version}}</sup>
-            <span style="position: relative; top: -5px; margin-left: 10px;">{{configByEntity.label}}</span>
+            <span v-if="configByEntity" style="position: relative; top: -5px; margin-left: 10px;">{{configByEntity.label}}</span>
           </q-toolbar-title>
           <q-btn v-if="errors.length" @click="clearNotificationCounter" small flat round icon="notifications">
             <q-chip v-if="newNotificationCounter" floating color="red">{{newNotificationCounter}}</q-chip>
@@ -43,7 +43,14 @@
             <q-item-side color="red" :icon="config.platform.icon"></q-item-side>
             <q-item-main><q-item-tile>{{config.platform.label}}</q-item-tile></q-item-main>
           </q-item>
-          <q-collapsible v-if="renderEntities.includes('channels') || renderEntities.includes('devices') || renderEntities.includes('streams') || renderEntities.includes('modems')" group="menu" label="Telematics Hub" icon="mdi-sitemap"  class="q-pt-md q-pb-md">
+          <q-collapsible
+            v-if="renderEntities.includes('channels') || renderEntities.includes('devices') || renderEntities.includes('streams') || renderEntities.includes('modems')"
+            group="menu"
+            label="Telematics Hub"
+            icon="mdi-sitemap"
+            class="q-pt-md q-pb-md"
+            :opened="entity === 'channels' || entity === 'devices' || entity === 'streams' || entity === 'modems' || entity === 'hexViewer'"
+          >
             <div>
               <q-list class="row">
                 <q-item v-if="renderEntities.includes('channels')" to='/channels' class="col-6">
@@ -78,10 +85,27 @@
                     <div>{{config.modems.label}}</div>
                   </q-item-main>
                 </q-item>
+                <q-item-separator style="width: 100%"/>
+                <q-list-header class="col-12">Tools</q-list-header>
+                <q-item to='/tools/hex' class="col-6">
+                  <q-item-main class="text-center">
+                    <div>
+                      <q-icon :name="config.hexViewer.icon" size="2.6em"/>
+                    </div>
+                    <div>{{config.hexViewer.label}}</div>
+                  </q-item-main>
+                </q-item>
               </q-list>
             </div>
           </q-collapsible>
-          <q-collapsible v-if="renderEntities.includes('containers') || renderEntities.includes('abques') || renderEntities.includes('cdns')" group="menu" label="Storage" icon="mdi-database" class="q-pt-md q-pb-md">
+          <q-collapsible
+            v-if="renderEntities.includes('containers') || renderEntities.includes('abques') || renderEntities.includes('cdns')"
+            group="menu"
+            label="Storage"
+            icon="mdi-database"
+            class="q-pt-md q-pb-md"
+            :opened="entity === 'containers' || entity === 'abques' || entity === 'cdns'"
+          >
             <div>
               <q-list class="row">
                 <q-item v-if="renderEntities.includes('containers')" to='/containers' class="col-6">
@@ -165,11 +189,11 @@ export default {
       },
       currentLimit: 1000,
       rawConfig: {},
-      tabModel: '',
+      entity: '',
       isVisibleToolbar: true,
       loadingFlag: false,
       isTabsVisible: true,
-      tabsByGroup: ['platform', 'channels', 'devices', 'streams', 'modems', 'containers', 'abques', 'cdns', 'mqtt'],
+      entityByGroup: ['platform', 'channels', 'devices', 'streams', 'modems', 'containers', 'abques', 'cdns', 'mqtt'],
       isNeedSelect: true,
       isInit: Vue.connector.socket.connected()
     }
@@ -183,10 +207,10 @@ export default {
       newNotificationCounter: state => state.newNotificationCounter
     }),
     configByEntity () {
-      return this.config[this.tabModel]
+      return this.config[this.entity]
     },
     renderEntities () {
-      return this.tabsByGroup.filter((name) => {
+      return this.entityByGroup.filter((name) => {
         return this.config[name].isDrawable
       })
     },
@@ -356,9 +380,9 @@ export default {
         this.addError(errMessage)
       }
     },
-    setDefaultTabModel () {
+    setDefaultEntity () {
       if (this.renderEntities.length) {
-        this.tabModel = this.renderEntities[0]
+        this.entity = this.renderEntities[0]
         this.$router.push(`/${this.renderEntities[0]}`)
       } else {
         this.reset('Nothing to show by current token')
@@ -367,8 +391,8 @@ export default {
     routeProcess (route) {
       if (route.params.group) {
         let groups = this.$route.params.group.split(','),
-          tabsByGroups = this.getGroups(groups)
-        if (tabsByGroups.length) { this.tabsByGroup = tabsByGroups }
+          entityByGroups = this.getGroups(groups)
+        if (entityByGroups.length) { this.entityByGroup = entityByGroups }
       }
       if (route.params.token) {
         this.routeParamsProcess(route)
@@ -385,23 +409,24 @@ export default {
       this.getTokenInfo().then(() => {
         if (route.params.id && route.params.type) {
           if (this.renderEntities.includes(route.params.type)) {
-            this.tabModel = this.$route.params.type
+            this.entity = this.$route.params.type
             this.$router.push(`/${route.params.type}/${route.params.id}`)
           } else {
             this.reset('Nothing to show by current token')
           }
         } else {
-          this.setDefaultTabModel()
+          this.setDefaultEntity()
         }
       })
     },
     routeMainProcess (route) {
       if (route.path === '/') { // if main route
-        this.setDefaultTabModel()
+        this.setDefaultEntity()
       } else { // go to send route
         if (this.$route.meta.moduleName) {
-          this.tabModel = this.$route.meta.moduleName
-          this.$router.push(`/${this.$route.meta.moduleName}${this.$route.params.id ? `/${this.$route.params.id}` : ''}`)
+          this.entity = this.$route.meta.moduleName
+          let path = this.configByEntity.path || this.entity
+          this.$router.push(`/${path}${this.$route.params.id ? `/${this.$route.params.id}` : ''}`)
         } else {
           this.$router.push(this.$route.path)
         }

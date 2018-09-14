@@ -2,6 +2,7 @@
   "platform": {
     "label": "Platform",
     "icon": "icon-flespi2-01",
+    "type": "viewer",
     "isDrawable": true,
     "logs": {
       "vuexModuleName": "platformLogs",
@@ -45,6 +46,7 @@
   "channels": {
     "label": "Channels",
     "icon": "merge_type",
+    "type": "viewer",
     "acl": ["protocols", "channels"],
     "isDrawable": true,
     "logs": {
@@ -151,6 +153,7 @@
   "devices": {
     "label": "Devices",
     "icon": "mdi-developer-board",
+    "type": "viewer",
     "acl": ["devices"],
     "isDrawable": true,
     "logs": {
@@ -271,6 +274,7 @@
   "streams": {
     "label": "Streams",
     "icon": "mdi-call-split",
+    "type": "viewer",
     "acl": ["streams"],
     "isDrawable": true,
     "logs": {
@@ -321,6 +325,7 @@
   "modems": {
     "label": "Modems",
     "icon": "router",
+    "type": "viewer",
     "acl": ["modems"],
     "isDrawable": true,
     "logs": {
@@ -383,6 +388,7 @@
   "containers": {
     "label": "Containers",
     "icon": "featured_play_list",
+    "type": "viewer",
     "acl": ["containers"],
     "isDrawable": true,
     "logs": {
@@ -427,6 +433,7 @@
   "abques": {
     "label": "Abques",
     "icon": "reorder",
+    "type": "viewer",
     "acl": ["abques"],
     "isDrawable": true,
     "logs": {
@@ -472,6 +479,7 @@
     "label": "MQTT",
     "icon": "mdi-access-point-network",
     "acl": ["mqtt"],
+    "type": "viewer",
     "isDrawable": true,
     "logs": {
       "vuexModuleName": "mqttLogs",
@@ -527,6 +535,7 @@
   "cdns": {
     "label": "CDNS",
     "icon": "mdi-harddisk",
+    "type": "viewer",
     "acl": ["cdns"],
     "isDrawable": true,
     "logs": {
@@ -577,6 +586,37 @@
         "needShowPageScroll": "right left",
         "needShowDate": true,
         "needShowEtc": true
+      },
+      "theme": {
+        "color": "white",
+        "bgColor": "dark",
+        "contentInverted": true,
+        "controlsInverted": true
+      }
+    }
+  },
+  "hexViewer": {
+    "label": "Hex Viewer",
+    "path": "tools/hex",
+    "type": "tools",
+    "icon": "mdi-matrix",
+    "acl": ["protocols", "channels"],
+    "isDrawable": true,
+    "messages": {
+      "vuexModuleName": "hexMessages",
+      "actions": [
+        {
+          "icon": "mdi-content-copy",
+          "label": "copy",
+          "classes": "",
+          "type": "copy"
+        }
+      ],
+      "viewConfig": {
+        "needShowFilter": true,
+        "needShowMode": false,
+        "needShowPageScroll": "right",
+        "needShowDate": false
       },
       "theme": {
         "color": "white",

@@ -21,7 +21,6 @@
                   >
                     <q-item-main>
                       <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || '&lt;noname&gt;'}}<q-tooltip v-if="$q.platform.is.desktop">{{item.name}}</q-tooltip></q-item-tile>
-                      <q-item-tile sublabel><small>{{protocols[item.protocol_id] || '&lt;no protocol&gt;'}}</small></q-item-tile>
                       <q-item-tile sublabel><small>{{item.uri || '&lt;no uri&gt;'}}</small></q-item-tile>
                     </q-item-main>
                     <q-item-side class="text-center">
@@ -42,7 +41,6 @@
       <q-toolbar color="dark" class="justify-between">
         <q-item class="no-padding" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
           <q-item-main>
-            <q-tooltip><small>protocol: {{protocols[selectedItem.protocol_id] || selectedItem.protocol_id}}</small></q-tooltip>
             <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name || '&lt;noname&gt;'}}</q-item-tile>
             <q-item-tile sublabel style="font-size: 0.8rem">{{selectedItem.uri}}</q-item-tile>
           </q-item-main>
@@ -66,7 +64,6 @@
                 >
                   <q-item-main>
                     <q-item-tile label class="ellipsis overflow-hidden">{{item.name || '&lt;noname&gt;'}}</q-item-tile>
-                    <q-item-tile sublabel><small>{{protocols[item.protocol_id] || '&lt;no protocol&gt;'}}</small></q-item-tile>
                     <q-item-tile sublabel><small>{{item.uri || '&lt;no uri&gt;'}}</small></q-item-tile>
                   </q-item-main>
                   <q-item-side class="text-center">
@@ -84,74 +81,36 @@
           <q-chip small square color="red" v-if="newMessagesCount" class="cursor-pointer q-ml-sm">{{newMessagesCount}}</q-chip>
           <q-tooltip>Mode (Real-time/History)</q-tooltip>
         </q-btn>
-        <div>
-          <q-icon size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler">
-            <q-tooltip>Clear all panes</q-tooltip>
-          </q-icon>
-          <q-icon v-if="!selectedItem.deleted" size="1.5rem" class="cursor-pointer pull-right" name="mdi-format-align-middle">
-            <q-tooltip>Section ratio</q-tooltip>
-            <q-popover ref="ratioPopover">
-              <q-item style="width: 25rem; height: 100px" class="bg-dark">
-                <q-item-side class="text-center">
-                  <q-item-tile color="grey-6">Logs</q-item-tile>
-                </q-item-side>
-                <q-item-main>
-                  <q-item-tile label class="ellipsis overflow-hidden" color="white">Ratio</q-item-tile>
-                  <q-item-tile sublabel>
-                    <q-slider
-                      v-model="ratio"
-                      color="grey-6"
-                      :min="0"
-                      :max="100"
-                      :step="25"
-                      label
-                      snap
-                    />
-                  </q-item-tile>
-                </q-item-main>
-                <q-item-side class="text-center" right>
-                  <q-item-tile color="grey-6">Messages</q-item-tile>
-                </q-item-side>
-              </q-item>
-            </q-popover>
-          </q-icon>
-        </div>
       </q-toolbar>
-      <logs
-        ref="logs"
-        :mode="mode"
-        :item="selectedItem"
-        :limit="limit"
-        :isEnabled="!!+size[0]"
-        originPattern="gw/channels/:id"
-        :config="config.logs"
-        v-if="+size[0]"
-        :style="{minHeight: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
-        @view-log-message="viewLogMessagesHandler"
-      />
       <messages
         ref="messages"
-        @view-data="viewDataHandler"
         :mode="mode"
         :activeId="active"
-        :isEnabled="!!+size[1]"
+        :isEnabled="true"
         :limit="limit"
         :config="config.messages"
-        v-if="+size[1]"
-        :style="{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
+        :style="{minHeight: `calc(50vh - ${isVisibleToolbar ? '50px' : '25px'})`, position: 'relative'}"
+        @view-data="(content) => { selectedMessages = content }"
       />
+      <div :style="{height: `calc(50vh - ${isVisibleToolbar ? '50px' : '25px'})`, position: 'relative', overflow: 'auto'}">
+        <hex-viewer
+          style="margin: 0 auto"
+          :hex="hex"
+        />
+      </div>
       <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="selectedItem.deleted">Nothing to show by channel &#171;{{selectedItem.name}}&#187; <div style="font-size: 0.9rem">or you haven`t access</div></div>
     </template>
   </q-page>
 </template>
 
 <script>
-import logs from '../../components/logs/Index.vue'
 import messages from '../../components/messages/channels/Index.vue'
+import HexViewer from '../../components/HexViewer'
 import { mapState, mapActions } from 'vuex'
 import VirtualList from 'vue-virtual-scroll-list'
 
 export default {
+  name: 'PageHexViewer',
   props: [
     'limit',
     'isLoading',
@@ -163,32 +122,42 @@ export default {
     return {
       mode: 1,
       active: null,
-      ratio: 50,
       isInit: false,
-      needShowGetDeletedAction: true
+      needShowGetDeletedAction: true,
+      selectedMessages: ''
     }
   },
   computed: {
     ...mapState({
       newMessagesCount (state) {
-        let messagesCount = this.config.messages && state[this.config.messages.vuexModuleName] ? state[this.config.messages.vuexModuleName].newMessagesCount : 0,
-          logsCount = this.config.logs && state[this.config.logs.vuexModuleName] ? state[this.config.logs.vuexModuleName].newMessagesCount : 0
-        return messagesCount + logsCount
+        return this.config.messages && state[this.config.messages.vuexModuleName] ? state[this.config.messages.vuexModuleName].newMessagesCount : 0
       },
       isEmptyMessages (state) {
-        let hasntMessages = this.config.messages && state[this.config.messages.vuexModuleName] && !state[this.config.messages.vuexModuleName].messages.length && this.ratio !== 100,
-          hasntLogs = this.config.logs && state[this.config.logs.vuexModuleName] && state[this.config.logs.vuexModuleName].messages && !state[this.config.logs.vuexModuleName].messages.length && this.ratio !== 0
-        return hasntMessages && hasntLogs
+        return this.config.messages && state[this.config.messages.vuexModuleName] && !state[this.config.messages.vuexModuleName].messages.length
       },
       tokenType (state) { return state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
-      protocols (state) { return state.protocols },
-      items (state) { return state.items }
+      PROXY_PROTOCOL_ID (state) {
+        let protocols = state.protocols
+        return Object.keys(protocols).reduce((proxyId, protocolId) => {
+          if (protocols[protocolId] === 'proxy') {
+            proxyId = parseInt(protocolId)
+          }
+          return proxyId
+        }, 0)
+      },
+      items (state) { return state.items.filter(item => this.PROXY_PROTOCOL_ID && item.protocol_id === this.PROXY_PROTOCOL_ID) }
     }),
-    size () {
-      return [this.ratio, 100 - this.ratio]
-    },
     selectedItem () {
       return this.items.filter(item => item.id === this.active)[0] || {}
+    },
+    hex () {
+      if (this.selectedMessages) {
+        return this.selectedMessages.reduce((hex, message) => {
+          hex += message['proxy.payload.hex'] || ''
+          return hex
+        }, '')
+      }
+      return false
     },
     modeModel: {
       get () {
@@ -204,26 +173,8 @@ export default {
   },
   methods: {
     ...mapActions(['getDeleted']),
-    viewDataHandler (content) {
-      this.$emit('view-data', content[content.length - 1])
-    },
-    viewLogMessagesHandler (content) {
-      this.$emit('view-log-message', content)
-    },
     unselect () {
       this.$refs.messages.unselect()
-    },
-    clearHandler () {
-      this.$q.dialog({
-        title: 'Confirm',
-        message: 'Do you really want to clear all data from the panes?',
-        ok: true,
-        cancel: true
-      }).then(() => {
-        this.$store.commit(`${this.config.messages.vuexModuleName}/clearMessages`)
-        this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`)
-      })
-        .catch(() => {})
     },
     async getDeletedHandler () {
       await this.getDeleted('channels')
@@ -231,7 +182,10 @@ export default {
     }
   },
   created () {
-    let activeFromLocaleStorage = this.$q.localStorage.get.item('channels')
+    let activeFromLocaleStorage = this.$q.localStorage.get.item('tools/hex')
+    // if (!this.$store.state.hexViewer) {
+    //   this.$store.registerModule('hexViewer', vuexModule)
+    // }
     this.$store.dispatch('getItems', 'channels')
       .then(() => {
         this.isInit = true
@@ -247,26 +201,14 @@ export default {
         // deleted item logic
         if (this.selectedItem.deleted) {
           this.mode = 0
-          this.ratio = 100
         }
       })
   },
-  destroyed () {
-    this.$store.dispatch('unsubscribeItems', 'channels')
+  async destroyed () {
+    await this.$store.dispatch('unsubscribeItems', 'channels')
     this.$store.commit('clearItems')
   },
   watch: {
-    ratio (val) {
-      this.$nextTick(() => {
-        if (+this.size[0] && this.active) {
-          this.$refs.logs.resetParams()
-          this.$emit('view-data-hide')
-        }
-        if (+this.size[1] && this.active) {
-          this.$refs.messages.resetParams()
-        }
-      })
-    },
     $route (route) {
       if (route.params && route.params.id) {
         if (this.items.filter(item => item.id === Number(route.params.id)).length) {
@@ -281,20 +223,17 @@ export default {
     active (val) {
       let currentItem = this.items.filter(item => item.id === val)[0] || {}
       if (val) {
-        this.$q.localStorage.set('channels', val)
-        this.$router.push(`/channels/${val}`)
+        this.$q.localStorage.set('tools/hex', val)
+        this.$router.push(`/tools/hex/${val}`)
       } else {
-        this.$router.push('/channels')
+        this.$router.push('/tools/hex')
       }
       if (currentItem.deleted) {
-        this.ratio = 100
         this.mode = 0
-      } else {
-        this.ratio = currentItem.deleted ? 100 : 50
       }
     }
   },
-  components: { logs, messages, VirtualList }
+  components: { messages, VirtualList, HexViewer }
 }
 </script>
 <style>

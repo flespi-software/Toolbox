@@ -73,6 +73,7 @@ module.exports = function (ctx) {
         'QItemMain',
         'QItemSide',
         'QItemTile',
+        'QItemSeparator',
         'QInput',
         'QProgress',
         'QWindowResizeObservable',

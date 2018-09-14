@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.33] - 2018-09-14
+[update] packages
+[feature] hex viewer for proxy channels
 ### [0.9.32] - 2018-09-07
 [update] packages
 [fix] rebased to multiselect
