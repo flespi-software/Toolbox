@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "fonts/KFOkCnqEu92Fr1MmgVxIIzQ.e9dbbe8.woff"
   },
   {
-    "revision": "fe2d9c646e51df5848b63f4ce9544d6f",
+    "revision": "5100e75ff5ce1c714775152d977450c6",
     "url": "index.html"
   },
   {
@@ -20,12 +20,12 @@ self.__precacheManifest = [
     "url": "statics/icons/icon-384x384.png"
   },
   {
-    "revision": "5371f9c855727ed63d9e",
-    "url": "js/2.5371f9c.js"
+    "revision": "3984257ed606968403eb",
+    "url": "js/2.3984257.js"
   },
   {
-    "revision": "838698af837cf35dfead7869b02ce5b8",
-    "url": "statics/icons/ms-icon-144x144.png"
+    "revision": "14d6cca701394318ed367e336cf50847",
+    "url": "statics/icons/icon-192x192.png"
   },
   {
     "revision": "c119b1bc1f15157f813b",
@@ -36,40 +36,40 @@ self.__precacheManifest = [
     "url": "js/4.93d6614.js"
   },
   {
-    "revision": "f1a3251aa28336cc032e0ba4c149e59e",
-    "url": "statics/icons/icon-96x96.png"
+    "revision": "525061fbc60090f9b92f626b25a2a976",
+    "url": "statics/toolbox50.png"
   },
   {
     "revision": "8ec6af43ba2d5a86f54e",
     "url": "js/5.8ec6af4.js"
   },
   {
-    "revision": "14d6cca701394318ed367e336cf50847",
-    "url": "statics/icons/icon-192x192.png"
+    "revision": "a9de7e81de000ac57c2855c29a98e796",
+    "url": "statics/police.png"
   },
   {
     "revision": "54f72cedbd6654354f67",
     "url": "js/6.54f72ce.js"
   },
   {
-    "revision": "525061fbc60090f9b92f626b25a2a976",
-    "url": "statics/toolbox50.png"
+    "revision": "cf46c82e435aa040daecaf16508027a3",
+    "url": "statics/toolbox_mobile.png"
   },
   {
     "revision": "9d802dde566a5f8b61be",
     "url": "js/7.9d802dd.js"
   },
   {
-    "revision": "cf46c82e435aa040daecaf16508027a3",
-    "url": "statics/toolbox_mobile.png"
+    "revision": "838698af837cf35dfead7869b02ce5b8",
+    "url": "statics/icons/ms-icon-144x144.png"
   },
   {
     "revision": "8015466a79bd2c0570e5",
     "url": "js/8.8015466.js"
   },
   {
-    "revision": "a9de7e81de000ac57c2855c29a98e796",
-    "url": "statics/police.png"
+    "revision": "f1a3251aa28336cc032e0ba4c149e59e",
+    "url": "statics/icons/icon-96x96.png"
   },
   {
     "revision": "42bfe6a0014233605048",
@@ -100,36 +100,36 @@ self.__precacheManifest = [
     "url": "js/12.ea51827.js"
   },
   {
-    "revision": "d5da697eec032a743f6a94d6ef4470be",
-    "url": "statics/icons/apple-icon-152x152.png"
+    "revision": "c3d58f5c2a54890cd4e03371aaaf1e11",
+    "url": "statics/icons/favicon-32x32.png"
   },
   {
     "revision": "6f90cd7c1a407e2317de",
     "url": "js/13.6f90cd7.js"
   },
   {
-    "revision": "82f983ec2277961e9878f2bf014b13fc",
-    "url": "statics/flespi_logo_black.svg"
+    "revision": "fa908e7babb7cad954beac016f56d11e",
+    "url": "statics/icons/favicon-16x16.png"
   },
   {
     "revision": "0cd623025b2e75d1548f",
     "url": "js/14.0cd6230.js"
   },
   {
-    "revision": "c3d58f5c2a54890cd4e03371aaaf1e11",
-    "url": "statics/icons/favicon-32x32.png"
+    "revision": "d5da697eec032a743f6a94d6ef4470be",
+    "url": "statics/icons/apple-icon-152x152.png"
   },
   {
-    "revision": "9065f349cfc56c776fc9",
-    "url": "js/app.a2fe417.js"
+    "revision": "7c426ec122c6104c5b94",
+    "url": "js/app.ff29a46.js"
   },
   {
-    "revision": "d298901b0b871c6c4821",
-    "url": "js/vendor.d298901.js"
+    "revision": "c94e5a83825cb7c3313c",
+    "url": "js/vendor.c94e5a8.js"
   },
   {
-    "revision": "fa908e7babb7cad954beac016f56d11e",
-    "url": "statics/icons/favicon-16x16.png"
+    "revision": "82f983ec2277961e9878f2bf014b13fc",
+    "url": "statics/flespi_logo_black.svg"
   },
   {
     "revision": "1da4d62342ca95dcdb743a987cfa677a",
@@ -240,7 +240,7 @@ self.__precacheManifest = [
     "url": "css/13.09e32b3b.css"
   },
   {
-    "revision": "9065f349cfc56c776fc9",
+    "revision": "7c426ec122c6104c5b94",
     "url": "css/app.fec77861.css"
   },
   {
@@ -256,7 +256,7 @@ self.__precacheManifest = [
     "url": "css/8.9f3f5041.css"
   },
   {
-    "revision": "5371f9c855727ed63d9e",
+    "revision": "3984257ed606968403eb",
     "url": "css/2.5041dbc3.css"
   },
   {
