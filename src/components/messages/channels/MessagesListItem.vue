@@ -115,7 +115,7 @@ export default {
           if (propName.indexOf('proxy.event') !== -1) {
             value = value === 0 ? 'data received' : value === 1 ? 'connected' : 'disconnect'
           }
-          if (propName.indexOf('proxy.peer') !== -1) {
+          if (propName.indexOf('proxy.source') !== -1) {
             value = value === 0 ? 'channel incoming connection' : `target ${value}`
           }
           if (typeof value === 'string') {

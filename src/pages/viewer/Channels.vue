@@ -85,6 +85,9 @@
           <q-tooltip>Mode (Real-time/History)</q-tooltip>
         </q-btn>
         <div>
+          <q-icon size="1.5rem" class="on-left cursor-pointer pull-right" v-if="!isEmptyMessages && selectedItem.protocol_id === proxyProtocolId" color="white" name="mdi-matrix" @click.native="hexViewHandler">
+            <q-tooltip>View hex payload</q-tooltip>
+          </q-icon>
           <q-icon size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler">
             <q-tooltip>Clear all panes</q-tooltip>
           </q-icon>
@@ -182,7 +185,16 @@ export default {
       },
       tokenType (state) { return state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
       protocols (state) { return state.protocols },
-      items (state) { return state.items }
+      items (state) { return state.items },
+      proxyProtocolId (state) {
+        let protocols = state.protocols
+        return Object.keys(protocols).reduce((res, id) => {
+          if (protocols[id] === 'proxy') {
+            res = parseInt(id)
+          }
+          return res
+        }, 0)
+      }
     }),
     size () {
       return [this.ratio, 100 - this.ratio]
@@ -209,6 +221,9 @@ export default {
     },
     viewLogMessagesHandler (content) {
       this.$emit('view-log-message', content)
+    },
+    hexViewHandler () {
+      this.$router.push(`/tools/hex/${this.active}`)
     },
     unselect () {
       this.$refs.messages.unselect()

@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.36] - 2018-09-17
+[feature] cross-buttons logs and hex viewer
 ### [0.9.35] - 2018-09-14
 [fix] styles
 [fix] event in ff

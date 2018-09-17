@@ -81,6 +81,11 @@
           <q-chip small square color="red" v-if="newMessagesCount" class="cursor-pointer q-ml-sm">{{newMessagesCount}}</q-chip>
           <q-tooltip>Mode (Real-time/History)</q-tooltip>
         </q-btn>
+        <div>
+          <q-icon size="1.5rem" class="on-left cursor-pointer pull-right" vif="active" color="white" name="merge_type" @click.native="viewLogsHandler">
+            <q-tooltip>View logs</q-tooltip>
+          </q-icon>
+        </div>
       </q-toolbar>
       <messages
         ref="messages"
@@ -179,6 +184,9 @@ export default {
     async getDeletedHandler () {
       await this.getDeleted('channels')
       this.needShowGetDeletedAction = false
+    },
+    viewLogsHandler () {
+      this.$router.push(`/channels/${this.active}`)
     }
   },
   created () {
