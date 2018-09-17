@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "fonts/KFOkCnqEu92Fr1MmgVxIIzQ.e9dbbe8.woff"
   },
   {
-    "revision": "b817a771b0537ea322c3c993685babf9",
+    "revision": "fc2350e937af9bb441ce86e1136ca090",
     "url": "index.html"
   },
   {
@@ -40,8 +40,8 @@ self.__precacheManifest = [
     "url": "statics/toolbox50.png"
   },
   {
-    "revision": "95916927fb02cb4ab751",
-    "url": "js/5.9591692.js"
+    "revision": "1ca5aad578228518b5c5",
+    "url": "js/5.1ca5aad.js"
   },
   {
     "revision": "cf46c82e435aa040daecaf16508027a3",
@@ -64,8 +64,8 @@ self.__precacheManifest = [
     "url": "statics/icons/ms-icon-144x144.png"
   },
   {
-    "revision": "451d4336d860a9196020",
-    "url": "js/8.451d433.js"
+    "revision": "b0c3374ed649f29b41f9",
+    "url": "js/8.b0c3374.js"
   },
   {
     "revision": "f1a3251aa28336cc032e0ba4c149e59e",
@@ -108,28 +108,28 @@ self.__precacheManifest = [
     "url": "js/13.6f90cd7.js"
   },
   {
-    "revision": "82f983ec2277961e9878f2bf014b13fc",
-    "url": "statics/flespi_logo_black.svg"
+    "revision": "fa908e7babb7cad954beac016f56d11e",
+    "url": "statics/icons/favicon-16x16.png"
   },
   {
     "revision": "0cd623025b2e75d1548f",
     "url": "js/14.0cd6230.js"
   },
   {
-    "revision": "fa908e7babb7cad954beac016f56d11e",
-    "url": "statics/icons/favicon-16x16.png"
+    "revision": "d5da697eec032a743f6a94d6ef4470be",
+    "url": "statics/icons/apple-icon-152x152.png"
   },
   {
-    "revision": "f3ddebd7e1aa773c5718",
-    "url": "js/app.9cc36b7.js"
+    "revision": "2ec278d031efe7076466",
+    "url": "js/app.bd02ef9.js"
   },
   {
     "revision": "c94e5a83825cb7c3313c",
     "url": "js/vendor.c94e5a8.js"
   },
   {
-    "revision": "d5da697eec032a743f6a94d6ef4470be",
-    "url": "statics/icons/apple-icon-152x152.png"
+    "revision": "82f983ec2277961e9878f2bf014b13fc",
+    "url": "statics/flespi_logo_black.svg"
   },
   {
     "revision": "1da4d62342ca95dcdb743a987cfa677a",
@@ -240,7 +240,7 @@ self.__precacheManifest = [
     "url": "css/13.09e32b3b.css"
   },
   {
-    "revision": "f3ddebd7e1aa773c5718",
+    "revision": "2ec278d031efe7076466",
     "url": "css/app.fec77861.css"
   },
   {
@@ -252,7 +252,7 @@ self.__precacheManifest = [
     "url": "css/9.4d9e337f.css"
   },
   {
-    "revision": "451d4336d860a9196020",
+    "revision": "b0c3374ed649f29b41f9",
     "url": "css/8.9f3f5041.css"
   },
   {
@@ -264,7 +264,7 @@ self.__precacheManifest = [
     "url": "css/6.ce59fb4a.css"
   },
   {
-    "revision": "95916927fb02cb4ab751",
+    "revision": "1ca5aad578228518b5c5",
     "url": "css/5.70a7dcee.css"
   },
   {
