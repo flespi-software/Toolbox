@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.9.38] - 2018-09-17
+[fix] styles
 ### [0.9.37] - 2018-09-17
 [fix] replace buttons logs
 ### [0.9.36] - 2018-09-17

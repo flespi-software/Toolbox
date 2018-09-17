@@ -80,7 +80,7 @@
               <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
             </q-popover>
           </q-item>
-          <q-icon style="margin-top: 12px" size="1.5rem" class="on-right cursor-pointer pull-right" v-if="!isEmptyMessages && selectedItem.protocol_id === proxyProtocolId" color="white" name="mdi-matrix" @click.native="hexViewHandler">
+          <q-icon style="position: relative; top: 10px;" size="1.5rem" class="on-right cursor-pointer pull-right" v-if="!isEmptyMessages && selectedItem.protocol_id === proxyProtocolId" color="white" name="mdi-matrix" @click.native="hexViewHandler">
             <q-tooltip>View hex payload</q-tooltip>
           </q-icon>
         </div>

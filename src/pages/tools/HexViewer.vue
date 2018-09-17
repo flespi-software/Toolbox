@@ -77,7 +77,7 @@
               <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
             </q-popover>
           </q-item>
-          <q-icon style="margin-top: 12px" size="1.5rem" class="on-right cursor-pointer pull-right" vif="active" color="white" name="merge_type" @click.native="viewLogsHandler">
+          <q-icon style="position: relative; top: 10px;" size="1.5rem" class="on-right cursor-pointer pull-right" vif="active" color="white" name="merge_type" @click.native="viewLogsHandler">
             <q-tooltip>View logs</q-tooltip>
           </q-icon>
         </div>
