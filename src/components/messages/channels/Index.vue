@@ -17,6 +17,7 @@
       @change:pagination-next="paginationNextChangeHandler"
       @change:mode="modeChange"
       @update:cols="updateColsHandler"
+      @change:date="dateChangeHandler"
     >
       <messages-list-item slot="items" slot-scope="{item, index, actions, cols, etcVisible, actionsVisible, itemHeight, rowWidth}"
         :item="item"
@@ -104,18 +105,13 @@ export default {
     },
     from: {
       get () {
-        return this.$store.state[this.moduleName].from
+        let module = this.$store.state[this.moduleName]
+        return module.messages[0] && module.messages[0].timestamp ? Math.ceil(module.messages[0].timestamp * 1000) : Date.now()
       },
       set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setFrom`, val) : this.$store.commit(`${this.moduleName}/setFrom`, 0)
-      }
-    },
-    to: {
-      get () {
-        return this.$store.state[this.moduleName].to
-      },
-      set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setTo`, val) : this.$store.commit(`${this.moduleName}/setTo`, 0)
+        val ? this.$store.commit(`${this.moduleName}/setFrom`, Math.ceil(val / 1000)) : this.$store.commit(`${this.moduleName}/setFrom`, 0)
+        this.$store.commit(`${this.moduleName}/clearMessages`)
+        this.$store.dispatch(`${this.moduleName}/get`)
       }
     },
     currentLimit: {
@@ -146,6 +142,9 @@ export default {
     },
     setTranslation (messages) {
       this.i18n.to = messages.length ? `Next batch from ${date.formatDate(this.from * 1000, 'HH:mm:ss')}` : 'Next'
+    },
+    dateChangeHandler (date) {
+      this.from = date
     },
     modeChange (val) {
       val = +val

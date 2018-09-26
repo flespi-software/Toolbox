@@ -96,10 +96,11 @@ module.exports = function (ctx) {
         'QSearch',
         'QField',
         'QCheckbox',
-        'QCollapsible'
+        'QCollapsible',
+        'QContextMenu'
       ],
       directives: [
-
+        'CloseOverlay'
       ],
       // Quasar plugins
       plugins: [

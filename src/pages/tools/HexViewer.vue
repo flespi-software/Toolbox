@@ -81,28 +81,45 @@
             <q-tooltip>View logs</q-tooltip>
           </q-icon>
         </div>
-        <q-btn v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'" :rounded="$q.platform.is.mobile">
+        <q-btn v-if="!selectedItem.deleted" flat :class="{'on-left': $q.platform.is.desktop}" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'" :rounded="$q.platform.is.mobile">
           {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
-          <q-chip small square color="red" v-if="newMessagesCount" class="cursor-pointer q-ml-sm">{{newMessagesCount}}</q-chip>
+          <q-chip small square color="red" v-if="newMessagesCount && $q.platform.is.desktop" class="cursor-pointer q-ml-sm">{{newMessagesCount}}</q-chip>
+          <span v-if="newMessagesCount && $q.platform.is.mobile" style="position: absolute; top: 2px; right: 2px; width: 7px; height: 7px; background-color: red; border-radius: 50%"></span>
           <q-tooltip>Mode (Real-time/History)</q-tooltip>
         </q-btn>
         <div></div>
       </q-toolbar>
-      <messages
-        ref="messages"
-        :mode="mode"
-        :activeId="active"
-        :isEnabled="true"
-        :limit="limit"
-        :config="config.messages"
-        :style="{minHeight: `calc(50vh - ${isVisibleToolbar ? '50px' : '25px'})`, position: 'relative'}"
-        @view-data="(content) => { selectedMessages = content }"
-      />
-      <div :style="{height: `calc(50vh - ${isVisibleToolbar ? '50px' : '25px'})`, position: 'relative', overflow: 'auto'}">
-        <hex-viewer
-          style="margin: 0 auto"
-          :hex="hex"
+      <div style="display: flex;">
+        <messages
+          v-show="$q.platform.is.desktop || ($q.platform.is.mobile && !selectedMessages)"
+          ref="messages"
+          :mode="mode"
+          :activeId="active"
+          :limit="limit"
+          :config="config.messages"
+          :connection="activeConnection"
+          :type="activeConnection ? 'messages' : 'connections'"
+          :style="{minHeight: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', width: $q.platform.is.desktop ? '25%' : '100%'}"
+          @view-data="(content) => { selectedMessages = content }"
+          @change:connection="content => { activeConnection = content }"
+          @close="() => { activeConnection = null, selectedMessages = '' }"
         />
+        <div v-show="$q.platform.is.desktop || ($q.platform.is.mobile && selectedMessages)" :style="{width: $q.platform.is.desktop ? '75%' : '100%'}">
+          <q-toolbar color="dark" v-if="activeConnection">
+            <q-icon size="1.5rem" class="cursor-pointer" name="mdi-close" v-if="$q.platform.is.mobile" @click.native="() => { selectedMessages = '' }"/>
+            <q-toolbar-title>{{activeConnection.peer}}</q-toolbar-title>
+            <q-checkbox dark color="white" style="margin-right: 10px" checked-icon="mdi-matrix" unchecked-icon="mdi-format-text" true-value="hex" false-value="text" v-model="typeOfHexView">
+              <q-tooltip>Change view mode (hex/text)</q-tooltip>
+            </q-checkbox>
+          </q-toolbar>
+          <hex-viewer
+              v-if="activeConnection"
+              :style="{height: `calc(100vh - ${isVisibleToolbar ? activeConnection ? '150px' : '100px' : '50px'})`, position: 'relative', overflow: 'auto'}"
+              :hex="hex"
+              :view="typeOfHexView"
+            />
+            <div style="text-align: center; color: #9e9e9e; font-size: 3rem; padding-top: 40px;" v-else>Select connection</div>
+        </div>
       </div>
       <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="selectedItem.deleted">Nothing to show by channel &#171;{{selectedItem.name}}&#187; <div style="font-size: 0.9rem">or you haven`t access</div></div>
     </template>
@@ -110,8 +127,8 @@
 </template>
 
 <script>
-import messages from '../../components/messages/channels/Index.vue'
-import HexViewer from '../../components/HexViewer'
+import messages from '../../components/hexViewer/Messages'
+import HexViewer from '../../components/hexViewer/HexViewer'
 import { mapState, mapActions } from 'vuex'
 import VirtualList from 'vue-virtual-scroll-list'
 
@@ -128,9 +145,12 @@ export default {
     return {
       mode: 1,
       active: null,
+      activeConnection: null,
       isInit: false,
       needShowGetDeletedAction: true,
-      selectedMessages: ''
+      selectedMessages: '',
+      typeOfHexView: 'hex',
+      left: true
     }
   },
   computed: {
@@ -157,7 +177,7 @@ export default {
       return this.items.filter(item => item.id === this.active)[0] || {}
     },
     hex () {
-      if (this.selectedMessages) {
+      if (this.selectedMessages && this.activeConnection) {
         return this.selectedMessages.reduce((hex, message) => {
           hex += message['proxy.payload.hex'] || ''
           return hex
@@ -173,6 +193,8 @@ export default {
         let now = Date.now()
         this.date = val ? 0 : now - (now % 86400000)
         this.mode = Number(val)
+        this.activeConnection = null
+        this.selectedMessages = ''
         this.$emit('view-data-hide')
       }
     }
@@ -192,9 +214,6 @@ export default {
   },
   created () {
     let activeFromLocaleStorage = this.$q.localStorage.get.item('tools/hex')
-    // if (!this.$store.state.hexViewer) {
-    //   this.$store.registerModule('hexViewer', vuexModule)
-    // }
     this.$store.dispatch('getItems', 'channels')
       .then(() => {
         this.isInit = true
@@ -230,6 +249,8 @@ export default {
       }
     },
     active (val) {
+      this.activeConnection = null
+      this.selectedMessages = ''
       let currentItem = this.items.filter(item => item.id === val)[0] || {}
       if (val) {
         this.$q.localStorage.set('tools/hex', val)

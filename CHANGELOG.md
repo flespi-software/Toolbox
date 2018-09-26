@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.10.0] - 2018-09-26
+[feature] rebased hex viewer
+[feature] time selector added to channels messages
 ### [0.9.38] - 2018-09-17
 [fix] styles
 ### [0.9.37] - 2018-09-17
