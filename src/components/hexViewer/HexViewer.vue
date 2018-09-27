@@ -55,7 +55,7 @@
               :class="{ 'selected': (selected.includes((row * 16) + index)), 'active': (active === (row * 16) + index) || (start === end === ((row * 16) + index))}"
               v-for="(byte, index) in byte16"
               :key="`${row}${index}${byte}`"
-            >{{String.fromCharCode(parseInt(byte, 16)).replace(/\s/g, '.')}}</span>
+            >{{replaceByteWithDot(byte)}}</span>
           </div>
         </div>
       </template>
@@ -66,9 +66,9 @@
         @mousedown="event => startSelectionHandler(event, null, index)"
         @mouseup="event => endSelectionHandler(event, null, index)"
         class="q-mt-sm q-mb-sm"
-        :class="{ 'selected': (selected.includes(index)), 'active': (active === index) || (start === end === index), 'raw-hex-data': String.fromCharCode(parseInt(byte, 16)).match(/\s/)}"
+        :class="{ 'selected': (selected.includes(index)), 'active': (active === index) || (start === end === index), 'raw-hex-data': replaceByteWithDot(byte) === '.'}"
         :key="`${index}${byte}`"
-      >{{String.fromCharCode(parseInt(byte, 16)).replace(/\s/g, `\\x${byte}`)}}</span>
+      >{{replaceByteWithMnemo(byte)}}</span>
       </template>
     </div>
     <div v-else style="text-align: center; color: #9e9e9e; font-size: 3rem; padding-top: 40px;" >No HEX data</div>
@@ -154,6 +154,24 @@ export default {
     }
   },
   methods: {
+    replaceByteWithDot (byte) {
+      let number = parseInt(byte, 16),
+        string = String.fromCharCode(number)
+      if (number < 0x20 || number >= 0x7f || string.match(/\s/g)) {
+        return '.'
+      } else {
+        return string
+      }
+    },
+    replaceByteWithMnemo (byte) {
+      let number = parseInt(byte, 16),
+        string = String.fromCharCode(number)
+      if (number < 0x20 || number >= 0x7f || string.match(/\s/g)) {
+        return `\\x${byte}`
+      } else {
+        return string
+      }
+    },
     clearSelectedHandler (e) {
       if (e.target.isEqualNode(this.$refs.wrapper) && !this.selectionMode) {
         this.start = -1
@@ -221,7 +239,7 @@ export default {
         case 'view': {
           if (this.view === 'text') {
             let byteArray = onlyBySelection && this.selected.length ? this.selected.map(index => this.bytesArray[index]) : this.bytesArray
-            content = byteArray.map((byte) => String.fromCharCode(parseInt(byte, 16)).replace(/\s/g, `\\x${byte}`)).join('')
+            content = byteArray.map((byte) => this.replaceByteWithMnemo(byte)).join('')
           } else {
             let indexes = onlyBySelection && this.selected.length ? chunk(this.selected, 16) : chunk(Object.keys(this.hex.match(/.{1,2}/g)), 16)
             indexes.forEach((row, index) => {
@@ -229,7 +247,8 @@ export default {
               content += ''.padEnd(32 - row.length * 2, ' ')
               content += ''.padEnd(16 - row.length, ' ')
               row.forEach((_, byteIndex) => {
-                content += `${String.fromCharCode(parseInt(this.bytesArray[index][byteIndex], 16)).replace(/\s/g, '.')}`
+                let byte = this.bytesArray[index][byteIndex]
+                content += this.replaceByteWithMnemo(byte)
               })
               content += `\n`
             })

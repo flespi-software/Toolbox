@@ -2,7 +2,7 @@
   <div ref="wrapper">
     <q-resize-observable @resize="wrapperResizeHandler"/>
     <div>
-      <q-toolbar color="dark" v-if="Object.keys(connections).length || type === 'messages'">
+      <q-toolbar color="dark" v-if="(Object.keys(connections).length && mode) || !mode || type === 'messages'">
         <q-search
           :class="{collapsed: !mode && !showSearch}"
           @focus="showSearch = true"
@@ -39,11 +39,11 @@
           <q-tooltip>Close current connection</q-tooltip>
         </q-btn>
       </q-toolbar>
+      <template v-if="messages.length && Object.keys(renderEntities).length">
       <VirtualList
-        v-if="messages.length && Object.keys(renderEntities).length"
         :onscroll="listScroll"
         ref="scroller"
-        :style="{position: 'absolute', top: '50px', bottom: 0, right: 0, left: 0, height: 'auto'}"
+          :style="{position: 'absolute', top: '50px', bottom: mode ? 0 : '36px', right: 0, left: 0, height: 'auto'}"
         :class="{'bg-dark': true, 'text-white': true, 'cursor-pointer': true}"
         :size="itemHeight"
         :remain="itemsCount"
@@ -62,6 +62,8 @@
           @item-click="itemClickHandler"
         />
       </VirtualList>
+        <q-btn v-if="!mode" color="dark" style="position: absolute; bottom: 0; width: 100%;" class="text-white" icon="mdi-download" @click="paginationNextChangeHandler">Get more</q-btn>
+      </template>
       <div v-else class="no-messages text-center" :class="{'text-grey-6': true}"
             style="font-size: 3rem; padding-top: 40px; ">{{`${type === 'connections' ? 'No connections' : 'No events'}`}}
       </div>
