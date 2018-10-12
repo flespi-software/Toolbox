@@ -77,11 +77,12 @@
 
 <style lang="stylus">
   .raw-hex-data
-    font-size: 0.8rem;
-    font-family: initial;
-    border-radius: 2px;
-    background-color: #555;
-    color: #ccc;
+    font-size 0.8rem
+    font-family initial
+    border-radius 2px
+    background-color #555
+    color #ccc
+    padding 0 2px
   .selected
     color rgb(51, 51, 51)
     background-color rgba(255, 255, 255, 0.7)
@@ -166,7 +167,7 @@ export default {
     replaceByteWithMnemo (byte) {
       let number = parseInt(byte, 16),
         string = String.fromCharCode(number)
-      if (number < 0x20 || number >= 0x7f || string.match(/\s/g)) {
+      if (number < 0x20 || number >= 0x7f || (string.match(/\s/g) && string !== ' ')) {
         return `\\x${byte}`
       } else {
         return string
@@ -242,13 +243,14 @@ export default {
             content = byteArray.map((byte) => this.replaceByteWithMnemo(byte)).join('')
           } else {
             let indexes = onlyBySelection && this.selected.length ? chunk(this.selected, 16) : chunk(Object.keys(this.hex.match(/.{1,2}/g)), 16)
+            console.log(indexes)
             indexes.forEach((row, index) => {
-              content += `${this.addresses[index].toString(16).padStart(7, 0).toUpperCase()}   ${this.bytesArray[index].slice(0, row.length).join(' ')}   `
+              content += `${this.addresses[index].toString(16).padStart(7, 0).toUpperCase()}   ${this.bytesArray[index].slice(row[0], row.length + 1).join(' ')}   `
               content += ''.padEnd(32 - row.length * 2, ' ')
               content += ''.padEnd(16 - row.length, ' ')
               row.forEach((_, byteIndex) => {
                 let byte = this.bytesArray[index][byteIndex]
-                content += this.replaceByteWithMnemo(byte)
+                content += this.replaceByteWithDot(byte)
               })
               content += `\n`
             })

@@ -59,7 +59,8 @@
     "8": "channel protocol was modified on the server",
     "9": "channel's parameters changed",
     "10": "connection closed upon user's request",
-    "11": "outgoing connection failed"
+    "11": "outgoing connection failed",
+    "12": "connection closed due to ident duplicate"
   },
   "errorCodes": {
     "204": {

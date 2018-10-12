@@ -35,7 +35,7 @@
           style="margin-right: 5px"
         />
         <q-btn v-if="!mode && !showSearch" class="text-white q-mr-sm" icon="arrow_forward" @click="paginationNextChangeHandler"/>
-        <q-btn v-if="type === 'messages' && !showSearch" style="position: absolute; right: 5px;" class="text-white" icon="mdi-close" @click="() => { $emit('close') }">
+        <q-btn v-if="type === 'messages' && (!showSearch || mode)" style="position: absolute; right: 5px;" class="text-white" icon="mdi-close" @click="() => { $emit('close') }">
           <q-tooltip>Close current connection</q-tooltip>
         </q-btn>
       </q-toolbar>

@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.10.2] - 2018-10-12
+[feature] ident to card of connection in hexViewer added
+[fix] copy content in hexViewer in raw mode
 ### [0.10.1] - 2018-09-27
 [fix] get more messages button duplicated
 [fix] hexViewer symbols <0x20 and >0x7f

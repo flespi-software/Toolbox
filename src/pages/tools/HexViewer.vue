@@ -107,7 +107,12 @@
         <div v-show="$q.platform.is.desktop || ($q.platform.is.mobile && selectedMessages)" :style="{width: $q.platform.is.desktop ? '75%' : '100%'}">
           <q-toolbar color="dark" v-if="activeConnection">
             <q-icon size="1.5rem" class="cursor-pointer" name="mdi-close" v-if="$q.platform.is.mobile" @click.native="() => { selectedMessages = '' }"/>
-            <q-toolbar-title>{{activeConnection.peer}}</q-toolbar-title>
+            <q-toolbar-title>
+              {{activeConnection.peer}}
+              <span slot="subtitle">
+                {{activeConnection.ident}}
+              </span>
+            </q-toolbar-title>
             <q-checkbox dark color="white" style="margin-right: 10px" checked-icon="mdi-matrix" unchecked-icon="mdi-format-text" true-value="hex" false-value="text" v-model="typeOfHexView">
               <q-tooltip>Change view mode (hex/text)</q-tooltip>
             </q-checkbox>
