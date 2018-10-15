@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.10.3] - 2018-10-15
+[fix] mode change logic in logs and devices messages
+[fix] filter null values
 ### [0.10.2] - 2018-10-12
 [feature] ident to card of connection in hexViewer added
 [fix] copy content in hexViewer in raw mode

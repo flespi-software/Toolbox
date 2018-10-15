@@ -168,19 +168,17 @@ export default {
       this.i18n.from = messages.length ? `Previous batch until ${date.formatDate(messages[0].timestamp * 1000, 'HH:mm:ss')}` : 'Prev'
       this.i18n.to = messages.length ? `Next batch from ${date.formatDate(messages[messages.length - 1].timestamp * 1000, 'HH:mm:ss')}` : 'Next'
     },
-    modeChange (val) {
+    async modeChange (val) {
       let modeInitValueIsNull = this.$store.state[this.moduleName].mode === null
       val = +val
       this.$store.commit(`${this.moduleName}/clearMessages`)
-      if (val === 1 && this.active && this.$store.state[this.moduleName].mode !== null) {
-        this.$store.dispatch(`${this.moduleName}/getHistory`, 200)
-      }
       this.$store.commit(`${this.moduleName}/setMode`, val)
+      if (val === 1 && this.active && this.$store.state[this.moduleName].mode !== null) {
+        await this.$store.dispatch(`${this.moduleName}/getHistory`, 200)
+      }
       if (val === 0 && this.active && (!this.item.deleted || modeInitValueIsNull)) {
-        this.$store.dispatch(`${this.moduleName}/initTime`) // if need init time by last messages
-          .then(() => {
-            this.$store.dispatch(`${this.moduleName}/get`)
-          })
+        await this.$store.dispatch(`${this.moduleName}/initTime`) // if need init time by last messages
+        await this.$store.dispatch(`${this.moduleName}/get`)
       }
     },
     updateColsHandler (cols) {
@@ -269,9 +267,6 @@ export default {
     if (this.$store.state[this.moduleName].mode === null) {
       this.modeChange(this.mode)
       this.$store.dispatch(`${this.moduleName}/pollingGet`)
-      if (this.mode === 1) {
-        await this.$store.dispatch(`${this.moduleName}/getHistory`, 200)
-      }
     }
     Vue.connector.socket.on('offline', () => {
       this.$store.commit(`${this.moduleName}/setOffline`, this.mode === 1)

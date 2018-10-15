@@ -19,7 +19,7 @@ async function getItems ({ state, commit }, entity) {
     if (state.token) {
       try {
         if (typeof state.isLoading !== 'undefined') {
-          state.isLoading = true
+          Vue.set(state, 'isLoading', true)
         }
         // init getting protocols name
         if (entity === 'channels' && !state.protocols) {
@@ -45,13 +45,13 @@ async function getItems ({ state, commit }, entity) {
           }}
         )
         if (typeof state.isLoading !== 'undefined') {
-          state.isLoading = false
+          Vue.set(state, 'isLoading', false)
         }
       } catch (e) {
         commit('reqFailed', e)
         commit('setItems', [])
         if (typeof state.isLoading !== 'undefined') {
-          state.isLoading = false
+          Vue.set(state, 'isLoading', false)
         }
       }
     }
@@ -105,7 +105,7 @@ async function getDeleted ({state, commit}, entity) {
     if (state.token) {
       try {
         if (typeof state.isLoading !== 'undefined') {
-          state.isLoading = true
+          Vue.set(state, 'isLoading', true)
         }
         let deleted = []
         if (state.tokenInfo.access.type === 1) {
@@ -134,13 +134,13 @@ async function getDeleted ({state, commit}, entity) {
         ]
         commit('setItems', result)
         if (typeof state.isLoading !== 'undefined') {
-          state.isLoading = false
+          Vue.set(state, 'isLoading', false)
         }
       } catch (e) {
         commit('reqFailed', e)
         commit('setItems', [])
         if (typeof state.isLoading !== 'undefined') {
-          state.isLoading = false
+          Vue.set(state, 'isLoading', false)
         }
       }
     }

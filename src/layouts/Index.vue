@@ -201,7 +201,11 @@ export default {
   computed: {
     ...mapState({
       token: (state) => state.token,
-      isLoading: (state) => state.isLoading,
+      isLoading (state) {
+        return state.isLoading ||
+          (this.configByEntity && this.configByEntity.messages && state[this.configByEntity.messages.vuexModuleName] && state[this.configByEntity.messages.vuexModuleName].isLoading) ||
+          (this.configByEntity && this.configByEntity.logs && state[this.configByEntity.logs.vuexModuleName] && state[this.configByEntity.logs.vuexModuleName].isLoading)
+      },
       config: state => state.config,
       errors: state => state.errors,
       newNotificationCounter: state => state.newNotificationCounter
