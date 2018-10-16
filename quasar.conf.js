@@ -97,10 +97,17 @@ module.exports = function (ctx) {
         'QField',
         'QCheckbox',
         'QCollapsible',
-        'QContextMenu'
+        'QContextMenu',
+        'QBtnToggle',
+        'QCard',
+        'QCardTitle',
+        'QCardMain',
+        'QCardSeparator',
+        'QCardActions'
       ],
       directives: [
-        'CloseOverlay'
+        'CloseOverlay',
+        'TouchSwipe'
       ],
       // Quasar plugins
       plugins: [

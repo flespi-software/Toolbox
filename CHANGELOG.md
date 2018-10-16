@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.11.0] - 2018-10-16
+[feature] mqtt board added
 ### [0.10.3] - 2018-10-15
 [fix] mode change logic in logs and devices messages
 [fix] filter null values

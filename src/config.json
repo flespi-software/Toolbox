@@ -625,5 +625,12 @@
         "controlsInverted": true
       }
     }
+  },
+  "mqttClient": {
+    "label": "Mqtt Board",
+    "path": "tools/mqtt",
+    "type": "tools",
+    "icon": "mdi-view-dashboard-variant",
+    "isDrawable": true
   }
 }

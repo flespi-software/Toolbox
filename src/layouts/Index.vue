@@ -135,10 +135,36 @@
               </q-list>
             </div>
           </q-collapsible>
-          <q-item v-if="renderEntities.includes('mqtt')" to='/mqtt' class="q-pt-md q-pb-md">
-            <q-item-side :icon="config.mqtt.icon"></q-item-side>
-            <q-item-main><q-item-tile>{{config.mqtt.label}}</q-item-tile></q-item-main>
-          </q-item>
+          <q-collapsible
+            group="menu"
+            label="MQTT"
+            icon="mdi-access-point-network"
+            class="q-pt-md q-pb-md"
+            :opened="entity === 'mqtt' || entity === 'mqttClient'"
+          >
+            <div>
+              <q-list class="row">
+                <q-item v-if="renderEntities.includes('mqtt')" to='/mqtt' class="col-6">
+                  <q-item-main class="text-center">
+                    <div>
+                      <q-icon :name="config.mqtt.icon" size="2.6em"/>
+                    </div>
+                    <div>{{config.mqtt.label}}</div>
+                  </q-item-main>
+                </q-item>
+                <q-item-separator style="width: 100%"/>
+                <q-list-header class="col-12">Tools</q-list-header>
+                <q-item to='/tools/mqtt' class="col-6">
+                  <q-item-main class="text-center">
+                    <div>
+                      <q-icon :name="config.mqttClient.icon" size="2.6em"/>
+                    </div>
+                    <div>{{config.mqttClient.label}}</div>
+                  </q-item-main>
+                </q-item>
+              </q-list>
+            </div>
+          </q-collapsible>
         </q-list>
       </q-layout-drawer>
       <q-page-container :style="{background: '#333'}">
