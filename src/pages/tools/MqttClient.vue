@@ -1,6 +1,6 @@
 <template>
   <q-page class="bg-white">
-    <mqtt-client :initSettings="settings"/>
+    <mqtt-client whiteLabel="MQTT Clients" :initSettings="settings"/>
   </q-page>
 </template>
 
