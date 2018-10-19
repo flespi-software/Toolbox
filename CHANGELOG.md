@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.11.2] - 2018-10-19
+[feature] ratio in devices to toggle-button
 ### [0.11.1] - 2018-10-18
 [fix] service worker update message
 ### [0.11.0] - 2018-10-16

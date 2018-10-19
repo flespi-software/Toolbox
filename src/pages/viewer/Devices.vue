@@ -74,11 +74,39 @@
             <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
           </q-popover>
         </q-item>
-        <q-btn v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
-          <q-tooltip>Mode (Real-time/History)</q-tooltip>
-          {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
-          <q-chip small square color="red" v-if="newMessagesCount" class="cursor-pointer q-ml-sm">{{newMessagesCount}}</q-chip>
-        </q-btn>
+        <div>
+          <q-btn size="sm" v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
+            <q-tooltip>Mode (Real-time/History)</q-tooltip>
+            <span class="gt-xs">{{modeModel ? 'Real-time' : 'History'}}</span>
+            <q-chip small square color="red" v-if="newMessagesCount" class="cursor-pointer q-ml-sm">{{newMessagesCount}}</q-chip>
+          </q-btn>
+          <q-btn-toggle
+            v-if="!selectedItem.deleted"
+            dense
+            color="grey-8"
+            toggle-color="white"
+            toggle-text-color="dark"
+            class="q-ml-sm gt-xs" size="sm"
+            v-model="ratio"
+            :options="[{label: 'logs', value: 100},{label: 'both', value: 50},{label: 'messages', value: 0}]"
+          />
+          <q-btn class="lt-sm" dense size="sm">
+            {{ratio === 50 ? 'both' : (ratio === 0 ? 'messages' : 'logs')}}
+            <q-popover style="background-color: transparent">
+              <q-btn-toggle
+                v-close-overlay
+                v-if="!selectedItem.deleted"
+                dense
+                color="grey-8"
+                toggle-color="white"
+                toggle-text-color="dark"
+                size="sm"
+                v-model="ratio"
+                :options="[{label: 'logs', value: 100},{label: 'both', value: 50},{label: 'messages', value: 0}]"
+              />
+            </q-popover>
+          </q-btn>
+        </div>
         <div>
           <q-icon v-if="messagesWithPosition.length && $q.platform.is.desktop" size="1.5rem" class="on-left cursor-pointer pull-right" name="mdi-map" @click.native="isVisibleMap = !isVisibleMap">
             <q-tooltip>Map</q-tooltip>
@@ -86,7 +114,7 @@
           <q-icon size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler">
             <q-tooltip>Clear all panes</q-tooltip>
           </q-icon>
-          <q-icon v-if="!selectedItem.deleted" size="1.5rem" class="cursor-pointer pull-right" name="mdi-format-align-middle">
+          <!-- <q-icon v-if="!selectedItem.deleted" size="1.5rem" class="cursor-pointer pull-right" name="mdi-format-align-middle">
             <q-tooltip>Section ratio</q-tooltip>
             <q-popover ref="ratioPopover">
               <q-item style="width: 25rem; height: 100px" class="bg-dark">
@@ -112,7 +140,7 @@
                 </q-item-side>
               </q-item>
             </q-popover>
-          </q-icon>
+          </q-icon> -->
         </div>
       </q-toolbar>
       <div>
