@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "img/right-graphite@2x.f2e09a97.png"
   },
   {
-    "revision": "ad1969cc622d80f8563d0b13df7b20b6",
+    "revision": "604daf2665378617efea481bb0b56821",
     "url": "index.html"
   },
   {
@@ -24,32 +24,32 @@ self.__precacheManifest = [
     "url": "js/10665712.822a93f6.js"
   },
   {
-    "revision": "838698af837cf35dfead7869b02ce5b8",
-    "url": "statics/icons/ms-icon-144x144.png"
+    "revision": "14d6cca701394318ed367e336cf50847",
+    "url": "statics/icons/icon-192x192.png"
   },
   {
     "revision": "d780cab63de973bad8aa",
     "url": "js/17be060c.6ff34b68.js"
   },
   {
-    "revision": "f1a3251aa28336cc032e0ba4c149e59e",
-    "url": "statics/icons/icon-96x96.png"
+    "revision": "525061fbc60090f9b92f626b25a2a976",
+    "url": "statics/toolbox50.png"
   },
   {
     "revision": "57e290d36fec13652f68",
     "url": "js/25d1509b.ea55a2e4.js"
   },
   {
-    "revision": "14d6cca701394318ed367e336cf50847",
-    "url": "statics/icons/icon-192x192.png"
+    "revision": "cf46c82e435aa040daecaf16508027a3",
+    "url": "statics/toolbox_mobile.png"
   },
   {
     "revision": "6eb74ec760080f19b7d9",
     "url": "js/25dace3e.b2f390d5.js"
   },
   {
-    "revision": "5387fdaebd7376fc4800f74606651cc1",
-    "url": "statics/icons/icon-72x72.png"
+    "revision": "838698af837cf35dfead7869b02ce5b8",
+    "url": "statics/icons/ms-icon-144x144.png"
   },
   {
     "revision": "fc0aa73ecce73b498ddc",
@@ -60,24 +60,24 @@ self.__precacheManifest = [
     "url": "statics/police.png"
   },
   {
-    "revision": "e82212571f309afb5854",
-    "url": "js/426243a7.4c8deb95.js"
+    "revision": "721f4b416d1039341359",
+    "url": "js/426243a7.c4ff6aac.js"
   },
   {
     "revision": "b9cfb9ff43d3d345ca9a",
     "url": "js/4b4818b8.7631b99b.js"
   },
   {
-    "revision": "525061fbc60090f9b92f626b25a2a976",
-    "url": "statics/toolbox50.png"
+    "revision": "f1a3251aa28336cc032e0ba4c149e59e",
+    "url": "statics/icons/icon-96x96.png"
   },
   {
     "revision": "d8a29921f14f495762cf",
     "url": "js/52caba0c.b628428f.js"
   },
   {
-    "revision": "cf46c82e435aa040daecaf16508027a3",
-    "url": "statics/toolbox_mobile.png"
+    "revision": "5387fdaebd7376fc4800f74606651cc1",
+    "url": "statics/icons/icon-72x72.png"
   },
   {
     "revision": "d77bd6b122d03af35061",
@@ -96,36 +96,36 @@ self.__precacheManifest = [
     "url": "statics/icons/icon-128x128.png"
   },
   {
-    "revision": "fcd6c10c285c091788d0",
-    "url": "js/9394da88.230643db.js"
-  },
-  {
-    "revision": "d5da697eec032a743f6a94d6ef4470be",
-    "url": "statics/icons/apple-icon-152x152.png"
-  },
-  {
-    "revision": "a7f018e5a4351a84c8dd",
-    "url": "js/95c06efe.aac32462.js"
-  },
-  {
-    "revision": "82f983ec2277961e9878f2bf014b13fc",
-    "url": "statics/flespi_logo_black.svg"
-  },
-  {
-    "revision": "59cb7457c246dc6638c4",
-    "url": "js/99b8c446.0569d784.js"
+    "revision": "b681ddbc65b8c32b710e",
+    "url": "js/9394da88.2bac63e8.js"
   },
   {
     "revision": "c3d58f5c2a54890cd4e03371aaaf1e11",
     "url": "statics/icons/favicon-32x32.png"
   },
   {
-    "revision": "9020b3a7aee2668b01ad",
-    "url": "js/app.c1f9b80c.js"
+    "revision": "a7f018e5a4351a84c8dd",
+    "url": "js/95c06efe.aac32462.js"
   },
   {
     "revision": "fa908e7babb7cad954beac016f56d11e",
     "url": "statics/icons/favicon-16x16.png"
+  },
+  {
+    "revision": "59cb7457c246dc6638c4",
+    "url": "js/99b8c446.0569d784.js"
+  },
+  {
+    "revision": "d5da697eec032a743f6a94d6ef4470be",
+    "url": "statics/icons/apple-icon-152x152.png"
+  },
+  {
+    "revision": "d5a6b3c691d5d404c9cd",
+    "url": "js/app.a4ce5763.js"
+  },
+  {
+    "revision": "82f983ec2277961e9878f2bf014b13fc",
+    "url": "statics/flespi_logo_black.svg"
   },
   {
     "revision": "33eb66cf2272971c226e",
@@ -176,7 +176,7 @@ self.__precacheManifest = [
     "url": "statics/corpse.png"
   },
   {
-    "revision": "9020b3a7aee2668b01ad",
+    "revision": "d5a6b3c691d5d404c9cd",
     "url": "css/app.65114f09.css"
   },
   {
@@ -196,12 +196,12 @@ self.__precacheManifest = [
     "url": "fonts/KFOlCnqEu92Fr1MmYUtfBBc-.8c2ade50.woff"
   },
   {
-    "revision": "459118748df2a5fcd7f684546cc8591b",
-    "url": "fonts/mdi.45911874.woff2"
-  },
-  {
     "revision": "bafb105baeb22d965c70fe52ba6b49d9",
     "url": "fonts/KFOmCnqEu92Fr1Mu4mxM.bafb105b.woff"
+  },
+  {
+    "revision": "459118748df2a5fcd7f684546cc8591b",
+    "url": "fonts/mdi.45911874.woff2"
   },
   {
     "revision": "4b882ad484d11b49f4a69212ad8e8901",
@@ -256,7 +256,7 @@ self.__precacheManifest = [
     "url": "css/848a9dd2.09c8bde3.css"
   },
   {
-    "revision": "fcd6c10c285c091788d0",
+    "revision": "b681ddbc65b8c32b710e",
     "url": "css/9394da88.0961c575.css"
   },
   {
@@ -268,7 +268,7 @@ self.__precacheManifest = [
     "url": "css/6dedbfaa.3e9f9434.css"
   },
   {
-    "revision": "e82212571f309afb5854",
+    "revision": "721f4b416d1039341359",
     "url": "css/426243a7.d3ff7ae3.css"
   },
   {
