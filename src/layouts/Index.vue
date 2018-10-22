@@ -210,7 +210,7 @@ export default {
       currentMessage: {},
       currentData: {},
       sides: {
-        left: !this.$q.platform.is.iframe,
+        left: !this.$q.platform.within.iframe,
         right: false
       },
       currentLimit: 1000,
