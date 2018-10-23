@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.11.4] - 2018-10-23
+[feature] ratio in channels to toggle-button
+[fix] filter by compare
+[fix] timestamp fields in cols
 ### [0.11.3] - 2018-10-22
 [fix] iframe detection in layout
 ### [0.11.2] - 2018-10-19

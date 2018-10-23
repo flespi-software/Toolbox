@@ -106,17 +106,14 @@ export default {
           }
         } else if (vals[propName]) {
           let value = this.item[propName]
-          if (propName.indexOf('timestamp') !== -1) {
-            value = date.formatDate(value * 1000, 'DD/MM/YYYY HH:mm:ss')
-          }
           if (propName.indexOf('image.bin.') !== -1) {
             value = '<binary image>'
-          }
-          if (propName.indexOf('proxy.event') !== -1) {
+          } else if (propName.indexOf('proxy.event') !== -1) {
             value = value === 0 ? 'data received' : value === 1 ? 'connected' : 'disconnect'
-          }
-          if (propName.indexOf('proxy.source') !== -1) {
+          } else if (propName.indexOf('proxy.source') !== -1) {
             value = value === 0 ? 'channel incoming connection' : `target ${value}`
+          } else if (propName.match(/timestamp$/)) {
+            value = date.formatDate(value * 1000, 'DD/MM/YYYY HH:mm:ss')
           }
           if (typeof value === 'string') {
             vals[propName].value = value

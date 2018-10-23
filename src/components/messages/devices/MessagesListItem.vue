@@ -114,7 +114,7 @@ export default {
           }
         } else if (vals[propName]) {
           let value = this.item[propName]
-          if (propName.indexOf('timestamp') !== -1) {
+          if (propName.match(/timestamp$/)) {
             value = date.formatDate(value * 1000, 'DD/MM/YYYY HH:mm:ss')
           }
           if (propName.indexOf('image.bin.') !== -1) {
