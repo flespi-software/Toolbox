@@ -168,13 +168,16 @@ export default {
     }
   },
   created () {
-    let activeFromLocaleStorage = this.$q.localStorage.get.item('cdns')
-    this.$store.dispatch('getItems', 'cdns')
+    let entity = 'cdns',
+      activeFromLocaleStorage = this.$q.localStorage.get.item(entity),
+      idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null
+
+    this.$store.dispatch('getItems', this.isNeedSelect ? entity : {entity, id: idFromRoute})
       .then(() => {
         this.isInit = true
-        if (this.$route.params && this.$route.params.id) {
-          if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
-            this.active = Number(this.$route.params.id)
+        if (idFromRoute) {
+          if (this.items.filter(item => item.id === Number(idFromRoute)).length) {
+            this.active = Number(idFromRoute)
           } else {
             this.active = null
           }
@@ -188,8 +191,10 @@ export default {
       })
   },
   destroyed () {
-    this.$store.dispatch('unsubscribeItems', 'cdns')
+    let idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null,
+      entity = 'cdns'
     this.$store.commit('clearItems')
+    this.$store.dispatch('unsubscribeItems', this.isNeedSelect ? entity : {entity, id: idFromRoute})
   },
   watch: {
     $route (route) {

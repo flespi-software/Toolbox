@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.11.7] - 2018-10-25
+[feature] subscribe only for one entity by noselect flag
 ### [0.11.6] - 2018-10-25
 [feature] auto init mqtt-board
 [fix] tooltips to titles

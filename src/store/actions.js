@@ -2,20 +2,28 @@ import Vue from 'vue'
 import { Notify } from 'quasar'
 
 const origins = {
-  devices: '/gw/devices/+/+',
-  channels: '/gw/channels/+/+',
-  streams: '/gw/streams/+/+',
-  modems: '/gw/modems/+/+',
-  containers: '/storage/containers/+/+',
-  abques: '/storage/abques/+/+',
-  cdns: '/storage/cdns/+/+'
+  devices: '/gw/devices',
+  channels: '/gw/channels',
+  streams: '/gw/streams',
+  modems: '/gw/modems',
+  containers: '/storage/containers',
+  abques: '/storage/abques',
+  cdns: '/storage/cdns'
 }
 
 let itemsSubsId = null
 
-async function getItems ({ state, commit }, entity) {
+async function getItems ({ state, commit }, payload) {
+  let entity = '',
+    id = null
+  if (typeof payload === 'string') {
+    entity = payload
+  } else {
+    entity = payload.entity
+    id = payload.id
+  }
   if (entity) {
-    let origin = `flespi/state${origins[entity]}`
+    let origin = `flespi/state${origins[entity]}/${id || '+'}/+`
     if (state.token) {
       try {
         if (typeof state.isLoading !== 'undefined') {
@@ -58,11 +66,20 @@ async function getItems ({ state, commit }, entity) {
   }
 }
 
-async function unsubscribeItems ({state, commit}, entity) {
+async function unsubscribeItems ({state, commit}, payload) {
+  let entity = '',
+    id = null
+  if (typeof payload === 'string') {
+    entity = payload
+  } else {
+    entity = payload.entity
+    id = payload.id
+  }
   if (entity) {
-    let origin = `flespi/state${origins[entity]}`
+    let origin = `flespi/state${origins[entity]}/${id || '+'}/+`
     try {
       await Vue.connector.socket.unsubscribe(origin, Object.keys(itemsSubsId))
+      itemsSubsId = null
     } catch (e) {
       commit('reqFailed', e)
     }
