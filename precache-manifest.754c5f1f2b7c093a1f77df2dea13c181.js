@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "img/right-graphite@2x.f2e09a97.png"
   },
   {
-    "revision": "4fcc9739668ee3f999a2a22b32802d4c",
+    "revision": "48248a5ff880b352efff5424dc5c6a5a",
     "url": "index.html"
   },
   {
@@ -28,40 +28,40 @@ self.__precacheManifest = [
     "url": "statics/icons/icon-192x192.png"
   },
   {
-    "revision": "d780cab63de973bad8aa",
-    "url": "js/17be060c.6ff34b68.js"
+    "revision": "dabd4a94e9d366e6ce49",
+    "url": "js/17be060c.34feb4a6.js"
   },
   {
     "revision": "525061fbc60090f9b92f626b25a2a976",
     "url": "statics/toolbox50.png"
   },
   {
-    "revision": "57e290d36fec13652f68",
-    "url": "js/25d1509b.ea55a2e4.js"
+    "revision": "e375f82f47e5fbd7e4ea",
+    "url": "js/25d1509b.fffa8f99.js"
   },
   {
     "revision": "cf46c82e435aa040daecaf16508027a3",
     "url": "statics/toolbox_mobile.png"
   },
   {
-    "revision": "6eb74ec760080f19b7d9",
-    "url": "js/25dace3e.b2f390d5.js"
+    "revision": "b3222ef6b5ddb777e171",
+    "url": "js/25dace3e.b9af3b07.js"
   },
   {
     "revision": "a9de7e81de000ac57c2855c29a98e796",
     "url": "statics/police.png"
   },
   {
-    "revision": "fc0aa73ecce73b498ddc",
-    "url": "js/3b19d8f0.e074e6b4.js"
+    "revision": "9d33c88489bb1b0a7486",
+    "url": "js/3b19d8f0.0dcd9605.js"
   },
   {
     "revision": "838698af837cf35dfead7869b02ce5b8",
     "url": "statics/icons/ms-icon-144x144.png"
   },
   {
-    "revision": "8904b91dca11dc038d00",
-    "url": "js/426243a7.4cdf3865.js"
+    "revision": "ef47a4c6d0659a314396",
+    "url": "js/426243a7.c4e727e2.js"
   },
   {
     "revision": "b9cfb9ff43d3d345ca9a",
@@ -72,64 +72,64 @@ self.__precacheManifest = [
     "url": "statics/icons/icon-96x96.png"
   },
   {
-    "revision": "e5f0c0314bb32d9e2ef1",
-    "url": "js/52caba0c.ab8bbb0d.js"
+    "revision": "697935ce8db42ec572e2",
+    "url": "js/52caba0c.b4a37268.js"
   },
   {
     "revision": "5387fdaebd7376fc4800f74606651cc1",
     "url": "statics/icons/icon-72x72.png"
   },
   {
-    "revision": "e723f13d9f01071b3cbc",
-    "url": "js/6dedbfaa.41a3b0db.js"
-  },
-  {
-    "revision": "48825872e0cfe76b84a83fbdfce8dba4",
-    "url": "statics/icons/icon-152x152.png"
-  },
-  {
-    "revision": "f73005f2c846ce1a02ab",
-    "url": "js/848a9dd2.46af8377.js"
-  },
-  {
-    "revision": "287016ff97b8f4cf6c7bf6a5b6389cc5",
-    "url": "statics/icons/icon-128x128.png"
-  },
-  {
-    "revision": "b681ddbc65b8c32b710e",
-    "url": "js/9394da88.2bac63e8.js"
+    "revision": "e230c9413f59a863eed8",
+    "url": "js/6dedbfaa.12201fae.js"
   },
   {
     "revision": "c3d58f5c2a54890cd4e03371aaaf1e11",
     "url": "statics/icons/favicon-32x32.png"
   },
   {
-    "revision": "aba964a7dcdd1a451a43",
-    "url": "js/95c06efe.e4bc6963.js"
+    "revision": "4c6bd684be7baf4ee6f3",
+    "url": "js/848a9dd2.aeb549d6.js"
+  },
+  {
+    "revision": "48825872e0cfe76b84a83fbdfce8dba4",
+    "url": "statics/icons/icon-152x152.png"
+  },
+  {
+    "revision": "b681ddbc65b8c32b710e",
+    "url": "js/9394da88.2bac63e8.js"
+  },
+  {
+    "revision": "287016ff97b8f4cf6c7bf6a5b6389cc5",
+    "url": "statics/icons/icon-128x128.png"
+  },
+  {
+    "revision": "31dfe1794f69f17bcb31",
+    "url": "js/95c06efe.6046f269.js"
   },
   {
     "revision": "fa908e7babb7cad954beac016f56d11e",
     "url": "statics/icons/favicon-16x16.png"
   },
   {
-    "revision": "59cb7457c246dc6638c4",
-    "url": "js/99b8c446.0569d784.js"
+    "revision": "15b6a2c8f49c4c487cf7",
+    "url": "js/99b8c446.a559fb1e.js"
   },
   {
     "revision": "d5da697eec032a743f6a94d6ef4470be",
     "url": "statics/icons/apple-icon-152x152.png"
   },
   {
-    "revision": "661b874bdfaef98c38b4",
-    "url": "js/app.270ae8b7.js"
+    "revision": "71927646956ea9080747",
+    "url": "js/app.fc034043.js"
   },
   {
     "revision": "82f983ec2277961e9878f2bf014b13fc",
     "url": "statics/flespi_logo_black.svg"
   },
   {
-    "revision": "33eb66cf2272971c226e",
-    "url": "js/b80ecc4a.e5451ad7.js"
+    "revision": "bed925bec688339af86e",
+    "url": "js/b80ecc4a.476b1521.js"
   },
   {
     "revision": "9c0bfed9389097c1754e",
@@ -176,7 +176,7 @@ self.__precacheManifest = [
     "url": "statics/corpse.png"
   },
   {
-    "revision": "661b874bdfaef98c38b4",
+    "revision": "71927646956ea9080747",
     "url": "css/app.65114f09.css"
   },
   {
@@ -216,12 +216,8 @@ self.__precacheManifest = [
     "url": "img/icomoon.56850141.svg"
   },
   {
-    "revision": "e723f13d9f01071b3cbc",
-    "url": "css/6dedbfaa.d556fb0f.css"
-  },
-  {
-    "revision": "de8b7431b74642e830af4d4f4b513ec9",
-    "url": "fonts/KFOlCnqEu92Fr1MmEU9fBBc-.de8b7431.woff"
+    "revision": "e230c9413f59a863eed8",
+    "url": "css/6dedbfaa.9162b516.css"
   },
   {
     "revision": "a1471d1d6431c893582a5f6a250db3f9",
@@ -232,19 +228,23 @@ self.__precacheManifest = [
     "url": "fonts/KFOlCnqEu92Fr1MmWUlfBBc-.cf6613d1.woff"
   },
   {
-    "revision": "8904b91dca11dc038d00",
+    "revision": "ef47a4c6d0659a314396",
     "url": "css/426243a7.d3ff7ae3.css"
   },
   {
-    "revision": "33eb66cf2272971c226e",
+    "revision": "bed925bec688339af86e",
     "url": "css/b80ecc4a.8caa98d2.css"
+  },
+  {
+    "revision": "de8b7431b74642e830af4d4f4b513ec9",
+    "url": "fonts/KFOlCnqEu92Fr1MmEU9fBBc-.de8b7431.woff"
   },
   {
     "revision": "e9dbbe8a693dd275c16d32feb101f1c1",
     "url": "fonts/KFOkCnqEu92Fr1MmgVxIIzQ.e9dbbe8a.woff"
   },
   {
-    "revision": "6eb74ec760080f19b7d9",
+    "revision": "b3222ef6b5ddb777e171",
     "url": "css/25dace3e.d99a0fee.css"
   },
   {
@@ -252,31 +252,31 @@ self.__precacheManifest = [
     "url": "css/9394da88.0961c575.css"
   },
   {
-    "revision": "aba964a7dcdd1a451a43",
+    "revision": "31dfe1794f69f17bcb31",
     "url": "css/95c06efe.7b23a563.css"
   },
   {
-    "revision": "59cb7457c246dc6638c4",
+    "revision": "15b6a2c8f49c4c487cf7",
     "url": "css/99b8c446.b915791e.css"
   },
   {
-    "revision": "f73005f2c846ce1a02ab",
+    "revision": "4c6bd684be7baf4ee6f3",
     "url": "css/848a9dd2.09c8bde3.css"
   },
   {
-    "revision": "e5f0c0314bb32d9e2ef1",
+    "revision": "697935ce8db42ec572e2",
     "url": "css/52caba0c.1370f61a.css"
   },
   {
-    "revision": "fc0aa73ecce73b498ddc",
+    "revision": "9d33c88489bb1b0a7486",
     "url": "css/3b19d8f0.b0257fba.css"
   },
   {
-    "revision": "57e290d36fec13652f68",
+    "revision": "e375f82f47e5fbd7e4ea",
     "url": "css/25d1509b.b2502de0.css"
   },
   {
-    "revision": "d780cab63de973bad8aa",
+    "revision": "dabd4a94e9d366e6ce49",
     "url": "css/17be060c.651516a8.css"
   },
   {
