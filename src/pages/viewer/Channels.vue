@@ -20,7 +20,7 @@
                     highlight
                   >
                     <q-item-main>
-                      <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || '&lt;noname&gt;'}}<q-tooltip v-if="$q.platform.is.desktop">{{item.name}}</q-tooltip></q-item-tile>
+                      <q-item-tile :title="item.name" label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || '&lt;noname&gt;'}}</q-item-tile>
                       <q-item-tile sublabel><small>{{protocols[item.protocol_id] || '&lt;no protocol&gt;'}}</small></q-item-tile>
                       <q-item-tile sublabel><small>{{item.uri || '&lt;no uri&gt;'}}</small></q-item-tile>
                     </q-item-main>
@@ -41,9 +41,8 @@
     <template v-else>
       <q-toolbar color="dark" class="justify-between">
         <div style="max-width: 40%;">
-          <q-item class="no-padding" style="display: inline-flex; max-width: calc(100% - 36px);" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
-            <q-item-main>
-              <q-tooltip><small>protocol: {{protocols[selectedItem.protocol_id] || selectedItem.protocol_id}}</small></q-tooltip>
+          <q-item class="no-padding" style="display: inline-flex; max-width: 100%;" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
+            <q-item-main :title="`protocol: ${protocols[selectedItem.protocol_id] || selectedItem.protocol_id}`">
               <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name || '&lt;noname&gt;'}}</q-item-tile>
               <q-item-tile class="ellipsis overflow-hidden" sublabel style="font-size: 0.8rem">{{selectedItem.uri}}</q-item-tile>
             </q-item-main>
@@ -80,15 +79,12 @@
               <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
             </q-popover>
           </q-item>
-          <q-icon style="position: relative; top: 10px;" size="1.5rem" class="on-right cursor-pointer pull-right" v-if="!isEmptyMessages && selectedItem.protocol_id === proxyProtocolId" color="white" name="mdi-matrix" @click.native="hexViewHandler">
-            <q-tooltip>View hex payload</q-tooltip>
-          </q-icon>
+          <q-icon title="View hex payload" style="position: relative; top: 10px;" size="1.5rem" class="on-right cursor-pointer pull-right" v-if="!isEmptyMessages && selectedItem.protocol_id === proxyProtocolId" color="white" name="mdi-matrix" @click.native="hexViewHandler"/>
         </div>
         <div>
-          <q-btn v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'" :rounded="$q.platform.is.mobile">
+          <q-btn title="Mode (Real-time/History)" size="sm" v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'" :rounded="$q.platform.is.mobile">
             {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
             <q-chip small square color="red" v-if="newMessagesCount" class="cursor-pointer q-ml-sm">{{newMessagesCount}}</q-chip>
-            <q-tooltip>Mode (Real-time/History)</q-tooltip>
           </q-btn>
           <q-btn-toggle
             v-if="!selectedItem.deleted"
@@ -118,9 +114,7 @@
           </q-btn>
         </div>
         <div>
-          <q-icon size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler">
-            <q-tooltip>Clear all panes</q-tooltip>
-          </q-icon>
+          <q-icon title="Clear all panes" size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler" />
         </div>
       </q-toolbar>
       <logs

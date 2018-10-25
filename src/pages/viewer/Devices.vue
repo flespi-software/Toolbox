@@ -19,7 +19,7 @@
                   :class="{'text-grey-8': item.deleted}"
                 >
                   <q-item-main>
-                    <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || `#${item.id}`}}<q-tooltip v-if="$q.platform.is.desktop && item.name">{{item.name}}</q-tooltip></q-item-tile>
+                    <q-item-tile :title="item.name" label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || `#${item.id}`}}</q-item-tile>
                     <q-item-tile sublabel><small>{{item.ident || `&lt;no ident&gt;`}}</small></q-item-tile>
                   </q-item-main>
                   <q-item-side class="text-center">
@@ -75,8 +75,7 @@
           </q-popover>
         </q-item>
         <div>
-          <q-btn size="sm" v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
-            <q-tooltip>Mode (Real-time/History)</q-tooltip>
+          <q-btn title="Mode (Real-time/History)" size="sm" v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
             <span class="gt-xs">{{modeModel ? 'Real-time' : 'History'}}</span>
             <q-chip small square color="red" v-if="newMessagesCount" class="cursor-pointer q-ml-sm">{{newMessagesCount}}</q-chip>
           </q-btn>
@@ -108,39 +107,8 @@
           </q-btn>
         </div>
         <div>
-          <q-icon v-if="messagesWithPosition.length && $q.platform.is.desktop" size="1.5rem" class="on-left cursor-pointer pull-right" name="mdi-map" @click.native="isVisibleMap = !isVisibleMap">
-            <q-tooltip>Map</q-tooltip>
-          </q-icon>
-          <q-icon size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler">
-            <q-tooltip>Clear all panes</q-tooltip>
-          </q-icon>
-          <!-- <q-icon v-if="!selectedItem.deleted" size="1.5rem" class="cursor-pointer pull-right" name="mdi-format-align-middle">
-            <q-tooltip>Section ratio</q-tooltip>
-            <q-popover ref="ratioPopover">
-              <q-item style="width: 25rem; height: 100px" class="bg-dark">
-                <q-item-side class="text-center">
-                  <q-item-tile color="grey-6">Logs</q-item-tile>
-                </q-item-side>
-                <q-item-main>
-                  <q-item-tile label class="ellipsis overflow-hidden" color="white">Ratio</q-item-tile>
-                  <q-item-tile sublabel>
-                    <q-slider
-                      v-model="ratio"
-                      color="grey-6"
-                      :min="0"
-                      :max="100"
-                      :step="25"
-                      label
-                      snap
-                    />
-                  </q-item-tile>
-                </q-item-main>
-                <q-item-side class="text-center" right>
-                  <q-item-tile color="grey-6">Messages</q-item-tile>
-                </q-item-side>
-              </q-item>
-            </q-popover>
-          </q-icon> -->
+          <q-icon title="Map" v-if="messagesWithPosition.length && $q.platform.is.desktop" size="1.5rem" class="on-left cursor-pointer pull-right" name="mdi-map" @click.native="isVisibleMap = !isVisibleMap"/>
+          <q-icon title="Clear all panes" size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler"/>
         </div>
       </q-toolbar>
       <div>

@@ -8,15 +8,12 @@
     <template v-else>
       <q-toolbar color="dark" class="justify-between">
         <div></div>
-        <q-btn flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
-          <q-tooltip>Mode (Real-time/History)</q-tooltip>
+        <q-btn title="Mode (Real-time/History)" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
           {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
           <q-chip small square color="red" v-if="newMessagesCount" class="cursor-pointer q-ml-sm">{{newMessagesCount}}</q-chip>
         </q-btn>
         <div>
-          <q-icon size="1.5rem" class="cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler">
-            <q-tooltip>Clear all panes</q-tooltip>
-          </q-icon>
+          <q-icon title="Clear all panes" size="1.5rem" class="cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler"/>
         </div>
       </q-toolbar>
       <logs
