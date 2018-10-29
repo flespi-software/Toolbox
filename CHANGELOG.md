@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.11.8] - 2018-10-29
+[fix] save position of scroller in hexViewer
+[fix] tooltips added to message cards
 ### [0.11.7] - 2018-10-25
 [feature] subscribe only for one entity by noselect flag
 ### [0.11.6] - 2018-10-25

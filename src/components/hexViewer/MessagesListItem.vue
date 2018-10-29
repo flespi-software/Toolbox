@@ -1,5 +1,6 @@
 <template>
   <q-item :class="[`text-${eventsColors[item['proxy.event']]}-4`, `${selected ? 'bg-grey-10' : ''}`]" @click.native="(event) => { itemClickHandler(index, item, event) }">
+    <q-tooltip>{{eventsDesc[item['proxy.event']]}}</q-tooltip>
     <q-item-side v-if="actions">
       <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
         <q-tooltip>{{action.label}}</q-tooltip>
@@ -33,6 +34,11 @@ export default {
         0: 'purple',
         1: 'green',
         2: 'red'
+      },
+      eventsDesc: {
+        0: 'Data recieved',
+        1: 'Connect',
+        2: 'Disconnect'
       }
     }
   },

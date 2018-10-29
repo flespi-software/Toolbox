@@ -35,7 +35,7 @@
           style="margin-right: 5px"
         />
         <q-btn v-if="!mode && !showSearch" class="text-white q-mr-sm" icon="arrow_forward" @click="paginationNextChangeHandler"/>
-        <q-btn v-if="type === 'messages' && (!showSearch || mode)" style="position: absolute; right: 5px;" class="text-white" icon="mdi-close" @click="() => { $emit('close') }">
+        <q-btn v-if="type === 'messages' && (!showSearch || mode)" style="position: absolute; right: 5px;" class="text-white" icon="mdi-close" @click="closeCurrentConnection">
           <q-tooltip>Close current connection</q-tooltip>
         </q-btn>
       </q-toolbar>
@@ -108,7 +108,8 @@ export default {
       filter: '',
       connectionsFilter: '',
       messagesPerConnectionLimit: 10000,
-      connectionsLimit: 100
+      connectionsLimit: 100,
+      scrollerScrollTop: 0
     }
   },
   computed: {
@@ -306,6 +307,7 @@ export default {
         }
         this.$emit('view-data', this.connection.messages.filter((message, index) => this.selected.includes(index)))
       } else if (this.type === 'connections') {
+        this.scrollerScrollTop = this.$refs.scroller.$el.scrollTop
         this.$emit('change:connection', content)
       }
     },
@@ -337,6 +339,12 @@ export default {
     clearConnections () {
       this.connections = {}
       this.connectionsByIndex = []
+    },
+    closeCurrentConnection () {
+      this.$emit('close')
+      this.$nextTick(() => {
+        this.$refs.scroller.$el.scrollTop = this.scrollerScrollTop
+      })
     }
   },
   watch: {
