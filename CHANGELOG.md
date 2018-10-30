@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.11.10] - 2018-10-30
+[update] packages
 ### [0.11.9] - 2018-10-30
 [update] packages
 ### [0.11.8] - 2018-10-29
