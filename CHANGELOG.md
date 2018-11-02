@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.12.2] - 2018-11-02
+[update] mqtt-board
 ### [0.12.1] - 2018-11-02
 [update] docs
 ### [0.12.0] - 2018-11-01
