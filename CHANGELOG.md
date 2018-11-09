@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.12.4] - 2018-11-09
+[feature] show full log item
+[fix] log extra link is hided
+[update] mqtt-board
 ### [0.12.3] - 2018-11-09
 [update] mqtt-board
 ### [0.12.2] - 2018-11-02

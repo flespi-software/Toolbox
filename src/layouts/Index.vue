@@ -283,6 +283,11 @@ export default {
     },
     logMessageConfig () {
       let config = {
+          'log object': {
+            title: 'log object',
+            wrapper: JsonTree,
+            data: this.currentData
+          },
           'item_data': {
             title: 'item data',
             wrapper: JsonTree,

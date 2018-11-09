@@ -19,7 +19,7 @@
       :style="{backgroundColor: item['x-flespi-filter-fields'] && item['x-flespi-filter-fields'].includes(prop.name) ? '#666' : ''}"
     >
       <!--<q-tooltip>{{getValueOfProp(prop)}}</q-tooltip>-->
-      <a :class="[color]" @click.prevent.stop="linkMoreClickHandler" v-if="prop.name === 'event_code'"><q-icon name="mdi-open-in-new"/></a>
+      <!-- <a :class="[color]" @click.prevent.stop="linkMoreClickHandler" v-if="prop.name === 'event_code'"><q-icon name="mdi-open-in-new"/></a> -->
       <template v-if="prop.name === 'event_code' && item.address">
         <q-icon v-if="item.address === 'connection'" name="mdi-ethernet" title="address: connection"/>
         <q-icon v-if="item.address === 'sms'" name="mdi-email-outline"  title="address: sms"/>
