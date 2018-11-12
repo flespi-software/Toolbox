@@ -32,7 +32,10 @@
             <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
           </q-popover>
         </q-btn>
-        <div v-if="!items.length">{{isLoading ? 'Fetching data..' : 'Abques not found'}}</div>
+        <div v-if="!items.length">
+          <div>{{isLoading ? 'Fetching data..' : 'Abques not found'}}</div>
+          <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
+        </div>
       </div>
     </div>
     <template v-else>
@@ -92,7 +95,6 @@
         :style="{minHeight: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
         @view-log-message="viewLogMessagesHandler"
       />
-      <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="selectedItem.deleted">Nothing to show by abque &#171;{{selectedItem.name}}&#187; <div style="font-size: 0.9rem">or you haven`t access</div></div>
     </template>
   </q-page>
 </template>

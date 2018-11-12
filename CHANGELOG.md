@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.12.7] - 2018-11-12
+[fix] logs deleted items
+[feature] button see deleted added to empty entity page
+[fix] menu open accordion on selected entity
 ### [0.12.6] - 2018-11-09
 [update] mqtt-board
 ### [0.12.5] - 2018-11-09

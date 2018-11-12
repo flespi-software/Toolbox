@@ -80,6 +80,7 @@ export default {
       async set (val) {
         await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active entity */
         this.$store.commit(`${this.moduleName}/setOrigin`, val)
+        this.$store.commit(`${this.moduleName}/setItemDeletedStatus`, this.item.deleted)
         this.$store.commit(`${this.moduleName}/clearMessages`)
         this.$store.commit(`${this.moduleName}/setCols`, this.config.cols)
         if (this.$store.state[this.moduleName].mode === 0) {
@@ -233,6 +234,7 @@ export default {
     this.currentLimit = this.limit
     if (this.item) {
       this.$store.commit(`${this.moduleName}/setOrigin`, this.originByPattern)
+      this.$store.commit(`${this.moduleName}/setItemDeletedStatus`, this.item.deleted)
       this.$store.commit(`${this.moduleName}/setCols`, this.config.cols)
     }
     if (this.$store.state[this.moduleName].mode === null) {

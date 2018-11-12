@@ -49,7 +49,7 @@
             label="Telematics Hub"
             icon="mdi-sitemap"
             class="q-pt-md q-pb-md"
-            :opened="entity === 'channels' || entity === 'devices' || entity === 'streams' || entity === 'modems' || entity === 'hexViewer'"
+            v-model="hubGroupModel"
           >
             <div>
               <q-list class="row">
@@ -104,7 +104,7 @@
             label="Storage"
             icon="mdi-database"
             class="q-pt-md q-pb-md"
-            :opened="entity === 'containers' || entity === 'abques' || entity === 'cdns'"
+            v-model="storageGroupModel"
           >
             <div>
               <q-list class="row">
@@ -140,7 +140,8 @@
             label="MQTT"
             icon="mdi-access-point-network"
             class="q-pt-md q-pb-md"
-            :opened="entity === 'mqtt' || entity === 'mqttClient'"
+            v-model="mqttGroupModel"
+            v-if="renderEntities.includes('mqtt') || renderEntities.includes('mqttClient')"
           >
             <div>
               <q-list class="row">
@@ -219,7 +220,7 @@ export default {
       isVisibleToolbar: true,
       loadingFlag: false,
       isTabsVisible: true,
-      entityByGroup: ['platform', 'channels', 'devices', 'streams', 'modems', 'containers', 'abques', 'cdns', 'mqtt'],
+      entityByGroup: ['platform', 'channels', 'devices', 'streams', 'modems', 'containers', 'abques', 'cdns', 'mqtt', 'mqttClient', 'hexViewer'],
       isNeedSelect: true,
       isInit: Vue.connector.socket.connected()
     }
@@ -236,6 +237,18 @@ export default {
       errors: state => state.errors,
       newNotificationCounter: state => state.newNotificationCounter
     }),
+    hubGroupModel () {
+      let entity = this.entity
+      return entity === 'channels' || entity === 'devices' || entity === 'streams' || entity === 'modems' || entity === 'hexViewer'
+    },
+    storageGroupModel () {
+      let entity = this.entity
+      return entity === 'containers' || entity === 'abques' || entity === 'cdns'
+    },
+    mqttGroupModel () {
+      let entity = this.entity
+      return entity === 'mqtt' || entity === 'mqttClient'
+    },
     configByEntity () {
       return this.config[this.entity]
     },
@@ -394,6 +407,7 @@ export default {
               result.push('devices')
               result.push('streams')
               result.push('modems')
+              result.push('hexViewer')
               break
             }
             case 'storage': {
@@ -404,6 +418,7 @@ export default {
             }
             case 'mqtt': {
               result.push('mqtt')
+              result.push('mqttClient')
               break
             }
             case 'platform': {
