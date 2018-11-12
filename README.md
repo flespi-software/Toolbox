@@ -1,9 +1,9 @@
 # ToolboX
 
-> ToolboX is app for display channel info from [flespi.io](https://flespi.io).
+> A diagnostic tool for all instances inside the flespi platform ([flespi.io](https://flespi.io)). Convenient access to the platform, channel, device, stream, storage, and MQTT logs. Detailed view of channels and devices messages. Real-time and history modes. Also includes a HEX viewer to analyze raw telematics data and MQTT Board to play with MQTT connections.
 
 ## Live
-[Toolbox](https://flespi-software.github.io/Toolbox/)
+[Toolbox](https://toolbox.flespi.io/)
 
 ![Screenshot](/misc/screenshot.png?raw=true "ToolboX")
 
