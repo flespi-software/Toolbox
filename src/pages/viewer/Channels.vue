@@ -26,7 +26,7 @@
                     </q-item-main>
                     <q-item-side class="text-center">
                       <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
-                      <q-item-tile><small>#{{item.id.toString()}}</small></q-item-tile>
+                      <q-item-tile v-if="item.id"><small>#{{item.id.toString()}}</small></q-item-tile>
                     </q-item-side>
                   </q-item>
                 </VirtualList>
@@ -50,7 +50,7 @@
               <q-item-tile class="ellipsis overflow-hidden" sublabel style="font-size: 0.8rem">{{selectedItem.uri}}</q-item-tile>
             </q-item-main>
             <q-item-side class="text-right">
-              <q-item-tile style="display: inline-block" stamp color="white" class="text-center"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id.toString()}}</q-item-tile>
+              <q-item-tile style="display: inline-block" stamp color="white" class="text-center"  v-if="selectedItem.id"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id.toString()}}</q-item-tile>
               <q-item-tile v-if="isNeedSelect" style="display: inline-block" stamp color="white" size="2rem" icon="mdi-menu-down" />
             </q-item-side>
             <q-popover fit ref="popoverActive" v-if="isNeedSelect">
@@ -74,7 +74,7 @@
                     </q-item-main>
                     <q-item-side class="text-center">
                       <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
-                      <q-item-tile><small>#{{item.id.toString()}}</small></q-item-tile>
+                      <q-item-tile v-if="item.id"><small>#{{item.id.toString()}}</small></q-item-tile>
                     </q-item-side>
                   </q-item>
                 </VirtualList>
@@ -187,7 +187,8 @@ export default {
       items (state) {
         let items = state.items,
           ids = items.map(item => item.id)
-        if (!ids.includes(this.acitve)) {
+        if (this.isInit && this.acitve && !ids.includes(this.acitve)) {
+          console.log(ids, this.acitve)
           this.clearActive()
         }
         return items

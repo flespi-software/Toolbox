@@ -196,7 +196,7 @@ export default {
       items (state) {
         let items = state.items,
           ids = items.map(item => item.id)
-        if (!ids.includes(this.acitve)) {
+        if (this.isInit && this.acitve && !ids.includes(this.acitve)) {
           this.clearActive()
         }
         return items
