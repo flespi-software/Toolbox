@@ -49,7 +49,7 @@
             label="Telematics Hub"
             icon="mdi-sitemap"
             class="q-pt-md q-pb-md"
-            v-model="hubGroupModel"
+            :value="hubGroupModel"
           >
             <div>
               <q-list class="row">
@@ -104,7 +104,7 @@
             label="Storage"
             icon="mdi-database"
             class="q-pt-md q-pb-md"
-            v-model="storageGroupModel"
+            :value="storageGroupModel"
           >
             <div>
               <q-list class="row">
@@ -140,7 +140,7 @@
             label="MQTT"
             icon="mdi-access-point-network"
             class="q-pt-md q-pb-md"
-            v-model="mqttGroupModel"
+            :value="mqttGroupModel"
             v-if="renderEntities.includes('mqtt') || renderEntities.includes('mqttClient')"
           >
             <div>

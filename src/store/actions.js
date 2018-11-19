@@ -75,6 +75,9 @@ async function unsubscribeItems ({state, commit}, payload) {
     entity = payload.entity
     id = payload.id
   }
+  if (typeof state.isLoading !== 'undefined') {
+    Vue.set(state, 'isLoading', true)
+  }
   if (entity) {
     let origin = `flespi/state${origins[entity]}/${id || '+'}/+`
     try {
@@ -83,6 +86,9 @@ async function unsubscribeItems ({state, commit}, payload) {
     } catch (e) {
       commit('reqFailed', e)
     }
+  }
+  if (typeof state.isLoading !== 'undefined') {
+    Vue.set(state, 'isLoading', false)
   }
 }
 

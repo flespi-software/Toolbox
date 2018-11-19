@@ -132,11 +132,16 @@ export default {
       isEmptyMessages (state) {
         return state[this.config.logs.vuexModuleName] ? !state[this.config.logs.vuexModuleName].messages.length : false
       },
-      tokenType (state) { return state.tokenInfo.access ? state.tokenInfo.access.type : -1 }
+      tokenType (state) { return state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
+      items (state) {
+        let items = state.items,
+          ids = items.map(item => item.id)
+        if (!ids.includes(this.acitve)) {
+          this.clearActive()
+        }
+        return items
+      }
     }),
-    items () {
-      return this.$store.state.items
-    },
     selectedItem () {
       return this.items.filter(item => item.id === this.active)[0] || {}
     },
@@ -172,6 +177,9 @@ export default {
     async getDeletedHandler () {
       await this.getDeleted('streams')
       this.needShowGetDeletedAction = false
+    },
+    clearActive () {
+      this.active = null
     }
   },
   created () {

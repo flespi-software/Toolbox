@@ -82,7 +82,7 @@
               <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
             </q-popover>
           </q-item>
-          <q-icon title="View hex payload" style="position: relative; top: 10px;" size="1.5rem" class="on-right cursor-pointer pull-right" v-if="!isEmptyMessages && selectedItem.protocol_id === proxyProtocolId" color="white" name="mdi-matrix" @click.native="hexViewHandler"/>
+          <q-icon title="View hex payload" style="position: relative; top: 10px;" size="1.5rem" class="on-right cursor-pointer pull-right" v-if="selectedItem.protocol_id === proxyProtocolId" color="white" name="mdi-matrix" @click.native="hexViewHandler"/>
         </div>
         <div>
           <q-btn title="Mode (Real-time/History)" size="sm" v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'" :rounded="$q.platform.is.mobile">
@@ -184,7 +184,14 @@ export default {
       },
       tokenType (state) { return state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
       protocols (state) { return state.protocols },
-      items (state) { return state.items },
+      items (state) {
+        let items = state.items,
+          ids = items.map(item => item.id)
+        if (!ids.includes(this.acitve)) {
+          this.clearActive()
+        }
+        return items
+      },
       proxyProtocolId (state) {
         let protocols = state.protocols
         return Object.keys(protocols).reduce((res, id) => {
@@ -242,6 +249,9 @@ export default {
     async getDeletedHandler () {
       await this.getDeleted('channels')
       this.needShowGetDeletedAction = false
+    },
+    clearActive () {
+      this.active = null
     }
   },
   created () {

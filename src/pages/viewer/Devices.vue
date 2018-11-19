@@ -192,7 +192,15 @@ export default {
           hasntLogs = this.config.logs && state[this.config.logs.vuexModuleName] && state[this.config.logs.vuexModuleName].messages && !state[this.config.logs.vuexModuleName].messages.length && this.ratio !== 0
         return hasntMessages && hasntLogs
       },
-      tokenType (state) { return state.tokenInfo.access ? state.tokenInfo.access.type : -1 }
+      tokenType (state) { return state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
+      items (state) {
+        let items = state.items,
+          ids = items.map(item => item.id)
+        if (!ids.includes(this.acitve)) {
+          this.clearActive()
+        }
+        return items
+      }
     }),
     size () {
       return [this.ratio, 100 - this.ratio]
@@ -201,9 +209,6 @@ export default {
       return this.config && this.config.messages && this.$store.state[this.config.messages.vuexModuleName]
         ? this.$store.state[this.config.messages.vuexModuleName].messages.filter(message => !!message['position.latitude'] && !!message['position.longitude'])
         : []
-    },
-    items () {
-      return this.$store.state.items
     },
     selectedItem () {
       return this.items.filter(item => item.id === this.active)[0] || {}
@@ -257,6 +262,9 @@ export default {
     async getDeletedHandler () {
       await this.getDeleted('devices')
       this.needShowGetDeletedAction = false
+    },
+    clearActive () {
+      this.active = null
     }
   },
   created () {

@@ -119,7 +119,7 @@
           </q-toolbar>
           <hex-viewer
               v-if="activeConnection"
-              :style="{height: `calc(100vh - ${isVisibleToolbar ? activeConnection ? '150px' : '100px' : '50px'})`, position: 'relative', overflow: 'auto'}"
+              :style="{height: `calc(100vh - ${isVisibleToolbar ? activeConnection ? '150px' : '100px' : '100px'})`, position: 'relative', overflow: 'auto'}"
               :hex="hex"
               :view="typeOfHexView"
             />
@@ -237,8 +237,8 @@ export default {
         }
       })
   },
-  async destroyed () {
-    await this.$store.dispatch('unsubscribeItems', 'channels')
+  destroyed () {
+    this.$store.dispatch('unsubscribeItems', 'channels')
     this.$store.commit('clearItems')
   },
   watch: {

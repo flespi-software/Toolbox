@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.12.8] - 2018-11-19
+[fix] scroll hexViewer
+[fix] clear entities
+[fix] group select error
 ### [0.12.7] - 2018-11-12
 [fix] logs deleted items
 [feature] button see deleted added to empty entity page
