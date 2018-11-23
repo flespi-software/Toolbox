@@ -1,7 +1,7 @@
 {
   "platform": {
     "label": "Platform",
-    "icon": "icon-flespi2-01",
+    "icon": "icon-flespi2-02-01",
     "type": "viewer",
     "isDrawable": true,
     "logs": {

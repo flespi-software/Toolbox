@@ -24,6 +24,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-flespi2-02-01:before {
+  content: "\e900";
+}
+.icon-flespi2-03-01:before {
+  content: "\e901";
+}
 .icon-Windows_ic-01:before {
   content: "\e9ab";
 }
