@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.12.10] - 2018-11-23
+[update] login logic
 ### [0.12.9] - 2018-11-19
 [fix] init entity by link
 ### [0.12.8] - 2018-11-19
