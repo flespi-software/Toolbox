@@ -242,16 +242,46 @@ export default {
             let byteArray = onlyBySelection && this.selected.length ? this.selected.map(index => this.bytesArray[index]) : this.bytesArray
             content = byteArray.map((byte) => this.replaceByteWithMnemo(byte)).join('')
           } else {
-            let indexes = onlyBySelection && this.selected.length ? chunk(this.selected, 16) : chunk(Object.keys(this.hex.match(/.{1,2}/g)), 16)
-            console.log(indexes)
+            let isSelectionMode = onlyBySelection && this.selected.length,
+              allIndexes = chunk(Object.keys(this.hex.match(/.{1,2}/g)), 16),
+              indexes = isSelectionMode ? allIndexes.reduce((indexes, row) => {
+                let isRowEmpty = true,
+                  localRow = row.reduce((currentRow, byteIndex, index) => {
+                    if (byteIndex < this.selected[0] || byteIndex > this.selected[this.selected.length - 1]) {
+                      currentRow.push(null)
+                    } else {
+                      currentRow.push(byteIndex)
+                      isRowEmpty = false
+                    }
+                    if (index === row.length - 1) {
+                      currentRow = isRowEmpty ? null : currentRow
+                    }
+                    return currentRow
+                  }, [])
+                indexes.push(localRow)
+                return indexes
+              }, []) : allIndexes
             indexes.forEach((row, index) => {
-              content += `${this.addresses[index].toString(16).padStart(7, 0).toUpperCase()}   ${this.bytesArray[index].slice(row[0], row.length + 1).join(' ')}   `
+              if (!row) { return false }
+              content += `${this.addresses[index].toString(16).padStart(7, 0).toUpperCase()}   `
+              let currentBytesArray = this.bytesArray[index],
+                hexView = '',
+                textView = ''
+              row.forEach((index, byteIndex) => {
+                if (!index) {
+                  hexView += '  '
+                  textView += ' '
+                } else {
+                  hexView += currentBytesArray[byteIndex]
+                  textView += this.replaceByteWithDot(currentBytesArray[byteIndex])
+                }
+                hexView += ' '
+              })
+              content += hexView
+              content += `   `
               content += ''.padEnd(32 - row.length * 2, ' ')
               content += ''.padEnd(16 - row.length, ' ')
-              row.forEach((_, byteIndex) => {
-                let byte = this.bytesArray[index][byteIndex]
-                content += this.replaceByteWithDot(byte)
-              })
+              content += textView
               content += `\n`
             })
           }

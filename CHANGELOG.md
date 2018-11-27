@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.12.14] - 2018-11-27
+[fix] hexViewer copy as view
 ### [0.12.13] - 2018-11-27
 [update] qvirtualscroll
 ### [0.12.12] - 2018-11-26
