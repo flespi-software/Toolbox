@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.12.15] - 2018-11-28
+[update] mqtt-board
 ### [0.12.14] - 2018-11-27
 [fix] hexViewer copy as view
 ### [0.12.13] - 2018-11-27
