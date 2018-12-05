@@ -371,7 +371,7 @@ export default {
       }
     }
   },
-  async created () {
+  created () {
     if (!this.$store.state[this.moduleName]) {
       this.$store.registerModule(
         this.moduleName,
@@ -418,7 +418,7 @@ export default {
       if (this.needAutoScroll && this.$refs.scroller) { this.$refs.scroller.$el.scrollTop = this.$refs.scroller.$el.scrollHeight }
     }
   },
-  destroyed () {
+  beforeDestroy () {
     Vue.connector.socket.off('offline')
     Vue.connector.socket.off('connect')
     this.$store.commit(`${this.moduleName}/clear`)

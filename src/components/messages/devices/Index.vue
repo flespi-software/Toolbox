@@ -253,7 +253,7 @@ export default {
       this.currentLimit = limit
     }
   },
-  async created () {
+  created () {
     if (!this.$store.state[this.moduleName]) {
       this.$store.registerModule(this.moduleName, devicesMessagesModule({Vue, LocalStorage: this.$q.localStorage, name: this.moduleName, errorHandler: (err) => { this.$store.commit('reqFailed', err) }, filterHandler: this.filterMessages}))
     } else {
@@ -262,7 +262,7 @@ export default {
     this.currentLimit = this.limit
     if (this.activeId) {
       this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
-      await this.$store.dispatch(`${this.moduleName}/getCols`)
+      this.$store.dispatch(`${this.moduleName}/getCols`)
     }
     if (this.$store.state[this.moduleName].mode === null) {
       this.modeChange(this.mode)
@@ -282,7 +282,7 @@ export default {
       }
     })
   },
-  destroyed () {
+  beforeDestroy () {
     Vue.connector.socket.off('offline')
     Vue.connector.socket.off('connect')
     this.$store.commit(`${this.moduleName}/clear`)

@@ -61,14 +61,14 @@
       </template>
       <template v-else-if="view === 'text'">
         <span
-        v-for="(byte, index) in bytesArray"
-        @mouseover="setActiveHandler(null, index)"
-        @mousedown="event => startSelectionHandler(event, null, index)"
-        @mouseup="event => endSelectionHandler(event, null, index)"
-        class="q-mt-sm q-mb-sm"
-        :class="{ 'selected': (selected.includes(index)), 'active': (active === index) || (start === end === index), 'raw-hex-data': replaceByteWithDot(byte) === '.'}"
-        :key="`${index}${byte}`"
-      >{{replaceByteWithMnemo(byte)}}</span>
+          v-for="(byte, index) in bytesArray"
+          @mouseover="setActiveHandler(null, index)"
+          @mousedown="event => startSelectionHandler(event, null, index)"
+          @mouseup="event => endSelectionHandler(event, null, index)"
+          class="q-mt-sm q-mb-sm"
+          :class="{ 'selected': (selected.includes(index)), 'active': (active === index) || (start === end === index), 'raw-hex-data': isEmptySymbol(byte)}"
+          :key="`${index}${byte}`"
+        >{{replaceByteWithMnemo(byte)}}<br v-if="byte === '0A'"/></span>
       </template>
     </div>
     <div v-else style="text-align: center; color: #9e9e9e; font-size: 3rem; padding-top: 40px;" >No HEX data</div>
@@ -155,6 +155,15 @@ export default {
     }
   },
   methods: {
+    isEmptySymbol (byte) {
+      let number = parseInt(byte, 16),
+        string = String.fromCharCode(number)
+      if (number < 0x20 || number >= 0x7f || string.match(/\s/g)) {
+        return true
+      } else {
+        return false
+      }
+    },
     replaceByteWithDot (byte) {
       let number = parseInt(byte, 16),
         string = String.fromCharCode(number)

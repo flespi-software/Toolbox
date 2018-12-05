@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.13.0] - 2018-12-05
+[fix] hexViewer text mode
+[fix] switch entities logic
 ### [0.12.16] - 2018-11-29
 [update] mqtt-board
 ### [0.12.15] - 2018-11-28
