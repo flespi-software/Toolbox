@@ -249,7 +249,13 @@ export default {
         case 'view': {
           if (this.view === 'text') {
             let byteArray = onlyBySelection && this.selected.length ? this.selected.map(index => this.bytesArray[index]) : this.bytesArray
-            content = byteArray.map((byte) => this.replaceByteWithMnemo(byte)).join('')
+            content = byteArray.map((byte) => {
+              let str = this.replaceByteWithMnemo(byte)
+              if (byte === '0A') {
+                str += '\n'
+              }
+              return str
+            }).join('')
           } else {
             let isSelectionMode = onlyBySelection && this.selected.length,
               allIndexes = chunk(Object.keys(this.hex.match(/.{1,2}/g)), 16),
