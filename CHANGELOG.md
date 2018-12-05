@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.13.2] - 2018-12-05
+[fix] remove system fields from list-items
 ### [0.13.1] - 2018-12-05
 [fix] hexViewer as seen content constructor
 ### [0.13.0] - 2018-12-05

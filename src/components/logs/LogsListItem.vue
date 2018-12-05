@@ -5,7 +5,7 @@
       class="cursor-pointer"
       :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, borderBottom: item.delimiter ? 'solid 1px #f40' : '', boxSizing: 'border-box'}"
       :class="[color, item.__status ? 'missed-items' : '']"
-      @click="itemClickHandler(index, item)">
+      @click="itemClickHandler(index, clearItem)">
     <span class="list__item item_actions text-white" v-if="actionsVisible">
       <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
         <q-tooltip>{{action.label}}</q-tooltip>
@@ -274,6 +274,22 @@ export default {
           ? `(${this.item.send_code})`
           : '')
       return res
+    },
+    clearItem () {
+      return Object.keys(this.item).reduce((result, key) => {
+        if (
+          key === 'delimiter' ||
+          key === '__status' ||
+          key === 'uuid' ||
+          key === 'x-flespi-filter-fields' ||
+          key === 'x-flespi-filter-next' ||
+          key === 'x-flespi-filter-prev'
+        ) {
+          return result
+        }
+        result[key] = this.item[key]
+        return result
+      }, {})
     }
   },
   methods: {

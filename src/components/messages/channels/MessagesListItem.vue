@@ -2,7 +2,7 @@
   <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}">
     <div
       v-if="!item['__connectionStatus'] && !item['x-flespi-filter-prev'] && !item['x-flespi-filter-next']"
-      @click="(event) => { itemClickHandler(index, item, event) }"
+      @click="(event) => { itemClickHandler(index, clearItem, event) }"
       class="cursor-pointer"
       :class="[item.__status ? 'missed-items' : '']"
       :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, backgroundColor: selected ? 'rgba(255,255,255,0.7)': '', color: selected ? '#333' : ''}">
@@ -154,6 +154,21 @@ export default {
         }
       })
       return vals
+    },
+    clearItem () {
+      return Object.keys(this.item).reduce((result, key) => {
+        if (
+          key === 'delimiter' ||
+          key === '__status' ||
+          key === 'x-flespi-filter-fields' ||
+          key === 'x-flespi-filter-next' ||
+          key === 'x-flespi-filter-prev'
+        ) {
+          return result
+        }
+        result[key] = this.item[key]
+        return result
+      }, {})
     }
   },
   methods: {
