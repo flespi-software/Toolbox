@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "img/right-graphite@2x.f2e09a97.png"
   },
   {
-    "revision": "84dab3ca1bbf432f8b3d8f1a9820f403",
+    "revision": "9a3f2619d44ff44a850da56480accf9c",
     "url": "index.html"
   },
   {
@@ -12,8 +12,8 @@ self.__precacheManifest = [
     "url": "statics/icons/icon-512x512.png"
   },
   {
-    "revision": "06a275857faa1dc0b8a0",
-    "url": "js/10c5ca1e.767833e3.js"
+    "revision": "d2987b9c97eb07af1934",
+    "url": "js/10c5ca1e.fb6ecd37.js"
   },
   {
     "revision": "bcd9789b3d2bb700a5bbb9001f69a4fd",
@@ -128,8 +128,8 @@ self.__precacheManifest = [
     "url": "statics/flespi_logo_black.svg"
   },
   {
-    "revision": "54e207c20d91fd73ef36",
-    "url": "js/app.06330ef3.js"
+    "revision": "9018e1ef377847ea3438",
+    "url": "js/app.c3a65390.js"
   },
   {
     "revision": "13d75fa6c846d71eeb6c",
@@ -180,8 +180,8 @@ self.__precacheManifest = [
     "url": "css/9c2327f4.3d90d979.css"
   },
   {
-    "revision": "bafb105baeb22d965c70fe52ba6b49d9",
-    "url": "fonts/KFOmCnqEu92Fr1Mu4mxM.bafb105b.woff"
+    "revision": "cf6613d1adf490972c557a8e318e0868",
+    "url": "fonts/KFOlCnqEu92Fr1MmWUlfBBc-.cf6613d1.woff"
   },
   {
     "revision": "8a9a261c8b8dfe90db11f1817a9d22e1",
@@ -192,6 +192,14 @@ self.__precacheManifest = [
     "url": "fonts/flUhRq6tzZclQEJ-Vdg-IuiaDsNa.c38ebd3c.woff"
   },
   {
+    "revision": "8c2ade503b34e31430d6c98aa29a52a3",
+    "url": "fonts/KFOlCnqEu92Fr1MmYUtfBBc-.8c2ade50.woff"
+  },
+  {
+    "revision": "bafb105baeb22d965c70fe52ba6b49d9",
+    "url": "fonts/KFOmCnqEu92Fr1Mu4mxM.bafb105b.woff"
+  },
+  {
     "revision": "6536e4067e72c89cd3f1530d83e9888c",
     "url": "fonts/mdi.6536e406.woff2"
   },
@@ -200,40 +208,32 @@ self.__precacheManifest = [
     "url": "fonts/mdi.5d43a6f5.woff"
   },
   {
-    "revision": "1da4d62342ca95dcdb743a987cfa677a",
-    "url": "img/toolbox.1da4d623.png"
+    "revision": "64baba060d5a08a517f783c929f04167",
+    "url": "img/corpse.64baba06.png"
   },
   {
     "revision": "22a4000efa5cf620678732d2350ccbdc",
     "url": "img/icomoon.22a4000e.svg"
   },
   {
-    "revision": "64baba060d5a08a517f783c929f04167",
-    "url": "img/corpse.64baba06.png"
+    "revision": "1da4d62342ca95dcdb743a987cfa677a",
+    "url": "img/toolbox.1da4d623.png"
   },
   {
-    "revision": "060285607b12fad07c85",
-    "url": "css/45de157a.cf4a47ca.css"
+    "revision": "5082f565de330290103d",
+    "url": "css/44b7151a.3d90d979.css"
   },
   {
     "revision": "e9dbbe8a693dd275c16d32feb101f1c1",
     "url": "fonts/KFOkCnqEu92Fr1MmgVxIIzQ.e9dbbe8a.woff"
   },
   {
-    "revision": "cf6613d1adf490972c557a8e318e0868",
-    "url": "fonts/KFOlCnqEu92Fr1MmWUlfBBc-.cf6613d1.woff"
-  },
-  {
-    "revision": "de8b7431b74642e830af4d4f4b513ec9",
-    "url": "fonts/KFOlCnqEu92Fr1MmEU9fBBc-.de8b7431.woff"
-  },
-  {
     "revision": "a1471d1d6431c893582a5f6a250db3f9",
     "url": "fonts/KFOlCnqEu92Fr1MmSU5fBBc-.a1471d1d.woff"
   },
   {
-    "revision": "8c2ade503b34e31430d6c98aa29a52a3",
-    "url": "fonts/KFOlCnqEu92Fr1MmYUtfBBc-.8c2ade50.woff"
+    "revision": "de8b7431b74642e830af4d4f4b513ec9",
+    "url": "fonts/KFOlCnqEu92Fr1MmEU9fBBc-.de8b7431.woff"
   },
   {
     "revision": "2e22663ac3061498312b",
@@ -244,7 +244,7 @@ self.__precacheManifest = [
     "url": "css/716e6ec3.78391cc7.css"
   },
   {
-    "revision": "54e207c20d91fd73ef36",
+    "revision": "9018e1ef377847ea3438",
     "url": "css/app.486a8f85.css"
   },
   {
@@ -264,8 +264,8 @@ self.__precacheManifest = [
     "url": "css/6e21568a.3d90d979.css"
   },
   {
-    "revision": "5082f565de330290103d",
-    "url": "css/44b7151a.3d90d979.css"
+    "revision": "060285607b12fad07c85",
+    "url": "css/45de157a.cf4a47ca.css"
   },
   {
     "revision": "7548eb0cf61954630933",
@@ -284,7 +284,7 @@ self.__precacheManifest = [
     "url": "css/11b355c8.3d90d979.css"
   },
   {
-    "revision": "06a275857faa1dc0b8a0",
+    "revision": "d2987b9c97eb07af1934",
     "url": "css/10c5ca1e.42787b78.css"
   },
   {
