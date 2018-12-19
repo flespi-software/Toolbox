@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.13.4] - 2018-12-19
+[fix] README
+[fix] selection first init entity
 ### [0.13.3] - 2018-12-06
 [update] mqtt-board
 ### [0.13.2] - 2018-12-05

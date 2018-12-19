@@ -85,7 +85,7 @@
                     <div>{{config.modems.label}}</div>
                   </q-item-main>
                 </q-item>
-                <q-item-separator style="width: 100%"/>
+                <q-item-separator style="width: 100%" v-if="renderEntities.includes('channels') || renderEntities.includes('devices') || renderEntities.includes('streams') || renderEntities.includes('modems')"/>
                 <q-list-header class="col-12">Tools</q-list-header>
                 <q-item to='/tools/hex' class="col-6">
                   <q-item-main class="text-center">
@@ -153,7 +153,7 @@
                     <div>{{config.mqtt.label}}</div>
                   </q-item-main>
                 </q-item>
-                <q-item-separator style="width: 100%"/>
+                <q-item-separator v-if="renderEntities.includes('mqtt')" style="width: 100%"/>
                 <q-list-header class="col-12">Tools</q-list-header>
                 <q-item to='/tools/mqtt' class="col-6">
                   <q-item-main class="text-center">
@@ -440,7 +440,7 @@ export default {
     setDefaultEntity () {
       if (this.renderEntities.length) {
         this.entity = this.renderEntities[0]
-        this.$router.push(`/${this.renderEntities[0]}`)
+        this.$router.push(`/${this.config[this.renderEntities[0]].path || this.renderEntities[0]}`)
       } else {
         this.reset('Nothing to show by current token')
       }
