@@ -418,7 +418,7 @@ export default {
       if (this.needAutoScroll && this.$refs.scroller) { this.$refs.scroller.$el.scrollTop = this.$refs.scroller.$el.scrollHeight }
     }
   },
-  beforeDestroy () {
+  destroyed () {
     Vue.connector.socket.off('offline')
     Vue.connector.socket.off('connect')
     this.$store.commit(`${this.moduleName}/clear`)

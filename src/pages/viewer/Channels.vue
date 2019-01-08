@@ -8,6 +8,7 @@
             <q-popover fit ref="popoverNotActive">
               <q-list link separator class="scroll">
                 <VirtualList
+                  v-if="items.length"
                   :size="76"
                   :remain="items.length > 6 ? 6 : items.length"
                 >
@@ -21,7 +22,7 @@
                   >
                     <q-item-main>
                       <q-item-tile :title="item.name" label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || '&lt;noname&gt;'}}</q-item-tile>
-                      <q-item-tile sublabel><small>{{protocols[item.protocol_id] || '&lt;no protocol&gt;'}}</small></q-item-tile>
+                      <q-item-tile sublabel><small>{{(protocols && protocols[item.protocol_id]) || '&lt;no protocol&gt;'}}</small></q-item-tile>
                       <q-item-tile sublabel><small>{{item.uri || '&lt;no uri&gt;'}}</small></q-item-tile>
                     </q-item-main>
                     <q-item-side class="text-center">
@@ -58,6 +59,7 @@
                 <VirtualList
                   :size="76"
                   :remain="items.length > 6 ? 6 : items.length"
+                  v-if="items.length"
                 >
                   <q-item
                     v-for="(item, index) in items"
@@ -69,7 +71,7 @@
                   >
                     <q-item-main>
                       <q-item-tile label class="ellipsis overflow-hidden">{{item.name || '&lt;noname&gt;'}}</q-item-tile>
-                      <q-item-tile sublabel><small>{{protocols[item.protocol_id] || '&lt;no protocol&gt;'}}</small></q-item-tile>
+                      <q-item-tile sublabel><small>{{(protocols && protocols[item.protocol_id]) || '&lt;no protocol&gt;'}}</small></q-item-tile>
                       <q-item-tile class="ellipsis overflow-hidden" sublabel><small>{{item.uri || '&lt;no uri&gt;'}}</small></q-item-tile>
                     </q-item-main>
                     <q-item-side class="text-center">

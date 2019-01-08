@@ -168,7 +168,7 @@ export default {
       },
       tokenType (state) { return state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
       PROXY_PROTOCOL_ID (state) {
-        let protocols = state.protocols
+        let protocols = state.protocols || {}
         return Object.keys(protocols).reduce((proxyId, protocolId) => {
           if (protocols[protocolId] === 'proxy') {
             proxyId = parseInt(protocolId)

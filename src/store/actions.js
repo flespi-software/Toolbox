@@ -32,26 +32,39 @@ async function getItems ({ state, commit }, payload) {
         // init getting protocols name
         if (entity === 'channels' && !state.protocols) {
           let protocolsResp = await Vue.connector.gw.getProtocols('all', {fields: 'name,id'})
-          state.protocols = protocolsResp.data.result.reduce((result, protocol) => {
+          let protocols = protocolsResp.data.result.reduce((result, protocol) => {
             result[protocol.id] = protocol.name
             return result
           }, {})
+          Vue.set(state, 'protocols', protocols)
         }
-        itemsSubsId = await Vue.connector.socket.subscribe({
+        let items = []
+        let subsIds = await Vue.connector.socket.subscribe({
           name: origin,
           handler (value, topic, packet) {
             let partsOfTopic = topic.split('/').reverse(),
               name = partsOfTopic.shift(),
-              id = parseInt(partsOfTopic.shift())
+              id = parseInt(partsOfTopic.shift()),
+              source = subsIds ? state.items : items
 
             if (name === 'deleted') {
               commit('deleteItem', id)
               return false
             }
 
-            commit('setItemField', {value: JSON.parse(value.toString()), name, id})
+            let existedIndex = -1
+            source.forEach((existItem, index) => {
+              if (existItem.id === id) { existedIndex = index }
+            })
+            if (existedIndex !== -1) {
+              Vue.set(source[existedIndex], name, JSON.parse(value.toString()))
+            } else {
+              source.push({id: id, [name]: JSON.parse(value.toString())})
+            }
           }}
         )
+        Vue.set(state, 'items', items)
+        itemsSubsId = subsIds
         if (typeof state.isLoading !== 'undefined') {
           Vue.set(state, 'isLoading', false)
         }
@@ -81,8 +94,8 @@ async function unsubscribeItems ({state, commit}, payload) {
   if (entity) {
     let origin = `flespi/state${origins[entity]}/${id || '+'}/+`
     try {
-      await Vue.connector.socket.unsubscribe(origin, Object.keys(itemsSubsId))
-      itemsSubsId = null
+      let subkeys = Object.keys(itemsSubsId)
+      await Vue.connector.socket.unsubscribe(origin, subkeys)
     } catch (e) {
       commit('reqFailed', e)
     }
