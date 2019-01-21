@@ -1,6 +1,6 @@
 {
   "name": "toolbox",
-  "version": "0.13.7",
+  "version": "0.13.8",
   "description": "ToolboX",
   "productName": "ToolboX",
   "cordovaId": "org.cordova.quasar.app",
