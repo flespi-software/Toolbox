@@ -1,25 +1,26 @@
 <template>
   <div>
-    <span :class="{'text-white': inverted !== undefined}">{{data.constructor === Array ? '[' : '{'}}</span>
+    <span :class="{'text-white': inverted !== undefined}">{{Array.isArray(data) ? '[' : '{'}}</span>
     <div class="margin-left" v-for="(value, key, index) in data" :key="`${key}-${index}`">
       <div v-if="value && typeof value === 'object'">
-        <div @click="toggle(data.constructor === Array ? key : index)" class="cursor-pointer">
-          <q-icon :color="inverted !== undefined ? 'white' : 'dark'" v-if="showObj[data.constructor === Array ? key : index]" name="mdi-menu-down" style="vertical-align: baseline" />
+        <div @click="toggle(Array.isArray(data) ? key : index)" class="cursor-pointer">
+          <q-icon :color="inverted !== undefined ? 'white' : 'dark'" v-if="showObj[Array.isArray(data) ? key : index]" name="mdi-menu-down" style="vertical-align: baseline" />
           <q-icon :color="inverted !== undefined ? 'white' : 'dark'" v-else name="mdi-menu-right" style="vertical-align: baseline" />
-          <span :class="[theme.label]">{{key}}</span><span :class="{'text-white': inverted !== undefined}"> : {{data.constructor === Array ? `Array [${value.length}]` : 'Object'}}</span>
+          <span :class="[theme.label]">{{key}}</span><span :class="{'text-white': inverted !== undefined}"> : {{Array.isArray(value) ? `Array [${value.length}]` : 'Object'}}</span>
         </div>
-        <json-tree class="margin-left" v-if="showObj[data.constructor === Array ? key : index]" :data='value' :inverted="inverted"/>
+        <json-tree class="margin-left" v-if="showObj[Array.isArray(data) ? key : index]" :data='value' :inverted="inverted"/>
       </div>
       <div v-else>
         <span :class="[theme.label]">{{key}}</span><span :class="{'text-white': inverted !== undefined}"> : </span>
         <span :class="{[theme.typeNumberOrBool]: typeof value === 'number' || typeof value === 'boolean', [theme.typeString]: typeof value === 'string', [theme.typeEmpty]: typeof value === 'undefined' || value === null }">{{JSON.stringify(value)}}</span>
       </div>
     </div>
-      <span :class="{'text-white': inverted !== undefined}">{{data.constructor === Array ? ']' : '}'}}</span>
+    <span :class="{'text-white': inverted !== undefined}">{{Array.isArray(data) ? ']' : '}'}}</span>
   </div>
 </template>
 
 <script>
+import Vue from 'vue'
 export default {
   name: 'json-tree',
   props: {
@@ -55,8 +56,7 @@ export default {
   },
   methods: {
     toggle (index) {
-      this.showObj[index] = !this.showObj[index]
-      this.showObj.splice(index, 1, this.showObj[index])
+      Vue.set(this.showObj, index, !this.showObj[index])
     }
   }
 }

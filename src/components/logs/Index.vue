@@ -82,7 +82,7 @@ export default {
         this.$store.commit(`${this.moduleName}/setOrigin`, val)
         this.$store.commit(`${this.moduleName}/setItemDeletedStatus`, this.item.deleted)
         this.$store.commit(`${this.moduleName}/clearMessages`)
-        this.$store.commit(`${this.moduleName}/setCols`, this.config.cols)
+        this.$store.dispatch(`${this.moduleName}/getCols`, this.config.cols)
         if (this.$store.state[this.moduleName].mode === 0) {
           await this.$store.dispatch(`${this.moduleName}/initTime`)
           await this.$store.dispatch(`${this.moduleName}/get`)
@@ -235,7 +235,7 @@ export default {
     if (this.item) {
       this.$store.commit(`${this.moduleName}/setOrigin`, this.originByPattern)
       this.$store.commit(`${this.moduleName}/setItemDeletedStatus`, this.item.deleted)
-      this.$store.commit(`${this.moduleName}/setCols`, this.config.cols)
+      this.$store.dispatch(`${this.moduleName}/getCols`, this.config.cols)
     }
     if (this.$store.state[this.moduleName].mode === null) {
       this.modeChange(this.mode)

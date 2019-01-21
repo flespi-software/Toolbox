@@ -20,13 +20,15 @@
           <q-item-tile v-if="!Object.keys(filteredObject).length && this.search" sublabel class="ellipsis text-center text-white">Nothing found on your search</q-item-tile>
         </q-item-main>
       </q-item>
-      <q-item v-if="Object.keys(filteredObject).length" v-for="(key) in Object.keys(filteredObject)" :key="key">
-        <q-item-main>
-          <q-item-tile label class="ellipsis text-bold text-white">{{key}}<q-tooltip>{{key}}</q-tooltip></q-item-tile>
-          <q-item-tile v-if="key.indexOf('image.bin.') === -1" sublabel class="ellipsis text-white">{{JSON.stringify(filteredObject[key])}}<q-tooltip>{{JSON.stringify(filteredObject[key])}}</q-tooltip></q-item-tile>
-          <q-item-tile v-else sublabel><img class="image-bin" :src="`data:image/${key.split('.')[2]};base64, ${filteredObject[key]}`" :alt="key"></q-item-tile>
-        </q-item-main>
-      </q-item>
+      <template v-if="Object.keys(filteredObject).length">
+        <q-item v-for="(key) in Object.keys(filteredObject)" :key="key">
+          <q-item-main>
+            <q-item-tile label class="ellipsis text-bold text-white">{{key}}<q-tooltip>{{key}}</q-tooltip></q-item-tile>
+            <q-item-tile v-if="key.indexOf('image.bin.') === -1" sublabel class="ellipsis text-white">{{JSON.stringify(filteredObject[key])}}<q-tooltip>{{JSON.stringify(filteredObject[key])}}</q-tooltip></q-item-tile>
+            <q-item-tile v-else sublabel><img class="image-bin" :src="`data:image/${key.split('.')[2]};base64, ${filteredObject[key]}`" :alt="key"></q-item-tile>
+          </q-item-main>
+        </q-item>
+      </template>
     </q-list>
   </div>
 </template>

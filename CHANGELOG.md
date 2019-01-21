@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.13.7] - 2019-01-21
+[fix] array view in JsonTree
+[update] packages
 ### [0.13.6] - 2019-01-08
 [feature] buffering for entities init
 [fix] unsubscribe entities by ids
