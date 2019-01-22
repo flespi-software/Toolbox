@@ -211,7 +211,11 @@ export default {
         : []
     },
     selectedItem () {
-      return this.items.filter(item => item.id === this.active)[0] || {}
+      let item = this.items.filter(item => item.id === this.active)[0] || {}
+      if (item.deleted) {
+        this.deletedHandler()
+      }
+      return item
     },
     modeModel: {
       get () {
@@ -265,6 +269,10 @@ export default {
     },
     clearActive () {
       this.active = null
+    },
+    deletedHandler () {
+      this.ratio = 100
+      this.mode = 0
     }
   },
   created () {
@@ -286,8 +294,7 @@ export default {
         }
         // deleted item logic
         if (this.selectedItem.deleted) {
-          this.mode = 0
-          this.ratio = 100
+          this.deletedHandler()
         }
       })
   },
@@ -329,8 +336,7 @@ export default {
         this.$router.push('/devices')
       }
       if (currentItem.deleted) {
-        this.ratio = 100
-        this.mode = 0
+        this.deletedHandler()
       } else {
         this.ratio = currentItem.deleted ? 100 : 50
       }

@@ -41,7 +41,8 @@ function deleteItem (state, id) {
   state.items.forEach((existItem, index) => {
     if (existItem.id === id) { existedIndex = index }
   })
-  state.items.splice(existedIndex, 1)
+  Vue.set(state.items[existedIndex], 'deleted', true)
+  // state.items.splice(existedIndex, 1)
 }
 function setItems (state, items) {
   Vue.set(state, 'items', items)

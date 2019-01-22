@@ -11,7 +11,6 @@
                 :remain="items.length > 6 ? 6 : items.length"
               >
                 <q-item
-                  v-if="items.length"
                   v-for="(item, index) in items"
                   :key="index"
                   @click.native="active = item.id, $refs.popoverNotActive.hide()"
@@ -139,7 +138,11 @@ export default {
       }
     }),
     selectedItem () {
-      return this.items.filter(item => item.id === this.active)[0] || {}
+      let item = this.items.filter(item => item.id === this.active)[0] || {}
+      if (item.deleted) {
+        this.deletedHandler()
+      }
+      return item
     },
     modeModel: {
       get () {
@@ -176,6 +179,9 @@ export default {
     },
     clearActive () {
       this.active = null
+    },
+    deletedHandler () {
+      this.mode = 0
     }
   },
   created () {
@@ -197,7 +203,7 @@ export default {
         }
         // deleted item logic
         if (this.selectedItem.deleted) {
-          this.mode = 0
+          this.deletedHandler()
         }
       })
   },
@@ -228,7 +234,7 @@ export default {
         this.$router.push('/containers')
       }
       if (currentItem.deleted) {
-        this.mode = 0
+        this.deletedHandler()
       }
     }
   },

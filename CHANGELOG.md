@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.13.11] - 2019-01-22
+[fix] rt update fro deleted entities
 ### [0.13.10] - 2019-01-22
 [update] mqtt-board
 ### [0.13.9] - 2019-01-22

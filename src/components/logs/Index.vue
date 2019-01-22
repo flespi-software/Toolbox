@@ -78,6 +78,10 @@ export default {
     },
     origin: {
       async set (val) {
+        if (this.origin === val) {
+          this.$store.commit(`${this.moduleName}/setItemDeletedStatus`, this.item.deleted)
+          return false
+        }
         await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active entity */
         this.$store.commit(`${this.moduleName}/setOrigin`, val)
         this.$store.commit(`${this.moduleName}/setItemDeletedStatus`, this.item.deleted)
@@ -168,14 +172,14 @@ export default {
       this.i18n.to = messages.length ? `Next batch from ${date.formatDate(messages[messages.length - 1].timestamp * 1000, 'HH:mm:ss')}` : 'Next'
     },
     async modeChange (val) {
-      let modeInitValueIsNull = this.$store.state[this.moduleName].mode === null
+      // let modeInitValueIsNull = this.$store.state[this.moduleName].mode === null
       val = +val
       this.$store.commit(`${this.moduleName}/clearMessages`)
       this.$store.commit(`${this.moduleName}/setMode`, val)
       if (val === 1 && this.origin && this.$store.state[this.moduleName].mode !== null) {
         await this.$store.dispatch(`${this.moduleName}/getHistory`, 200)
       }
-      if (val === 0 && this.origin && (!this.item.deleted || modeInitValueIsNull)) {
+      if (val === 0 && this.origin) {
         await this.$store.dispatch(`${this.moduleName}/initTime`) // if need init time by last messages
         await this.$store.dispatch(`${this.moduleName}/get`)
       }

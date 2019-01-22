@@ -190,7 +190,6 @@ export default {
         let items = state.items,
           ids = items.map(item => item.id)
         if (this.isInit && this.acitve && !ids.includes(this.acitve)) {
-          console.log(ids, this.acitve)
           this.clearActive()
         }
         return items
@@ -209,7 +208,11 @@ export default {
       return [this.ratio, 100 - this.ratio]
     },
     selectedItem () {
-      return this.items.filter(item => item.id === this.active)[0] || {}
+      let item = this.items.filter(item => item.id === this.active)[0] || {}
+      if (item.deleted) {
+        this.deletedHandler()
+      }
+      return item
     },
     modeModel: {
       get () {
@@ -255,6 +258,10 @@ export default {
     },
     clearActive () {
       this.active = null
+    },
+    deletedHandler () {
+      this.ratio = 100
+      this.mode = 0
     }
   },
   created () {
@@ -276,8 +283,7 @@ export default {
         }
         // deleted item logic
         if (this.selectedItem.deleted) {
-          this.mode = 0
-          this.ratio = 100
+          this.deletedHandler()
         }
       })
   },
@@ -319,8 +325,7 @@ export default {
         this.$router.push('/channels')
       }
       if (currentItem.deleted) {
-        this.ratio = 100
-        this.mode = 0
+        this.deletedHandler()
       } else {
         this.ratio = currentItem.deleted ? 100 : 50
       }
