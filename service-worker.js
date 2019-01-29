@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "precache-manifest.ae398b752333deb67eab9b0b99291631.js"
+  "precache-manifest.98c61d185ede01abd1ee8581e04bb56f.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "toolbox"});
@@ -30,3 +30,5 @@ workbox.clientsClaim();
 self.__precacheManifest = [].concat(self.__precacheManifest || []);
 workbox.precaching.suppressWarnings();
 workbox.precaching.precacheAndRoute(self.__precacheManifest, {});
+
+workbox.routing.registerRoute(/^https:\/\/((localhost:9005)|(flespi\.io))(\/gw\/|\/auth\/|\/platform\/|\/storage\/|\/mqtt\/)/, workbox.strategies.networkOnly(), 'GET');
