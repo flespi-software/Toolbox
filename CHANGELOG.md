@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.13.12] - 2019-01-29
+[feature] deflate for ws
 ### [0.13.11] - 2019-01-22
 [fix] rt update fro deleted entities
 ### [0.13.10] - 2019-01-22

@@ -123,7 +123,13 @@ module.exports = function (ctx) {
     pwa: {
       workboxOptions: {
         skipWaiting: true,
-        clientsClaim: true
+        clientsClaim: true,
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/((localhost:9005)|(flespi\.io))(\/gw\/|\/auth\/|\/platform\/|\/storage\/|\/mqtt\/)/,
+            handler: 'networkOnly'
+          }
+        ]
       },
       manifest: {
         name: 'Flespi ToolboX',
