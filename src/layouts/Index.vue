@@ -198,7 +198,7 @@
 <script>
 import Vue from 'vue'
 import { debounce, date } from 'quasar'
-import { mapState, mapMutations, mapActions } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 import dist from '../../package.json'
 import ObjectViewer from '../components/ObjectViewer.vue'
 import RawViewer from '../components/RawViewer.vue'
@@ -298,6 +298,7 @@ export default {
       let config = {
           'log object': {
             title: 'log object',
+            description: this.currentData._description,
             wrapper: JsonTree,
             data: this.currentData
           },
@@ -322,7 +323,7 @@ export default {
             data: this.currentData.pending
           },
           'current': {
-            title: `${this.currentData.name} [upd:${date.formatDate(this.currentData.updated * 1000, 'HH:mm:ss')}]`,
+            title: `${this.currentData.name} [${date.formatDate(this.currentData.timestamp * 1000, 'HH:mm:ss')}]`,
             wrapper: JsonTree,
             data: this.currentData.current
           }
@@ -341,7 +342,6 @@ export default {
       'addError',
       'clearNotificationCounter'
     ]),
-    ...mapActions(['getTokenInfo']),
     viewDataHandler (content) {
       /* remove system field */
       content = Object.keys(content).reduce((content, name) => {
@@ -463,18 +463,16 @@ export default {
       this.isNeedSelect = !this.$route.params.noselect
       this.isVisibleToolbar = !route.params.fullscreen
       this.setToken(route.params.token)
-      this.getTokenInfo().then(() => {
-        if (route.params.id && route.params.type) {
-          if (this.renderEntities.includes(route.params.type)) {
-            this.entity = this.$route.params.type
-            this.$router.push(`/${route.params.type}/${route.params.id}`)
-          } else {
-            this.reset('Nothing to show by current token')
-          }
+      if (route.params.id && route.params.type) {
+        if (this.renderEntities.includes(route.params.type)) {
+          this.entity = this.$route.params.type
+          this.$router.push(`/${route.params.type}/${route.params.id}`)
         } else {
-          this.setDefaultEntity()
+          this.reset('Nothing to show by current token')
         }
-      })
+      } else {
+        this.setDefaultEntity()
+      }
     },
     routeMainProcess (route) {
       if (route.path === '/') { // if main route

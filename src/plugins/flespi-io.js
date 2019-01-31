@@ -24,6 +24,10 @@ if (PROD && SERVER) {
 export default ({Vue, store}) => {
   Vue.prototype.$flespiServer = connectionConfig.httpConfig && connectionConfig.httpConfig.server ? `${connectionConfig.httpConfig.server}:${connectionConfig.httpConfig.port}` : 'https://flespi.io'
   Vue.use(VueConnection, connectionConfig)
+  Vue.connector.socket.on('connect', (connack) => {
+    let tokenInfo = JSON.parse(connack.properties.userProperties.token)
+    store.commit('setTokenInfo', tokenInfo)
+  })
   Vue.connector.socket.on('error', (error) => {
     store.commit('reqFailed', error)
   })

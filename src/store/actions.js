@@ -199,75 +199,9 @@ async function checkConnection ({ state, commit }) {
   }
 }
 
-async function getTokenInfo ({ state, commit }, token) {
-  try {
-    let tokenInfoData = await Vue.connector.auth.getInfo()
-    if (tokenInfoData.data && tokenInfoData.data.errors) {
-      tokenInfoData.data.errors.forEach((error) => {
-        commit('addError', error.reason)
-      })
-    }
-    let tokenInfo = tokenInfoData.data.result[0]
-    commit('setTokenInfo', tokenInfo)
-    // agregate to config
-    switch (tokenInfo.access.type) {
-      // standart token
-      case 0: {
-        Vue.set(state.config.platform, 'isDrawable', false)
-        break
-      }
-      // master
-      case 1: {
-        break
-      }
-      // acl
-      case 2: {
-        Vue.set(state.config.platform, 'isDrawable', false)
-        let rights = tokenInfo.access.acl.reduce((result, acl) => {
-          if (acl.uri === 'gw') {
-            if (acl.methods.includes('GET')) {
-              return [...result, 'channels', 'devices', 'streams', 'modems', 'protocols']
-            }
-            return result
-          }
-          if (acl.uri === 'storage') {
-            if (acl.methods.includes('GET')) {
-              return [...result, 'containers', 'abques', 'cdns']
-            }
-            return result
-          }
-          let entity = acl.uri.split('/')[1] || acl.uri.split('/')[0]
-          if (!result.includes(entity) && (!acl.methods || (acl.methods && acl.methods.includes('GET')))) {
-            result.push(entity)
-          }
-          return result
-        }, [])
-        Object.keys(state.config).forEach((entity) => {
-          let entityConfig = state.config[entity]
-          if (!entityConfig.acl) { return false }
-          let access = entityConfig.acl.reduce((result, req) => {
-            return result && rights.includes(req)
-          }, true)
-          if (!access) {
-            state.config[entity].isDrawable = false
-          }
-        })
-        break
-      }
-    }
-  } catch (e) {
-    if (DEV) {
-      console.log(e)
-    }
-    commit('setToken', '')
-    commit('reqFailed', e)
-  }
-}
-
 export default {
   getItems,
   unsubscribeItems,
   checkConnection,
-  getTokenInfo,
   getDeleted
 }

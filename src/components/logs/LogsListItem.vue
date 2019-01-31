@@ -316,6 +316,8 @@ export default {
       return res
     },
     itemClickHandler (index, content) {
+      content._description = `[${date.formatDate(this.item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}] ${this.description}`
+      content._color = this.color
       this.$emit(`item-click`, {index, content})
     }
   }

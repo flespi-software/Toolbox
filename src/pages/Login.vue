@@ -52,23 +52,19 @@ export default {
     ...mapMutations(['setToken']),
     logIn () {
       this.setToken(this.token)
-      this.$store.dispatch('getTokenInfo', this.token).then(() => {
-        this.$nextTick(() => {
-          if (this.$route.params && this.$route.params.goto) {
-            this.$router.push(this.$route.params.goto)
-          } else {
-            this.$router.push('/')
-          }
-        })
+      this.$nextTick(() => {
+        if (this.$route.params && this.$route.params.goto) {
+          this.$router.push(this.$route.params.goto)
+        } else {
+          this.$router.push('/')
+        }
       })
     },
     autoLogin () {
       this.setToken(this.$route.params.token)
-      this.$store.dispatch('getTokenInfo', this.token).then(() => {
-        setTimeout(() => {
-          this.$router.push('/')
-        }, 1000)
-      })
+      setTimeout(() => {
+        this.$router.push('/')
+      }, 1000)
     },
     checkHasToken () {
       let sessionStorageToken = this.$q.sessionStorage.get.item('currentToken')

@@ -95,8 +95,54 @@ function clearErrors (state) {
   state.errors = []
 }
 
-function setTokenInfo (state, info) {
-  Vue.set(state, 'tokenInfo', info)
+function setTokenInfo (state, tokenInfo) {
+  Vue.set(state, 'tokenInfo', tokenInfo)
+
+  switch (tokenInfo.access.type) {
+    // standart token
+    case 0: {
+      Vue.set(state.config.platform, 'isDrawable', false)
+      break
+    }
+    // master
+    case 1: {
+      break
+    }
+    // acl
+    case 2: {
+      Vue.set(state.config.platform, 'isDrawable', false)
+      let rights = tokenInfo.access.acl.reduce((result, acl) => {
+        if (acl.uri === 'gw') {
+          if (acl.methods.includes('GET')) {
+            return [...result, 'channels', 'devices', 'streams', 'modems', 'protocols']
+          }
+          return result
+        }
+        if (acl.uri === 'storage') {
+          if (acl.methods.includes('GET')) {
+            return [...result, 'containers', 'abques', 'cdns']
+          }
+          return result
+        }
+        let entity = acl.uri.split('/')[1] || acl.uri.split('/')[0]
+        if (!result.includes(entity) && (!acl.methods || (acl.methods && acl.methods.includes('GET')))) {
+          result.push(entity)
+        }
+        return result
+      }, [])
+      Object.keys(state.config).forEach((entity) => {
+        let entityConfig = state.config[entity]
+        if (!entityConfig.acl) { return false }
+        let access = entityConfig.acl.reduce((result, req) => {
+          return result && rights.includes(req)
+        }, true)
+        if (!access) {
+          state.config[entity].isDrawable = false
+        }
+      })
+      break
+    }
+  }
 }
 
 function clearTokenInfo (state) {

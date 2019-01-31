@@ -1,5 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.14.0] - 2019-01-31
+[feature] rebased device messages cols
+[feature] rebased init auth info
+[feature] title for logs in object view
+[fix] timestamp update settings
+[fix] sw reload system
 ### [0.13.12] - 2019-01-29
 [feature] deflate for ws
 ### [0.13.11] - 2019-01-22
