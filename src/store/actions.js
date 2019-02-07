@@ -24,7 +24,7 @@ async function getItems ({ state, commit }, payload) {
     id = payload.id
   }
   if (entity) {
-    let dontNeedNewSubscribe = currentEntity === entity || id
+    let dontNeedNewSubscribe = currentEntity === entity && !id
     if (dontNeedNewSubscribe) {
       return Promise.resolve()
     }
