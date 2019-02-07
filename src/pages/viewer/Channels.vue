@@ -287,10 +287,9 @@ export default {
         }
       })
   },
-  destroyed () {
+  beforeDestroy () {
     let idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null,
       entity = 'channels'
-    this.$store.commit('clearItems')
     this.$store.dispatch('unsubscribeItems', this.isNeedSelect ? entity : {entity, id: idFromRoute})
   },
   watch: {

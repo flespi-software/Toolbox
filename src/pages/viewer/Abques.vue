@@ -210,7 +210,6 @@ export default {
   destroyed () {
     let idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null,
       entity = 'abques'
-    this.$store.commit('clearItems')
     this.$store.dispatch('unsubscribeItems', this.isNeedSelect ? entity : {entity, id: idFromRoute})
   },
   watch: {

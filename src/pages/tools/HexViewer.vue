@@ -237,9 +237,8 @@ export default {
         }
       })
   },
-  destroyed () {
+  beforeDestroy () {
     this.$store.dispatch('unsubscribeItems', 'channels')
-    this.$store.commit('clearItems')
   },
   watch: {
     $route (route) {

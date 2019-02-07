@@ -12,6 +12,7 @@ const origins = {
 }
 
 let itemsSubsId = null
+let currentEntity = ''
 
 async function getItems ({ state, commit }, payload) {
   let entity = '',
@@ -23,6 +24,11 @@ async function getItems ({ state, commit }, payload) {
     id = payload.id
   }
   if (entity) {
+    let dontNeedNewSubscribe = currentEntity === entity || id
+    if (dontNeedNewSubscribe) {
+      return Promise.resolve()
+    }
+    currentEntity = entity
     let origin = `flespi/state${origins[entity]}/${id || '+'}/+`
     if (state.token) {
       try {

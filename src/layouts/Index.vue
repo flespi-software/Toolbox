@@ -397,7 +397,7 @@ export default {
     },
     disableLoading: debounce((ctx) => {
       ctx.loadingFlag = false
-    }, 200),
+    }, 100),
     getGroups (groups) {
       return groups.reduce((result, group) => {
         if (['hub', 'storage', 'mqtt', 'platform'].includes(group)) {
@@ -504,7 +504,8 @@ export default {
       if (flag) {
         this.loadingFlag = flag
       } else {
-        this.disableLoading(this)
+        // this.disableLoading(this)
+        this.loadingFlag = false
       }
     }
   },
