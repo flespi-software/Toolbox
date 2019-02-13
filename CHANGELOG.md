@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.15.2] - 2019-02-13
+[update] mqtt-board
 ### [0.15.1] - 2019-02-07
 [fix] init by id entities
 [update] felspi-io-js
