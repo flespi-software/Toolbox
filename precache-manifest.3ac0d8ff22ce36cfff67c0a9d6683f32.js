@@ -124,16 +124,16 @@ self.__precacheManifest = [
     "url": "js/9c2327f4.2d8c42d1.js"
   },
   {
-    "revision": "84bd04eca6d400d4cd92",
+    "revision": "918475720c58b5243296",
     "url": "css/app.94aff927.css"
   },
   {
-    "revision": "84bd04eca6d400d4cd92",
-    "url": "js/app.634cd58b.js"
+    "revision": "918475720c58b5243296",
+    "url": "js/app.cccf2403.js"
   },
   {
-    "revision": "9bf6a0d4d1d99daf0fc2",
-    "url": "js/vendor.0da368ec.js"
+    "revision": "31d4d2a29f8f2f12b885",
+    "url": "js/vendor.c0ec9b32.js"
   },
   {
     "revision": "6536e4067e72c89cd3f1530d83e9888c",
@@ -164,16 +164,16 @@ self.__precacheManifest = [
     "url": "fonts/KFOkCnqEu92Fr1MmgVxIIzQ.e9dbbe8a.woff"
   },
   {
+    "revision": "a1471d1d6431c893582a5f6a250db3f9",
+    "url": "fonts/KFOlCnqEu92Fr1MmSU5fBBc-.a1471d1d.woff"
+  },
+  {
     "revision": "bafb105baeb22d965c70fe52ba6b49d9",
     "url": "fonts/KFOmCnqEu92Fr1Mu4mxM.bafb105b.woff"
   },
   {
     "revision": "de8b7431b74642e830af4d4f4b513ec9",
     "url": "fonts/KFOlCnqEu92Fr1MmEU9fBBc-.de8b7431.woff"
-  },
-  {
-    "revision": "a1471d1d6431c893582a5f6a250db3f9",
-    "url": "fonts/KFOlCnqEu92Fr1MmSU5fBBc-.a1471d1d.woff"
   },
   {
     "revision": "cf6613d1adf490972c557a8e318e0868",
@@ -232,16 +232,12 @@ self.__precacheManifest = [
     "url": "statics/icons/favicon-16x16.png"
   },
   {
-    "revision": "c3d58f5c2a54890cd4e03371aaaf1e11",
-    "url": "statics/icons/favicon-32x32.png"
-  },
-  {
     "revision": "d5da697eec032a743f6a94d6ef4470be",
     "url": "statics/icons/apple-icon-152x152.png"
   },
   {
-    "revision": "82f983ec2277961e9878f2bf014b13fc",
-    "url": "statics/flespi_logo_black.svg"
+    "revision": "c3d58f5c2a54890cd4e03371aaaf1e11",
+    "url": "statics/icons/favicon-32x32.png"
   },
   {
     "revision": "287016ff97b8f4cf6c7bf6a5b6389cc5",
@@ -250,6 +246,10 @@ self.__precacheManifest = [
   {
     "revision": "48825872e0cfe76b84a83fbdfce8dba4",
     "url": "statics/icons/icon-152x152.png"
+  },
+  {
+    "revision": "82f983ec2277961e9878f2bf014b13fc",
+    "url": "statics/flespi_logo_black.svg"
   },
   {
     "revision": "5387fdaebd7376fc4800f74606651cc1",
@@ -264,20 +264,20 @@ self.__precacheManifest = [
     "url": "statics/icons/ms-icon-144x144.png"
   },
   {
-    "revision": "14d6cca701394318ed367e336cf50847",
-    "url": "statics/icons/icon-192x192.png"
+    "revision": "cf46c82e435aa040daecaf16508027a3",
+    "url": "statics/toolbox_mobile.png"
   },
   {
     "revision": "a9de7e81de000ac57c2855c29a98e796",
     "url": "statics/police.png"
   },
   {
-    "revision": "cf46c82e435aa040daecaf16508027a3",
-    "url": "statics/toolbox_mobile.png"
-  },
-  {
     "revision": "525061fbc60090f9b92f626b25a2a976",
     "url": "statics/toolbox50.png"
+  },
+  {
+    "revision": "14d6cca701394318ed367e336cf50847",
+    "url": "statics/icons/icon-192x192.png"
   },
   {
     "revision": "bcd9789b3d2bb700a5bbb9001f69a4fd",
@@ -288,7 +288,7 @@ self.__precacheManifest = [
     "url": "statics/icons/icon-512x512.png"
   },
   {
-    "revision": "5c2a2221f310b716b920fdc43a05f8d0",
+    "revision": "7cffbdfbdb23cd4f490f510350dba988",
     "url": "index.html"
   }
 ];
