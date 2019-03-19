@@ -48,72 +48,72 @@ $ npm run dev_local
 ```
 
 ## Requirements:
-You need to have a separate token with at least the following ACLs:\
-https://flespi.io/auth/oauth/providers\
-https://flespi.io/auth/info\
-Platform\
-REST\
-https://flespi.io/platform/customer/logs\
-MQTT\
-flespi/log/platform/customer/+/#\
-Channels\
-REST\
-/gw/protocols/all\
-https://flespi.io/gw/channels/{selector}/logs\
-https://flespi.io/gw/channels/{selector}/messages\
-MQTT\
-flespi/state/gw/channels/{selector}/+\
-flespi/log/gw/channels/{selector}/#\
-flespi/message/gw/channels/{selector}/+\
-Devices\
-REST\
-https://flespi.io/gw/devices/{selector}/logs\
-https://flespi.io/gw/devices/{selector}/messages\
-MQTT\
-state/gw/devices/{selector}/+\
-flespi/log/gw/devices/{selector}/#\
-flespi/message/gw/devices/{selector}/#\
-Streams\
-REST\
-https://flespi.io/gw/streams/{selector}/logs\
-MQTT\
-state/gw/streams/{selector}/+\
-flespi/log/gw/streams/{selector}/#\
-Modems\
-REST\
-https://flespi.io/gw/modems/{selector}/logs\
-MQTT\
-flespi/state/gw/modems/{selector}/+\
-flespi/log/gw/modems/{selector}/#\
-HexViewer\
-REST\
-/gw/channels/{proxy-channel-id}/messages\
-MQTT\
-flespi/state/gw/channels/{selector}/+\
-flespi/message/gw/channels/{proxy-channel-id}/+\
-Containers\
-REST\
-https://flespi.io/storage/containers/{selector}/logs\
-MQTT\
-flespi/state/storage/containers/{selector}/+\
-flespi/log/storage/containers/{selector}/#\
-Abques\
-REST\
-https://flespi.io/storage/abques/{selector}/logs\
-MQTT\
-flespi/state/storage/abques/{selector}/+\
-flespi/log/storage/abques/{selector}/#\
-CDNS\
-REST\
-https://flespi.io/storage/cdns/{selector}/logs\
-MQTT\
-flespi/state/storage/cdns/{selector}/+\
-flespi/log/storage/cdns/{selector}/#\
-MQTT(section)\
-REST\
-https://flespi.io/mqtt/logs\
-MQTT\
-flespi/log/mqtt/+/#\
+You need to have a separate token with at least the following ACLs:<br />
+https://flespi.io/auth/oauth/providers<br />
+https://flespi.io/auth/info<br />
+Platform<br />
+REST<br />
+https://flespi.io/platform/customer/logs<br />
+MQTT<br />
+flespi/log/platform/customer/+/#<br />
+Channels<br />
+REST<br />
+/gw/protocols/all<br />
+https://flespi.io/gw/channels/{selector}/logs<br />
+https://flespi.io/gw/channels/{selector}/messages<br />
+MQTT<br />
+flespi/state/gw/channels/{selector}/+<br />
+flespi/log/gw/channels/{selector}/#<br />
+flespi/message/gw/channels/{selector}/+<br />
+Devices<br />
+REST<br />
+https://flespi.io/gw/devices/{selector}/logs<br />
+https://flespi.io/gw/devices/{selector}/messages<br />
+MQTT<br />
+state/gw/devices/{selector}/+<br />
+flespi/log/gw/devices/{selector}/#<br />
+flespi/message/gw/devices/{selector}/#<br />
+Streams<br />
+REST<br />
+https://flespi.io/gw/streams/{selector}/logs<br />
+MQTT<br />
+state/gw/streams/{selector}/+<br />
+flespi/log/gw/streams/{selector}/#<br />
+Modems<br />
+REST<br />
+https://flespi.io/gw/modems/{selector}/logs<br />
+MQTT<br />
+flespi/state/gw/modems/{selector}/+<br />
+flespi/log/gw/modems/{selector}/#<br />
+HexViewer<br />
+REST<br />
+/gw/channels/{proxy-channel-id}/messages<br />
+MQTT<br />
+flespi/state/gw/channels/{selector}/+<br />
+flespi/message/gw/channels/{proxy-channel-id}/+<br />
+Containers<br />
+REST<br />
+https://flespi.io/storage/containers/{selector}/logs<br />
+MQTT<br />
+flespi/state/storage/containers/{selector}/+<br />
+flespi/log/storage/containers/{selector}/#<br />
+Abques<br />
+REST<br />
+https://flespi.io/storage/abques/{selector}/logs<br />
+MQTT<br />
+flespi/state/storage/abques/{selector}/+<br />
+flespi/log/storage/abques/{selector}/#<br />
+CDNS<br />
+REST<br />
+https://flespi.io/storage/cdns/{selector}/logs<br />
+MQTT<br />
+flespi/state/storage/cdns/{selector}/+<br />
+flespi/log/storage/cdns/{selector}/#<br />
+MQTT(section)<br />
+REST<br />
+https://flespi.io/mqtt/logs<br />
+MQTT<br />
+flespi/log/mqtt/+/#<br />
 
 ## License
 [MIT](https://github.com/flespi-software/Toolbox/blob/master/LICENSE) license.
