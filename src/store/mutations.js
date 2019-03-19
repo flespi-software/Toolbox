@@ -34,6 +34,7 @@ function reqFailed (state, payload) {
     }
   } else {
     addError(state, payload.message)
+    if (payload.code === 2) { clearToken(state) }
   }
 }
 function deleteItem (state, id) {

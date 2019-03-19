@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.15.4] - 2019-03-19
+[fix] login
 ### [0.15.3] - 2019-02-14
 [update] flespi-io-js
 [update] mqtt-board
