@@ -5,13 +5,15 @@
         <q-btn flat style="display: flex; flex-wrap: nowrap; margin-top: 20px" icon-right="mdi-menu-down" v-if="items.length">
           Select device
           <q-popover fit ref="popoverNotActive">
+            <q-input v-model="filter" color="dark" clearable placeholder="Filter" hide-underline class="q-ma-xs q-pa-xs items__filter"/>
             <q-list link separator class="scroll">
               <VirtualList
+                v-if="filteredItems"
                 :size="56"
-                :remain="items.length > 6 ? 6 : items.length"
+                :remain="filteredItems.length > 6 ? 6 : filteredItems.length"
               >
                 <q-item
-                  v-for="(item, index) in items"
+                  v-for="(item, index) in filteredItems"
                   :key="index"
                   @click.native="active = item.id, $refs.popoverNotActive.hide()"
                   highlight
@@ -24,10 +26,13 @@
                   </q-item-main>
                   <q-item-side class="text-center">
                     <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
-                    <q-item-tile><small>#{{item.id.toString()}}</small></q-item-tile>
+                    <q-item-tile><small>#{{item.id}}</small></q-item-tile>
                   </q-item-side>
                 </q-item>
               </VirtualList>
+              <div v-else class="text-center q-ma-md">
+                No devices
+              </div>
             </q-list>
             <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
           </q-popover>
@@ -46,17 +51,19 @@
             <q-item-tile sublabel style="font-size: 0.8rem" v-if="selectedItem.ident">{{selectedItem.ident}}</q-item-tile>
           </q-item-main>
           <q-item-side class="text-right">
-            <q-item-tile style="display: inline-block" stamp color="white" class="text-center"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id.toString()}}</q-item-tile>
+            <q-item-tile style="display: inline-block" stamp color="white" class="text-center"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id}}</q-item-tile>
             <q-item-tile v-if="isNeedSelect" style="display: inline-block" stamp color="white" size="2rem" icon="mdi-menu-down" />
           </q-item-side>
           <q-popover fit ref="popoverActive" v-if="isNeedSelect">
+            <q-input v-model="filter" color="dark" clearable placeholder="Filter" hide-underline class="q-ma-xs q-pa-xs items__filter"/>
             <q-list link separator class="scroll">
               <VirtualList
+                v-if="filteredItems.length"
                 :size="56"
-                :remain="items.length > 6 ? 6 : items.length"
+                :remain="filteredItems.length > 6 ? 6 : filteredItems.length"
               >
                 <q-item
-                  v-for="(item, index) in items"
+                  v-for="(item, index) in filteredItems"
                   :key="index"
                   @click.native="active = item.id, $refs.popoverActive.hide(), $emit('view-data-hide')"
                   class="cursor-pointer"
@@ -69,10 +76,13 @@
                   </q-item-main>
                   <q-item-side class="text-center">
                     <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
-                    <q-item-tile><small>#{{item.id.toString()}}</small></q-item-tile>
+                    <q-item-tile><small>#{{item.id}}</small></q-item-tile>
                   </q-item-side>
                 </q-item>
               </VirtualList>
+              <div v-else class="text-center q-ma-md">
+                No devices
+              </div>
             </q-list>
             <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
           </q-popover>
@@ -170,6 +180,7 @@ export default {
   ],
   data () {
     return {
+      filter: '',
       mode: 1,
       active: null,
       ratio: 50,
@@ -202,6 +213,40 @@ export default {
         return items
       }
     }),
+    filteredItems () {
+      let filter = this.filter.toLowerCase()
+      let filteredItems = this.filter ? this.items.filter(item => {
+        return (
+          item &&
+          typeof item.name !== 'undefined' &&
+          item.name !== null &&
+          item.name.toLowerCase().indexOf(filter) >= 0
+        ) ||
+        (
+          item &&
+          typeof item.id !== 'undefined' &&
+          item.id !== null &&
+          (item.id + '').indexOf(filter) >= 0
+        ) ||
+        (
+          item &&
+          typeof item.ident !== 'undefined' &&
+          item.ident !== null &&
+          item.ident.toLowerCase().indexOf(filter) >= 0
+        )
+      }) : this.items
+      filteredItems.sort((l, r) => {
+        let lName = l.name.toLowerCase()
+        let rName = r.name.toLowerCase()
+        if (!lName || lName < rName) {
+          return -1
+        } else if (!rName || lName > rName) {
+          return 1
+        }
+        return 1
+      })
+      return filteredItems
+    },
     size () {
       return [this.ratio, 100 - this.ratio]
     },
@@ -344,7 +389,13 @@ export default {
   components: { logs, messages, MapComponent, VirtualList }
 }
 </script>
-<style>
+<style lang="stylus">
+  @import '~variables'
+  .items__filter {
+    min-width: 250px;
+    border: 1px solid $dark;
+    border-radius: 3px;
+  }
   .no-top-bottom-margin {
     margin-bottom: 0;
     margin-top: 0;

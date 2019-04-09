@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.15.5] - 2019-04-09
+[feature] devices popup filter
 ### [0.15.4] - 2019-03-19
 [fix] login
 ### [0.15.3] - 2019-02-14
