@@ -5,13 +5,15 @@
         <q-btn flat style="display: flex; flex-wrap: nowrap; margin-top: 20px" icon-right="mdi-menu-down" v-if="items.length">
           Select stream
           <q-popover fit ref="popoverNotActive">
+            <q-input v-model="filter" color="dark" clearable placeholder="Filter" hide-underline class="q-ma-xs q-pa-xs items__filter"/>
             <q-list link separator class="scroll">
               <VirtualList
+                v-if="filteredItems"
                 :size="76"
-                :remain="items.length > 6 ? 6 : items.length"
+                :remain="filteredItems.length > 6 ? 6 : filteredItems.length"
               >
                 <q-item
-                  v-for="(item, index) in items"
+                  v-for="(item, index) in filteredItems"
                   :key="index"
                   @click.native="active = item.id, $refs.popoverNotActive.hide()"
                   class="cursor-pointer"
@@ -29,6 +31,9 @@
                   </q-item-side>
                 </q-item>
               </VirtualList>
+              <div v-else class="text-center q-ma-md">
+                No stream
+              </div>
             </q-list>
             <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
           </q-popover>
@@ -51,13 +56,15 @@
             <q-item-tile v-if="isNeedSelect" style="display: inline-block" stamp color="white" size="2rem" icon="mdi-menu-down" />
           </q-item-side>
           <q-popover fit ref="popoverActive" v-if="isNeedSelect">
+            <q-input v-model="filter" color="dark" clearable placeholder="Filter" hide-underline class="q-ma-xs q-pa-xs items__filter"/>
             <q-list link separator class="scroll">
               <VirtualList
+                v-if="filteredItems.length"
                 :size="76"
-                :remain="items.length > 6 ? 6 : items.length"
+                :remain="filteredItems.length > 6 ? 6 : filteredItems.length"
               >
                 <q-item
-                  v-for="(item, index) in items"
+                  v-for="(item, index) in filteredItems"
                   :key="index"
                   @click.native="active = item.id, $refs.popoverActive.hide(), $emit('view-data-hide')"
                   class="cursor-pointer"
@@ -75,6 +82,9 @@
                   </q-item-side>
                 </q-item>
               </VirtualList>
+              <div v-else class="text-center q-ma-md">
+                No streams
+              </div>
             </q-list>
             <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
           </q-popover>
@@ -117,6 +127,7 @@ export default {
   ],
   data () {
     return {
+      filter: '',
       mode: 1,
       active: null,
       isInit: false,
@@ -141,6 +152,34 @@ export default {
         return items
       }
     }),
+    filteredItems () {
+      let filter = this.filter.toLowerCase()
+      let filteredItems = this.filter ? this.items.filter(item => {
+        return (
+          item &&
+          typeof item.name !== 'undefined' &&
+          item.name !== null &&
+          item.name.toLowerCase().indexOf(filter) >= 0
+        ) ||
+        (
+          item &&
+          typeof item.id !== 'undefined' &&
+          item.id !== null &&
+          (item.id + '').indexOf(filter) >= 0
+        )
+      }) : this.items
+      filteredItems.sort((l, r) => {
+        let lName = l.name.toLowerCase()
+        let rName = r.name.toLowerCase()
+        if (!lName || lName < rName) {
+          return -1
+        } else if (!rName || lName > rName) {
+          return 1
+        }
+        return 1
+      })
+      return filteredItems
+    },
     selectedItem () {
       let item = this.items.filter(item => item.id === this.active)[0] || {}
       if (item.deleted) {
@@ -244,7 +283,13 @@ export default {
   components: { logs, VirtualList }
 }
 </script>
-<style>
+<style lang="stylus">
+  @import '~variables'
+  .items__filter {
+    min-width: 250px;
+    border: 1px solid $dark;
+    border-radius: 3px;
+  }
   .no-top-bottom-margin {
     margin-bottom: 0;
     margin-top: 0;

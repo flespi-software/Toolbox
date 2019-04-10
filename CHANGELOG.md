@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.15.6] - 2019-04-10
+[feature] streams popup filter
+[feature] channels popup filter
 ### [0.15.5] - 2019-04-09
 [feature] devices popup filter
 ### [0.15.4] - 2019-03-19
