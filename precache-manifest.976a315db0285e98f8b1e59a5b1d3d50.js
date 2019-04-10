@@ -24,22 +24,6 @@ self.__precacheManifest = [
     "url": "js/10c5ca1e.88b10fb5.js"
   },
   {
-    "revision": "330c8abcfb53056dae15",
-    "url": "css/11b355c8.3d90d979.css"
-  },
-  {
-    "revision": "330c8abcfb53056dae15",
-    "url": "js/11b355c8.2f62154c.js"
-  },
-  {
-    "revision": "5feb07d0af335a042b86",
-    "url": "css/13879613.d4a5cdd9.css"
-  },
-  {
-    "revision": "5feb07d0af335a042b86",
-    "url": "js/13879613.3d8814ad.js"
-  },
-  {
     "revision": "353ab4fba798f700912b",
     "url": "css/214247b9.3d90d979.css"
   },
@@ -100,6 +84,14 @@ self.__precacheManifest = [
     "url": "js/63acbb75.d88165ac.js"
   },
   {
+    "revision": "3b617ae5a98588fdeec7",
+    "url": "css/64fd930d.69dc7be3.css"
+  },
+  {
+    "revision": "3b617ae5a98588fdeec7",
+    "url": "js/64fd930d.54e3fc1a.js"
+  },
+  {
     "revision": "0e68ac50378d3949a8c6",
     "url": "css/66dde829.08c25eee.css"
   },
@@ -124,12 +116,20 @@ self.__precacheManifest = [
     "url": "js/9c2327f4.2d8c42d1.js"
   },
   {
-    "revision": "6d7b847a58476cb4d0d3",
+    "revision": "1aa2d3ca26312ca0adc0",
     "url": "css/app.d4735ae4.css"
   },
   {
-    "revision": "6d7b847a58476cb4d0d3",
-    "url": "js/app.42ac8cb0.js"
+    "revision": "1aa2d3ca26312ca0adc0",
+    "url": "js/app.e61f5129.js"
+  },
+  {
+    "revision": "9412e41a4561aa0b5ddd",
+    "url": "css/ed632dd2.7d89a628.css"
+  },
+  {
+    "revision": "9412e41a4561aa0b5ddd",
+    "url": "js/ed632dd2.8d5fc5c3.js"
   },
   {
     "revision": "6a5899be5ba7079fc64b",
@@ -160,6 +160,10 @@ self.__precacheManifest = [
     "url": "img/corpse.64baba06.png"
   },
   {
+    "revision": "bafb105baeb22d965c70fe52ba6b49d9",
+    "url": "fonts/KFOmCnqEu92Fr1Mu4mxM.bafb105b.woff"
+  },
+  {
     "revision": "e9dbbe8a693dd275c16d32feb101f1c1",
     "url": "fonts/KFOkCnqEu92Fr1MmgVxIIzQ.e9dbbe8a.woff"
   },
@@ -168,20 +172,16 @@ self.__precacheManifest = [
     "url": "fonts/KFOlCnqEu92Fr1MmSU5fBBc-.a1471d1d.woff"
   },
   {
-    "revision": "bafb105baeb22d965c70fe52ba6b49d9",
-    "url": "fonts/KFOmCnqEu92Fr1Mu4mxM.bafb105b.woff"
-  },
-  {
     "revision": "de8b7431b74642e830af4d4f4b513ec9",
     "url": "fonts/KFOlCnqEu92Fr1MmEU9fBBc-.de8b7431.woff"
   },
   {
-    "revision": "cf6613d1adf490972c557a8e318e0868",
-    "url": "fonts/KFOlCnqEu92Fr1MmWUlfBBc-.cf6613d1.woff"
-  },
-  {
     "revision": "8c2ade503b34e31430d6c98aa29a52a3",
     "url": "fonts/KFOlCnqEu92Fr1MmYUtfBBc-.8c2ade50.woff"
+  },
+  {
+    "revision": "cf6613d1adf490972c557a8e318e0868",
+    "url": "fonts/KFOlCnqEu92Fr1MmWUlfBBc-.cf6613d1.woff"
   },
   {
     "revision": "8a9a261c8b8dfe90db11f1817a9d22e1",
@@ -236,20 +236,20 @@ self.__precacheManifest = [
     "url": "statics/flespi_logo_black.svg"
   },
   {
-    "revision": "d5da697eec032a743f6a94d6ef4470be",
-    "url": "statics/icons/apple-icon-152x152.png"
-  },
-  {
     "revision": "c3d58f5c2a54890cd4e03371aaaf1e11",
     "url": "statics/icons/favicon-32x32.png"
   },
   {
-    "revision": "48825872e0cfe76b84a83fbdfce8dba4",
-    "url": "statics/icons/icon-152x152.png"
+    "revision": "d5da697eec032a743f6a94d6ef4470be",
+    "url": "statics/icons/apple-icon-152x152.png"
   },
   {
     "revision": "287016ff97b8f4cf6c7bf6a5b6389cc5",
     "url": "statics/icons/icon-128x128.png"
+  },
+  {
+    "revision": "48825872e0cfe76b84a83fbdfce8dba4",
+    "url": "statics/icons/icon-152x152.png"
   },
   {
     "revision": "838698af837cf35dfead7869b02ce5b8",
@@ -288,7 +288,7 @@ self.__precacheManifest = [
     "url": "statics/icons/icon-512x512.png"
   },
   {
-    "revision": "ac6d4b345946c27376ff4019edac0680",
+    "revision": "b05f958d1232ee030ff57dfb1c54dd79",
     "url": "index.html"
   }
 ];
