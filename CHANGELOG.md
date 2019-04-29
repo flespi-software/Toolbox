@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.15.7] - 2019-04-29
+[update] close codes
+[fix] change default name for token in LS
 ### [0.15.6] - 2019-04-10
 [feature] streams popup filter
 [feature] channels popup filter

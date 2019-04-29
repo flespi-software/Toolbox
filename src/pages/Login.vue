@@ -67,7 +67,7 @@ export default {
       }, 1000)
     },
     checkHasToken () {
-      let sessionStorageToken = this.$q.sessionStorage.get.item('currentToken')
+      let sessionStorageToken = this.$q.sessionStorage.get.item('toolbox-token')
       if (this.$route.params && this.$route.params.token) {
         this.autoLogin()
       } else if (sessionStorageToken) {

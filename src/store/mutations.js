@@ -58,7 +58,7 @@ function setToken (state, val) {
   let token = val.replace('FlespiToken ', '')
   if (token === state.token) { return false }
   if (val && token.match(/^[a-z0-9]+$/i)) {
-    SessionStorage.set('currentToken', token)
+    SessionStorage.set('toolbox-token', token)
   } else {
     token = ''
     clearToken(state)
@@ -68,7 +68,7 @@ function setToken (state, val) {
   clearErrors(state)
 }
 function clearToken (state) {
-  SessionStorage.remove('currentToken')
+  SessionStorage.remove('toolbox-token')
   Vue.connector.token = ''
   Vue.set(state, 'token', '')
   clearTokenInfo(state)
