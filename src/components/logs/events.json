@@ -47,7 +47,8 @@
     "700": "container size has been changed",
     "800": "abque size has been changed",
     "900": "cdn size has been changed",
-    "901": "file was placed on cdn"
+    "901": "file was placed on cdn",
+    "902": "file was removed from cdn"
   },
   "closeCodes": {
     "-1": "Unexpected disconnect",

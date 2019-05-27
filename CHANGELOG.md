@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.15.8] - 2019-05-27
+[update] log code added
 ### [0.15.7] - 2019-04-29
 [update] close codes
 [fix] change default name for token in LS

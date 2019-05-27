@@ -168,6 +168,7 @@ export default {
         case 402:
         case 403:
         case 501:
+        case 902:
           return 'text-red'
         case 201: {
           if (this.item.send_code < 0) {
@@ -245,7 +246,8 @@ export default {
         case 700: { return `${SERVER || 'https:localhost:9005'}/docs/#/storage/!/containers` }
         case 800: { return `${SERVER || 'https:localhost:9005'}/docs/#/storage/!/abques` }
         case 900:
-        case 901: { return `${SERVER || 'https:localhost:9005'}/docs/#/storage/!/cdns` }
+        case 901:
+        case 902: { return `${SERVER || 'https:localhost:9005'}/docs/#/storage/!/cdns` }
         default: { return '' }
       }
     },
@@ -280,7 +282,6 @@ export default {
         if (
           key === 'delimiter' ||
           key === '__status' ||
-          key === 'uuid' ||
           key === 'x-flespi-filter-fields' ||
           key === 'x-flespi-filter-next' ||
           key === 'x-flespi-filter-prev'
