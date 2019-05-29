@@ -265,7 +265,7 @@ export default {
       res += this.item.error_code
         ? ` (${this.item.error_code}: ${
           this.item.error_code < 0 && this.item.error_code !== -99
-            ? 'failed to connect' : errorCodes[this.item.event_code][this.item.error_code]
+            ? 'failed to connect or no response from server' : errorCodes[this.item.event_code][this.item.error_code]
         })`
         : (errorCodes[this.item.event_code] && errorCodes[this.item.event_code][this.item.error_code]
           ? `(${this.item.error_code})`
