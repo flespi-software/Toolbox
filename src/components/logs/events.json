@@ -30,7 +30,7 @@
     "315": "REST API (DELETE) request: current setting value was cleared from the system by user",
     "401": "stream connected successfully",
     "402": "stream has lost connection",
-    "403": "stream failed to connect",
+    "403": "stream failed to deliver messages",
     "404": "stream has sent messages",
     "410": "new subscription was created for stream",
     "411": "stream subscription was updated",
@@ -106,6 +106,8 @@
     },
     "403": {
       "-99": "certificate error",
+      "-2": "request sent but no response received",
+      "-1": "failed to connect",
       "1": "unacceptable protocol version",
       "2": "identifier rejected",
       "3": "server unavailable",
