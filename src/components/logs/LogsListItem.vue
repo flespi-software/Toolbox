@@ -130,8 +130,11 @@ export default {
         case 313:
         case 401:
         case 410:
+        case 420:
+        case 430:
         case 500:
         case 510:
+        case 601:
         case 901:
           return 'text-green'
         case 2:
@@ -155,8 +158,11 @@ export default {
         case 301:
         case 310:
         case 404:
+        case 422:
+        case 432:
         case 503:
         case 512:
+        case 602:
         case 700:
         case 800:
           return 'text-grey-6'
@@ -233,7 +239,11 @@ export default {
         case 404:
         case 410:
         case 411:
-        case 412: { return `${SERVER || 'https:localhost:9005'}/docs/#/gw/!/streams` }
+        case 412:
+        case 420:
+        case 422:
+        case 430:
+        case 432: { return `${SERVER || 'https:localhost:9005'}/docs/#/gw/!/streams` }
         case 500:
         case 501:
         case 502:
@@ -243,6 +253,8 @@ export default {
         case 511:
         case 512: { return `${SERVER || 'https:localhost:9005'}/docs/#/mqtt/!/sessions` }
         case 600: { return `${SERVER || 'https:localhost:9005'}/docs/#/platform/!/tokens` }
+        case 601:
+        case 602: { return `${SERVER || 'https:localhost:9005'}/docs/#/gw/!/calcs` }
         case 700: { return `${SERVER || 'https:localhost:9005'}/docs/#/storage/!/containers` }
         case 800: { return `${SERVER || 'https:localhost:9005'}/docs/#/storage/!/abques` }
         case 900:
