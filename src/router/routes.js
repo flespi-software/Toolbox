@@ -16,6 +16,13 @@ function getIndexChildrenRoutes (config) {
       component: () => import(`pages/${type}/${componentName}`),
       meta: {moduleName}
     })
+    if (moduleName === 'calcs') {
+      result.push({
+        path: `${path}/:id/device/:deviceId`,
+        component: () => import(`pages/${type}/${componentName}`),
+        meta: {moduleName}
+      })
+    }
     return result
   }, [])
 }

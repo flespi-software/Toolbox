@@ -3,7 +3,7 @@
     <q-item>
       <q-item-side left><q-icon color="white" size="1.8rem" name="mdi-view-list"/></q-item-side>
       <q-item-main>
-        <q-item-tile label class="ellipsis text-bold text-white">Message</q-item-tile>
+        <q-item-tile label class="ellipsis text-bold text-white">Object</q-item-tile>
       </q-item-main>
       <q-item-side right><q-icon color="white" class="pull-right cursor-pointer" name="mdi-close" @click.native="$emit('close')" size="1.8rem" /></q-item-side>
     </q-item>
@@ -15,7 +15,7 @@
     <q-list separator no-border>
       <q-item v-if="!Object.keys(object).length || !Object.keys(filteredObject).length">
         <q-item-main>
-          <q-item-tile label class="ellipsis text-bold text-center text-white">Message is empty</q-item-tile>
+          <q-item-tile label class="ellipsis text-bold text-center text-white">Object is empty</q-item-tile>
           <q-item-tile v-if="!Object.keys(object).length" sublabel class="ellipsis text-center text-white">Message has not fields</q-item-tile>
           <q-item-tile v-if="!Object.keys(filteredObject).length && this.search" sublabel class="ellipsis text-center text-white">Nothing found on your search</q-item-tile>
         </q-item-main>

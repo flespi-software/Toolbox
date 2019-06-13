@@ -169,11 +169,13 @@ export default {
         )
       }) : this.items
       filteredItems.sort((l, r) => {
+        if (!l.name) { return -1 }
+        if (!r.name) { return 1 }
         let lName = l.name.toLowerCase()
         let rName = r.name.toLowerCase()
-        if (!lName || lName < rName) {
+        if (lName < rName) {
           return -1
-        } else if (!rName || lName > rName) {
+        } else if (lName > rName) {
           return 1
         }
         return 1
@@ -225,35 +227,26 @@ export default {
     },
     deletedHandler () {
       this.mode = 0
+    },
+    init () {
+      let entity = 'streams',
+        activeFromLocaleStorage = this.$q.localStorage.get.item(entity),
+        idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null
+      this.isInit = true
+      if (idFromRoute) {
+        if (this.items.filter(item => item.id === Number(idFromRoute)).length) {
+          this.active = Number(idFromRoute)
+        } else {
+          this.active = null
+        }
+      } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
+        this.active = activeFromLocaleStorage
+      }
+      // deleted item logic
+      if (this.selectedItem.deleted) {
+        this.deletedHandler()
+      }
     }
-  },
-  created () {
-    let entity = 'streams',
-      activeFromLocaleStorage = this.$q.localStorage.get.item(entity),
-      idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null
-
-    this.$store.dispatch('getItems', this.isNeedSelect ? entity : {entity, id: idFromRoute})
-      .then(() => {
-        this.isInit = true
-        if (idFromRoute) {
-          if (this.items.filter(item => item.id === Number(idFromRoute)).length) {
-            this.active = Number(idFromRoute)
-          } else {
-            this.active = null
-          }
-        } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
-          this.active = activeFromLocaleStorage
-        }
-        // deleted item logic
-        if (this.selectedItem.deleted) {
-          this.deletedHandler()
-        }
-      })
-  },
-  destroyed () {
-    let idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null,
-      entity = 'streams'
-    this.$store.dispatch('unsubscribeItems', this.isNeedSelect ? entity : {entity, id: idFromRoute})
   },
   watch: {
     $route (route) {

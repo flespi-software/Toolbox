@@ -152,6 +152,7 @@ export default {
         case 504:
         case 511:
         case 600:
+        case 603:
         case 900:
           return 'text-yellow'
         case 113:
@@ -254,7 +255,8 @@ export default {
         case 512: { return `${SERVER || 'https:localhost:9005'}/docs/#/mqtt/!/sessions` }
         case 600: { return `${SERVER || 'https:localhost:9005'}/docs/#/platform/!/tokens` }
         case 601:
-        case 602: { return `${SERVER || 'https:localhost:9005'}/docs/#/gw/!/calcs` }
+        case 602:
+        case 603: { return `${SERVER || 'https:localhost:9005'}/docs/#/gw/!/calcs` }
         case 700: { return `${SERVER || 'https:localhost:9005'}/docs/#/storage/!/containers` }
         case 800: { return `${SERVER || 'https:localhost:9005'}/docs/#/storage/!/abques` }
         case 900:

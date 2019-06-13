@@ -215,31 +215,48 @@ export default {
     },
     viewLogsHandler () {
       this.$router.push(`/channels/${this.active}`)
+    },
+    init () {
+      let activeFromLocaleStorage = this.$q.localStorage.get.item('tools/hex')
+      this.isInit = true
+      if (this.$route.params && this.$route.params.id) {
+        if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
+          this.active = Number(this.$route.params.id)
+        } else {
+          this.active = null
+        }
+      } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
+        this.active = activeFromLocaleStorage
+      }
+      // deleted item logic
+      if (this.selectedItem.deleted) {
+        this.mode = 0
+      }
     }
   },
-  created () {
-    let activeFromLocaleStorage = this.$q.localStorage.get.item('tools/hex')
-    this.$store.dispatch('getItems', 'channels')
-      .then(() => {
-        this.isInit = true
-        if (this.$route.params && this.$route.params.id) {
-          if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
-            this.active = Number(this.$route.params.id)
-          } else {
-            this.active = null
-          }
-        } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
-          this.active = activeFromLocaleStorage
-        }
-        // deleted item logic
-        if (this.selectedItem.deleted) {
-          this.mode = 0
-        }
-      })
-  },
-  beforeDestroy () {
-    this.$store.dispatch('unsubscribeItems', 'channels')
-  },
+  // created () {
+  //   let activeFromLocaleStorage = this.$q.localStorage.get.item('tools/hex')
+  //   this.$store.dispatch('getItems', 'channels')
+  //     .then(() => {
+  //       this.isInit = true
+  //       if (this.$route.params && this.$route.params.id) {
+  //         if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
+  //           this.active = Number(this.$route.params.id)
+  //         } else {
+  //           this.active = null
+  //         }
+  //       } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
+  //         this.active = activeFromLocaleStorage
+  //       }
+  //       // deleted item logic
+  //       if (this.selectedItem.deleted) {
+  //         this.mode = 0
+  //       }
+  //     })
+  // },
+  // beforeDestroy () {
+  //   this.$store.dispatch('unsubscribeItems', 'channels')
+  // },
   watch: {
     $route (route) {
       if (route.params && route.params.id) {

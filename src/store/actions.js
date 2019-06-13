@@ -4,31 +4,34 @@ import { Notify } from 'quasar'
 const origins = {
   devices: '/gw/devices',
   channels: '/gw/channels',
+  calcs: '/gw/calcs',
   streams: '/gw/streams',
   modems: '/gw/modems',
   containers: '/storage/containers',
   abques: '/storage/abques',
-  cdns: '/storage/cdns'
+  cdns: '/storage/cdns',
+  tasks: '/gw/calcs/+/devices'
 }
 
 let itemsSubsId = null
-let currentEntity = ''
+// let currentEntity = []
 
 async function getItems ({ state, commit }, payload) {
   let entity = '',
-    id = null
+    id = null,
+    writePath = 'items'
   if (typeof payload === 'string') {
     entity = payload
   } else {
     entity = payload.entity
-    id = payload.id
+    if (payload.id) {
+      id = payload.id
+    }
+    if (payload.addition) {
+      writePath = `addition.${entity}`
+    }
   }
   if (entity) {
-    let dontNeedNewSubscribe = currentEntity === entity && !id
-    if (dontNeedNewSubscribe) {
-      return Promise.resolve()
-    }
-    currentEntity = entity
     let origin = `flespi/state${origins[entity]}/${id || '+'}/+`
     if (state.token) {
       try {
@@ -51,7 +54,7 @@ async function getItems ({ state, commit }, payload) {
             let partsOfTopic = topic.split('/').reverse(),
               name = partsOfTopic.shift(),
               id = parseInt(partsOfTopic.shift()),
-              source = subsIds ? state.items : items
+              source = subsIds ? state[writePath] : items
 
             if (name === 'deleted') {
               commit('deleteItem', id)
@@ -69,7 +72,7 @@ async function getItems ({ state, commit }, payload) {
             }
           }}
         )
-        Vue.set(state, 'items', items)
+        Vue.set(state, writePath, items)
         itemsSubsId = subsIds
         if (typeof state.isLoading !== 'undefined') {
           Vue.set(state, 'isLoading', false)
@@ -92,7 +95,12 @@ async function unsubscribeItems ({state, commit}, payload) {
     entity = payload
   } else {
     entity = payload.entity
-    id = payload.id
+    if (payload.id) {
+      id = payload.id
+    }
+    if (payload.addition) {
+      Vue.delete(state, `addition.${entity}`)
+    }
   }
   if (typeof state.isLoading !== 'undefined') {
     Vue.set(state, 'isLoading', true)
@@ -101,7 +109,7 @@ async function unsubscribeItems ({state, commit}, payload) {
     let origin = `flespi/state${origins[entity]}/${id || '+'}/+`
     try {
       let subkeys = Object.keys(itemsSubsId)
-      await Vue.connector.socket.unsubscribe(origin, subkeys)
+      await Vue.connector.socket.unsubscribe(origin, payload.addition ? undefined : subkeys)
     } catch (e) {
       commit('reqFailed', e)
     }
@@ -190,6 +198,9 @@ async function getDeleted ({state, commit}, entity) {
 }
 
 async function checkConnection ({ state, commit }) {
+  if (!DEV) {
+    return false
+  }
   try {
     let resp = await Vue.connector.http.external.get(`./statics/icons/favicon-16x16.png?_=${(new Date()).getTime()}`)
     if (resp.status === 200 && state.offline) {

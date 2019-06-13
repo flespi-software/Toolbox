@@ -182,35 +182,26 @@ export default {
     },
     deletedHandler () {
       this.mode = 0
+    },
+    init () {
+      let entity = 'containers',
+        activeFromLocaleStorage = this.$q.localStorage.get.item(entity),
+        idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null
+      this.isInit = true
+      if (idFromRoute) {
+        if (this.items.filter(item => item.id === Number(idFromRoute)).length) {
+          this.active = Number(idFromRoute)
+        } else {
+          this.active = null
+        }
+      } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
+        this.active = activeFromLocaleStorage
+      }
+      // deleted item logic
+      if (this.selectedItem.deleted) {
+        this.deletedHandler()
+      }
     }
-  },
-  created () {
-    let entity = 'containers',
-      activeFromLocaleStorage = this.$q.localStorage.get.item(entity),
-      idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null
-
-    this.$store.dispatch('getItems', this.isNeedSelect ? entity : {entity, id: idFromRoute})
-      .then(() => {
-        this.isInit = true
-        if (idFromRoute) {
-          if (this.items.filter(item => item.id === Number(idFromRoute)).length) {
-            this.active = Number(idFromRoute)
-          } else {
-            this.active = null
-          }
-        } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
-          this.active = activeFromLocaleStorage
-        }
-        // deleted item logic
-        if (this.selectedItem.deleted) {
-          this.deletedHandler()
-        }
-      })
-  },
-  destroyed () {
-    let idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null,
-      entity = 'containers'
-    this.$store.dispatch('unsubscribeItems', this.isNeedSelect ? entity : {entity, id: idFromRoute})
   },
   watch: {
     $route (route) {

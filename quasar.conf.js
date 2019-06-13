@@ -107,7 +107,8 @@ module.exports = function (ctx) {
       ],
       directives: [
         'CloseOverlay',
-        'TouchSwipe'
+        'TouchSwipe',
+        'TouchPan'
       ],
       // Quasar plugins
       plugins: [

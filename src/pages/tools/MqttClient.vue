@@ -24,6 +24,9 @@ export default {
       }
     }
   },
+  methods: {
+    init () {}
+  },
   components: {
     MqttClient
   }

@@ -150,6 +150,73 @@
       }
     }
   },
+  "calcs": {
+    "label": "Calcs",
+    "icon": "mdi-calculator-variant",
+    "type": "viewer",
+    "acl": ["devices", "calcs"],
+    "isDrawable": true,
+    "logs": {
+      "vuexModuleName": "calcsLogs",
+      "cols": [
+        {
+          "name": "timestamp",
+          "width": 165,
+          "display": true,
+          "description": "Log event time"
+        },
+        {
+          "name": "event_code",
+          "title": "event",
+          "width": 400,
+          "display": true,
+          "description": "Log event code and description"
+        },
+        {
+          "name": "host",
+          "width": 150,
+          "display": true,
+          "description": "Connected device's address (source) or IP address from which HTTP request was received (host)"
+        }
+      ],
+      "actions": [],
+      "viewConfig": {
+        "needShowFilter": true,
+        "needShowMode": false,
+        "needShowPageScroll": "right left",
+        "needShowDate": true,
+        "needShowEtc": true
+      },
+      "theme": {
+        "color": "white",
+        "bgColor": "dark",
+        "contentInverted": true,
+        "controlsInverted": true
+      }
+    },
+    "messages": {
+      "vuexModuleName": "calcsIntervals",
+      "actions": [
+        {
+          "icon": "mdi-content-copy",
+          "label": "copy",
+          "classes": "",
+          "type": "copy"
+        }
+      ],
+      "viewConfig": {
+        "needShowFilter": true,
+        "needShowDateRange": true,
+        "needShowEtc": false
+      },
+      "theme": {
+        "color": "white",
+        "bgColor": "dark",
+        "contentInverted": true,
+        "controlsInverted": true
+      }
+    }
+  },
   "devices": {
     "label": "Devices",
     "icon": "mdi-developer-board",

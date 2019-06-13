@@ -86,6 +86,15 @@
                   </q-item-main>
                 </q-item>
                 <q-item-separator style="width: 100%" v-if="renderEntities.includes('channels') || renderEntities.includes('devices') || renderEntities.includes('streams') || renderEntities.includes('modems')"/>
+                <q-item v-if="renderEntities.includes('calcs')" to='/calcs' class="col-6">
+                  <q-item-main class="text-center">
+                    <div>
+                      <q-icon :name="config.calcs.icon" size="2.6em"/>
+                    </div>
+                    <div>{{config.calcs.label}}</div>
+                  </q-item-main>
+                </q-item>
+                <q-item-separator style="width: 100%" v-if="renderEntities.includes('calcs')"/>
                 <q-list-header class="col-12">Tools</q-list-header>
                 <q-item to='/tools/hex' class="col-6">
                   <q-item-main class="text-center">
@@ -220,7 +229,7 @@ export default {
       isVisibleToolbar: true,
       loadingFlag: false,
       isTabsVisible: true,
-      entityByGroup: ['platform', 'channels', 'devices', 'streams', 'modems', 'containers', 'abques', 'cdns', 'mqtt', 'mqttClient', 'hexViewer'],
+      entityByGroup: ['platform', 'channels', 'calcs', 'devices', 'streams', 'modems', 'containers', 'abques', 'cdns', 'mqtt', 'mqttClient', 'hexViewer'],
       isNeedSelect: true,
       isInit: Vue.connector.socket.connected()
     }
@@ -239,7 +248,7 @@ export default {
     }),
     hubGroupModel () {
       let entity = this.entity
-      return entity === 'channels' || entity === 'devices' || entity === 'streams' || entity === 'modems' || entity === 'hexViewer'
+      return entity === 'channels' || entity === 'calcs' || entity === 'devices' || entity === 'streams' || entity === 'modems' || entity === 'hexViewer'
     },
     storageGroupModel () {
       let entity = this.entity
@@ -397,13 +406,14 @@ export default {
     },
     disableLoading: debounce((ctx) => {
       ctx.loadingFlag = false
-    }, 100),
+    }, 200),
     getGroups (groups) {
       return groups.reduce((result, group) => {
         if (['hub', 'storage', 'mqtt', 'platform'].includes(group)) {
           switch (group) {
             case 'hub': {
               result.push('channels')
+              result.push('calcs')
               result.push('devices')
               result.push('streams')
               result.push('modems')
@@ -437,10 +447,10 @@ export default {
         this.addError(errMessage)
       }
     },
-    setDefaultEntity () {
+    async setDefaultEntity () {
       if (this.renderEntities.length) {
-        this.entity = this.renderEntities[0]
         this.$router.push(`/${this.config[this.renderEntities[0]].path || this.renderEntities[0]}`)
+        await this.initEntity(this.renderEntities[0])
       } else {
         this.reset('Nothing to show by current token')
       }
@@ -459,14 +469,15 @@ export default {
         this.routeMainProcess(route)
       }
     },
-    routeParamsProcess (route) {
+    async routeParamsProcess (route) {
       this.isNeedSelect = !this.$route.params.noselect
       this.isVisibleToolbar = !route.params.fullscreen
       this.setToken(route.params.token)
       if (route.params.id && route.params.type) {
         if (this.renderEntities.includes(route.params.type)) {
-          this.entity = this.$route.params.type
+          // this.entity = this.$route.params.type
           this.$router.push(`/${route.params.type}/${route.params.id}`)
+          await this.initEntity(this.$route.params.type)
         } else {
           this.reset('Nothing to show by current token')
         }
@@ -474,18 +485,44 @@ export default {
         this.setDefaultEntity()
       }
     },
-    routeMainProcess (route) {
+    async routeMainProcess (route) {
       if (route.path === '/') { // if main route
         this.setDefaultEntity()
       } else { // go to send route
         if (this.$route.meta.moduleName) {
-          this.entity = this.$route.meta.moduleName
-          let path = this.configByEntity.path || this.entity
-          this.$router.push(`/${path}${this.$route.params.id ? `/${this.$route.params.id}` : ''}`)
+          // this.entity = this.$route.meta.moduleName
+          if (this.$route.meta.moduleName === this.entity) { return false }
+          await this.initEntity(this.$route.meta.moduleName)
+          this.$router.push(this.$route.path)
         } else {
           this.$router.push(this.$route.path)
         }
       }
+    },
+    async initEntity (entity) {
+      if (entity === this.entity) { return false }
+      let idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null
+      if (this.entity) {
+        let entity = this.entity
+        if (entity === 'hexViewer') {
+          entity = 'channels'
+        }
+        if (entity === 'calcs') {
+          await this.$store.dispatch('unsubscribeItems', {entity: 'devices', addition: true})
+          await this.$store.dispatch('unsubscribeItems', {entity: 'tasks', addition: true})
+        }
+        await this.$store.dispatch('unsubscribeItems', this.isNeedSelect ? entity : {entity, id: idFromRoute})
+      }
+      this.entity = entity
+      if (entity === 'hexViewer') {
+        entity = 'channels'
+      }
+      if (entity === 'calcs') {
+        await this.$store.dispatch('getItems', {entity: 'devices', addition: true})
+        await this.$store.dispatch('getItems', {entity: 'tasks', addition: true})
+      }
+      await this.$store.dispatch('getItems', this.isNeedSelect ? entity : {entity, id: idFromRoute.split('-')[0]}) // '-' is delimeter for entities` combination logic
+      this.$refs.main.init()
     }
   },
   watch: {
@@ -504,8 +541,7 @@ export default {
       if (flag) {
         this.loadingFlag = flag
       } else {
-        // this.disableLoading(this)
-        this.loadingFlag = false
+        this.disableLoading(this)
       }
     }
   },
@@ -515,7 +551,7 @@ export default {
       this.loadingFlag = true
       Vue.connector.socket.on('connect', () => {
         this.isInit = true
-        this.loadingFlag = false
+        this.disableLoading(this)
       })
     }
   },

@@ -85,13 +85,10 @@ export default {
         cancel: true
       }).then(() => { this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`) })
         .catch(() => {})
+    },
+    init () {
+      this.isInit = true
     }
-  },
-  created () {
-    this.isInit = true
-  },
-  destroyed () {
-    this.$store.commit('clearItems')
   },
   components: { logs }
 }

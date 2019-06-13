@@ -50,6 +50,7 @@
     "600": "token expired and has been deleted",
     "601": "new devices assigned to calculator",
     "602": "device was unassigned from calculator",
+    "603": "device parameters were changed in the calculator",
     "700": "container size has been changed",
     "800": "abque size has been changed",
     "900": "cdn size has been changed",

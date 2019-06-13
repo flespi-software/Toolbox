@@ -115,7 +115,7 @@ function setTokenInfo (state, tokenInfo) {
       let rights = tokenInfo.access.acl.reduce((result, acl) => {
         if (acl.uri === 'gw') {
           if (acl.methods.includes('GET')) {
-            return [...result, 'channels', 'devices', 'streams', 'modems', 'protocols']
+            return [...result, 'channels', 'calcs', 'devices', 'streams', 'modems', 'protocols']
           }
           return result
         }
