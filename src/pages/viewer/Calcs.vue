@@ -349,11 +349,10 @@ export default {
         deviceIdFromRoute = this.$route.params && this.$route.params.deviceId ? this.$route.params.deviceId : null
       this.isInit = true
       if (idFromRoute) {
-        console.log(this.items)
         /* '-' is delimeter for id`s combination */
         idFromRoute = idFromRoute.split('-')
         let goByCombination = idFromRoute.length === 2
-        deviceIdFromRoute = idFromRoute[1]
+        deviceIdFromRoute = deviceIdFromRoute || idFromRoute[1]
         idFromRoute = idFromRoute[0]
         if (this.items.filter(item => item.id === Number(idFromRoute)).length) {
           this.active = Number(idFromRoute)

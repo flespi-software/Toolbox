@@ -140,7 +140,6 @@ export default {
         parentH = parseInt(this.$el.parentNode.clientHeight, 10)
       this.width = parentW * 0.34
       this.height = ((parentH - 50) * (this.siblingHeight / 100)) - (this.siblingHeight === 100 ? 0 : (50 - this.siblingHeight))
-      console.log(this.height, parentH, this.siblingHeight)
       switch (minimizeTo) {
         case 'messages': {
           this.$nextTick(() => {

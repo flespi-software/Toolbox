@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.16.1] - 2019-06-13
+[fix] routes for calcs
 ### [0.16.0] - 2019-06-13
 [feature] calc logs and intervals
 ### [0.15.12] - 2019-06-10
