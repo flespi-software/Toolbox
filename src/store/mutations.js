@@ -37,13 +37,12 @@ function reqFailed (state, payload) {
     if (payload.code === 2) { clearToken(state) }
   }
 }
-function deleteItem (state, id) {
-  let existedIndex = -1
-  state.items.forEach((existItem, index) => {
-    if (existItem.id === id) { existedIndex = index }
-  })
-  Vue.set(state.items[existedIndex], 'deleted', true)
-  // state.items.splice(existedIndex, 1)
+function deleteItem (state, { id, mode, index, source }) {
+  if (mode) {
+    Vue.delete(source, index)
+  } else {
+    Vue.set(source[index], 'deleted', true)
+  }
 }
 function setItems (state, items) {
   Vue.set(state, 'items', items)

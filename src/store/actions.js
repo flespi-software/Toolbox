@@ -62,15 +62,20 @@ async function getItems ({ state, commit }, payload) {
               id = idsParts.length === 1 ? parseInt(partsOfTopic.shift()) : idsParts.join('-'),
               source = subsIds ? state[writePath] : items
 
-            if (name === 'deleted') {
-              commit('deleteItem', id)
-              return false
-            }
-
             let existedIndex = -1
             source.forEach((existItem, index) => {
               if (existItem.id === id) { existedIndex = index }
             })
+
+            if (name === 'deleted') {
+              commit('deleteItem', { id, mode: entity === 'tasks', index: existedIndex, source })
+              return false
+            }
+
+            if (!value.length) {
+              return false
+            }
+
             if (existedIndex !== -1) {
               Vue.set(source[existedIndex], name, JSON.parse(value.toString()))
             } else {

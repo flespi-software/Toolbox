@@ -82,7 +82,7 @@ export default {
         await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active device */
         this.$store.commit(`${this.moduleName}/setActive`, val)
         this.$store.commit(`${this.moduleName}/clearMessages`)
-        this.$store.commit(`${this.moduleName}/setCols`, this.item.counters)
+        this.$store.dispatch(`${this.moduleName}/getCols`, this.item.counters)
         await this.$store.dispatch(`${this.moduleName}/initTime`)
         await this.$store.dispatch(`${this.moduleName}/get`)
         this.$store.dispatch(`${this.moduleName}/pollingGet`)
@@ -96,7 +96,6 @@ export default {
         await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active device */
         this.$store.commit(`${this.moduleName}/setActiveDevice`, id)
         this.$store.commit(`${this.moduleName}/clearMessages`)
-        this.$store.commit(`${this.moduleName}/setCols`, this.item.counters)
         await this.$store.dispatch(`${this.moduleName}/initTime`)
         await this.$store.dispatch(`${this.moduleName}/get`)
         this.$store.dispatch(`${this.moduleName}/pollingGet`)
@@ -245,7 +244,7 @@ export default {
     this.currentLimit = this.limit
     if (this.activeId) {
       this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
-      this.$store.commit(`${this.moduleName}/setCols`, this.item.counters)
+      this.$store.dispatch(`${this.moduleName}/getCols`, this.item.counters)
     }
     if (this.activeDeviceId) {
       this.$store.commit(`${this.moduleName}/setActiveDevice`, this.activeDeviceId)

@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.16.4] - 2019-06-14
+[fix] intervals` cols edit
+[fix] router intervals change
+[fix] small things
 ### [0.16.3] - 2019-06-14
 [fix] calc`s task processing
 ### [0.16.2] - 2019-06-14

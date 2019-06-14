@@ -23,7 +23,7 @@
                 :remain="filteredItems.length + 1 > 6 ? 6 : filteredItems.length + 1"
               >
                 <q-item
-                  @click.native="active = null, $refs.popoverActive.hide(), $emit('view-data-hide')"
+                  @click.native="clearActive(), $refs.popoverActive.hide(), $emit('view-data-hide')"
                   class="cursor-pointer text-grey"
                   highlight
                 >
@@ -37,7 +37,7 @@
                 <q-item
                   v-for="(item, index) in filteredItems"
                   :key="index"
-                  @click.native="active = item.id, $refs.popoverActive.hide(), $emit('view-data-hide')"
+                  @click.native="setActive(item.id), $refs.popoverActive.hide(), $emit('view-data-hide')"
                   class="cursor-pointer"
                   :class="{'text-grey-8': item.deleted}"
                   highlight
@@ -231,7 +231,7 @@ export default {
       items (state) {
         let items = state.items,
           ids = items.map(item => item.id)
-        if (this.isInit && this.acitve && !ids.includes(this.acitve)) {
+        if (this.isInit && this.active && !ids.includes(this.active)) {
           this.clearActive()
         }
         return items
@@ -245,7 +245,11 @@ export default {
         return devices
       },
       tasks (state) {
-        return state['addition.tasks'] || []
+        let tasks = state['addition.tasks'] || []
+        if (this.active && this.activeDeviceId && !tasks.filter(task => task.id === `${this.active}-${this.activeDeviceId}`).length) {
+          this.$nextTick(() => { this.clearActiveDevice() })
+        }
+        return tasks
       }
     }),
     filteredItems () {
@@ -335,11 +339,18 @@ export default {
       })
         .catch(() => {})
     },
+    setActive (id) {
+      this.active = id
+    },
+    setActiveDevice (id) {
+      this.activeDeviceId = id
+    },
     clearActive () {
-      this.active = null
+      console.trace()
+      this.setActive(null)
     },
     clearActiveDevice () {
-      this.activeDeviceId = null
+      this.setActiveDevice(null)
     },
     init () {
       let entity = 'calcs',
@@ -355,16 +366,16 @@ export default {
         deviceIdFromRoute = deviceIdFromRoute || idFromRoute[1]
         idFromRoute = idFromRoute[0]
         if (this.items.filter(item => item.id === Number(idFromRoute)).length) {
-          this.active = Number(idFromRoute)
+          this.setActive(Number(idFromRoute))
           if (deviceIdFromRoute && this.devices.filter(item => item.id === Number(deviceIdFromRoute)).length) {
             this.activeDeviceId = Number(deviceIdFromRoute)
             if (goByCombination) { this.$router.push(`/calcs/${idFromRoute}/device/${deviceIdFromRoute}`) }
           }
         } else {
-          this.active = null
+          this.clearActive()
         }
       } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
-        this.active = activeFromLocaleStorage
+        this.setActive(activeFromLocaleStorage)
         if (activeDeviceIdFromLS && this.devices.filter(item => item.id === activeDeviceIdFromLS).length) {
           this.activeDeviceId = Number(activeDeviceIdFromLS)
         }
@@ -390,15 +401,15 @@ export default {
       ) { return false }
       if (route.params && route.params.id) {
         if (this.items.filter(item => item.id === Number(route.params.id)).length) {
-          this.active = Number(route.params.id)
+          this.setActive(Number(route.params.id))
           if (route.params.deviceId) {
             this.activeDeviceId = Number(route.params.deviceId)
           }
         } else if (this.isInit) {
-          this.active = null
+          this.clearActive()
         }
       } else if (route.params && !route.params.id) {
-        this.active = null
+        this.clearActive()
       }
     },
     active (id) {
