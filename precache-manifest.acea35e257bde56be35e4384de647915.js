@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "fonts/mdi.5d43a6f5.woff"
   },
   {
-    "revision": "4107c1175d643d42a4a92efd1d2b0109",
+    "revision": "371ba0bd8bf1166c1777ea50a2232059",
     "url": "index.html"
   },
   {
@@ -24,32 +24,32 @@ self.__precacheManifest = [
     "url": "js/214247b9.db0ebe0d.js"
   },
   {
-    "revision": "838698af837cf35dfead7869b02ce5b8",
-    "url": "statics/icons/ms-icon-144x144.png"
+    "revision": "14d6cca701394318ed367e336cf50847",
+    "url": "statics/icons/icon-192x192.png"
   },
   {
     "revision": "aecb5fcb4eca8e6fce7a",
     "url": "js/2da9f4a9.8975179a.js"
   },
   {
-    "revision": "a9de7e81de000ac57c2855c29a98e796",
-    "url": "statics/police.png"
+    "revision": "525061fbc60090f9b92f626b25a2a976",
+    "url": "statics/toolbox50.png"
   },
   {
     "revision": "cb95f12d7cc4d0cd9809",
     "url": "js/3429264f.a9389b0f.js"
   },
   {
-    "revision": "14d6cca701394318ed367e336cf50847",
-    "url": "statics/icons/icon-192x192.png"
+    "revision": "cf46c82e435aa040daecaf16508027a3",
+    "url": "statics/toolbox_mobile.png"
   },
   {
     "revision": "44898686bcc6d100f8f7",
     "url": "js/3ad7bba5.113fcd2c.js"
   },
   {
-    "revision": "525061fbc60090f9b92f626b25a2a976",
-    "url": "statics/toolbox50.png"
+    "revision": "a9de7e81de000ac57c2855c29a98e796",
+    "url": "statics/police.png"
   },
   {
     "revision": "23d785a96f39e23fd0e7",
@@ -60,24 +60,24 @@ self.__precacheManifest = [
     "url": "js/4b4818b8.7631b99b.js"
   },
   {
-    "revision": "cf46c82e435aa040daecaf16508027a3",
-    "url": "statics/toolbox_mobile.png"
+    "revision": "f1a3251aa28336cc032e0ba4c149e59e",
+    "url": "statics/icons/icon-96x96.png"
   },
   {
     "revision": "bcfe532b32913ff011f9",
     "url": "js/5212cf96.d2301123.js"
   },
   {
-    "revision": "5387fdaebd7376fc4800f74606651cc1",
-    "url": "statics/icons/icon-72x72.png"
+    "revision": "838698af837cf35dfead7869b02ce5b8",
+    "url": "statics/icons/ms-icon-144x144.png"
   },
   {
     "revision": "99e8dbd16ae88410d611",
     "url": "js/5b6a74cc.5339399f.js"
   },
   {
-    "revision": "f1a3251aa28336cc032e0ba4c149e59e",
-    "url": "statics/icons/icon-96x96.png"
+    "revision": "5387fdaebd7376fc4800f74606651cc1",
+    "url": "statics/icons/icon-72x72.png"
   },
   {
     "revision": "e9439da0d2375ca5c3c9",
@@ -92,8 +92,8 @@ self.__precacheManifest = [
     "url": "js/66dde829.257c01ec.js"
   },
   {
-    "revision": "82f983ec2277961e9878f2bf014b13fc",
-    "url": "statics/flespi_logo_black.svg"
+    "revision": "d5da697eec032a743f6a94d6ef4470be",
+    "url": "statics/icons/apple-icon-152x152.png"
   },
   {
     "revision": "084b9c84b18d4a8a77a3",
@@ -124,12 +124,12 @@ self.__precacheManifest = [
     "url": "js/adf25506.d0aacddc.js"
   },
   {
-    "revision": "d5da697eec032a743f6a94d6ef4470be",
-    "url": "statics/icons/apple-icon-152x152.png"
+    "revision": "82f983ec2277961e9878f2bf014b13fc",
+    "url": "statics/flespi_logo_black.svg"
   },
   {
-    "revision": "f35a1e27eadaa8f2fdc2",
-    "url": "js/app.13f5a56f.js"
+    "revision": "5da083c680eb7f02b777",
+    "url": "js/app.f8d330e9.js"
   },
   {
     "revision": "1da4d62342ca95dcdb743a987cfa677a",
@@ -188,8 +188,8 @@ self.__precacheManifest = [
     "url": "fonts/KFOlCnqEu92Fr1MmEU9fBBc-.de8b7431.woff"
   },
   {
-    "revision": "cf6613d1adf490972c557a8e318e0868",
-    "url": "fonts/KFOlCnqEu92Fr1MmWUlfBBc-.cf6613d1.woff"
+    "revision": "8c2ade503b34e31430d6c98aa29a52a3",
+    "url": "fonts/KFOlCnqEu92Fr1MmYUtfBBc-.8c2ade50.woff"
   },
   {
     "revision": "8a9a261c8b8dfe90db11f1817a9d22e1",
@@ -208,8 +208,8 @@ self.__precacheManifest = [
     "url": "fonts/KFOlCnqEu92Fr1MmSU5fBBc-.a1471d1d.woff"
   },
   {
-    "revision": "8c2ade503b34e31430d6c98aa29a52a3",
-    "url": "fonts/KFOlCnqEu92Fr1MmYUtfBBc-.8c2ade50.woff"
+    "revision": "cf6613d1adf490972c557a8e318e0868",
+    "url": "fonts/KFOlCnqEu92Fr1MmWUlfBBc-.cf6613d1.woff"
   },
   {
     "revision": "64baba060d5a08a517f783c929f04167",
@@ -252,7 +252,7 @@ self.__precacheManifest = [
     "url": "css/9c2327f4.3d90d979.css"
   },
   {
-    "revision": "f35a1e27eadaa8f2fdc2",
+    "revision": "5da083c680eb7f02b777",
     "url": "css/app.aeb0d68f.css"
   },
   {
