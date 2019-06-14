@@ -14,7 +14,6 @@ const origins = {
 }
 
 let itemsSubsId = null
-// let currentEntity = []
 
 async function getItems ({ state, commit }, payload) {
   let entity = '',
@@ -48,12 +47,19 @@ async function getItems ({ state, commit }, payload) {
           Vue.set(state, 'protocols', protocols)
         }
         let items = []
+        let partsOfTopicFilter = origin.split('/').reverse().slice(1)
         let subsIds = await Vue.connector.socket.subscribe({
           name: origin,
           handler (value, topic, packet) {
             let partsOfTopic = topic.split('/').reverse(),
               name = partsOfTopic.shift(),
-              id = parseInt(partsOfTopic.shift()),
+              idsParts = partsOfTopicFilter.reduce((ids, part, index) => {
+                if (part === '+') {
+                  ids.push(partsOfTopic[index])
+                }
+                return ids
+              }, []).reverse(),
+              id = idsParts.length === 1 ? parseInt(partsOfTopic.shift()) : idsParts.join('-'),
               source = subsIds ? state[writePath] : items
 
             if (name === 'deleted') {

@@ -1,6 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
-### [0.16.2] - 2019-06-
+### [0.16.3] - 2019-06-14
+[fix] calc`s task processing
+### [0.16.2] - 2019-06-14
 [fix] calc`s devices empty state
 [fix] calc`s devices filtering
 ### [0.16.1] - 2019-06-13
