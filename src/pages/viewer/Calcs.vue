@@ -184,7 +184,7 @@
       v-if="+size[1] && active && activeDeviceId"
       :style="{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
     />
-    <div v-else-if="+size[1] && active && !activeDeviceId" class="text-grey text-center q-mt-lg" style="font-size: 2.5rem;" :style="{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}">
+    <div v-else-if="+size[1] && active && !activeDeviceId" class="text-grey text-center q-pt-lg" style="font-size: 2.5rem;" :style="{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}">
       Select device
     </div>
   </q-page>
@@ -286,7 +286,7 @@ export default {
   },
   methods: {
     filterItems (items, filter) {
-      let filteredItems = this.filter ? items.filter(item => {
+      let filteredItems = filter ? items.filter(item => {
         return (
           item &&
           typeof item.name !== 'undefined' &&

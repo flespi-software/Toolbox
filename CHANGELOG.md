@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.16.2] - 2019-06-
+[fix] calc`s devices empty state
+[fix] calc`s devices filtering
 ### [0.16.1] - 2019-06-13
 [fix] routes for calcs
 ### [0.16.0] - 2019-06-13
