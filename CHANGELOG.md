@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.16.5] - 2019-06-17
+[feature] calc`s device list only from active devices
+[fix] init by current id from route
 ### [0.16.4] - 2019-06-14
 [fix] intervals` cols edit
 [fix] router intervals change

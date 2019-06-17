@@ -261,6 +261,8 @@ export default {
     },
     filteredDevices () {
       let devices = this.devices
+      let devicesIdsByTasks = this.tasks.map(task => task.device_id)
+      devices = devices.filter(device => devicesIdsByTasks.includes(device.id))
       if (this.active) {
         devices = devices.filter(item => this.tasks.some(task => this.active === task.calc_id && item.id === task.device_id))
       }
@@ -346,7 +348,6 @@ export default {
       this.activeDeviceId = id
     },
     clearActive () {
-      console.trace()
       this.setActive(null)
     },
     clearActiveDevice () {
@@ -389,7 +390,7 @@ export default {
           this.$refs.logs.resetParams()
           this.$emit('view-data-hide')
         }
-        if (+this.size[1] && this.active) {
+        if (+this.size[1] && this.active && this.activeDeviceId) {
           this.$refs.messages.resetParams()
         }
       })
@@ -413,8 +414,8 @@ export default {
       }
     },
     active (id) {
+      this.$q.localStorage.set('calcs', id)
       if (id && this.activeDeviceId) {
-        this.$q.localStorage.set('calcs', id)
         this.$router.push(`/calcs/${id}/device/${this.activeDeviceId}`)
       } else if (id && !this.activeDeviceId) {
         this.$q.localStorage.set('calcs', id)
@@ -424,8 +425,8 @@ export default {
       }
     },
     activeDeviceId (deviceId) {
+      this.$q.localStorage.set('calcsDeviceId', deviceId)
       if (deviceId && this.active) {
-        this.$q.localStorage.set('calcsDeviceId', deviceId)
         this.$router.push(`/calcs/${this.active}/device/${deviceId}`)
       } else if (!deviceId && this.active) {
         this.$router.push(`/calcs/${this.active}`)

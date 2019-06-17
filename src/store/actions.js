@@ -59,7 +59,7 @@ async function getItems ({ state, commit }, payload) {
                 }
                 return ids
               }, []).reverse(),
-              id = idsParts.length === 1 ? parseInt(partsOfTopic.shift()) : idsParts.join('-'),
+              id = idsParts.length <= 1 ? parseInt(partsOfTopic.shift()) : idsParts.join('-'),
               source = subsIds ? state[writePath] : items
 
             let existedIndex = -1
