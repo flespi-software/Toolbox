@@ -522,7 +522,7 @@ export default {
         await this.$store.dispatch('getItems', {entity: 'tasks', addition: true})
       }
       await this.$store.dispatch('getItems', this.isNeedSelect ? entity : {entity, id: idFromRoute.split('-')[0]}) // '-' is delimeter for entities` combination logic
-      this.$refs.main.init()
+      this.$nextTick(() => { this.$refs.main.init() })
     }
   },
   watch: {
