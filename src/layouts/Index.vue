@@ -185,7 +185,7 @@
         />
         <router-view
           ref='main'
-          v-if="configByEntity && isInit"
+          v-if="configByEntity && isInit && isEntityInited"
           @view-data="viewDataHandler"
           @view-data-hide="sides.right = false, currentMessage = {}"
           @view-log-message="viewLogMessagesHandler"
@@ -198,7 +198,7 @@
         </router-view>
       </q-page-container>
     </q-layout>
-    <q-inner-loading :visible="loadingFlag" style="z-index: 2001" dark>
+    <q-inner-loading :visible="loadingFlag && !isEntityInited" style="z-index: 2001" dark>
       <q-spinner-gears size="100px" color="white" />
     </q-inner-loading>
   </div>
@@ -231,7 +231,8 @@ export default {
       isTabsVisible: true,
       entityByGroup: ['platform', 'channels', 'calcs', 'devices', 'streams', 'modems', 'containers', 'abques', 'cdns', 'mqtt', 'mqttClient', 'hexViewer'],
       isNeedSelect: true,
-      isInit: Vue.connector.socket.connected()
+      isInit: Vue.connector.socket.connected(),
+      isEntityInited: false
     }
   },
   computed: {
@@ -501,6 +502,7 @@ export default {
     },
     async initEntity (entity) {
       if (entity === this.entity) { return false }
+      this.isEntityInited = false
       let idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null
       if (this.entity) {
         let entity = this.entity
@@ -522,7 +524,8 @@ export default {
         await this.$store.dispatch('getItems', {entity: 'tasks', addition: true})
       }
       await this.$store.dispatch('getItems', this.isNeedSelect ? entity : {entity, id: idFromRoute.split('-')[0]}) // '-' is delimeter for entities` combination logic
-      this.$nextTick(() => { this.$refs.main.init() })
+      this.isEntityInited = true
+      // this.$nextTick(() => { this.$refs.main.init() })
     }
   },
   watch: {

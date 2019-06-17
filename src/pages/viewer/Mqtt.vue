@@ -90,6 +90,9 @@ export default {
       this.isInit = true
     }
   },
+  created () {
+    this.init()
+  },
   components: { logs }
 }
 </script>

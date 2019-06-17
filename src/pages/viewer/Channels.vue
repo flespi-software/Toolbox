@@ -322,6 +322,9 @@ export default {
       }
     }
   },
+  created () {
+    this.init()
+  },
   watch: {
     ratio (val) {
       this.$nextTick(() => {

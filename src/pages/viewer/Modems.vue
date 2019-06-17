@@ -207,6 +207,9 @@ export default {
       }
     }
   },
+  created () {
+    this.init()
+  },
   watch: {
     $route (route) {
       if (route.params && route.params.id) {
