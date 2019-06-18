@@ -13,8 +13,6 @@ const origins = {
   tasks: '/gw/calcs/+/devices'
 }
 
-let itemsSubsId = null
-
 async function getItems ({ state, commit }, payload) {
   let entity = '',
     id = null,
@@ -84,10 +82,10 @@ async function getItems ({ state, commit }, payload) {
           }}
         )
         Vue.set(state, writePath, items)
-        itemsSubsId = subsIds
         if (typeof state.isLoading !== 'undefined') {
           Vue.set(state, 'isLoading', false)
         }
+        return subsIds
       } catch (e) {
         commit('reqFailed', e)
         commit('setItems', [])
@@ -119,8 +117,7 @@ async function unsubscribeItems ({state, commit}, payload) {
   if (entity) {
     let origin = `flespi/state${origins[entity]}/${id || '+'}/+`
     try {
-      let subkeys = Object.keys(itemsSubsId)
-      await Vue.connector.socket.unsubscribe(origin, payload.addition ? undefined : subkeys)
+      return await Vue.connector.socket.unsubscribe(origin)
     } catch (e) {
       commit('reqFailed', e)
     }

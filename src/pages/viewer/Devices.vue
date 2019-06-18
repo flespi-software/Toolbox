@@ -120,6 +120,7 @@
           </q-btn>
         </div>
         <div>
+          <q-icon title="Calc" v-if="tasksByDevice.length" size="1.5rem" class="on-left cursor-pointer pull-right" name="mdi-calculator-variant" @click.native="moveToCalcs"/>
           <q-icon title="Map" v-if="messagesWithPosition.length && $q.platform.is.desktop" size="1.5rem" class="on-left cursor-pointer pull-right" name="mdi-map" @click.native="isVisibleMap = !isVisibleMap"/>
           <q-icon title="Clear all panes" size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler"/>
         </div>
@@ -211,6 +212,9 @@ export default {
           this.clearActive()
         }
         return items
+      },
+      tasksByDevice (state) {
+        return state['addition.tasks'] || []
       }
     }),
     filteredItems () {
@@ -339,10 +343,17 @@ export default {
       if (this.selectedItem.deleted) {
         this.deletedHandler()
       }
+    },
+    moveToCalcs () {
+      this.$store.dispatch('unsubscribeItems', {entity: 'tasks', addition: true, id: this.active})
+      this.$nextTick(() => { this.$router.push(`/calcs/0/device/${this.active}`) })
     }
   },
   created () {
     this.init()
+  },
+  beforeDestroy () {
+    this.$store.dispatch('unsubscribeItems', {entity: 'tasks', addition: true, id: this.active})
   },
   watch: {
     ratio (val) {
@@ -367,11 +378,17 @@ export default {
         this.active = null
       }
     },
-    active (val) {
+    active (val, old) {
       let currentItem = this.items.filter(item => item.id === val)[0] || {}
       if (val) {
         this.$q.localStorage.set('devices', val)
         this.$router.push(`/devices/${val}`)
+        if (old) {
+          this.$store.dispatch('unsubscribeItems', {entity: 'tasks', addition: true, id: old})
+        }
+        if (!currentItem.deleted) {
+          this.$store.dispatch('getItems', {entity: 'tasks', addition: true, id: val})
+        }
       } else {
         this.$router.push('/devices')
       }

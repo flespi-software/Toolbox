@@ -360,26 +360,25 @@ export default {
         idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null,
         deviceIdFromRoute = this.$route.params && this.$route.params.deviceId ? this.$route.params.deviceId : null
       this.isInit = true
+      /* '-' is delimeter for id`s combination */
+      idFromRoute = idFromRoute && idFromRoute.split('-')
+      let goByCombination = idFromRoute && idFromRoute.length === 2
+      deviceIdFromRoute = deviceIdFromRoute || (idFromRoute && idFromRoute[1])
+      idFromRoute = idFromRoute && idFromRoute[0]
       if (idFromRoute) {
-        /* '-' is delimeter for id`s combination */
-        idFromRoute = idFromRoute.split('-')
-        let goByCombination = idFromRoute.length === 2
-        deviceIdFromRoute = deviceIdFromRoute || idFromRoute[1]
-        idFromRoute = idFromRoute[0]
         if (this.items.filter(item => item.id === Number(idFromRoute)).length) {
           this.setActive(Number(idFromRoute))
-          if (deviceIdFromRoute && this.devices.filter(item => item.id === Number(deviceIdFromRoute)).length) {
-            this.activeDeviceId = Number(deviceIdFromRoute)
-            if (goByCombination) { this.$router.push(`/calcs/${idFromRoute}/device/${deviceIdFromRoute}`) }
-          }
         } else {
           this.clearActive()
         }
       } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
         this.setActive(activeFromLocaleStorage)
-        if (activeDeviceIdFromLS && this.devices.filter(item => item.id === activeDeviceIdFromLS).length) {
-          this.activeDeviceId = Number(activeDeviceIdFromLS)
-        }
+      }
+      if (deviceIdFromRoute && this.devices.filter(item => item.id === Number(deviceIdFromRoute)).length) {
+        this.activeDeviceId = Number(deviceIdFromRoute)
+        if (goByCombination) { this.$router.push(`/calcs/${idFromRoute}/device/${deviceIdFromRoute}`) }
+      } else if (activeDeviceIdFromLS && this.devices.filter(item => item.id === activeDeviceIdFromLS).length) {
+        this.activeDeviceId = Number(activeDeviceIdFromLS)
       }
     }
   },
@@ -406,20 +405,20 @@ export default {
       if (route.params && route.params.id) {
         if (this.items.filter(item => item.id === Number(route.params.id)).length) {
           this.setActive(Number(route.params.id))
-          if (route.params.deviceId) {
-            this.activeDeviceId = Number(route.params.deviceId)
-          }
         } else if (this.isInit) {
           this.clearActive()
         }
       } else if (route.params && !route.params.id) {
         this.clearActive()
       }
+      if (route.params && route.params.deviceId && this.devices.filter(item => item.id === Number(route.params.deviceId)).length) {
+        this.activeDeviceId = Number(route.params.deviceId)
+      }
     },
     active (id) {
       this.$q.localStorage.set('calcs', id)
-      if (id && this.activeDeviceId) {
-        this.$router.push(`/calcs/${id}/device/${this.activeDeviceId}`)
+      if (this.activeDeviceId) {
+        this.$router.push(`/calcs/${id || 'null'}/device/${this.activeDeviceId}`)
       } else if (id && !this.activeDeviceId) {
         this.$q.localStorage.set('calcs', id)
         this.$router.push(`/calcs/${id}`)
@@ -429,8 +428,8 @@ export default {
     },
     activeDeviceId (deviceId) {
       this.$q.localStorage.set('calcsDeviceId', deviceId)
-      if (deviceId && this.active) {
-        this.$router.push(`/calcs/${this.active}/device/${deviceId}`)
+      if (deviceId) {
+        this.$router.push(`/calcs/${this.active || 'null'}/device/${deviceId}`)
       } else if (!deviceId && this.active) {
         this.$router.push(`/calcs/${this.active}`)
       } else {

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <q-layout ref="layout" view="hHh LpR lFf">
+    <q-layout ref="layout" view="hHh LpR lFf" class="bg-dark">
       <q-layout-header v-if="isVisibleToolbar">
         <q-toolbar color="dark" class="header__main-toolbar">
           <q-btn flat icon="mdi-menu" @click="sides.left = !sides.left"/>
@@ -177,7 +177,7 @@
           </q-collapsible>
         </q-list>
       </q-layout-drawer>
-      <q-page-container :style="{background: '#333'}">
+      <q-page-container class="bg-dark">
         <raw-viewer
           ref="rawViewer"
           :config="rawConfig"
@@ -448,10 +448,10 @@ export default {
         this.addError(errMessage)
       }
     },
-    async setDefaultEntity () {
+    setDefaultEntity () {
       if (this.renderEntities.length) {
         this.$router.push(`/${this.config[this.renderEntities[0]].path || this.renderEntities[0]}`)
-        await this.initEntity(this.renderEntities[0])
+        this.initEntity(this.renderEntities[0])
       } else {
         this.reset('Nothing to show by current token')
       }
@@ -470,7 +470,7 @@ export default {
         this.routeMainProcess(route)
       }
     },
-    async routeParamsProcess (route) {
+    routeParamsProcess (route) {
       this.isNeedSelect = !this.$route.params.noselect
       this.isVisibleToolbar = !route.params.fullscreen
       this.setToken(route.params.token)
@@ -478,7 +478,7 @@ export default {
         if (this.renderEntities.includes(route.params.type)) {
           // this.entity = this.$route.params.type
           this.$router.push(`/${route.params.type}/${route.params.id}`)
-          await this.initEntity(this.$route.params.type)
+          this.initEntity(this.$route.params.type)
         } else {
           this.reset('Nothing to show by current token')
         }
@@ -486,46 +486,51 @@ export default {
         this.setDefaultEntity()
       }
     },
-    async routeMainProcess (route) {
+    routeMainProcess (route) {
       if (route.path === '/') { // if main route
         this.setDefaultEntity()
       } else { // go to send route
         if (this.$route.meta.moduleName) {
           // this.entity = this.$route.meta.moduleName
           if (this.$route.meta.moduleName === this.entity) { return false }
-          await this.initEntity(this.$route.meta.moduleName)
+          this.initEntity(this.$route.meta.moduleName)
           this.$router.push(this.$route.path)
         } else {
           this.$router.push(this.$route.path)
         }
       }
     },
-    async initEntity (entity) {
+    initEntity (entity) {
       if (entity === this.entity) { return false }
       this.isEntityInited = false
-      let idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null
+      let idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null,
+        deinitPromises = [],
+        initPromises = []
       if (this.entity) {
         let entity = this.entity
         if (entity === 'hexViewer') {
           entity = 'channels'
         }
         if (entity === 'calcs') {
-          await this.$store.dispatch('unsubscribeItems', {entity: 'devices', addition: true})
-          await this.$store.dispatch('unsubscribeItems', {entity: 'tasks', addition: true})
+          deinitPromises.push(this.$store.dispatch('unsubscribeItems', {entity: 'devices', addition: true}))
+          deinitPromises.push(this.$store.dispatch('unsubscribeItems', {entity: 'tasks', addition: true}))
         }
-        await this.$store.dispatch('unsubscribeItems', this.isNeedSelect ? entity : {entity, id: idFromRoute})
+        deinitPromises.push(this.$store.dispatch('unsubscribeItems', this.isNeedSelect ? entity : {entity, id: idFromRoute}))
       }
       this.entity = entity
       if (entity === 'hexViewer') {
         entity = 'channels'
       }
       if (entity === 'calcs') {
-        await this.$store.dispatch('getItems', {entity: 'devices', addition: true})
-        await this.$store.dispatch('getItems', {entity: 'tasks', addition: true})
+        initPromises.push(this.$store.dispatch('getItems', {entity: 'devices', addition: true}))
+        initPromises.push(this.$store.dispatch('getItems', {entity: 'tasks', addition: true}))
       }
-      await this.$store.dispatch('getItems', this.isNeedSelect ? entity : {entity, id: idFromRoute.split('-')[0]}) // '-' is delimeter for entities` combination logic
-      this.isEntityInited = true
-      // this.$nextTick(() => { this.$refs.main.init() })
+      initPromises.push(this.$store.dispatch('getItems', this.isNeedSelect ? entity : {entity, id: idFromRoute.split('-')[0]})) // '-' is delimeter for entities` combination logic
+      Promise.all(deinitPromises).then((arr) => {
+        return Promise.all(initPromises)
+      }).then((arr) => {
+        this.isEntityInited = true
+      })
     }
   },
   watch: {

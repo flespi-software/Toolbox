@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.16.8] - 2019-06-18
+[feature] access to calcs from devices
 ### [0.16.7] - 2019-06-17
 [fix] init entites
 ### [0.16.6] - 2019-06-17
