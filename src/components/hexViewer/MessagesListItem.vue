@@ -8,7 +8,7 @@
     </q-item-side>
     <q-item-main>
       <q-item-tile label>{{date.formatDate(item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}}</q-item-tile>
-      <q-item-tile v-if="item['proxy.payload.size']" sublabel>{{`${item['proxy.payload.size']} B : `}}<small>{{item['proxy.payload.hex'].slice(0, 15)}}...</small></q-item-tile>
+      <q-item-tile v-if="item['proxy.payload.size']" sublabel style="text-overflow: ellipsis;overflow: hidden;">{{`${item['proxy.payload.size']} B : `}}<small>{{item['proxy.payload.hex']}}</small></q-item-tile>
     </q-item-main>
     <q-item-side right>
       <small>{{item['proxy.source'] === 0 ? 'incoming' : `target ${item['proxy.source']}`}}</small><q-icon class="q-ml-xs" :color="item['proxy.source'] === 0 ? 'green' : 'yellow'" :name="item['proxy.source'] === 0 ? 'mdi-arrow-right-thick' : item['proxy.event'] === 1 ? 'mdi-arrow-right-thick' : 'mdi-arrow-left-thick'"/>

@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.17.0] - 2019-06-27
+[update] initialization
+[update] log codes
+[feature] intervals in devices
 ### [0.16.8] - 2019-06-18
 [feature] access to calcs from devices
 ### [0.16.7] - 2019-06-17

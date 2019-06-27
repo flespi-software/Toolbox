@@ -187,12 +187,14 @@ export default {
         case 102: {
           switch (this.item.close_code) {
             case 3: { return 'text-green' }
+            case 12:
             case 2: { return 'text-grey-6' }
             case 4:
             case 5:
             case 6:
             case 11:
-            case 12: { return 'text-red' }
+            case 13:
+            case 14: { return 'text-red' }
             case 7:
             case 8:
             case 9:

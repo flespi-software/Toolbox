@@ -34,6 +34,7 @@
 <script>
 import logs from '../../components/logs/Index.vue'
 import { mapState } from 'vuex'
+import init from '../../mixins/entitiesInit'
 
 export default {
   props: [
@@ -43,6 +44,7 @@ export default {
     'isNeedSelect',
     'config'
   ],
+  mixins: [init],
   data () {
     return {
       mode: 1,
@@ -89,9 +91,6 @@ export default {
     init () {
       this.isInit = true
     }
-  },
-  created () {
-    this.init()
   },
   components: { logs }
 }

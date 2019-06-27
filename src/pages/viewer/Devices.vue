@@ -120,12 +120,12 @@
           </q-btn>
         </div>
         <div>
-          <q-icon title="Calc" v-if="tasksByDevice.length" size="1.5rem" class="on-left cursor-pointer pull-right" name="mdi-calculator-variant" @click.native="moveToCalcs"/>
+          <q-icon title="Intervals" v-if="tasksByDevice.length" size="1.5rem" class="on-left cursor-pointer pull-right" name="mdi-set-center" @click.native="moveToIntervals(active, null)"/>
           <q-icon title="Map" v-if="messagesWithPosition.length && $q.platform.is.desktop" size="1.5rem" class="on-left cursor-pointer pull-right" name="mdi-map" @click.native="isVisibleMap = !isVisibleMap"/>
           <q-icon title="Clear all panes" size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler"/>
         </div>
       </q-toolbar>
-      <div>
+      <div v-if="isInit">
         <logs
           ref="logs"
           :mode="mode"
@@ -170,6 +170,7 @@ import messages from '../../components/messages/devices/Index.vue'
 import MapComponent from '../../components/MapComponent'
 import { mapState, mapActions } from 'vuex'
 import VirtualList from 'vue-virtual-scroll-list'
+import init from '../../mixins/entitiesInit'
 
 export default {
   props: [
@@ -179,6 +180,7 @@ export default {
     'isNeedSelect',
     'config'
   ],
+  mixins: [init],
   data () {
     return {
       filter: '',
@@ -205,16 +207,21 @@ export default {
         return hasntMessages && hasntLogs
       },
       tokenType (state) { return state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
+      itemsCollection (state) {
+        return state.items
+      },
       items (state) {
-        let items = state.items,
-          ids = items.map(item => item.id)
-        if (this.isInit && this.acitve && !ids.includes(this.acitve)) {
-          this.clearActive()
+        return Object.values(state.items)
+      },
+      selectedItem (state) {
+        let item = state.items[this.active] || {}
+        if (item.deleted) {
+          this.deletedHandler()
         }
-        return items
+        return item
       },
       tasksByDevice (state) {
-        return state['addition.tasks'] || []
+        return Object.values(state['addition.tasks'] || {})
       }
     }),
     filteredItems () {
@@ -260,13 +267,6 @@ export default {
       return this.config && this.config.messages && this.$store.state[this.config.messages.vuexModuleName]
         ? this.$store.state[this.config.messages.vuexModuleName].messages.filter(message => !!message['position.latitude'] && !!message['position.longitude'])
         : []
-    },
-    selectedItem () {
-      let item = this.items.filter(item => item.id === this.active)[0] || {}
-      if (item.deleted) {
-        this.deletedHandler()
-      }
-      return item
     },
     modeModel: {
       get () {
@@ -328,15 +328,28 @@ export default {
     init () {
       let entity = 'devices',
         activeFromLocaleStorage = this.$q.localStorage.get.item(entity),
-        idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null
+        idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null,
+        calcId
       this.isInit = true
+      console.log(idFromRoute)
       if (idFromRoute) {
-        if (this.items.filter(item => item.id === Number(idFromRoute)).length) {
-          this.active = Number(idFromRoute)
+        idFromRoute = idFromRoute.split('-')
+        console.log(idFromRoute)
+        if (idFromRoute.length > 1) {
+          calcId = Number(idFromRoute[1])
+          idFromRoute = Number(idFromRoute[0])
+        }
+        console.log(calcId)
+        if (calcId) {
+          this.moveToIntervals(idFromRoute, calcId)
+          return false
+        }
+        if (this.itemsCollection[idFromRoute]) {
+          this.active = idFromRoute
         } else {
           this.active = null
         }
-      } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
+      } else if (activeFromLocaleStorage && this.itemsCollection[activeFromLocaleStorage]) {
         this.active = activeFromLocaleStorage
       }
       // deleted item logic
@@ -344,16 +357,9 @@ export default {
         this.deletedHandler()
       }
     },
-    moveToCalcs () {
-      this.$store.dispatch('unsubscribeItems', {entity: 'tasks', addition: true, id: this.active})
-      this.$nextTick(() => { this.$router.push(`/calcs/0/device/${this.active}`) })
+    moveToIntervals (deviceId, calcId) {
+      this.$nextTick(() => { this.$router.push(`/devices/${deviceId}/calc/${calcId}/intervals`) })
     }
-  },
-  created () {
-    this.init()
-  },
-  beforeDestroy () {
-    this.$store.dispatch('unsubscribeItems', {entity: 'tasks', addition: true, id: this.active})
   },
   watch: {
     ratio (val) {
@@ -369,7 +375,7 @@ export default {
     },
     $route (route) {
       if (route.params && route.params.id) {
-        if (this.items.filter(item => item.id === Number(route.params.id)).length) {
+        if (this.itemsCollection[Number(route.params.id)]) {
           this.active = Number(route.params.id)
         } else if (this.isInit) {
           this.active = null
@@ -379,16 +385,10 @@ export default {
       }
     },
     active (val, old) {
-      let currentItem = this.items.filter(item => item.id === val)[0] || {}
+      let currentItem = this.itemsCollection[val] || {}
       if (val) {
         this.$q.localStorage.set('devices', val)
         this.$router.push(`/devices/${val}`)
-        if (old) {
-          this.$store.dispatch('unsubscribeItems', {entity: 'tasks', addition: true, id: old})
-        }
-        if (!currentItem.deleted) {
-          this.$store.dispatch('getItems', {entity: 'tasks', addition: true, id: val})
-        }
       } else {
         this.$router.push('/devices')
       }

@@ -99,6 +99,7 @@
       </q-toolbar>
       <logs
         ref="logs"
+        v-if="isInit"
         :mode="mode"
         :item="selectedItem"
         :limit="limit"
@@ -116,6 +117,7 @@
 import logs from '../../components/logs/Index.vue'
 import { mapState, mapActions } from 'vuex'
 import VirtualList from 'vue-virtual-scroll-list'
+import init from '../../mixins/entitiesInit'
 
 export default {
   props: [
@@ -125,6 +127,7 @@ export default {
     'isNeedSelect',
     'config'
   ],
+  mixins: [init],
   data () {
     return {
       filter: '',
@@ -143,13 +146,11 @@ export default {
         return state[this.config.logs.vuexModuleName] ? !state[this.config.logs.vuexModuleName].messages.length : false
       },
       tokenType (state) { return state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
+      itemsCollection (state) {
+        return state.items
+      },
       items (state) {
-        let items = state.items,
-          ids = items.map(item => item.id)
-        if (this.isInit && this.acitve && !ids.includes(this.acitve)) {
-          this.clearActive()
-        }
-        return items
+        return Object.values(state.items)
       }
     }),
     filteredItems () {
@@ -183,7 +184,7 @@ export default {
       return filteredItems
     },
     selectedItem () {
-      let item = this.items.filter(item => item.id === this.active)[0] || {}
+      let item = this.itemsCollection[this.active] || {}
       if (item.deleted) {
         this.deletedHandler()
       }
@@ -231,15 +232,15 @@ export default {
     init () {
       let entity = 'streams',
         activeFromLocaleStorage = this.$q.localStorage.get.item(entity),
-        idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null
+        idFromRoute = this.$route.params && this.$route.params.id ? Number(this.$route.params.id) : null
       this.isInit = true
       if (idFromRoute) {
-        if (this.items.filter(item => item.id === Number(idFromRoute)).length) {
-          this.active = Number(idFromRoute)
+        if (this.itemsCollection[idFromRoute]) {
+          this.active = idFromRoute
         } else {
           this.active = null
         }
-      } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
+      } else if (activeFromLocaleStorage && this.itemsCollection[activeFromLocaleStorage]) {
         this.active = activeFromLocaleStorage
       }
       // deleted item logic
@@ -248,13 +249,11 @@ export default {
       }
     }
   },
-  created () {
-    this.init()
-  },
   watch: {
     $route (route) {
       if (route.params && route.params.id) {
-        if (this.items.filter(item => item.id === Number(route.params.id)).length) {
+        let id = Number(route.params.id)
+        if (this.itemsCollection[id]) {
           this.active = Number(route.params.id)
         } else if (this.isInit) {
           this.active = null
@@ -264,7 +263,7 @@ export default {
       }
     },
     active (val) {
-      let currentItem = this.items.filter(item => item.id === val)[0] || {}
+      let currentItem = this.itemsCollection[val] || {}
       if (val) {
         this.$q.localStorage.set('streams', val)
         this.$router.push(`/streams/${val}`)

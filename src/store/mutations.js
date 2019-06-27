@@ -37,18 +37,18 @@ function reqFailed (state, payload) {
     if (payload.code === 2) { clearToken(state) }
   }
 }
-function deleteItem (state, { id, mode, index, source }) {
+function deleteItem (state, { id, mode, source }) {
   if (mode) {
-    Vue.delete(source, index)
+    Vue.delete(source, id)
   } else {
-    Vue.set(source[index], 'deleted', true)
+    Vue.set(source[id], 'deleted', true)
   }
 }
 function setItems (state, items) {
   Vue.set(state, 'items', items)
 }
 function clearItems (state) {
-  Vue.set(state, 'items', [])
+  Vue.set(state, 'items', {})
 }
 function setOfflineFlag (state, flag) {
   Vue.set(state, 'offline', flag)

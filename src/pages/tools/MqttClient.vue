@@ -6,6 +6,7 @@
 
 <script>
 import MqttClient from 'mqtt-board'
+import init from '../../mixins/entitiesInit'
 
 export default {
   name: 'MQTTClient',
@@ -16,6 +17,7 @@ export default {
     'isNeedSelect',
     'config'
   ],
+  mixins: [init],
   data () {
     return {
       settings: {

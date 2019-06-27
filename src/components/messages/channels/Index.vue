@@ -80,7 +80,7 @@ export default {
       async set (val) {
         await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active channel */
         this.$store.commit(`${this.moduleName}/setActive`, val)
-        let activeItem = this.$store.state.items.filter((item) => { return val === item.id })[0] || {}
+        let activeItem = this.$store.state.items[val] || {}
         Vue.set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
         await this.$store.dispatch(`${this.moduleName}/getCols`)
         this.modeChange(this.mode)
@@ -248,7 +248,7 @@ export default {
     this.currentLimit = this.limit
     if (this.activeId) {
       this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
-      let activeItem = this.$store.state.items.filter((item) => { return this.activeId === item.id })[0] || {}
+      let activeItem = this.$store.state.items[this.activeId] || {}
       Vue.set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
       this.$store.dispatch(`${this.moduleName}/getCols`)
     }

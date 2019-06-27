@@ -33,7 +33,7 @@
               <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
             </q-popover>
           </q-btn>
-          <div v-if="!items.length">{{isLoading ? 'Fetching data..' : 'Channels not found'}}</div>
+          <div v-if="!items.length">{{isLoading ? 'Fetching data..' : 'Proxy channels not found'}}</div>
         </div>
       </div>
     </template>
@@ -136,6 +136,7 @@ import messages from '../../components/hexViewer/Messages'
 import HexViewer from '../../components/hexViewer/HexViewer'
 import { mapState, mapActions } from 'vuex'
 import VirtualList from 'vue-virtual-scroll-list'
+import init from '../../mixins/entitiesInit'
 
 export default {
   name: 'PageHexViewer',
@@ -146,6 +147,7 @@ export default {
     'isNeedSelect',
     'config'
   ],
+  mixins: [init],
   data () {
     return {
       mode: 1,
@@ -176,7 +178,7 @@ export default {
           return proxyId
         }, 0)
       },
-      items (state) { return state.items.filter(item => this.PROXY_PROTOCOL_ID && item.protocol_id === this.PROXY_PROTOCOL_ID) }
+      items (state) { return Object.values(state.items).filter(item => this.PROXY_PROTOCOL_ID && item.protocol_id === this.PROXY_PROTOCOL_ID) }
     }),
     selectedItem () {
       return this.items.filter(item => item.id === this.active)[0] || {}
@@ -233,9 +235,6 @@ export default {
         this.mode = 0
       }
     }
-  },
-  created () {
-    this.init()
   },
   watch: {
     $route (route) {

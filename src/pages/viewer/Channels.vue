@@ -130,29 +130,31 @@
           <q-icon title="Clear all panes" size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler" />
         </div>
       </q-toolbar>
-      <logs
-        ref="logs"
-        :mode="mode"
-        :item="selectedItem"
-        :limit="limit"
-        :isEnabled="!!+size[0]"
-        originPattern="gw/channels/:id"
-        :config="config.logs"
-        v-if="+size[0]"
-        :style="{minHeight: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
-        @view-log-message="viewLogMessagesHandler"
-      />
-      <messages
-        ref="messages"
-        @view-data="viewDataHandler"
-        :mode="mode"
-        :activeId="active"
-        :isEnabled="!!+size[1]"
-        :limit="limit"
-        :config="config.messages"
-        v-if="+size[1]"
-        :style="{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
-      />
+      <div v-if="isInit">
+        <logs
+          ref="logs"
+          :mode="mode"
+          :item="selectedItem"
+          :limit="limit"
+          :isEnabled="!!+size[0]"
+          originPattern="gw/channels/:id"
+          :config="config.logs"
+          v-if="+size[0]"
+          :style="{minHeight: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
+          @view-log-message="viewLogMessagesHandler"
+        />
+        <messages
+          ref="messages"
+          @view-data="viewDataHandler"
+          :mode="mode"
+          :activeId="active"
+          :isEnabled="!!+size[1]"
+          :limit="limit"
+          :config="config.messages"
+          v-if="+size[1]"
+          :style="{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
+        />
+      </div>
     </template>
   </q-page>
 </template>
@@ -162,6 +164,7 @@ import logs from '../../components/logs/Index.vue'
 import messages from '../../components/messages/channels/Index.vue'
 import { mapState, mapActions } from 'vuex'
 import VirtualList from 'vue-virtual-scroll-list'
+import init from '../../mixins/entitiesInit'
 
 export default {
   props: [
@@ -171,6 +174,7 @@ export default {
     'isNeedSelect',
     'config'
   ],
+  mixins: [init],
   data () {
     return {
       filter: '',
@@ -195,13 +199,11 @@ export default {
       },
       tokenType (state) { return state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
       protocols (state) { return state.protocols },
+      itemsCollection (state) {
+        return state.items
+      },
       items (state) {
-        let items = state.items,
-          ids = items.map(item => item.id)
-        if (this.isInit && this.acitve && !ids.includes(this.acitve)) {
-          this.clearActive()
-        }
-        return items
+        return Object.values(state.items)
       },
       proxyProtocolId (state) {
         let protocols = state.protocols
@@ -247,7 +249,7 @@ export default {
       return [this.ratio, 100 - this.ratio]
     },
     selectedItem () {
-      let item = this.items.filter(item => item.id === this.active)[0] || {}
+      let item = this.itemsCollection[this.active] || {}
       if (item.deleted) {
         this.deletedHandler()
       }
@@ -305,15 +307,15 @@ export default {
     init () {
       let entity = 'channels',
         activeFromLocaleStorage = this.$q.localStorage.get.item(entity),
-        idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null
+        idFromRoute = this.$route.params && this.$route.params.id ? Number(this.$route.params.id) : null
       this.isInit = true
       if (idFromRoute) {
-        if (this.items.filter(item => item.id === Number(idFromRoute)).length) {
-          this.active = Number(idFromRoute)
+        if (this.itemsCollection[idFromRoute]) {
+          this.active = idFromRoute
         } else {
           this.active = null
         }
-      } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
+      } else if (activeFromLocaleStorage && this.itemsCollection[activeFromLocaleStorage]) {
         this.active = activeFromLocaleStorage
       }
       // deleted item logic
@@ -321,9 +323,6 @@ export default {
         this.deletedHandler()
       }
     }
-  },
-  created () {
-    this.init()
   },
   watch: {
     ratio (val) {
@@ -339,7 +338,8 @@ export default {
     },
     $route (route) {
       if (route.params && route.params.id) {
-        if (this.items.filter(item => item.id === Number(route.params.id)).length) {
+        let id = Number(route.params.id)
+        if (this.itemsCollection[id]) {
           this.active = Number(route.params.id)
         } else if (this.isInit) {
           this.active = null
@@ -349,7 +349,7 @@ export default {
       }
     },
     active (val) {
-      let currentItem = this.items.filter(item => item.id === val)[0] || {}
+      let currentItem = this.itemsCollection[val] || {}
       if (val) {
         this.$q.localStorage.set('channels', val)
         this.$router.push(`/channels/${val}`)

@@ -6,23 +6,25 @@ function getIndexChildrenRoutes (config) {
     let componentName = upperFirst(moduleName),
       type = config[moduleName].type,
       path = config[moduleName].path || moduleName
-    result.push({
+    let route = {
       path: path,
       component: () => import(`pages/${type}/${componentName}`),
-      meta: {moduleName}
-    })
-    result.push({
-      path: `${path}/:id`,
-      component: () => import(`pages/${type}/${componentName}`),
-      meta: {moduleName}
-    })
-    if (moduleName === 'calcs') {
+      meta: {moduleName},
+      children: [
+        {
+          path: `:id`,
+          meta: {moduleName}
+        }
+      ]
+    }
+    if (moduleName === 'devices') {
       result.push({
-        path: `${path}/:id/device/:deviceId`,
-        component: () => import(`pages/${type}/${componentName}`),
-        meta: {moduleName}
+        path: `devices/:id/calc/:calcId/intervals`,
+        component: () => import(`pages/${type}/Intervals`),
+        meta: {moduleName: 'intervals'}
       })
     }
+    result.push(route)
     return result
   }, [])
 }

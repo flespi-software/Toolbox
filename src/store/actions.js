@@ -2,21 +2,24 @@ import Vue from 'vue'
 import { Notify } from 'quasar'
 
 const origins = {
-  devices: '/gw/devices',
-  channels: '/gw/channels',
-  calcs: '/gw/calcs',
-  streams: '/gw/streams',
-  modems: '/gw/modems',
-  containers: '/storage/containers',
-  abques: '/storage/abques',
-  cdns: '/storage/cdns',
-  tasks: '/gw/calcs/+/devices'
-}
+    devices: '/gw/devices',
+    channels: '/gw/channels',
+    calcs: '/gw/calcs',
+    streams: '/gw/streams',
+    modems: '/gw/modems',
+    containers: '/storage/containers',
+    abques: '/storage/abques',
+    cdns: '/storage/cdns',
+    tasks: '/gw/calcs/+/devices'
+  },
+  GET_ITEMS_MODE_OBJECT = 0,
+  GET_ITEMS_MODE_FIELDS = 1
 
 async function getItems ({ state, commit }, payload) {
   let entity = '',
     id = null,
-    writePath = 'items'
+    writePath = 'items',
+    mode = GET_ITEMS_MODE_OBJECT
   if (typeof payload === 'string') {
     entity = payload
   } else {
@@ -27,14 +30,14 @@ async function getItems ({ state, commit }, payload) {
     if (payload.addition) {
       writePath = `addition.${entity}`
     }
+    if (payload.mode) {
+      mode = payload.mode
+    }
   }
   if (entity) {
-    let origin = `flespi/state${origins[entity]}/${id || '+'}/+`
+    let origin = `flespi/state${origins[entity]}/${id || '+'}${mode === GET_ITEMS_MODE_FIELDS ? '/+' : ''}`
     if (state.token) {
       try {
-        if (typeof state.isLoading !== 'undefined') {
-          Vue.set(state, 'isLoading', true)
-        }
         // init getting protocols name
         if (entity === 'channels' && !state.protocols) {
           let protocolsResp = await Vue.connector.gw.getProtocols('all', {fields: 'name,id'})
@@ -44,54 +47,61 @@ async function getItems ({ state, commit }, payload) {
           }, {})
           Vue.set(state, 'protocols', protocols)
         }
-        let items = []
+        let items = {}
         let partsOfTopicFilter = origin.split('/').reverse().slice(1)
+        let objectModeHandler = (value, topic, packet) => {
+          let partsOfTopic = topic.split('/').reverse(),
+            idsParts = partsOfTopicFilter.reduce((ids, part, index) => {
+              if (part === '+') {
+                ids.push(partsOfTopic[index])
+              }
+              return ids
+            }, []).reverse(),
+            id = idsParts.length <= 1 ? parseInt(partsOfTopic.shift()) : idsParts.join('-'),
+            source = subsIds ? state[writePath] : items
+
+          if (value.length) {
+            Vue.set(source, id, JSON.parse(value.toString()))
+          } else {
+            commit('deleteItem', { id, mode: entity === 'tasks', source })
+          }
+        }
+        let fieldModeHandler = (value, topic, packet) => {
+          let partsOfTopic = topic.split('/').reverse(),
+            name = partsOfTopic.shift(),
+            idsParts = partsOfTopicFilter.reduce((ids, part, index) => {
+              if (part === '+') {
+                ids.push(partsOfTopic[index])
+              }
+              return ids
+            }, []).reverse(),
+            id = idsParts.length <= 1 ? parseInt(partsOfTopic.shift()) : idsParts.join('-'),
+            source = subsIds ? state[writePath] : items
+
+          if (name === 'deleted') {
+            commit('deleteItem', { id, mode: entity === 'tasks', source })
+            return false
+          }
+          /* skeep empty messages */
+          if (!value.length) {
+            return false
+          }
+
+          if (source[id]) {
+            Vue.set(source[id], name, JSON.parse(value.toString()))
+          } else {
+            Vue.set(source, id, {id: id, [name]: JSON.parse(value.toString())})
+          }
+        }
         let subsIds = await Vue.connector.socket.subscribe({
           name: origin,
-          handler (value, topic, packet) {
-            let partsOfTopic = topic.split('/').reverse(),
-              name = partsOfTopic.shift(),
-              idsParts = partsOfTopicFilter.reduce((ids, part, index) => {
-                if (part === '+') {
-                  ids.push(partsOfTopic[index])
-                }
-                return ids
-              }, []).reverse(),
-              id = idsParts.length <= 1 ? parseInt(partsOfTopic.shift()) : idsParts.join('-'),
-              source = subsIds ? state[writePath] : items
-
-            let existedIndex = -1
-            source.forEach((existItem, index) => {
-              if (existItem.id === id) { existedIndex = index }
-            })
-
-            if (name === 'deleted') {
-              commit('deleteItem', { id, mode: entity === 'tasks', index: existedIndex, source })
-              return false
-            }
-
-            if (!value.length) {
-              return false
-            }
-
-            if (existedIndex !== -1) {
-              Vue.set(source[existedIndex], name, JSON.parse(value.toString()))
-            } else {
-              source.push({id: id, [name]: JSON.parse(value.toString())})
-            }
-          }}
+          handler: mode === GET_ITEMS_MODE_OBJECT ? objectModeHandler : fieldModeHandler}
         )
         Vue.set(state, writePath, items)
-        if (typeof state.isLoading !== 'undefined') {
-          Vue.set(state, 'isLoading', false)
-        }
         return subsIds
       } catch (e) {
         commit('reqFailed', e)
-        commit('setItems', [])
-        if (typeof state.isLoading !== 'undefined') {
-          Vue.set(state, 'isLoading', false)
-        }
+        commit('setItems', {})
       }
     }
   }
@@ -99,7 +109,8 @@ async function getItems ({ state, commit }, payload) {
 
 async function unsubscribeItems ({state, commit}, payload) {
   let entity = '',
-    id = null
+    id = null,
+    mode = GET_ITEMS_MODE_OBJECT
   if (typeof payload === 'string') {
     entity = payload
   } else {
@@ -110,21 +121,34 @@ async function unsubscribeItems ({state, commit}, payload) {
     if (payload.addition) {
       Vue.delete(state, `addition.${entity}`)
     }
-  }
-  if (typeof state.isLoading !== 'undefined') {
-    Vue.set(state, 'isLoading', true)
+    if (payload.mode) {
+      mode = payload.mode
+    }
   }
   if (entity) {
-    let origin = `flespi/state${origins[entity]}/${id || '+'}/+`
+    let origin = `flespi/state${origins[entity]}/${id || '+'}${mode === GET_ITEMS_MODE_FIELDS ? '/+' : ''}`
     try {
       return await Vue.connector.socket.unsubscribe(origin)
     } catch (e) {
       commit('reqFailed', e)
     }
   }
-  if (typeof state.isLoading !== 'undefined') {
-    Vue.set(state, 'isLoading', false)
-  }
+}
+
+async function getEntities (store, payload) {
+  let {state} = store
+  Vue.set(state, 'isLoading', true)
+  let res = await Promise.all(payload.map(config => getItems(store, config)))
+  Vue.set(state, 'isLoading', false)
+  return res
+}
+
+async function removeEntities (store, payload) {
+  let {state} = store
+  Vue.set(state, 'isLoading', true)
+  let res = await Promise.all(payload.map(config => unsubscribeItems(store, config)))
+  Vue.set(state, 'isLoading', false)
+  return res
 }
 
 async function getDeleted ({state, commit}, entity) {
@@ -141,6 +165,10 @@ async function getDeleted ({state, commit}, entity) {
       }
       case 'streams': {
         deletedParams = Object.assign(deletedParams, {filter: 'event_origin=gw/streams/*,event_code=3'})
+        break
+      }
+      case 'calcs': {
+        deletedParams = Object.assign(deletedParams, {filter: 'event_origin=gw/calcs/*,event_code=3'})
         break
       }
       case 'modems': {
@@ -182,21 +210,22 @@ async function getDeleted ({state, commit}, entity) {
             timeout: 1000
           })
         }
-        let result = [
+        let result = {
           ...state.items,
-          ...deleted.map(item => {
+          ...deleted.reduce((deleted, item) => {
             let itemObj = item.item_data
             itemObj.deleted = true
-            return itemObj
-          })
-        ]
+            deleted[itemObj.id] = itemObj
+            return deleted
+          }, {})
+        }
         commit('setItems', result)
         if (typeof state.isLoading !== 'undefined') {
           Vue.set(state, 'isLoading', false)
         }
       } catch (e) {
         commit('reqFailed', e)
-        commit('setItems', [])
+        commit('setItems', {})
         if (typeof state.isLoading !== 'undefined') {
           Vue.set(state, 'isLoading', false)
         }
@@ -228,5 +257,7 @@ export default {
   getItems,
   unsubscribeItems,
   checkConnection,
-  getDeleted
+  getDeleted,
+  getEntities,
+  removeEntities
 }

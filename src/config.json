@@ -193,28 +193,6 @@
         "contentInverted": true,
         "controlsInverted": true
       }
-    },
-    "messages": {
-      "vuexModuleName": "calcsIntervals",
-      "actions": [
-        {
-          "icon": "mdi-content-copy",
-          "label": "copy",
-          "classes": "",
-          "type": "copy"
-        }
-      ],
-      "viewConfig": {
-        "needShowFilter": true,
-        "needShowDateRange": true,
-        "needShowEtc": false
-      },
-      "theme": {
-        "color": "white",
-        "bgColor": "dark",
-        "contentInverted": true,
-        "controlsInverted": true
-      }
     }
   },
   "devices": {
@@ -328,6 +306,28 @@
         "needShowMode": false,
         "needShowPageScroll": "right left",
         "needShowDate": true,
+        "needShowEtc": true
+      },
+      "theme": {
+        "color": "white",
+        "bgColor": "dark",
+        "contentInverted": true,
+        "controlsInverted": true
+      }
+    },
+    "intervals": {
+      "vuexModuleName": "intervals",
+      "actions": [
+        {
+          "icon": "mdi-content-copy",
+          "label": "copy",
+          "classes": "",
+          "type": "copy"
+        }
+      ],
+      "viewConfig": {
+        "needShowFilter": true,
+        "needShowDateRange": true,
         "needShowEtc": true
       },
       "theme": {

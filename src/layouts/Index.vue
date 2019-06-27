@@ -185,7 +185,7 @@
         />
         <router-view
           ref='main'
-          v-if="configByEntity && isInit && isEntityInited"
+          v-if="configByEntity && isInit"
           @view-data="viewDataHandler"
           @view-data-hide="sides.right = false, currentMessage = {}"
           @view-log-message="viewLogMessagesHandler"
@@ -198,7 +198,7 @@
         </router-view>
       </q-page-container>
     </q-layout>
-    <q-inner-loading :visible="loadingFlag && !isEntityInited" style="z-index: 2001" dark>
+    <q-inner-loading :visible="loadingFlag" style="z-index: 2001" dark>
       <q-spinner-gears size="100px" color="white" />
     </q-inner-loading>
   </div>
@@ -206,7 +206,7 @@
 
 <script>
 import Vue from 'vue'
-import { debounce, date } from 'quasar'
+import { date } from 'quasar'
 import { mapState, mapMutations } from 'vuex'
 import dist from '../../package.json'
 import ObjectViewer from '../components/ObjectViewer.vue'
@@ -227,12 +227,11 @@ export default {
       rawConfig: {},
       entity: '',
       isVisibleToolbar: true,
-      loadingFlag: false,
+      connectFlag: false,
       isTabsVisible: true,
       entityByGroup: ['platform', 'channels', 'calcs', 'devices', 'streams', 'modems', 'containers', 'abques', 'cdns', 'mqtt', 'mqttClient', 'hexViewer'],
       isNeedSelect: true,
-      isInit: Vue.connector.socket.connected(),
-      isEntityInited: false
+      isInit: Vue.connector.socket.connected()
     }
   },
   computed: {
@@ -247,9 +246,12 @@ export default {
       errors: state => state.errors,
       newNotificationCounter: state => state.newNotificationCounter
     }),
+    loadingFlag () {
+      return this.connectFlag || this.isLoading
+    },
     hubGroupModel () {
       let entity = this.entity
-      return entity === 'channels' || entity === 'calcs' || entity === 'devices' || entity === 'streams' || entity === 'modems' || entity === 'hexViewer'
+      return entity === 'channels' || entity === 'calcs' || entity === 'devices' || entity === 'streams' || entity === 'modems' || entity === 'hexViewer' || entity === 'intervals'
     },
     storageGroupModel () {
       let entity = this.entity
@@ -260,6 +262,9 @@ export default {
       return entity === 'mqtt' || entity === 'mqttClient'
     },
     configByEntity () {
+      if (this.entity === 'intervals') {
+        return this.config['devices']
+      }
       return this.config[this.entity]
     },
     renderEntities () {
@@ -405,9 +410,6 @@ export default {
         })
       }
     },
-    disableLoading: debounce((ctx) => {
-      ctx.loadingFlag = false
-    }, 200),
     getGroups (groups) {
       return groups.reduce((result, group) => {
         if (['hub', 'storage', 'mqtt', 'platform'].includes(group)) {
@@ -451,7 +453,7 @@ export default {
     setDefaultEntity () {
       if (this.renderEntities.length) {
         this.$router.push(`/${this.config[this.renderEntities[0]].path || this.renderEntities[0]}`)
-        this.initEntity(this.renderEntities[0])
+        this.entity = this.renderEntities[0]
       } else {
         this.reset('Nothing to show by current token')
       }
@@ -476,9 +478,8 @@ export default {
       this.setToken(route.params.token)
       if (route.params.id && route.params.type) {
         if (this.renderEntities.includes(route.params.type)) {
-          // this.entity = this.$route.params.type
+          this.entity = this.$route.params.type
           this.$router.push(`/${route.params.type}/${route.params.id}`)
-          this.initEntity(this.$route.params.type)
         } else {
           this.reset('Nothing to show by current token')
         }
@@ -491,46 +492,13 @@ export default {
         this.setDefaultEntity()
       } else { // go to send route
         if (this.$route.meta.moduleName) {
-          // this.entity = this.$route.meta.moduleName
+          this.entity = this.$route.meta.moduleName
           if (this.$route.meta.moduleName === this.entity) { return false }
-          this.initEntity(this.$route.meta.moduleName)
           this.$router.push(this.$route.path)
         } else {
           this.$router.push(this.$route.path)
         }
       }
-    },
-    initEntity (entity) {
-      if (entity === this.entity) { return false }
-      this.isEntityInited = false
-      let idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null,
-        deinitPromises = [],
-        initPromises = []
-      if (this.entity) {
-        let entity = this.entity
-        if (entity === 'hexViewer') {
-          entity = 'channels'
-        }
-        if (entity === 'calcs') {
-          deinitPromises.push(this.$store.dispatch('unsubscribeItems', {entity: 'devices', addition: true}))
-          deinitPromises.push(this.$store.dispatch('unsubscribeItems', {entity: 'tasks', addition: true}))
-        }
-        deinitPromises.push(this.$store.dispatch('unsubscribeItems', this.isNeedSelect ? entity : {entity, id: idFromRoute}))
-      }
-      this.entity = entity
-      if (entity === 'hexViewer') {
-        entity = 'channels'
-      }
-      if (entity === 'calcs') {
-        initPromises.push(this.$store.dispatch('getItems', {entity: 'devices', addition: true}))
-        initPromises.push(this.$store.dispatch('getItems', {entity: 'tasks', addition: true}))
-      }
-      initPromises.push(this.$store.dispatch('getItems', this.isNeedSelect ? entity : {entity, id: idFromRoute.split('-')[0]})) // '-' is delimeter for entities` combination logic
-      Promise.all(deinitPromises).then((arr) => {
-        return Promise.all(initPromises)
-      }).then((arr) => {
-        this.isEntityInited = true
-      })
     }
   },
   watch: {
@@ -544,22 +512,15 @@ export default {
       if (this.$refs.layout) {
         this.hideRight()
       }
-    },
-    isLoading (flag) {
-      if (flag) {
-        this.loadingFlag = flag
-      } else {
-        this.disableLoading(this)
-      }
     }
   },
   created () {
     this.routeProcess(this.$route)
     if (!this.isInit) {
-      this.loadingFlag = true
+      this.connectFlag = true
       Vue.connector.socket.on('connect', () => {
         this.isInit = true
-        this.disableLoading(this)
+        this.connectFlag = false
       })
     }
   },
