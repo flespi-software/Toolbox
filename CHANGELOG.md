@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.17.1] - 2019-06-27
+[feature] prod route for dev-build
 ### [0.17.0] - 2019-06-27
 [update] initialization
 [update] log codes
