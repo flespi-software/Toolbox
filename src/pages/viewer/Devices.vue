@@ -22,7 +22,7 @@
                 >
                   <q-item-main>
                     <q-item-tile :title="item.name" label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || `#${item.id}`}}</q-item-tile>
-                    <q-item-tile sublabel><small>{{item.ident || `&lt;no ident&gt;`}}</small></q-item-tile>
+                    <q-item-tile sublabel><small>{{item.configuration && item.configuration.ident ? item.configuration.ident : `&lt;no ident&gt;`}}</small></q-item-tile>
                   </q-item-main>
                   <q-item-side class="text-center">
                     <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
@@ -48,7 +48,7 @@
         <q-item class="no-padding" style="max-width: 50%" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
           <q-item-main>
             <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name || `#${selectedItem.id}`}}</q-item-tile>
-            <q-item-tile sublabel style="font-size: 0.8rem" v-if="selectedItem.ident">{{selectedItem.ident}}</q-item-tile>
+            <q-item-tile sublabel style="font-size: 0.8rem" v-if="selectedItem.configuration && selectedItem.configuration.ident">{{selectedItem.configuration.ident}}</q-item-tile>
           </q-item-main>
           <q-item-side class="text-right">
             <q-item-tile style="display: inline-block" stamp color="white" class="text-center"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id}}</q-item-tile>
@@ -72,7 +72,7 @@
                 >
                   <q-item-main>
                     <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || `#${item.id}`}}</q-item-tile>
-                    <q-item-tile sublabel><small>{{item.ident || `&lt;no ident&gt;`}}</small></q-item-tile>
+                    <q-item-tile sublabel><small>{{item.configuration && item.configuration.ident ? item.configuration.ident : `&lt;no ident&gt;`}}</small></q-item-tile>
                   </q-item-main>
                   <q-item-side class="text-center">
                     <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
@@ -240,10 +240,10 @@ export default {
           (item.id + '').indexOf(filter) >= 0
         ) ||
         (
-          item &&
-          typeof item.ident !== 'undefined' &&
-          item.ident !== null &&
-          item.ident.toLowerCase().indexOf(filter) >= 0
+          item && item.configuration &&
+          typeof item.configuration.ident !== 'undefined' &&
+          item.configuration.ident !== null &&
+          item.configuration.ident.toLowerCase().indexOf(filter) >= 0
         )
       }) : this.items
       filteredItems.sort((l, r) => {
@@ -331,15 +331,12 @@ export default {
         idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null,
         calcId
       this.isInit = true
-      console.log(idFromRoute)
       if (idFromRoute) {
         idFromRoute = idFromRoute.split('-')
-        console.log(idFromRoute)
         if (idFromRoute.length > 1) {
           calcId = Number(idFromRoute[1])
           idFromRoute = Number(idFromRoute[0])
         }
-        console.log(calcId)
         if (calcId) {
           this.moveToIntervals(idFromRoute, calcId)
           return false
