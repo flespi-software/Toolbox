@@ -460,9 +460,15 @@ export default {
     },
     routeProcess (route) {
       if (route.params.group) {
-        let groups = this.$route.params.group.split(','),
-          entityByGroups = this.getGroups(groups)
-        if (entityByGroups.length) { this.entityByGroup = entityByGroups }
+        let routeProcessIndex = Vue.connector.socket.on('connect', () => {
+          let groups = this.$route.params.group.split(','),
+            entityByGroups = this.getGroups(groups)
+          if (entityByGroups.length) {
+            this.entityByGroup = entityByGroups
+            this.setDefaultEntity()
+          }
+          Vue.connector.socket.off('connect', routeProcessIndex)
+        })
       }
       if (route.params.token) {
         this.routeParamsProcess(route)
@@ -477,14 +483,15 @@ export default {
       this.isVisibleToolbar = !route.params.fullscreen
       this.setToken(route.params.token)
       if (route.params.id && route.params.type) {
-        if (this.renderEntities.includes(route.params.type)) {
-          this.entity = this.$route.params.type
-          this.$router.push(`/${route.params.type}/${route.params.id}`)
-        } else {
-          this.reset('Nothing to show by current token')
-        }
-      } else {
-        this.setDefaultEntity()
+        let routeProcessIndex = Vue.connector.socket.on('connect', () => {
+          if (this.renderEntities.includes(route.params.type)) {
+            this.entity = this.$route.params.type
+            this.$router.push(`/${route.params.type}/${route.params.id}`)
+          } else {
+            this.reset('Nothing to show by current token')
+          }
+          Vue.connector.socket.off('connect', routeProcessIndex)
+        })
       }
     },
     routeMainProcess (route) {

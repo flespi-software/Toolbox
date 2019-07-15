@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.17.4] - 2019-07-15
+[fix] routes init
 ### [0.17.3] - 2019-07-15
 [fix] login process codes
 [fix] rerender lists items
