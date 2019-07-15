@@ -185,7 +185,7 @@ export default {
   },
   computed: {
     ...mapState({
-      tokenType (state) { return state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
+      tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
       devicesCollection (state) {
         return state.items || {}
       },

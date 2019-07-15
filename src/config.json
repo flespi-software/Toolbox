@@ -3,7 +3,7 @@
     "label": "Platform",
     "icon": "icon-flespi2-02-01",
     "type": "viewer",
-    "isDrawable": true,
+    "isDrawable": false,
     "logs": {
       "vuexModuleName": "platformLogs",
       "cols": [
@@ -48,7 +48,7 @@
     "icon": "merge_type",
     "type": "viewer",
     "acl": ["protocols", "channels"],
-    "isDrawable": true,
+    "isDrawable": false,
     "logs": {
       "vuexModuleName": "channelsLogs",
       "cols": [
@@ -155,7 +155,7 @@
     "icon": "mdi-calculator-variant",
     "type": "viewer",
     "acl": ["devices", "calcs"],
-    "isDrawable": true,
+    "isDrawable": false,
     "logs": {
       "vuexModuleName": "calcsLogs",
       "cols": [
@@ -200,7 +200,7 @@
     "icon": "mdi-developer-board",
     "type": "viewer",
     "acl": ["devices"],
-    "isDrawable": true,
+    "isDrawable": false,
     "logs": {
       "vuexModuleName": "devicesLogs",
       "cols": [
@@ -343,7 +343,7 @@
     "icon": "mdi-call-split",
     "type": "viewer",
     "acl": ["streams"],
-    "isDrawable": true,
+    "isDrawable": false,
     "logs": {
       "vuexModuleName": "streamsLogs",
       "cols": [
@@ -394,7 +394,7 @@
     "icon": "router",
     "type": "viewer",
     "acl": ["modems"],
-    "isDrawable": true,
+    "isDrawable": false,
     "logs": {
       "vuexModuleName": "modemsLogs",
       "cols": [
@@ -457,7 +457,7 @@
     "icon": "featured_play_list",
     "type": "viewer",
     "acl": ["containers"],
-    "isDrawable": true,
+    "isDrawable": false,
     "logs": {
       "vuexModuleName": "containersLogs",
       "cols": [
@@ -502,7 +502,7 @@
     "icon": "reorder",
     "type": "viewer",
     "acl": ["abques"],
-    "isDrawable": true,
+    "isDrawable": false,
     "logs": {
       "vuexModuleName": "abquesLogs",
       "cols": [
@@ -547,7 +547,7 @@
     "icon": "mdi-access-point-network",
     "acl": ["mqtt"],
     "type": "viewer",
-    "isDrawable": true,
+    "isDrawable": false,
     "logs": {
       "vuexModuleName": "mqttLogs",
       "cols": [
@@ -604,7 +604,7 @@
     "icon": "mdi-harddisk",
     "type": "viewer",
     "acl": ["cdns"],
-    "isDrawable": true,
+    "isDrawable": false,
     "logs": {
       "vuexModuleName": "cdnsLogs",
       "cols": [
@@ -668,7 +668,7 @@
     "type": "tools",
     "icon": "mdi-matrix",
     "acl": ["protocols", "channels"],
-    "isDrawable": true,
+    "isDrawable": false,
     "messages": {
       "vuexModuleName": "hexMessages",
       "actions": [
@@ -698,6 +698,6 @@
     "path": "tools/mqtt",
     "type": "tools",
     "icon": "mdi-view-dashboard-variant",
-    "isDrawable": true
+    "isDrawable": false
   }
 }

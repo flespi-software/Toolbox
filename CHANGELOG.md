@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.17.3] - 2019-07-15
+[fix] login process codes
+[fix] rerender lists items
+[fix] login init
 ### [0.17.2] - 2019-07-09
 [update] devices data to configuration field
 ### [0.17.1] - 2019-06-27

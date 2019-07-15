@@ -13,7 +13,7 @@
           <q-btn v-if="errors.length" @click="clearNotificationCounter" small flat round icon="notifications">
             <q-chip v-if="newNotificationCounter" floating color="red">{{newNotificationCounter}}</q-chip>
             <q-popover fit ref="popoverError">
-              <q-list no-border style="max-height: 200px" link separator class="scroll">
+              <q-list no-border style="max-height: 200px" link separator class="scroll q-py-none">
                 <q-item
                   v-for="(error, index) in errors"
                   :key="index"
@@ -38,7 +38,7 @@
         />
       </q-layout-drawer>
       <q-layout-drawer side="left" v-model="sides.left" :content-class="{'bg-white':true}">
-        <q-list separator>
+        <q-list separator class="q-py-none">
           <q-item v-if="renderEntities.includes('platform')" to='/platform' class="q-pt-md q-pb-md">
             <q-item-side color="red" :icon="config.platform.icon"></q-item-side>
             <q-item-main><q-item-tile>{{config.platform.label}}</q-item-tile></q-item-main>
@@ -52,7 +52,7 @@
             :value="hubGroupModel"
           >
             <div>
-              <q-list class="row">
+              <q-list class="row q-py-none">
                 <q-item v-if="renderEntities.includes('channels')" to='/channels' class="col-6">
                   <q-item-main class="text-center">
                     <div>
@@ -116,7 +116,7 @@
             :value="storageGroupModel"
           >
             <div>
-              <q-list class="row">
+              <q-list class="row q-py-none">
                 <q-item v-if="renderEntities.includes('containers')" to='/containers' class="col-6">
                   <q-item-main class="text-center">
                     <div>
@@ -153,7 +153,7 @@
             v-if="renderEntities.includes('mqtt') || renderEntities.includes('mqttClient')"
           >
             <div>
-              <q-list class="row">
+              <q-list class="row q-py-none">
                 <q-item v-if="renderEntities.includes('mqtt')" to='/mqtt' class="col-6">
                   <q-item-main class="text-center">
                     <div>
@@ -499,6 +499,10 @@ export default {
           this.$router.push(this.$route.path)
         }
       }
+    },
+    connectionPreserveHandler () {
+      this.isInit = true
+      this.connectFlag = false
     }
   },
   watch: {
@@ -518,14 +522,11 @@ export default {
     this.routeProcess(this.$route)
     if (!this.isInit) {
       this.connectFlag = true
-      Vue.connector.socket.on('connect', () => {
-        this.isInit = true
-        this.connectFlag = false
-      })
+      this.connectionPreserveHandlerIndex = Vue.connector.socket.on('connect', this.connectionPreserveHandler)
     }
   },
   beforeDestroy () {
-    Vue.connector.socket.off('connect')
+    this.connectionPreserveHandlerIndex !== undefined && Vue.connector.socket.off('connect', this.connectionPreserveHandlerIndex)
   },
   components: { ObjectViewer, RawViewer }
 }

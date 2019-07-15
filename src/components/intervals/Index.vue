@@ -254,20 +254,18 @@ export default {
         this.$store.dispatch(`${this.moduleName}/get`)
         this.$store.dispatch(`${this.moduleName}/pollingGet`)
       })
-    Vue.connector.socket.on('offline', () => {
+    this.offlineHandler = Vue.connector.socket.on('offline', () => {
       this.$store.commit(`${this.moduleName}/setOffline`, this.mode === 1)
-      this.$store.commit('setSocketOffline', true)
     })
-    Vue.connector.socket.on('connect', () => {
+    this.connectHandler = Vue.connector.socket.on('connect', () => {
       if (this.$store.state[this.moduleName].offline) {
         this.$store.commit(`${this.moduleName}/setReconnected`, this.mode === 1)
-        this.$store.commit('setSocketOffline', false)
       }
     })
   },
   beforeDestroy () {
-    Vue.connector.socket.off('offline')
-    Vue.connector.socket.off('connect')
+    this.offlineHandler !== undefined && Vue.connector.socket.off('offline', this.offlineHandler)
+    this.connectHandler !== undefined && Vue.connector.socket.off('connect', this.connectHandler)
     this.$store.commit(`${this.moduleName}/clear`)
   },
   mixins: [filterMessages],

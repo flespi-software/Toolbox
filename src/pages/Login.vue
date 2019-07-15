@@ -23,6 +23,7 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import { mapMutations } from 'vuex'
 
 export default {
@@ -46,25 +47,40 @@ export default {
       set (val) {
         this.token = val
       }
+    },
+    tokenInfo () {
+      return this.$store.state.tokenInfo
     }
   },
   methods: {
     ...mapMutations(['setToken']),
+    goto (to) {
+      if (this.tokenInfo) {
+        this.$router.push(to)
+      } else {
+        let connectEventIndex, errorEventIndex,
+          eventHandler = () => {
+            this.$router.push(to)
+            connectEventIndex && Vue.connector.socket.on('connect', connectEventIndex)
+            errorEventIndex && Vue.connector.socket.on('error', errorEventIndex)
+          }
+        connectEventIndex = Vue.connector.socket.on('connect', eventHandler)
+        errorEventIndex = Vue.connector.socket.on('error', eventHandler)
+      }
+    },
     logIn () {
       this.setToken(this.token)
       this.$nextTick(() => {
         if (this.$route.params && this.$route.params.goto) {
-          this.$router.push(this.$route.params.goto)
+          this.goto(this.$route.params.goto)
         } else {
-          this.$router.push('/')
+          this.goto('/')
         }
       })
     },
     autoLogin () {
       this.setToken(this.$route.params.token)
-      setTimeout(() => {
-        this.$router.push('/')
-      }, 1000)
+      this.goto('/')
     },
     checkHasToken () {
       let sessionStorageToken = this.$q.sessionStorage.get.item('toolbox-token')

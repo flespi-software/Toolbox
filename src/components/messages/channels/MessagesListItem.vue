@@ -4,8 +4,8 @@
       v-if="!item['__connectionStatus'] && !item['x-flespi-filter-prev'] && !item['x-flespi-filter-next']"
       @click="(event) => { itemClickHandler(index, clearItem, event) }"
       class="cursor-pointer"
-      :class="[item.__status ? 'missed-items' : '']"
-      :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, backgroundColor: selected ? 'rgba(255,255,255,0.7)': '', color: selected ? '#333' : ''}">
+      :class="[item.__status ? 'missed-items' : '', selected ? 'bg-white-opasity' : highlightLevel ? `text-orange-${highlightLevel}` : '']"
+      :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, color: selected ? '#333' : ''}">
     <span class="list__item item_actions" v-if="actionsVisible">
       <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
         <q-tooltip>{{action.label}}</q-tooltip>
@@ -75,7 +75,16 @@ export default {
     'selected'
   ],
   data () {
+    let highlightLevel = 0
+    if (this.item.timestamp < this.item['server.timestamp'] - 1800) { // >30min
+      highlightLevel = 10
+    } else if (this.item.timestamp < this.item['server.timestamp'] - 600) { // 10-30min
+      highlightLevel = 7
+    } else if (this.item.timestamp < this.item['server.timestamp'] - 120) { // 2-10min
+      highlightLevel = 4
+    }
     return {
+      highlightLevel,
       date: date
     }
   },
@@ -183,6 +192,8 @@ export default {
 </script>
 
 <style lang="stylus">
+  .bg-white-opasity
+    background-color rgba(255, 255, 255, .7)
   .list__item
     display inline-block
     white-space nowrap

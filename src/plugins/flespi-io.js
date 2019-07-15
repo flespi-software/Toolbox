@@ -32,9 +32,13 @@ export default ({Vue, store}) => {
   Vue.connector.socket.on('connect', (connack) => {
     let tokenInfo = JSON.parse(connack.properties.userProperties.token)
     store.commit('setTokenInfo', tokenInfo)
+    store.commit('setSocketOffline', false)
   })
   Vue.connector.socket.on('error', (error) => {
     store.commit('reqFailed', error)
+  })
+  Vue.connector.socket.on('offline', () => {
+    store.commit('setSocketOffline', true)
   })
   if (window) {
     window.addEventListener('beforeunload', () => {

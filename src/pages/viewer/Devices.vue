@@ -1,166 +1,125 @@
 <template>
   <q-page>
-    <div class="text-center" style="display: flex; justify-content: center; font-size: 1.5rem" v-if="!active">
-      <div class="text-grey-3" style="margin-top: 50px">
-        <q-btn flat style="display: flex; flex-wrap: nowrap; margin-top: 20px" icon-right="mdi-menu-down" v-if="items.length">
-          Select device
-          <q-popover fit ref="popoverNotActive">
-            <q-input v-model="filter" color="dark" clearable placeholder="Filter" hide-underline class="q-ma-xs q-pa-xs items__filter"/>
-            <q-list link separator class="scroll">
-              <VirtualList
-                v-if="filteredItems"
-                :size="56"
-                :remain="filteredItems.length > 6 ? 6 : filteredItems.length"
+    <q-toolbar color="dark" class="justify-between">
+      <q-item class="no-padding" style="max-width: 50%" :style="{cursor: isNeedSelect ? '' : 'default!important'}" :class="{'middle-modificator': !active}" v-if="items.length">
+        <q-item-main>
+          <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{active ? selectedItem.name || `#${selectedItem.id}` : 'SELECT DEVICE'}}</q-item-tile>
+          <q-item-tile sublabel style="font-size: 0.8rem" v-if="active && selectedItem.configuration && selectedItem.configuration.ident">{{selectedItem.configuration.ident}}</q-item-tile>
+        </q-item-main>
+        <q-item-side class="text-right">
+          <q-item-tile style="display: inline-block" stamp color="white" class="text-center" v-if="active"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id}}</q-item-tile>
+          <q-item-tile v-if="isNeedSelect" style="display: inline-block" stamp color="white" size="2rem" icon="mdi-menu-down" />
+        </q-item-side>
+        <q-popover fit ref="popoverActive" v-if="isNeedSelect" :anchor="active ? undefined : 'bottom middle'" :self="active ? undefined : 'top middle'">
+          <q-input v-model="filter" color="dark" clearable placeholder="Filter" hide-underline class="q-ma-xs q-pa-xs items__filter"/>
+          <q-list link separator class="scroll">
+            <VirtualList
+              v-if="filteredItems.length"
+              :size="56"
+              :remain="filteredItems.length > 6 ? 6 : filteredItems.length"
+            >
+              <q-item
+                v-for="(item, index) in filteredItems"
+                :key="index"
+                @click.native="active = item.id, $refs.popoverActive.hide(), $emit('view-data-hide')"
+                class="cursor-pointer"
+                :class="{'text-grey-8': item.deleted}"
+                highlight
               >
-                <q-item
-                  v-for="(item, index) in filteredItems"
-                  :key="index"
-                  @click.native="active = item.id, $refs.popoverNotActive.hide()"
-                  highlight
-                  class="cursor-pointer"
-                  :class="{'text-grey-8': item.deleted}"
-                >
-                  <q-item-main>
-                    <q-item-tile :title="item.name" label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || `#${item.id}`}}</q-item-tile>
-                    <q-item-tile sublabel><small>{{item.configuration && item.configuration.ident ? item.configuration.ident : `&lt;no ident&gt;`}}</small></q-item-tile>
-                  </q-item-main>
-                  <q-item-side class="text-center">
-                    <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
-                    <q-item-tile><small>#{{item.id}}</small></q-item-tile>
-                  </q-item-side>
-                </q-item>
-              </VirtualList>
-              <div v-else class="text-center q-ma-md">
-                No devices
-              </div>
-            </q-list>
-            <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
+                <q-item-main>
+                  <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || `#${item.id}`}}</q-item-tile>
+                  <q-item-tile sublabel><small>{{item.configuration && item.configuration.ident ? item.configuration.ident : `&lt;no ident&gt;`}}</small></q-item-tile>
+                </q-item-main>
+                <q-item-side class="text-center">
+                  <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
+                  <q-item-tile><small>#{{item.id}}</small></q-item-tile>
+                </q-item-side>
+              </q-item>
+            </VirtualList>
+            <div v-else class="text-center q-ma-md">
+              No devices
+            </div>
+          </q-list>
+          <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
+        </q-popover>
+      </q-item>
+      <div v-if="active">
+        <q-btn title="Mode (Real-time/History)" size="sm" v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
+          <span class="gt-xs">{{modeModel ? 'Real-time' : 'History'}}</span>
+          <q-chip small square color="red" v-if="newMessagesCount" class="cursor-pointer q-ml-sm">{{newMessagesCount}}</q-chip>
+        </q-btn>
+        <q-btn-toggle
+          v-if="!selectedItem.deleted"
+          dense
+          color="grey-8"
+          toggle-color="white"
+          toggle-text-color="dark"
+          class="q-ml-sm gt-xs" size="sm"
+          v-model="ratio"
+          :options="[{label: 'logs', value: 100},{label: 'both', value: 50},{label: 'messages', value: 0}]"
+        />
+        <q-btn class="lt-sm" dense size="sm">
+          {{ratio === 50 ? 'both' : (ratio === 0 ? 'messages' : 'logs')}}
+          <q-popover style="background-color: transparent">
+            <q-btn-toggle
+              v-close-overlay
+              v-if="!selectedItem.deleted"
+              dense
+              color="grey-8"
+              toggle-color="white"
+              toggle-text-color="dark"
+              size="sm"
+              v-model="ratio"
+              :options="[{label: 'logs', value: 100},{label: 'both', value: 50},{label: 'messages', value: 0}]"
+            />
           </q-popover>
         </q-btn>
-        <div v-if="!items.length">
-          <div>{{isLoading ? 'Fetching data..' : 'Devices not found'}}</div>
-          <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
-        </div>
       </div>
-    </div>
-    <template v-else>
-      <q-toolbar color="dark" class="justify-between">
-        <q-item class="no-padding" style="max-width: 50%" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
-          <q-item-main>
-            <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedItem.name || `#${selectedItem.id}`}}</q-item-tile>
-            <q-item-tile sublabel style="font-size: 0.8rem" v-if="selectedItem.configuration && selectedItem.configuration.ident">{{selectedItem.configuration.ident}}</q-item-tile>
-          </q-item-main>
-          <q-item-side class="text-right">
-            <q-item-tile style="display: inline-block" stamp color="white" class="text-center"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id}}</q-item-tile>
-            <q-item-tile v-if="isNeedSelect" style="display: inline-block" stamp color="white" size="2rem" icon="mdi-menu-down" />
-          </q-item-side>
-          <q-popover fit ref="popoverActive" v-if="isNeedSelect">
-            <q-input v-model="filter" color="dark" clearable placeholder="Filter" hide-underline class="q-ma-xs q-pa-xs items__filter"/>
-            <q-list link separator class="scroll">
-              <VirtualList
-                v-if="filteredItems.length"
-                :size="56"
-                :remain="filteredItems.length > 6 ? 6 : filteredItems.length"
-              >
-                <q-item
-                  v-for="(item, index) in filteredItems"
-                  :key="index"
-                  @click.native="active = item.id, $refs.popoverActive.hide(), $emit('view-data-hide')"
-                  class="cursor-pointer"
-                  :class="{'text-grey-8': item.deleted}"
-                  highlight
-                >
-                  <q-item-main>
-                    <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || `#${item.id}`}}</q-item-tile>
-                    <q-item-tile sublabel><small>{{item.configuration && item.configuration.ident ? item.configuration.ident : `&lt;no ident&gt;`}}</small></q-item-tile>
-                  </q-item-main>
-                  <q-item-side class="text-center">
-                    <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
-                    <q-item-tile><small>#{{item.id}}</small></q-item-tile>
-                  </q-item-side>
-                </q-item>
-              </VirtualList>
-              <div v-else class="text-center q-ma-md">
-                No devices
-              </div>
-            </q-list>
-            <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
-          </q-popover>
-        </q-item>
-        <div>
-          <q-btn title="Mode (Real-time/History)" size="sm" v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
-            <span class="gt-xs">{{modeModel ? 'Real-time' : 'History'}}</span>
-            <q-chip small square color="red" v-if="newMessagesCount" class="cursor-pointer q-ml-sm">{{newMessagesCount}}</q-chip>
-          </q-btn>
-          <q-btn-toggle
-            v-if="!selectedItem.deleted"
-            dense
-            color="grey-8"
-            toggle-color="white"
-            toggle-text-color="dark"
-            class="q-ml-sm gt-xs" size="sm"
-            v-model="ratio"
-            :options="[{label: 'logs', value: 100},{label: 'both', value: 50},{label: 'messages', value: 0}]"
-          />
-          <q-btn class="lt-sm" dense size="sm">
-            {{ratio === 50 ? 'both' : (ratio === 0 ? 'messages' : 'logs')}}
-            <q-popover style="background-color: transparent">
-              <q-btn-toggle
-                v-close-overlay
-                v-if="!selectedItem.deleted"
-                dense
-                color="grey-8"
-                toggle-color="white"
-                toggle-text-color="dark"
-                size="sm"
-                v-model="ratio"
-                :options="[{label: 'logs', value: 100},{label: 'both', value: 50},{label: 'messages', value: 0}]"
-              />
-            </q-popover>
-          </q-btn>
-        </div>
-        <div>
-          <q-icon title="Intervals" v-if="tasksByDevice.length" size="1.5rem" class="on-left cursor-pointer pull-right" name="mdi-set-center" @click.native="moveToIntervals(active, null)"/>
-          <q-icon title="Map" v-if="messagesWithPosition.length && $q.platform.is.desktop" size="1.5rem" class="on-left cursor-pointer pull-right" name="mdi-map" @click.native="isVisibleMap = !isVisibleMap"/>
-          <q-icon title="Clear all panes" size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler"/>
-        </div>
-      </q-toolbar>
-      <div v-if="isInit">
-        <logs
-          ref="logs"
-          :mode="mode"
-          :item="selectedItem"
-          :limit="limit"
-          originPattern="gw/devices/:id"
-          :isEnabled="!!+size[0]"
-          v-if="+size[0]"
-          :style="[{minHeight: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'logs' ? '66%' : ''}]"
-          @view-log-message="viewLogMessagesHandler"
-          :config="config.logs"
-        />
-        <messages
-          ref="messages"
-          @view-data="viewDataHandler"
-          :mode="mode"
-          :item="selectedItem"
-          :activeId="active"
-          :isEnabled="!!+size[1]"
-          :limit="limit"
-          v-if="+size[1]"
-          :style="[{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'messages' ? '66%' : ''}]"
-          :config="config.messages"
-        />
+      <div v-if="active">
+        <q-icon title="Intervals" v-if="tasksByDevice.length" size="1.5rem" class="on-left cursor-pointer pull-right" name="mdi-set-center" @click.native="moveToIntervals(active, null)"/>
+        <q-icon title="Map" v-if="messagesWithPosition.length && $q.platform.is.desktop" size="1.5rem" class="on-left cursor-pointer pull-right" name="mdi-map" @click.native="isVisibleMap = !isVisibleMap"/>
+        <q-icon title="Clear all panes" size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler"/>
       </div>
-      <map-component
-        ref="map"
-        v-if="active && messagesWithPosition.length && $q.platform.is.desktop && isVisibleMap"
-        :messages="messagesWithPosition"
-        :device="selectedItem"
-        :siblingHeight="siblingHeight"
-        @map:close="isVisibleMap = false"
-        @map:minimize="mapMinimizeHandler"
+    </q-toolbar>
+    <div v-if="isInit && active">
+      <logs
+        ref="logs"
+        :mode="mode"
+        :item="selectedItem"
+        :limit="limit"
+        originPattern="gw/devices/:id"
+        :isEnabled="!!+size[0]"
+        v-if="+size[0]"
+        :style="[{minHeight: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'logs' ? '66%' : ''}]"
+        @view-log-message="viewLogMessagesHandler"
+        :config="config.logs"
       />
-    </template>
+      <messages
+        ref="messages"
+        @view-data="viewDataHandler"
+        :mode="mode"
+        :item="selectedItem"
+        :activeId="active"
+        :isEnabled="!!+size[1]"
+        :limit="limit"
+        v-if="+size[1]"
+        :style="[{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'messages' ? '66%' : ''}]"
+        :config="config.messages"
+      />
+    </div>
+    <div v-if="!items.length" class="text-center text-grey-3 q-mt-lg">
+      <div style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Devices not found'}}</div>
+      <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
+    </div>
+    <map-component
+      ref="map"
+      v-if="active && messagesWithPosition.length && $q.platform.is.desktop && isVisibleMap"
+      :messages="messagesWithPosition"
+      :device="selectedItem"
+      :siblingHeight="siblingHeight"
+      @map:close="isVisibleMap = false"
+      @map:minimize="mapMinimizeHandler"
+    />
   </q-page>
 </template>
 
@@ -206,7 +165,7 @@ export default {
           hasntLogs = this.config.logs && state[this.config.logs.vuexModuleName] && state[this.config.logs.vuexModuleName].messages && !state[this.config.logs.vuexModuleName].messages.length && this.ratio !== 0
         return hasntMessages && hasntLogs
       },
-      tokenType (state) { return state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
+      tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
       itemsCollection (state) {
         return state.items
       },
@@ -214,8 +173,8 @@ export default {
         return Object.values(state.items)
       },
       selectedItem (state) {
-        let item = state.items[this.active] || {}
-        if (item.deleted) {
+        let item = state.items[this.active] || null
+        if (item && item.deleted) {
           this.deletedHandler()
         }
         return item
@@ -350,7 +309,7 @@ export default {
         this.active = activeFromLocaleStorage
       }
       // deleted item logic
-      if (this.selectedItem.deleted) {
+      if (this.selectedItem && this.selectedItem.deleted) {
         this.deletedHandler()
       }
     },
@@ -382,7 +341,7 @@ export default {
       }
     },
     active (val, old) {
-      let currentItem = this.itemsCollection[val] || {}
+      let currentItem = this.itemsCollection[val] || null
       if (val) {
         this.$q.localStorage.set('devices', val)
         this.$router.push(`/devices/${val}`)
@@ -401,6 +360,9 @@ export default {
 </script>
 <style lang="stylus">
   @import '~variables'
+  .middle-modificator
+    position absolute
+    left calc(50% - 71px)
   .items__filter {
     min-width: 250px;
     border: 1px solid $dark;

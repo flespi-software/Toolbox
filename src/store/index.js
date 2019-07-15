@@ -14,7 +14,7 @@ let state = {
   isLoading: false,
   config: JSON.parse(JSON.stringify(config)),
   errors: [],
-  tokenInfo: {},
+  tokenInfo: null,
   newNotificationCounter: 0
 }
 

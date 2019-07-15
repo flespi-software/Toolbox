@@ -1,6 +1,5 @@
 import { SessionStorage, Notify } from 'quasar'
 import Vue from 'vue'
-import config from '../config.json'
 
 function reqStart (state) {
   if (DEV) {
@@ -34,7 +33,11 @@ function reqFailed (state, payload) {
     }
   } else {
     addError(state, payload.message)
-    if (payload.code === 2) { clearToken(state) }
+    if (
+      payload.code === 2 ||
+      payload.code === 134 ||
+      payload.code === 135
+    ) { clearToken(state) }
   }
 }
 function deleteItem (state, { id, mode, source }) {
@@ -71,7 +74,9 @@ function clearToken (state) {
   Vue.connector.token = ''
   Vue.set(state, 'token', '')
   clearTokenInfo(state)
-  setConfig(state, config)
+  Object.keys(state.config).forEach((entity) => {
+    Vue.set(state.config[entity], 'isDrawable', false)
+  })
 }
 
 function setConfig (state, config) {
@@ -101,11 +106,17 @@ function setTokenInfo (state, tokenInfo) {
   switch (tokenInfo.access.type) {
     // standart token
     case 0: {
-      Vue.set(state.config.platform, 'isDrawable', false)
+      Object.keys(state.config).forEach((entity) => {
+        if (entity === 'platform') { return false }
+        Vue.set(state.config[entity], 'isDrawable', true)
+      })
       break
     }
     // master
     case 1: {
+      Object.keys(state.config).forEach((entity) => {
+        Vue.set(state.config[entity], 'isDrawable', true)
+      })
       break
     }
     // acl
@@ -136,8 +147,8 @@ function setTokenInfo (state, tokenInfo) {
         let access = entityConfig.acl.reduce((result, req) => {
           return result && rights.includes(req)
         }, true)
-        if (!access) {
-          state.config[entity].isDrawable = false
+        if (access) {
+          Vue.set(state.config[entity], 'isDrawable', true)
         }
       })
       break
@@ -146,7 +157,7 @@ function setTokenInfo (state, tokenInfo) {
 }
 
 function clearTokenInfo (state) {
-  state.tokenInfo = {}
+  state.tokenInfo = null
 }
 
 function setSocketOffline (state, flag) {
