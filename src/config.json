@@ -154,7 +154,7 @@
     "label": "Calcs",
     "icon": "mdi-calculator-variant",
     "type": "viewer",
-    "acl": ["devices", "calcs"],
+    "acl": ["calcs"],
     "isDrawable": false,
     "logs": {
       "vuexModuleName": "calcsLogs",

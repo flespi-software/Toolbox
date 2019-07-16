@@ -1,44 +1,46 @@
 <template>
   <q-page>
     <q-toolbar color="dark" class="justify-between">
-      <q-item class="no-padding" style="max-width: 50%" :style="{cursor: isNeedSelect ? '' : 'default!important'}" :class="{'middle-modificator': !active}" v-if="items.length">
-        <q-item-main :title="active && (selectedItem.configuration && selectedItem.configuration.protocol)">
-          <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{active ? selectedItem.name || '&lt;noname&gt;' : 'SELECT MODEM'}}</q-item-tile>
-          <q-item-tile sublabel style="font-size: 0.8rem" v-if="active && selectedItem.configuration && selectedItem.configuration.uri">{{selectedItem.configuration.uri}}</q-item-tile>
-        </q-item-main>
-        <q-item-side class="text-right">
-          <q-item-tile style="display: inline-block" stamp color="white" class="text-center" v-if="active"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id.toString()}}</q-item-tile>
-          <q-item-tile v-if="isNeedSelect" style="display: inline-block" stamp color="white" size="2rem" icon="mdi-menu-down" />
-        </q-item-side>
-        <q-popover fit ref="popoverActive" v-if="isNeedSelect" :anchor="active ? undefined : 'bottom middle'" :self="active ? undefined : 'top middle'">
-          <q-list link separator class="scroll">
-            <VirtualList
-              :size="76"
-              :remain="items.length > 6 ? 6 : items.length"
-            >
-              <q-item
-                v-for="(item, index) in items"
-                :key="index"
-                @click.native="active = item.id, $refs.popoverActive.hide(), $emit('view-data-hide')"
-                class="cursor-pointer"
-                :class="{'text-grey-8': item.deleted}"
-                highlight
+      <div style="max-width: 50%" :class="{'middle-modificator': !active}" v-if="items.length">
+        <q-item class="no-padding" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
+          <q-item-main :title="active && (selectedItem.configuration && selectedItem.configuration.protocol)">
+            <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{active ? selectedItem.name || '&lt;noname&gt;' : 'SELECT MODEM'}}</q-item-tile>
+            <q-item-tile sublabel style="font-size: 0.8rem" v-if="active && selectedItem.configuration && selectedItem.configuration.uri">{{selectedItem.configuration.uri}}</q-item-tile>
+          </q-item-main>
+          <q-item-side class="text-right">
+            <q-item-tile style="display: inline-block" stamp color="white" class="text-center" v-if="active"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id.toString()}}</q-item-tile>
+            <q-item-tile v-if="isNeedSelect" style="display: inline-block" stamp color="white" size="2rem" icon="mdi-menu-down" />
+          </q-item-side>
+          <q-popover fit ref="popoverActive" v-if="isNeedSelect" :anchor="active ? undefined : 'bottom middle'" :self="active ? undefined : 'top middle'">
+            <q-list link separator class="scroll">
+              <VirtualList
+                :size="76"
+                :remain="items.length > 6 ? 6 : items.length"
               >
-                <q-item-main>
-                  <q-item-tile label class="ellipsis overflow-hidden">{{item.name || '&lt;noname&gt;'}}</q-item-tile>
-                  <q-item-tile sublabel v-if="item.configuration"><small>{{item.configuration.source_addr || '&lt;no address&gt;'}}</small></q-item-tile>
-                  <q-item-tile sublabel v-if="item.configuration"><small>{{item.configuration.uri || '&lt;no uri&gt;'}}</small></q-item-tile>
-                </q-item-main>
-                <q-item-side class="text-center">
-                  <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
-                  <q-item-tile><small>#{{item.id.toString()}}</small></q-item-tile>
-                </q-item-side>
-              </q-item>
-            </VirtualList>
-          </q-list>
-          <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
-        </q-popover>
-      </q-item>
+                <q-item
+                  v-for="(item, index) in items"
+                  :key="index"
+                  @click.native="active = item.id, $refs.popoverActive.hide(), $emit('view-data-hide')"
+                  class="cursor-pointer"
+                  :class="{'text-grey-8': item.deleted}"
+                  highlight
+                >
+                  <q-item-main>
+                    <q-item-tile label class="ellipsis overflow-hidden">{{item.name || '&lt;noname&gt;'}}</q-item-tile>
+                    <q-item-tile sublabel v-if="item.configuration"><small>{{item.configuration.source_addr || '&lt;no address&gt;'}}</small></q-item-tile>
+                    <q-item-tile sublabel v-if="item.configuration"><small>{{item.configuration.uri || '&lt;no uri&gt;'}}</small></q-item-tile>
+                  </q-item-main>
+                  <q-item-side class="text-center">
+                    <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
+                    <q-item-tile><small>#{{item.id.toString()}}</small></q-item-tile>
+                  </q-item-side>
+                </q-item>
+              </VirtualList>
+            </q-list>
+            <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
+          </q-popover>
+        </q-item>
+      </div>
       <q-btn title="Mode (Real-time/History)" v-if="active && !selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
         {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
         <q-chip small square color="red" v-if="newMessagesCount" class="cursor-pointer q-ml-sm">{{newMessagesCount}}</q-chip>

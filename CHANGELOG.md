@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.17.5] - 2019-07-16
+[update] docs
+[fix] entities popover style
+[fix] calc`s config
 ### [0.17.4] - 2019-07-15
 [fix] routes init
 ### [0.17.3] - 2019-07-15
