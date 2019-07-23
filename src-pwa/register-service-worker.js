@@ -17,6 +17,7 @@ register(process.env.SERVICE_WORKER_FILE, {
   },
   updated (registration) { // registration -> a ServiceWorkerRegistration instance
     let notification = document.createElement('div')
+    notification.classList.add('within-iframe-hide')
     notification.id = 'sw-notification'
     notification.innerHTML = `<div class="q-notification-list q-notification-list-bottom fixed column items-end absolute">
                                               <div class="q-notification">

@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.17.6] - 2019-07-23
+[feature] hide notify about update in iframe
+[update] packages
 ### [0.17.5] - 2019-07-16
 [update] docs
 [fix] entities popover style
