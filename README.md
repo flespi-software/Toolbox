@@ -48,7 +48,8 @@ $ npm run dev_local
 ```
 
 ## Requirements:
-You need to have a separate token with at least the following ACLs:<br />
+You need to have a separate token with at least the following ACLs:
+
 | Entity | REST | MQTT |
 |---|---|---|
 | Platform | https://flespi.io/platform/customer/logs | flespi/log/platform/customer/+/# |
