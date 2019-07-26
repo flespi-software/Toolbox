@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.17.8] - 2019-07-26
+[remove] service-worker
 ### [0.17.7] - 2019-07-24
 [feature] highlight old messages in devices
 ### [0.17.6] - 2019-07-23
