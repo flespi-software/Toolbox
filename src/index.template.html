@@ -29,6 +29,11 @@
         ga('create', 'UA-93342359-4', 'auto');
         ga('send', 'pageview');
       }
+      navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        for (let registration of registrations) {
+          registration.unregister()
+        }
+      })
     </script>
   </head>
   <body>
