@@ -43,8 +43,13 @@
         {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
         <q-chip small square color="red" v-if="newMessagesCount" class="cursor-pointer q-ml-sm">{{newMessagesCount}}</q-chip>
       </q-btn>
-      <div v-if="active">
-        <q-icon title="Clear all panes" size="1.5rem" class="cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler"/>
+      <div v-if="active" class="flex">
+        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
+          <div title="Clear all panes" class="on-left cursor-pointer pull-right text-center" v-if="modeModel && !isEmptyMessages" @click="clearHandler">
+            <q-icon size="1.5rem" color="white" name="mdi-playlist-remove"/>
+            <div style="font-size: .9rem;">Clear</div>
+          </div>
+        </transition>
       </div>
     </q-toolbar>
     <logs

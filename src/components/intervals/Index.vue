@@ -55,11 +55,19 @@ export default {
       theme: this.config.theme,
       i18n: {},
       viewConfig: this.config.viewConfig,
-      actions: this.config.actions,
       moduleName: this.config.vuexModuleName
     }
   },
   computed: {
+    actions () {
+      let initActions = this.config.actions,
+        actions = [initActions[0]],
+        routeFields = this.getRouteFields()
+      if (routeFields && routeFields.length) {
+        actions = initActions
+      }
+      return actions
+    },
     messages: {
       get () {
         let messages = this.$store.state[this.moduleName].messages
@@ -151,11 +159,18 @@ export default {
     },
     selected: {
       get () {
-        return this.$store.state[this.moduleName].selected
+        let selected = this.$store.state[this.moduleName].selected
+        if (selected && !selected.length) {
+          this.$emit('view-data', null)
+        }
+        return selected
       },
       set (val) {
         this.$store.commit(`${this.moduleName}/setSelected`, val)
       }
+    },
+    routesFileds () {
+      return this.getRouteFields()
     }
   },
   methods: {
@@ -168,6 +183,11 @@ export default {
         this.$store.commit(`${this.moduleName}/clearMessages`)
         this.$store.dispatch(`${this.moduleName}/get`)
       }
+    },
+    getRouteFields () {
+      return this.item.counters && this.item.counters.filter((counter) => {
+        return counter.type === 'route'
+      })
     },
     setTranslate (messages) {
       this.i18n.from = messages.length ? `Previous batch until ${date.formatDate(messages[0].timestamp * 1000, 'HH:mm:ss')}` : 'Prev'
@@ -191,6 +211,10 @@ export default {
           this.viewMessagesHandler({index, content})
           break
         }
+        case 'map': {
+          this.onMapHandler({index, content})
+          break
+        }
         case 'copy': {
           this.copyMessageHandler({index, content})
           break
@@ -200,6 +224,15 @@ export default {
     viewMessagesHandler ({index, content}) {
       this.selected = [index]
       this.$emit('view-data', content)
+    },
+    onMapHandler ({index, content}) {
+      let routes = Object.keys(content).reduce((routes, fieldName) => {
+        if (this.routesFileds.filter(field => field.name === fieldName).length) {
+          routes.push(content[fieldName])
+        }
+        return routes
+      }, [])
+      this.$emit('on-map', routes)
     },
     copyMessageHandler ({index, content}) {
       this.$copyText(JSON.stringify(content)).then((e) => {

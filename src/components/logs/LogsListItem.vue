@@ -272,7 +272,7 @@ export default {
         closeCodes = events.closeCodes,
         errorCodes = events.errorCodes,
         sendCodes = events.sendCodes
-      let res = types[this.item.event_code] ? `${this.item.event_code}: ${types[this.item.event_code]}` : this.item.event_code
+      let res = types[this.item.event_code] ? `${types[this.item.event_code]}` : this.item.event_code
       res += this.item.close_code
         ? ` (${closeCodes[this.item.close_code]})`
         : (closeCodes[this.item.close_code]
@@ -330,7 +330,7 @@ export default {
       return res
     },
     itemClickHandler (index, content) {
-      content._description = `[${date.formatDate(this.item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}] ${this.description}`
+      content._description = `[${date.formatDate(this.item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}] ${this.item.event_code}: ${this.description}`
       content._color = this.color
       this.$emit(`item-click`, {index, content})
     }

@@ -120,6 +120,8 @@ module.exports = function (ctx) {
     },
     // animations: 'all' --- includes all animations
     animations: [
+      'bounceInDown',
+      'bounceOutUp'
     ],
     pwa: {
       workboxOptions: {

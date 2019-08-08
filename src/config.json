@@ -323,6 +323,12 @@
           "label": "copy",
           "classes": "",
           "type": "copy"
+        },
+        {
+          "icon": "mdi-map",
+          "label": "on map",
+          "classes": "",
+          "type": "map"
         }
       ],
       "viewConfig": {

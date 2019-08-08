@@ -77,10 +77,41 @@
           </q-popover>
         </q-btn>
       </div>
-      <div v-if="active">
-        <q-icon title="Intervals" v-if="tasksByDevice.length" size="1.5rem" class="on-left cursor-pointer pull-right" name="mdi-set-center" @click.native="moveToIntervals(active, null)"/>
-        <q-icon title="Map" v-if="messagesWithPosition.length && $q.platform.is.desktop" size="1.5rem" class="on-left cursor-pointer pull-right" name="mdi-map" @click.native="isVisibleMap = !isVisibleMap"/>
-        <q-icon title="Clear all panes" size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler"/>
+      <div v-if="active && $q.platform.is.desktop" class="flex">
+        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
+          <div title="Intervals" class="on-left cursor-pointer pull-right text-center round-borders q-px-xs" @click="moveToIntervals(active, null)" v-if="tasksByDevice.length">
+            <q-icon size="1.5rem" name="mdi-set-center"/>
+            <div style="font-size: .9rem;">Intervals</div>
+          </div>
+        </transition>
+        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
+          <div title="Map" v-if="messagesWithPosition.length" class="on-left cursor-pointer pull-right text-center round-borders q-px-xs" @click="isVisibleMap = !isVisibleMap">
+            <q-icon size="1.5rem" name="mdi-map"/>
+            <div style="font-size: .9rem;">Map</div>
+          </div>
+        </transition>
+        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
+          <div title="Clear all panes" class="on-left cursor-pointer pull-right text-center" v-if="modeModel && !isEmptyMessages" @click="clearHandler">
+            <q-icon size="1.5rem" color="white" name="mdi-playlist-remove"/>
+            <div style="font-size: .9rem;">Clear</div>
+          </div>
+        </transition>
+      </div>
+      <div v-else-if="active && !$q.platform.is.desktop">
+        <q-btn flat icon="mdi-dots-vertical">
+          <q-popover>
+            <q-list>
+              <q-item v-close-overlay v-if="tasksByDevice.length" @click.native="moveToIntervals(active, null)">
+                <q-item-side icon="mdi-set-center"/>
+                Intervals
+              </q-item>
+              <q-item v-close-overlay @click.native="clearHandler">
+                <q-item-side icon="mdi-playlist-remove"/>
+                Clear
+              </q-item>
+            </q-list>
+          </q-popover>
+        </q-btn>
       </div>
     </q-toolbar>
     <div v-if="isInit && active">
@@ -254,6 +285,11 @@ export default {
     },
     unselect () {
       this.$refs.messages.unselect()
+    },
+    showMap () {
+      if (this.messagesWithPosition.length) {
+        this.isVisibleMap = !this.isVisibleMap
+      }
     },
     mapMinimizeHandler (options) {
       this.mapMinimizedOptions = options

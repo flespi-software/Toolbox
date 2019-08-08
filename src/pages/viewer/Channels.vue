@@ -1,7 +1,7 @@
 <template>
   <q-page>
     <q-toolbar color="dark" class="justify-between">
-      <div style="max-width: 40%;" :class="{'middle-modificator': !active}" v-if="items.length">
+      <div style="max-width: 40%;" class="flex" :class="{'middle-modificator': !active}" v-if="items.length">
         <q-item class="no-padding" style="display: inline-flex; max-width: 100%;" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
           <q-item-main :title="`protocol: ${active && (protocols[selectedItem.protocol_id] || selectedItem.protocol_id)}`">
             <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{active ? selectedItem.name || '&lt;noname&gt;' : 'SELECT CHANNEL'}}</q-item-tile>
@@ -45,7 +45,12 @@
             <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
           </q-popover>
         </q-item>
-        <q-icon title="View hex payload" style="position: relative; top: 10px;" size="1.5rem" class="on-right cursor-pointer pull-right" v-if="selectedItem && selectedItem.protocol_id === proxyProtocolId" color="white" name="mdi-matrix" @click.native="hexViewHandler"/>
+        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
+          <div title="View hex payload" class="on-right cursor-pointer pull-right text-center round-borders q-px-xs" v-if="selectedItem && selectedItem.protocol_id === proxyProtocolId" @click="hexViewHandler">
+            <q-icon size="1.5rem" color="white" name="mdi-matrix"/>
+            <div style="font-size: .9rem;">HEX</div>
+          </div>
+        </transition>
       </div>
       <div v-if="active">
         <q-btn title="Mode (Real-time/History)" size="sm" v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'" :rounded="$q.platform.is.mobile">
@@ -79,8 +84,13 @@
           </q-popover>
         </q-btn>
       </div>
-      <div v-if="active">
-        <q-icon title="Clear all panes" size="1.5rem" class="on-left cursor-pointer pull-right" v-if="modeModel && !isEmptyMessages" color="white" name="mdi-playlist-remove" @click.native="clearHandler" />
+      <div v-if="active" class="flex">
+        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
+          <div title="Clear all panes" class="on-left cursor-pointer pull-right text-center" v-if="modeModel && !isEmptyMessages" @click="clearHandler">
+            <q-icon size="1.5rem" color="white" name="mdi-playlist-remove"/>
+            <div style="font-size: .9rem;">Clear</div>
+          </div>
+        </transition>
       </div>
     </q-toolbar>
     <div v-if="isInit && active">

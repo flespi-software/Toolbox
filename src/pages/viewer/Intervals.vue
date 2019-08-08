@@ -1,10 +1,11 @@
 <template>
   <q-page>
+    <q-resize-observable @resize="onResize" />
     <q-toolbar color="dark" class="justify-between q-py-none">
       <div style="max-width: 75%;">
-        <q-btn icon="mdi-arrow-left" @click="goBack" flat class="q-mr-sm"/>
+        <q-btn icon="mdi-arrow-left" @click="goBack" flat class="q-mr-sm" :class="{'q-px-none': $q.platform.is.mobile}"/>
         <!-- device selector -->
-        <q-item class="no-padding q-mr-sm" style="display: inline-flex; max-width: 50%" :style="{cursor: isNeedSelect && false ? '' : 'default!important'}">
+        <q-item class="no-padding q-mr-sm" style="display: inline-flex" :style="{cursor: isNeedSelect && false ? '' : 'default!important', maxWidth: $q.platform.is.mobile ? '35%' : '50%'}">
           <q-item-side style="min-width: 25px;" v-if="$q.platform.is.desktop">
             <q-item-tile><q-icon color="white" name="mdi-developer-board" size="25px"/></q-item-tile>
           </q-item-side>
@@ -52,7 +53,7 @@
           </q-popover>
         </q-item>
         <!-- device selector -->
-        <q-item class="no-padding q-mr-sm" style="display: inline-flex; max-width: calc(50% - 8px);">
+        <q-item class="no-padding q-mr-sm" style="display: inline-flex;" :style="{maxWidth: $q.platform.is.mobile ? '35%' : '50%'}">
           <q-item-side style="min-width: 25px;" v-if="$q.platform.is.desktop">
             <q-item-tile><q-icon color="white" name="mdi-calculator-variant" size="25px"/></q-item-tile>
           </q-item-side>
@@ -137,23 +138,40 @@
           </q-popover>
         </q-btn> -->
       </div>
+      <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
+        <div title="Map" v-if="hasRouteIntervals" class="on-left cursor-pointer pull-right text-center round-borders q-px-xs" @click="openMapHandler">
+          <q-icon size="1.5rem" name="mdi-map"/>
+          <div style="font-size: .9rem;">Map</div>
+        </div>
+      </transition>
     </q-toolbar>
-    <intervals
-      ref="intervals"
-      @view-data="viewDataHandler"
-      :mode="mode"
-      :activeId="activeCalcId"
-      :item="selectedCalc"
-      :activeDeviceId="active"
-      :isEnabled="!!+size[1]"
-      :limit="0"
-      :config="config.intervals"
-      v-if="+size[1] && active && activeCalcId && isInit"
-      :style="{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
-    />
-    <div v-else-if="+size[1] && active && !activeCalcId" class="text-grey text-center q-pt-lg" style="font-size: 2.5rem;" :style="{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}">
-      Select calc
+    <div v-if="+size[1] && active">
+      <intervals
+        ref="intervals"
+        @view-data="viewDataHandler"
+        @on-map="onMapHandler"
+        :mode="mode"
+        :activeId="activeCalcId"
+        :item="selectedCalc"
+        :activeDeviceId="active"
+        :isEnabled="!!+size[1]"
+        :limit="0"
+        :config="config.intervals"
+        v-if="activeCalcId && isInit"
+        :style="{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'top' ? '66%' : ''}"
+      />
+      <div v-else-if="!activeCalcId" class="text-grey text-center q-pt-lg" style="font-size: 2.5rem;" :style="{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}">
+        Select calc
+      </div>
     </div>
+    <map-frame
+      ref="map"
+      v-if="active && activeCalcId && hasRouteIntervals && $q.platform.is.desktop && isVisibleMap"
+      :device="selectedDevice"
+      :siblingHeight="siblingHeight"
+      @map:close="isVisibleMap = false"
+      @map:minimize="mapMinimizeHandler"
+    />
   </q-page>
 </template>
 
@@ -162,6 +180,7 @@ import intervals from '../../components/intervals/Index.vue'
 import { mapState } from 'vuex'
 import VirtualList from 'vue-virtual-scroll-list'
 import init from '../../mixins/entitiesInit'
+import MapFrame from '../../components/MapFrame'
 
 export default {
   props: [
@@ -180,7 +199,11 @@ export default {
       active: null,
       activeCalcId: null,
       ratio: 0,
-      isInit: false
+      isInit: false,
+      isVisibleMap: false,
+      siblingHeight: 0,
+      mapMinimizedOptions: {},
+      activeViewedMessage: null
     }
   },
   computed: {
@@ -231,7 +254,8 @@ export default {
     },
     size () {
       return [this.ratio, 100 - this.ratio]
-    }
+    },
+    hasRouteIntervals () { return true }
   },
   methods: {
     filterItems (items, filter) {
@@ -264,7 +288,21 @@ export default {
       return filteredItems
     },
     viewDataHandler (content) {
-      this.$emit('view-data', content)
+      if (content) {
+        this.$emit('view-data', content)
+      }
+    },
+    onMapHandler (routes) {
+      if (!this.isVisibleMap) {
+        this.openMapHandler()
+        this.$nextTick(() => {
+          this.$refs.map.addRoutes(routes)
+        })
+        return false
+      }
+      if (this.$refs.map && this.isVisibleMap) {
+        this.$refs.map.addRoutes(routes)
+      }
     },
     unselect () {
       this.$refs.intervals.unselect()
@@ -294,6 +332,20 @@ export default {
           this.activeCalcId = calcIdFromRoute
         }
       }
+    },
+    mapMinimizeHandler (options) {
+      this.mapMinimizedOptions = options
+      if (options.type === 'bottom') {
+        this.siblingHeight = this.size[1]
+      } else if (options.type === 'top') {
+        this.siblingHeight = this.size[0]
+      } else { this.siblingHeight = 0 }
+    },
+    openMapHandler () {
+      this.isVisibleMap = !this.isVisibleMap
+    },
+    onResize () {
+      this.$refs.map && this.$refs.map.onWindowResize()
     }
   },
   watch: {
@@ -343,7 +395,7 @@ export default {
       }
     }
   },
-  components: { intervals, VirtualList }
+  components: { intervals, VirtualList, MapFrame }
 }
 </script>
 <style lang="stylus">
