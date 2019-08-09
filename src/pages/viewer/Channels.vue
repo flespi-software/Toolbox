@@ -45,7 +45,7 @@
             <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
           </q-popover>
         </q-item>
-        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
+        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp" v-if="$q.platform.is.desktop">
           <div title="View hex payload" class="on-right cursor-pointer pull-right text-center round-borders q-px-xs" v-if="selectedItem && selectedItem.protocol_id === proxyProtocolId" @click="hexViewHandler">
             <q-icon size="1.5rem" color="white" name="mdi-matrix"/>
             <div style="font-size: .9rem;">HEX</div>
@@ -84,13 +84,29 @@
           </q-popover>
         </q-btn>
       </div>
-      <div v-if="active" class="flex">
+      <div v-if="active && $q.platform.is.desktop" class="flex">
         <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
           <div title="Clear all panes" class="on-left cursor-pointer pull-right text-center" v-if="modeModel && !isEmptyMessages" @click="clearHandler">
             <q-icon size="1.5rem" color="white" name="mdi-playlist-remove"/>
             <div style="font-size: .9rem;">Clear</div>
           </div>
         </transition>
+      </div>
+      <div v-else-if="active && !$q.platform.is.desktop">
+        <q-btn flat icon="mdi-dots-vertical">
+          <q-popover>
+            <q-list>
+              <q-item v-close-overlay v-if="selectedItem && selectedItem.protocol_id === proxyProtocolId" @click.native="hexViewHandler">
+                <q-item-side icon="mdi-matrix"/>
+                Hex
+              </q-item>
+              <q-item v-close-overlay @click.native="clearHandler">
+                <q-item-side icon="mdi-playlist-remove"/>
+                Clear
+              </q-item>
+            </q-list>
+          </q-popover>
+        </q-btn>
       </div>
     </q-toolbar>
     <div v-if="isInit && active">

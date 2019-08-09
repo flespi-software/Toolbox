@@ -39,6 +39,13 @@ export default {
               }
               break
             }
+            case 'channels': {
+              fromEntity = fromEntity === 'hexViewer' ? 'channels' : fromEntity
+              if (entity !== fromEntity) {
+                promises.push(vm.isNeedSelect ? entity : {entity, id: Number(idFromRoute.split('-')[0])})
+              }
+              break
+            }
             default: {
               promises.push(vm.isNeedSelect ? entity : {entity, id: idFromRoute.split('-')[0]})
             }

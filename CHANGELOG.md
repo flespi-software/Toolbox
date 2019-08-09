@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.17.11] - 2019-08-09
+[fix] init channels after hex-viewer
+[fix] channels mobile view
+[fix] calcs selector on intervals`s view
 ### [0.17.10] - 2019-08-08
 [feature] highlight extensions buttons
 [feature] interval`s map

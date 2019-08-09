@@ -58,7 +58,7 @@
             <q-item-tile><q-icon color="white" name="mdi-calculator-variant" size="25px"/></q-item-tile>
           </q-item-side>
           <q-item-main>
-            <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}" v-if="activeCalcId && filteredCalcs.length">{{selectedCalc.name || '&lt;noname&gt;'}}</q-item-tile>
+            <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}" v-if="activeCalcId">{{selectedCalc.name || '&lt;noname&gt;'}}</q-item-tile>
             <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}" v-else-if="!activeCalcId && filteredCalcs.length">Select calc</q-item-tile>
             <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}" v-else>No calcs available</q-item-tile>
           </q-item-main>
