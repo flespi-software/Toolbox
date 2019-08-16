@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.17.12] - 2019-08-16
+[fix] map view on interval`s page
+[fix] map update after container resize
+[fix] remove map button on interval`s page
 ### [0.17.11] - 2019-08-09
 [fix] init channels after hex-viewer
 [fix] channels mobile view

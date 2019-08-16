@@ -138,12 +138,6 @@
           </q-popover>
         </q-btn> -->
       </div>
-      <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
-        <div title="Map" v-if="hasRouteIntervals" class="on-left cursor-pointer pull-right text-center round-borders q-px-xs" @click="openMapHandler">
-          <q-icon size="1.5rem" name="mdi-map"/>
-          <div style="font-size: .9rem;">Map</div>
-        </div>
-      </transition>
     </q-toolbar>
     <div v-if="+size[1] && active">
       <intervals
@@ -345,7 +339,7 @@ export default {
       this.isVisibleMap = !this.isVisibleMap
     },
     onResize () {
-      this.$refs.map && this.$refs.map.onWindowResize()
+      this.$refs.map && this.$refs.map.onWindowResize({width: window.innerWidth, height: window.innerHeight})
     }
   },
   watch: {

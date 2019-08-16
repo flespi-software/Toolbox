@@ -259,7 +259,7 @@ export default {
       position absolute
       top 4px
       right 4px
-      z-index 1002
+      z-index 999
     &.map-component--minimized
       .handle
         display none!important
@@ -271,7 +271,7 @@ export default {
       width 4px
       background-color inherit
       display block!important
-      z-index 1001
+      z-index 998
     .handle-mr
       right 0
       border-left 1px solid #616161
@@ -286,7 +286,7 @@ export default {
       border none
       background-color inherit
       display block!important
-      z-index 1001
+      z-index 998
     .handle-tm
       top 0
       border-bottom 1px solid #616161
@@ -300,7 +300,7 @@ export default {
       border none
       background-color inherit
       display block!important
-      z-index 1002
+      z-index 999
     .handle-tl
       left 0
       top 0
