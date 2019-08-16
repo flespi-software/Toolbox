@@ -55,7 +55,10 @@ export default {
                 return flag && !!message[filter.field] && message[filter.field] >= filter.value
               }
               case '=': {
-                let val = JSON.stringify(message[filter.field]).slice(1, -1)
+                let val = JSON.stringify(message[filter.field])
+                if (typeof message[filter.field] === 'string') {
+                  val = val.slice(1, -1)
+                }
                 return flag && !!val && !!val.match(`^${filter.value.replace(/\*/g, '.*')}$`)
               }
               case '<': {

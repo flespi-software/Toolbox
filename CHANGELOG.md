@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.17.13] - 2019-08-16
+[feature] platform logs from all system
+[feature] highlight (grey) messages from the future (server.timestamp < timestamp)
+[fix] filtering messages (numeric values)
 ### [0.17.12] - 2019-08-16
 [fix] map view on interval`s page
 [fix] map update after container resize

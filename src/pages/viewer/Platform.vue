@@ -26,7 +26,7 @@
         :mode="mode"
         :item="true"
         :limit="limit"
-        originPattern="platform/customer/*"
+        originPattern="*"
         :isEnabled="true"
         :config="config.logs"
         :style="{minHeight: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"

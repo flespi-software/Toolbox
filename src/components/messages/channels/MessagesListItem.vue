@@ -4,7 +4,7 @@
       v-if="!item['__connectionStatus'] && !item['x-flespi-filter-prev'] && !item['x-flespi-filter-next']"
       @click="(event) => { itemClickHandler(index, clearItem, event) }"
       class="cursor-pointer"
-      :class="[item.__status ? 'missed-items' : '', selected ? 'bg-white-opasity' : highlightLevel ? `text-orange-${highlightLevel}` : '']"
+      :class="[item.__status ? 'missed-items' : '', selected ? 'bg-white-opasity' : highlightLevel ? `text-${highlightType}-${highlightLevel}` : '']"
       :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, color: selected ? '#333' : ''}">
     <span class="list__item item_actions" v-if="actionsVisible">
       <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
@@ -75,15 +75,29 @@ export default {
     'selected'
   ],
   data () {
-    let highlightLevel = 0
+    let highlightLevel = 0,
+      highlightType = ''
     if (this.item.timestamp < this.item['server.timestamp'] - 1800) { // >30min
+      highlightType = 'orange'
       highlightLevel = 10
     } else if (this.item.timestamp < this.item['server.timestamp'] - 600) { // 10-30min
+      highlightType = 'orange'
       highlightLevel = 7
     } else if (this.item.timestamp < this.item['server.timestamp'] - 120) { // 2-10min
+      highlightType = 'orange'
       highlightLevel = 4
+    } else if (this.item.timestamp - 1 > this.item['server.timestamp']) { // < 1sec-1min
+      highlightType = 'grey'
+      highlightLevel = 6
+    } else if (this.item.timestamp - 60 > this.item['server.timestamp']) { // 1-30min
+      highlightType = 'grey'
+      highlightLevel = 8
+    } else if (this.item.timestamp - 1800 > this.item['server.timestamp']) { // >30min
+      highlightType = 'grey'
+      highlightLevel = 10
     }
     return {
+      highlightType,
       highlightLevel,
       date: date
     }
