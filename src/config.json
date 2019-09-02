@@ -140,7 +140,10 @@
         "needShowFilter": true,
         "needShowMode": false,
         "needShowPageScroll": "right",
-        "needShowDate": true
+        "needShowDate": {
+          "prev": false,
+          "next": false
+        }
       },
       "theme": {
         "color": "white",

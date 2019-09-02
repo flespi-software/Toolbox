@@ -163,7 +163,14 @@ export default {
       this.cols = cols
     },
     paginationNextChangeHandler () {
+      let scrollerEl = this.$refs.scrollList.$refs.scroller.$el
+      let currentMessagesHeight = scrollerEl.scrollHeight
       this.$store.dispatch(`${this.moduleName}/get`)
+        .then(() => {
+          this.$nextTick(() => {
+            scrollerEl.scrollTop = currentMessagesHeight
+          })
+        })
     },
     actionHandler ({index, type, content}) {
       switch (type) {

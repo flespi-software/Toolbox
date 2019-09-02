@@ -63,7 +63,7 @@ export default {
       let initActions = this.config.actions,
         actions = [initActions[0]],
         routeFields = this.getRouteFields()
-      if (routeFields && routeFields.length) {
+      if (routeFields && routeFields.length && this.$q.platform.is.desktop) {
         actions = initActions
       }
       return actions
@@ -76,6 +76,7 @@ export default {
         messages.sort((a, b) => {
           return a.begin - b.begin
         })
+        this.normalizeSelected(messages)
         return messages
       },
       set (val) {
@@ -254,6 +255,13 @@ export default {
     unselect () {
       if (this.selected.length) {
         this.selected = []
+      }
+    },
+    normalizeSelected (messages) {
+      if (this.selected && this.selected.length) {
+        let selectedIndex = this.selected[0]
+        let message = messages[selectedIndex]
+        this.viewMessagesHandler({index: selectedIndex, content: message})
       }
     }
   },

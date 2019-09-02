@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.17.14] - 2019-09-02
+[fix] hide map icon in intervals on mobile view
+[fix] update selected interval data on view
+[fix] next batch view on channels messages
 ### [0.17.13] - 2019-08-16
 [feature] platform logs from all system
 [feature] highlight (grey) messages from the future (server.timestamp < timestamp)
