@@ -108,7 +108,7 @@
             </div>
           </q-collapsible>
           <q-collapsible
-            v-if="renderEntities.includes('containers') || renderEntities.includes('abques') || renderEntities.includes('cdns')"
+            v-if="renderEntities.includes('containers') || renderEntities.includes('cdns')"
             group="menu"
             label="Storage"
             icon="mdi-database"
@@ -123,14 +123,6 @@
                       <q-icon :name="config.containers.icon" size="2.6em"/>
                     </div>
                     <div>{{config.containers.label}}</div>
-                  </q-item-main>
-                </q-item>
-                <q-item v-if="renderEntities.includes('abques')" to='/abques' class="col-6">
-                  <q-item-main class="text-center">
-                    <div>
-                      <q-icon :name="config.abques.icon" size="2.6em"/>
-                    </div>
-                    <div>{{config.abques.label}}</div>
                   </q-item-main>
                 </q-item>
                 <q-item v-if="renderEntities.includes('cdns')" to='/cdns' class="col-6">
@@ -229,7 +221,7 @@ export default {
       isVisibleToolbar: true,
       connectFlag: false,
       isTabsVisible: true,
-      entityByGroup: ['platform', 'channels', 'calcs', 'devices', 'streams', 'modems', 'containers', 'abques', 'cdns', 'mqtt', 'mqttClient', 'hexViewer'],
+      entityByGroup: ['platform', 'channels', 'calcs', 'devices', 'streams', 'modems', 'containers', 'cdns', 'mqtt', 'mqttClient', 'hexViewer'],
       isNeedSelect: true,
       isInit: Vue.connector.socket.connected()
     }
@@ -255,7 +247,7 @@ export default {
     },
     storageGroupModel () {
       let entity = this.entity
-      return entity === 'containers' || entity === 'abques' || entity === 'cdns'
+      return entity === 'containers' || entity === 'cdns'
     },
     mqttGroupModel () {
       let entity = this.entity
@@ -425,7 +417,6 @@ export default {
             }
             case 'storage': {
               result.push('containers')
-              result.push('abques')
               result.push('cdns')
               break
             }

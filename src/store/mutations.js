@@ -131,7 +131,7 @@ function setTokenInfo (state, tokenInfo) {
         }
         if (acl.uri === 'storage') {
           if (acl.methods.includes('GET')) {
-            return [...result, 'containers', 'abques', 'cdns']
+            return [...result, 'containers', 'cdns']
           }
           return result
         }

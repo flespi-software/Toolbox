@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.17.15] - 2019-09-04
+[remove] abques
 ### [0.17.14] - 2019-09-02
 [fix] hide map icon in intervals on mobile view
 [fix] update selected interval data on view

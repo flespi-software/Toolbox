@@ -8,7 +8,6 @@ const origins = {
     streams: '/gw/streams',
     modems: '/gw/modems',
     containers: '/storage/containers',
-    abques: '/storage/abques',
     cdns: '/storage/cdns',
     tasks: '/gw/calcs/+/devices'
   },
@@ -177,10 +176,6 @@ async function getDeleted ({state, commit}, entity) {
       }
       case 'containers': {
         deletedParams = Object.assign(deletedParams, {filter: 'event_origin=storage/containers/*,event_code=3'})
-        break
-      }
-      case 'abques': {
-        deletedParams = Object.assign(deletedParams, {filter: 'event_origin=storage/abques/*,event_code=3'})
         break
       }
       case 'cdns': {
