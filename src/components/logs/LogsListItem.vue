@@ -135,6 +135,7 @@ export default {
         case 500:
         case 510:
         case 601:
+        case 605:
         case 901:
           return 'text-green'
         case 2:
@@ -153,6 +154,7 @@ export default {
         case 511:
         case 600:
         case 603:
+        case 604:
         case 900:
           return 'text-yellow'
         case 113:
@@ -258,7 +260,9 @@ export default {
         case 600: { return `${SERVER || 'https:localhost:9005'}/docs/#/platform/!/tokens` }
         case 601:
         case 602:
-        case 603: { return `${SERVER || 'https:localhost:9005'}/docs/#/gw/!/calcs` }
+        case 603:
+        case 604:
+        case 605: { return `${SERVER || 'https:localhost:9005'}/docs/#/gw/!/calcs` }
         case 700: { return `${SERVER || 'https:localhost:9005'}/docs/#/storage/!/containers` }
         case 800: { return `${SERVER || 'https:localhost:9005'}/docs/#/storage/!/abques` }
         case 900:
