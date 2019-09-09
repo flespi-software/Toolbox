@@ -22,6 +22,10 @@
           :style="{fontSize: '24px', paddingLeft: '8px', marginRight: '5px'}"
           class="cursor-pointer"
         />
+        <div title="Clear all connections" class="on-left cursor-pointer pull-right text-center" v-if="mode && !connection" @click="clearHandler">
+          <q-icon size="1.5rem" color="white" name="mdi-playlist-remove"/>
+          <div style="font-size: .9rem;">Clear</div>
+        </div>
         <q-datetime
           v-if="!mode && !showSearch && !connection"
           format="DD-MM-YYYY HH:mm:ss"
@@ -345,6 +349,15 @@ export default {
       this.$nextTick(() => {
         this.$refs.scroller.$el.scrollTop = this.scrollerScrollTop
       })
+    },
+    clearHandler () {
+      this.$q.dialog({
+        title: 'Confirm',
+        message: 'Do you really want to clear all connections?',
+        ok: true,
+        cancel: true
+      }).then(() => { this.$store.commit(`${this.moduleName}/clearMessages`) })
+        .catch(() => {})
     }
   },
   watch: {

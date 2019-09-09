@@ -188,7 +188,7 @@ export default {
       this.cols = cols
     },
     dateChangeHandler (date) {
-      this.$store.dispatch(`${this.moduleName}/get`, {name: 'setDate', payload: date})
+      this.$store.dispatch(`${this.moduleName}/get`, {name: 'setFrom', payload: date})
     },
     datePrevChangeHandler () {
       this.$store.dispatch(`${this.moduleName}/get`, {name: 'datePrev'})
