@@ -77,7 +77,7 @@
           </q-popover>
         </q-btn>
       </div>
-      <div v-if="active && $q.platform.is.desktop" class="flex justify-end" style="width: 147px;">
+      <div v-if="active && $q.platform.is.desktop" class="flex justify-end" style="width: 177px;">
         <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
           <div title="Intervals" class="on-left cursor-pointer pull-right text-center round-borders q-px-xs" @click="moveToIntervals(active, null)" v-if="tasksByDevice.length">
             <q-icon size="1.5rem" name="mdi-set-center"/>
