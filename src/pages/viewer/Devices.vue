@@ -41,7 +41,7 @@
                 No devices
               </div>
             </q-list>
-            <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
+            <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1 && false">see deleted</q-btn>
           </q-popover>
         </q-item>
       </div>
@@ -77,7 +77,7 @@
           </q-popover>
         </q-btn>
       </div>
-      <div v-if="active && $q.platform.is.desktop" class="flex">
+      <div v-if="active && $q.platform.is.desktop" class="flex justify-end" style="width: 147px;">
         <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
           <div title="Intervals" class="on-left cursor-pointer pull-right text-center round-borders q-px-xs" @click="moveToIntervals(active, null)" v-if="tasksByDevice.length">
             <q-icon size="1.5rem" name="mdi-set-center"/>
@@ -142,7 +142,7 @@
     </div>
     <div v-if="!items.length" class="text-center text-grey-3 q-mt-lg">
       <div style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Devices not found'}}</div>
-      <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
+      <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1 && false" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
     </div>
     <map-component
       ref="map"

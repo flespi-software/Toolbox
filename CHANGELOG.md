@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.18.0] - 2019-09-18
+[feature] platform and mqtt logs showed by account
+[fix] style
 ### [0.17.17] - 2019-09-09
 [feature] clear connections button in hex viewer
 [fix] current time pick

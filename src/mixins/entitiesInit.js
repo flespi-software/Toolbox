@@ -46,6 +46,20 @@ export default {
               }
               break
             }
+            case 'platform': {
+              if (fromEntity === 'mqtt') {
+                break
+              }
+              promises.push(vm.isNeedSelect ? 'subaccounts' : {entity: 'subaccounts', id: Number(idFromRoute.split('-')[0])})
+              break
+            }
+            case 'mqtt': {
+              if (fromEntity === 'platform') {
+                break
+              }
+              promises.push(vm.isNeedSelect ? 'subaccounts' : {entity: 'subaccounts', id: Number(idFromRoute.split('-')[0])})
+              break
+            }
             default: {
               promises.push(vm.isNeedSelect ? entity : {entity, id: idFromRoute.split('-')[0]})
             }
@@ -125,6 +139,20 @@ export default {
           if (fromEntity !== toEntity) {
             promises.push(this.isNeedSelect ? fromEntity : {fromEntity, id: idFromRoute})
           }
+          break
+        }
+        case 'platform': {
+          if (toEntity === 'mqtt') {
+            break
+          }
+          promises.push(this.isNeedSelect ? 'subaccounts' : {fromEntity: 'subaccounts', id: idFromRoute})
+          break
+        }
+        case 'mqtt': {
+          if (toEntity === 'platform') {
+            break
+          }
+          promises.push(this.isNeedSelect ? 'subaccounts' : {fromEntity: 'subaccounts', id: idFromRoute})
           break
         }
         default: {

@@ -9,7 +9,8 @@ const origins = {
     modems: '/gw/modems',
     containers: '/storage/containers',
     cdns: '/storage/cdns',
-    tasks: '/gw/calcs/+/devices'
+    tasks: '/gw/calcs/+/devices',
+    subaccounts: '/platform/subaccounts'
   },
   GET_ITEMS_MODE_OBJECT = 0,
   GET_ITEMS_MODE_FIELDS = 1

@@ -39,7 +39,7 @@
                 No Calcs
               </div>
             </q-list>
-            <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
+            <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1 && false">see deleted</q-btn>
           </q-popover>
         </q-item>
       </div>
@@ -47,7 +47,7 @@
         {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
         <q-chip small square color="red" v-if="newMessagesCount" class="cursor-pointer q-ml-sm">{{newMessagesCount}}</q-chip>
       </q-btn>
-      <div v-if="active" class="flex">
+      <div v-if="active" class="flex" style="width: 46px;">
         <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
           <div title="Clear all panes" class="on-left cursor-pointer pull-right text-center" v-if="modeModel && !isEmptyMessages" @click="clearHandler">
             <q-icon size="1.5rem" color="white" name="mdi-playlist-remove"/>
@@ -70,7 +70,7 @@
     />
     <div v-if="!items.length" class="text-center text-grey-3 q-mt-lg">
       <div style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Calcs not found'}}</div>
-      <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
+      <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1 && false" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
     </div>
   </q-page>
 </template>
