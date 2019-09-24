@@ -28,6 +28,7 @@
     "313": "Device rejected the new setting value",
     "314": "REST API (DELETE) request: the sending of new setting value was cancelled by user",
     "315": "REST API (DELETE) request: current setting value was cleared from the system by user",
+    "316": "The system marked the setting as unreadable due to exceeded retries limit",
     "401": "stream connected successfully",
     "402": "stream has lost connection",
     "403": "stream failed to deliver messages",

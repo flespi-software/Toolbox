@@ -174,6 +174,7 @@ export default {
         case 203:
         case 204:
         case 315:
+        case 316:
         case 402:
         case 403:
         case 501:
@@ -237,7 +238,8 @@ export default {
         case 312:
         case 313:
         case 314:
-        case 315: { return `${SERVER || 'https:localhost:9005'}/docs/#/gw/!/devices` }
+        case 315:
+        case 316: { return `${SERVER || 'https:localhost:9005'}/docs/#/gw/!/devices` }
         case 401:
         case 402:
         case 403:
