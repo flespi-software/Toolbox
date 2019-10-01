@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.18.2] - 2019-10-01
+[update] log`s history gets for 2 last days in real time mode
 ### [0.18.1] - 2019-09-24
 [update] log`s codes
 ### [0.18.0] - 2019-09-18
