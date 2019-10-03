@@ -42,7 +42,7 @@
                 No channels
               </div>
             </q-list>
-            <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1 && false">see deleted</q-btn>
+            <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
           </q-popover>
         </q-item>
         <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp" v-if="$q.platform.is.desktop">
@@ -136,7 +136,7 @@
     </div>
     <div v-if="!items.length" class="text-center text-grey-3 q-mt-lg">
       <div style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Channels not found'}}</div>
-      <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1 && false" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
+      <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
     </div>
   </q-page>
 </template>
