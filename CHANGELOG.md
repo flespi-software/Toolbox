@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.18.4] - 2019-10-07
+[fix] time picker in channels messages
+### [0.18.3] - 2019-10-04
+[feature] get deleted button returns
 ### [0.18.2] - 2019-10-01
 [update] log`s history gets for 2 last days in real time mode
 ### [0.18.1] - 2019-09-24

@@ -105,13 +105,24 @@ export default {
     },
     from: {
       get () {
-        let module = this.$store.state[this.moduleName]
-        return module.messages[0] && module.messages[0].timestamp ? Math.ceil(module.messages[0].timestamp * 1000) : Date.now()
+        let module = this.$store.state[this.moduleName],
+          from = module.from,
+          to = module.to
+        return !from ? Math.ceil(to * 1000) : Math.ceil(from * 1000)
       },
       set (val) {
         val ? this.$store.commit(`${this.moduleName}/setFrom`, Math.ceil(val / 1000)) : this.$store.commit(`${this.moduleName}/setFrom`, 0)
+        this.to = 0
         this.$store.commit(`${this.moduleName}/clearMessages`)
         this.$store.dispatch(`${this.moduleName}/get`)
+      }
+    },
+    to: {
+      get  () {
+        return this.$store.state[this.moduleName].to
+      },
+      set (val) {
+        this.$store.commit(`${this.moduleName}/setTo`, Math.ceil(val / 1000))
       }
     },
     currentLimit: {
@@ -141,7 +152,7 @@ export default {
       }
     },
     setTranslation (messages) {
-      this.i18n.to = messages.length ? `Next batch from ${date.formatDate(this.from * 1000, 'HH:mm:ss')}` : 'Next'
+      this.i18n.to = messages.length ? `Next batch from ${date.formatDate(this.to * 1000, 'HH:mm:ss')}` : 'Next'
     },
     dateChangeHandler (date) {
       this.from = date
@@ -163,12 +174,16 @@ export default {
       this.cols = cols
     },
     paginationNextChangeHandler () {
-      let scrollerEl = this.$refs.scrollList.$refs.scroller.$el
-      let currentMessagesHeight = scrollerEl.scrollHeight
+      let scrollerEl = this.$refs.scrollList && this.$refs.scrollList.$refs.scroller && this.$refs.scrollList.$refs.scroller.$el
+      let currentMessagesHeight = scrollerEl ? scrollerEl.scrollHeight : undefined
+      this.from = Math.ceil(this.to * 1000)
+      this.to = 0
       this.$store.dispatch(`${this.moduleName}/get`)
         .then(() => {
           this.$nextTick(() => {
-            scrollerEl.scrollTop = currentMessagesHeight
+            if (scrollerEl) {
+              scrollerEl.scrollTop = currentMessagesHeight
+            }
           })
         })
     },
