@@ -239,5 +239,15 @@
     "196": "Invalid optional parameter value",
     "254": "Generic delivery failure",
     "255": "Unknown Error"
+  },
+  "codesByEventcode": {
+    "20": {
+      "1": "too many items in timeframe",
+      "2": "platform data consumption overflow",
+      "3": "item traffic overflow",
+      "4": "item storage overflow",
+      "5": "items count exceeds the current limit",
+      "6": "item configuration is invalid"
+    }
   }
 }

@@ -101,6 +101,7 @@ export default {
           key === 'source' ||
           key === 'error_text' ||
           key === 'close_code' ||
+          key === 'code' ||
           key === 'http_data' ||
           key === 'current' ||
           key === 'updated' ||
@@ -277,7 +278,8 @@ export default {
       let types = events.types,
         closeCodes = events.closeCodes,
         errorCodes = events.errorCodes,
-        sendCodes = events.sendCodes
+        sendCodes = events.sendCodes,
+        codesByEvent = events.codesByEventcode
       let res = types[this.item.event_code] ? `${types[this.item.event_code]}` : this.item.event_code
       res += this.item.close_code
         ? ` (${closeCodes[this.item.close_code]})`
@@ -294,6 +296,11 @@ export default {
         : (errorCodes[this.item.event_code] && errorCodes[this.item.event_code][this.item.send_code]
           ? `(${this.item.send_code})`
           : '')
+      res += this.item.code && codesByEvent[this.item.event_code] && codesByEvent[this.item.event_code][this.item.code]
+        ? ` (${this.item.code}: ${codesByEvent[this.item.event_code][this.item.code]})`
+        : this.item.code && codesByEvent[this.item.event_code] && !codesByEvent[this.item.event_code][this.item.code]
+          ? `(code: ${this.item.code})`
+          : ''
       return res
     },
     clearItem () {
