@@ -39,7 +39,7 @@
               @mousedown="event => startSelectionHandler(event, row, index)"
               @mouseup="event => endSelectionHandler(event, row, index)"
               class="q-pr-xs q-pl-xs q-mt-sm q-mb-sm"
-              :class="{'selected': (selected.includes((row * 16) + index)), 'active': (active === (row * 16) + index) || (start === end === ((row * 16) + index))}"
+              :class="{'selected': (selected.includes((row * 16) + index)), '--active': (active === (row * 16) + index) || (start === end === ((row * 16) + index))}"
               v-for="(byte, index) in byte16"
               :key="`${row}${index}${byte}`"
             >{{byte}}</span>
@@ -52,7 +52,7 @@
               @mousedown="event => startSelectionHandler(event, row, index)"
               @mouseup="event => endSelectionHandler(event, row, index)"
               class="q-pr-xs q-pl-xs q-mt-sm q-mb-sm"
-              :class="{ 'selected': (selected.includes((row * 16) + index)), 'active': (active === (row * 16) + index) || (start === end === ((row * 16) + index))}"
+              :class="{ 'selected': (selected.includes((row * 16) + index)), '--active': (active === (row * 16) + index) || (start === end === ((row * 16) + index))}"
               v-for="(byte, index) in byte16"
               :key="`${row}${index}${byte}`"
             >{{replaceByteWithDot(byte)}}</span>
@@ -66,7 +66,7 @@
           @mousedown="event => startSelectionHandler(event, null, index)"
           @mouseup="event => endSelectionHandler(event, null, index)"
           class="q-mt-sm q-mb-sm"
-          :class="{ 'selected': (selected.includes(index)), 'active': (active === index) || (start === end === index), 'raw-hex-data': isEmptySymbol(byte)}"
+          :class="{ 'selected': (selected.includes(index)), '--active': (active === index) || (start === end === index), 'raw-hex-data': isEmptySymbol(byte)}"
           :key="`${index}${byte}`"
         >{{replaceByteWithMnemo(byte)}}<br v-if="byte === '0A'"/></span>
       </template>
@@ -86,7 +86,7 @@
   .selected
     color rgb(51, 51, 51)
     background-color rgba(255, 255, 255, 0.7)
-  .active
+  .--active
     color rgb(51, 51, 51)
     background-color rgba(255, 255, 255, 0.4)
   .hex-viewer

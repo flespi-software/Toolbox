@@ -28,6 +28,7 @@ if (window.location.hash.split('/').slice(-1)[0] === 'flespi') {
 
 export default ({Vue, store}) => {
   Vue.prototype.$flespiServer = connectionConfig.httpConfig && connectionConfig.httpConfig.server ? `${connectionConfig.httpConfig.server}:${connectionConfig.httpConfig.port}` : 'https://flespi.io'
+  Vue.prototype.$flespiSocketServer = connectionConfig.socketConfig && connectionConfig.socketConfig.server ? connectionConfig.socketConfig.server : 'wss://mqtt.flespi.io'
   Vue.use(VueConnection, connectionConfig)
   Vue.connector.socket.on('connect', (connack) => {
     let tokenInfo = JSON.parse(connack.properties.userProperties.token)

@@ -216,7 +216,7 @@ export default {
     active (val) {
       this.activeConnection = null
       this.selectedMessages = ''
-      let currentItem = this.items.filter(item => item.id === val)[0] || null
+      let currentItem = this.items.filter(item => item.id === val)[0] || {}
       if (val) {
         this.$q.localStorage.set('tools/hex', val)
         this.$router.push(`/tools/hex/${val}`)

@@ -195,7 +195,7 @@ export default {
       }
     },
     active (val) {
-      let currentItem = this.itemsCollection[val] || null
+      let currentItem = this.itemsCollection[val] || {}
       if (val) {
         this.$q.localStorage.set('mqtt', val)
         this.$router.push(`/mqtt/${val}`)

@@ -381,7 +381,7 @@ export default {
       }
     },
     active (val, old) {
-      let currentItem = this.itemsCollection[val] || null
+      let currentItem = this.itemsCollection[val] || {}
       if (val) {
         this.$q.localStorage.set('devices', val)
         this.$router.push(`/devices/${val}`)

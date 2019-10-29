@@ -22,6 +22,7 @@ export default {
     return {
       settings: {
         clientId: `toolbox-mqtt-board-${Math.random().toString(16).substr(2, 8)}`,
+        host: this.$flespiSocketServer,
         username: `FlespiToken ${this.$store.state.token}`
       }
     }

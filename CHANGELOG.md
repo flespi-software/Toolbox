@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.18.7] - 2019-10-29
+[fix] hex-viewer style
+[fix] reactivate entities active
+[fix] mqtt-board default config
 ### [0.18.6] - 2019-10-29
 [feature] new channels messages ui
 [feature] integration login empty page

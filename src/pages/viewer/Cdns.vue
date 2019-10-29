@@ -191,7 +191,7 @@ export default {
       }
     },
     active (val) {
-      let currentItem = this.itemsCollection[val] || null
+      let currentItem = this.itemsCollection[val] || {}
       if (val) {
         this.$q.localStorage.set('cdns', val)
         this.$router.push(`/cdns/${val}`)

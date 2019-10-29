@@ -194,7 +194,7 @@ export default {
       }
     },
     active (val) {
-      let currentItem = this.itemsCollection[val] || null
+      let currentItem = this.itemsCollection[val] || {}
       if (val) {
         this.$q.localStorage.set('modems', val)
         this.$router.push(`/modems/${val}`)
