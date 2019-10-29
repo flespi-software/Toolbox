@@ -1,11 +1,18 @@
 <template>
   <div class="login-page window-height window-width bg-light column items-center no-wrap">
-    <a v-if="!$q.platform.is.mobile" href="https://github.com/flespi-software/Toolbox/" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0; width: 149px; height: 149px;" src="../statics/right-graphite@2x.png" alt="Fork me on GitHub"></a>
+    <a v-if="!$q.platform.is.mobile || $q.platform.within.iframe" href="https://github.com/flespi-software/Toolbox/" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0; width: 149px; height: 149px;" src="../statics/right-graphite@2x.png" alt="Fork me on GitHub"></a>
     <div class="login-back flex items-center justify-center">
       <div class="login-code flex items-center justify-center"></div>
     </div>
     <div v-if="!$route.params.token">
-      <div class="login-card shadow-4 bg-white column items-center justify-center no-wrap">
+      <div v-if="!canLogin || $q.platform.within.iframe" class="login-card shadow-4 bg-white column items-center justify-center no-wrap">
+        <div class="row full-width">
+          <div class="col-12 text-center text-red text-bold">
+            <big>Token has been expired or revoked</big>
+          </div>
+        </div>
+      </div>
+      <div v-else class="login-card shadow-4 bg-white column items-center justify-center no-wrap">
         <p class="text-center">Swiss knife to view and analyze flespi data</p>
         <div class="row full-width">
           <div class="col-12 text-center">
@@ -36,7 +43,8 @@ export default {
         live: 'mdi-windows',
         github: 'mdi-github-box',
         email: 'mdi-at'
-      }
+      },
+      canLogin: true
     }
   },
   computed: {
@@ -118,6 +126,10 @@ export default {
     }
   },
   created () {
+    let sessionSettings = this.$q.sessionStorage.get.item('toolbox-session-settings')
+    if (sessionSettings) {
+      this.canLogin = sessionSettings.isVisibleToolbar
+    }
     let tokenHandler = (event) => {
       if (typeof event.data === 'string' && ~event.data.indexOf('FlespiToken')) {
         this.token = event.data

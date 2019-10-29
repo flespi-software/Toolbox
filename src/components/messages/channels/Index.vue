@@ -14,10 +14,13 @@
       :theme="theme"
       :title="'Messages'"
       @change:filter="filterChangeHandler"
+      @change:pagination-prev="paginationPrevChangeHandler"
       @change:pagination-next="paginationNextChangeHandler"
+      @change:date="dateChangeHandler"
+      @change:date-prev="datePrevChangeHandler"
+      @change:date-next="dateNextChangeHandler"
       @change:mode="modeChange"
       @update:cols="updateColsHandler"
-      @change:date="dateChangeHandler"
     >
       <messages-list-item slot="items" slot-scope="{item, index, actions, cols, etcVisible, actionsVisible, itemHeight, rowWidth}"
         :item="item"
@@ -38,7 +41,7 @@
 </template>
 
 <script>
-import { VirtualScrollList, channelsMessagesModule } from 'qvirtualscroll'
+import { VirtualScrollList, channelsMessagesModuleSerial } from 'qvirtualscroll'
 import Vue from 'vue'
 import { date } from 'quasar'
 import filterMessages from '../../../mixins/filterMessages'
@@ -48,6 +51,7 @@ import range from 'lodash/range'
 export default {
   props: [
     'mode',
+    'item',
     'date',
     'activeId',
     'limit',
@@ -66,7 +70,7 @@ export default {
     messages: {
       get () {
         let messages = this.$store.state[this.moduleName].messages
-        this.setTranslation(messages)
+        this.setTranslate(messages)
         return this.mode === 1 ? messages : this.filterMessages(this.filter, messages)
       },
       set (val) {
@@ -78,13 +82,20 @@ export default {
         return this.$store.state[this.moduleName].active
       },
       async set (val) {
-        await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active channel */
+        await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active device */
         this.$store.commit(`${this.moduleName}/setActive`, val)
         let activeItem = this.$store.state.items[val] || {}
-        Vue.set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
+        this.$set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
+        this.$store.commit(`${this.moduleName}/clearMessages`)
         await this.$store.dispatch(`${this.moduleName}/getCols`)
-        this.modeChange(this.mode)
+        if (this.$store.state[this.moduleName].mode === 0) {
+          await this.$store.dispatch(`${this.moduleName}/initTime`)
+          await this.$store.dispatch(`${this.moduleName}/get`)
+        }
         this.$store.dispatch(`${this.moduleName}/pollingGet`)
+        if (this.$store.state[this.moduleName].mode === 1 && !this.item.deleted) {
+          await this.$store.dispatch(`${this.moduleName}/getHistory`, 200)
+        }
       }
     },
     cols: {
@@ -105,24 +116,26 @@ export default {
     },
     from: {
       get () {
-        let module = this.$store.state[this.moduleName],
-          from = module.from,
-          to = module.to
-        return !from ? Math.ceil(to * 1000) : Math.ceil(from * 1000)
+        return this.$store.state[this.moduleName].from
       },
       set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setFrom`, Math.ceil(val / 1000)) : this.$store.commit(`${this.moduleName}/setFrom`, 0)
-        this.to = 0
-        this.$store.commit(`${this.moduleName}/clearMessages`)
-        this.$store.dispatch(`${this.moduleName}/get`)
+        val ? this.$store.commit(`${this.moduleName}/setFrom`, val) : this.$store.commit(`${this.moduleName}/setFrom`, 0)
       }
     },
     to: {
-      get  () {
+      get () {
         return this.$store.state[this.moduleName].to
       },
       set (val) {
-        this.$store.commit(`${this.moduleName}/setTo`, Math.ceil(val / 1000))
+        val ? this.$store.commit(`${this.moduleName}/setTo`, val) : this.$store.commit(`${this.moduleName}/setTo`, 0)
+      }
+    },
+    reverse: {
+      get () {
+        return this.$store.state[this.moduleName].reverse || false
+      },
+      set (val) {
+        this.$store.commit(`${this.moduleName}/setReverse`, val)
       }
     },
     currentLimit: {
@@ -149,43 +162,50 @@ export default {
     filterChangeHandler (val) {
       if (this.filter !== val) {
         this.filter = val
+        if (this.mode === 0) {
+          this.$store.commit(`${this.moduleName}/clearMessages`)
+          this.$store.dispatch(`${this.moduleName}/get`)
+        }
       }
     },
-    setTranslation (messages) {
-      this.i18n.to = messages.length ? `Next batch from ${date.formatDate(this.to * 1000, 'HH:mm:ss')}` : 'Next'
+    setTranslate (messages) {
+      this.i18n.from = messages.length ? `Previous batch until ${date.formatDate(messages[0].timestamp * 1000, 'HH:mm:ss')}` : 'Prev'
+      this.i18n.to = messages.length ? `Next batch from ${date.formatDate(messages[messages.length - 1].timestamp * 1000, 'HH:mm:ss')}` : 'Next'
     },
-    dateChangeHandler (date) {
-      this.from = date
-    },
-    modeChange (val) {
+    async modeChange (val) {
+      let modeInitValueIsNull = this.$store.state[this.moduleName].mode === null
       val = +val
       this.$store.commit(`${this.moduleName}/clearMessages`)
       this.$store.commit(`${this.moduleName}/setMode`, val)
-      switch (val) {
-        case 0: {
-          if (this.active) {
-            this.$store.dispatch(`${this.moduleName}/get`)
-          }
-          break
-        }
+      if (val === 1 && this.active && this.$store.state[this.moduleName].mode !== null) {
+        await this.$store.dispatch(`${this.moduleName}/getHistory`, 200)
+      }
+      if (val === 0 && this.active && (!this.item.deleted || modeInitValueIsNull)) {
+        await this.$store.dispatch(`${this.moduleName}/initTime`) // if need init time by last messages
+        await this.$store.dispatch(`${this.moduleName}/get`)
       }
     },
     updateColsHandler (cols) {
       this.cols = cols
     },
+    dateChangeHandler (date) {
+      this.$store.dispatch(`${this.moduleName}/get`, {name: 'setFrom', payload: date})
+    },
+    datePrevChangeHandler () {
+      this.$store.dispatch(`${this.moduleName}/get`, {name: 'datePrev'})
+    },
+    dateNextChangeHandler () {
+      this.$store.dispatch(`${this.moduleName}/get`, {name: 'dateNext'})
+    },
+    paginationPrevChangeHandler () {
+      let timestamp = 0
+      timestamp = this.messages.length ? this.messages[0].timestamp * 1000 : 0
+      this.$store.dispatch(`${this.moduleName}/get`, {name: 'paginationPrev', payload: timestamp})
+    },
     paginationNextChangeHandler () {
-      let scrollerEl = this.$refs.scrollList && this.$refs.scrollList.$refs.scroller && this.$refs.scrollList.$refs.scroller.$el
-      let currentMessagesHeight = scrollerEl ? scrollerEl.scrollHeight : undefined
-      this.from = Math.ceil(this.to * 1000)
-      this.to = 0
-      this.$store.dispatch(`${this.moduleName}/get`)
-        .then(() => {
-          this.$nextTick(() => {
-            if (scrollerEl) {
-              scrollerEl.scrollTop = currentMessagesHeight
-            }
-          })
-        })
+      let timestamp = 0
+      timestamp = this.messages.length ? this.messages[this.messages.length - 1].timestamp * 1000 : 0
+      this.$store.dispatch(`${this.moduleName}/get`, {name: 'paginationNext', payload: timestamp})
     },
     actionHandler ({index, type, content}) {
       switch (type) {
@@ -263,7 +283,7 @@ export default {
   },
   created () {
     if (!this.$store.state[this.moduleName]) {
-      this.$store.registerModule(this.moduleName, channelsMessagesModule({Vue, LocalStorage: this.$q.localStorage, name: this.moduleName, errorHandler: (err) => { this.$store.commit('reqFailed', err) }, filterHandler: this.filterMessages}))
+      this.$store.registerModule(this.moduleName, channelsMessagesModuleSerial({Vue, LocalStorage: this.$q.localStorage, name: this.moduleName, errorHandler: (err) => { this.$store.commit('reqFailed', err) }, filterHandler: this.filterMessages}))
     } else {
       this.$store.commit(`${this.moduleName}/clear`)
     }
@@ -279,13 +299,14 @@ export default {
       this.$store.dispatch(`${this.moduleName}/pollingGet`)
     }
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
-      if (this.mode === 1) {
-        this.$store.commit(`${this.moduleName}/setOffline`, this.mode === 1)
-      }
+      this.$store.commit(`${this.moduleName}/setOffline`, this.mode === 1)
     })
     this.connectHandler = Vue.connector.socket.on('connect', () => {
       if (this.$store.state[this.moduleName].offline) {
         this.$store.commit(`${this.moduleName}/setReconnected`, this.mode === 1)
+        if (this.mode === 1) {
+          this.$store.dispatch(`${this.moduleName}/getMissedMessages`)
+        }
       }
     })
   },

@@ -7,7 +7,7 @@
           <q-toolbar-title :style="{minWidth: $q.platform.is.mobile ? '60px' : '210px'}">
             <img class="gt-sm" src="statics/toolbox50.png" alt="Toolbox" style="height: 30px">
             <img class="lt-md" src="statics/toolbox_mobile.png" alt="Toolbox" style="height: 30px">
-            <sup style="position: relative; font-size: .9rem; padding-left: 4px">{{version}}</sup>
+            <sup class="version" :class="{'version--mobile': $q.platform.is.mobile}">{{version}}</sup>
             <span v-if="configByEntity" style="position: relative; top: -5px; margin-left: 10px;">{{configByEntity.label}}</span>
           </q-toolbar-title>
           <q-btn v-if="errors.length" @click="clearNotificationCounter" small flat round icon="notifications">
@@ -37,7 +37,7 @@
           v-if="Object.keys(currentMessage).length"
         />
       </q-layout-drawer>
-      <q-layout-drawer side="left" v-model="sides.left" :content-class="{'bg-white':true}">
+      <q-layout-drawer side="left" v-model="sides.left" :content-class="{'bg-white':true}" v-if="isVisibleToolbar">
         <q-list separator class="q-py-none">
           <q-item v-if="renderEntities.includes('platform')" to='/platform' class="q-pt-md q-pb-md">
             <q-item-side color="red" :icon="config.platform.icon"></q-item-side>
@@ -95,8 +95,8 @@
                   </q-item-main>
                 </q-item>
                 <q-item-separator style="width: 100%" v-if="renderEntities.includes('calcs')"/>
-                <q-list-header class="col-12">Tools</q-list-header>
-                <q-item to='/tools/hex' class="col-6">
+                <q-list-header class="col-12" v-if="renderEntities.includes('hexViewer')">Tools</q-list-header>
+                <q-item to='/tools/hex' class="col-6" v-if="renderEntities.includes('hexViewer')">
                   <q-item-main class="text-center">
                     <div>
                       <q-icon :name="config.hexViewer.icon" size="2.6em"/>
@@ -472,6 +472,7 @@ export default {
     routeParamsProcess (route) {
       this.isNeedSelect = !this.$route.params.noselect
       this.isVisibleToolbar = !route.params.fullscreen
+      this.$q.sessionStorage.set('toolbox-session-settings', { isNeedSelect: this.isNeedSelect, isVisibleToolbar: this.isVisibleToolbar })
       this.setToken(route.params.token)
       if (route.params.id && route.params.type) {
         let routeProcessIndex = Vue.connector.socket.on('connect', () => {
@@ -518,6 +519,11 @@ export default {
   },
   created () {
     this.routeProcess(this.$route)
+    let sessionSettings = this.$q.sessionStorage.get.item('toolbox-session-settings')
+    if (sessionSettings) {
+      this.isNeedSelect = sessionSettings.isNeedSelect
+      this.isVisibleToolbar = sessionSettings.isVisibleToolbar
+    }
     if (!this.isInit) {
       this.connectFlag = true
       this.connectionPreserveHandlerIndex = Vue.connector.socket.on('connect', this.connectionPreserveHandler)
@@ -530,8 +536,14 @@ export default {
 }
 </script>
 
-<style>
-  .header__main-toolbar {
-    padding: 1px 12px;
-  }
+<style lang="stylus">
+  .version
+    position absolute
+    left 175px
+    top 4px
+    font-size 0.7rem
+    &--mobile
+      left 105px
+  .header__main-toolbar
+    padding 1px 12px
 </style>

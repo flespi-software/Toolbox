@@ -2,8 +2,8 @@
   <q-item  @click.native="(event) => { itemClickHandler(index, item, event) }">
     <q-item-main>
       <q-item-tile label>{{peer}}</q-item-tile>
-      <q-item-tile style="font-size: 0.7rem" sublabel>{{ident}}</q-item-tile>
-      <q-item-tile sublabel>{{date.formatDate(timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}}</q-item-tile>
+      <q-item-tile class="ellipsis" style="font-size: 0.7rem" sublabel>{{ident}}</q-item-tile>
+      <q-item-tile class="ellipsis" sublabel>{{date.formatDate(timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}}</q-item-tile>
     </q-item-main>
     <q-item-side right>
       {{`${item.messages.length} events`}}

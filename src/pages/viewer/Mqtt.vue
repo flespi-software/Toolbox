@@ -8,7 +8,7 @@
             <q-item-tile sublabel style="font-size: 0.8rem" v-if="active">{{selectedItem.id}}</q-item-tile>
           </q-item-main>
           <q-item-side class="text-right">
-            <q-item-tile style="display: inline-block" stamp color="white" class="text-center" v-if="active"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id.toString()}}</q-item-tile>
+            <q-item-tile style="display: inline-block" stamp color="white" class="text-center" v-if="active"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id}}</q-item-tile>
             <q-item-tile v-if="isNeedSelect" style="display: inline-block" stamp color="white" size="2rem" icon="mdi-menu-down" />
           </q-item-side>
           <q-popover fit ref="popoverActive" v-if="isNeedSelect" :anchor="active ? undefined : 'bottom middle'" :self="active ? undefined : 'top middle'">
@@ -30,7 +30,7 @@
                   </q-item-main>
                   <q-item-side class="text-center">
                     <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
-                    <q-item-tile><small>#{{item.id.toString()}}</small></q-item-tile>
+                    <q-item-tile><small>#{{item.id}}</small></q-item-tile>
                   </q-item-side>
                 </q-item>
               </VirtualList>
@@ -38,16 +38,18 @@
           </q-popover>
         </q-item>
       </div>
-      <q-btn title="Mode (Real-time/History)" v-if="active && !selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
-        {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
-        <q-chip small square color="red" v-if="newMessagesCount" class="cursor-pointer q-ml-sm">{{newMessagesCount}}</q-chip>
+      <q-btn v-if="active && !selectedItem.deleted" flat dense class="on-right pull-right text-center round-borders q-px-xs q-py-none" color="white" @click="modeModel = !modeModel" style="min-width: 70px; max-width: 70px;">
+        <q-icon size="1.5rem" color="white" :name="modeModel ? 'playlist_play' : 'history'"/>
+        <div style="font-size: .7rem;">{{modeModel ? 'Real-time' : 'History'}}</div>
+        <div class="bg-red text-white q-pa-xs round-borders cursor-pointer absolute-top-right" v-if="newMessagesCount" style="font-size: .6rem;">{{newMessagesCount}}</div>
+        <q-tooltip>Mode (Real-time/History)</q-tooltip>
       </q-btn>
       <div v-if="active" class="flex" style="width: 46px;">
         <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
-          <div title="Clear all panes" class="on-left cursor-pointer pull-right text-center" v-if="modeModel && !isEmptyMessages" @click="clearHandler">
+          <q-btn title="Clear all panes" class="on-left pull-right text-center q-py-none" v-if="modeModel && !isEmptyMessages" @click="clearHandler" flat dense style="width: 60px">
             <q-icon size="1.5rem" color="white" name="mdi-playlist-remove"/>
-            <div style="font-size: .9rem;">Clear</div>
-          </div>
+            <div style="font-size: .7rem;">Clear</div>
+          </q-btn>
         </transition>
       </div>
     </q-toolbar>
@@ -102,8 +104,8 @@ export default {
       },
       myAccount (state) {
         return {
-          id: state.tokenInfo.cid,
-          name: 'Me'
+          id: state.tokenInfo ? state.tokenInfo.cid : 0,
+          name: '*Current*'
         }
       },
       tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
@@ -117,7 +119,7 @@ export default {
       return Object.values(this.itemsCollection)
     },
     selectedItem () {
-      let item = this.itemsCollection[this.active] || null
+      let item = this.itemsCollection[this.active] || {}
       if (item && item.deleted) {
         this.deletedHandler()
       }

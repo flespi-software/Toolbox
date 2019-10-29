@@ -139,11 +139,9 @@
       "viewConfig": {
         "needShowFilter": true,
         "needShowMode": false,
-        "needShowPageScroll": "right",
-        "needShowDate": {
-          "prev": false,
-          "next": false
-        }
+        "needShowPageScroll": "right left",
+        "needShowDate": true,
+        "needShowEtc": true
       },
       "theme": {
         "color": "white",

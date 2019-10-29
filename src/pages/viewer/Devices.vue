@@ -5,7 +5,7 @@
         <q-item class="no-padding" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
           <q-item-main>
             <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{active ? selectedItem.name || `#${selectedItem.id}` : 'SELECT DEVICE'}}</q-item-tile>
-            <q-item-tile sublabel style="font-size: 0.8rem" v-if="active && selectedItem.configuration && selectedItem.configuration.ident">{{selectedItem.configuration.ident}}</q-item-tile>
+            <q-item-tile sublabel class="ellipsis overflow-hidden" style="font-size: 0.8rem" v-if="active && selectedItem.configuration && selectedItem.configuration.ident">{{selectedItem.configuration.ident}}</q-item-tile>
           </q-item-main>
           <q-item-side class="text-right">
             <q-item-tile style="display: inline-block" stamp color="white" class="text-center" v-if="active"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id}}</q-item-tile>
@@ -29,7 +29,7 @@
                 >
                   <q-item-main>
                     <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || `#${item.id}`}}</q-item-tile>
-                    <q-item-tile sublabel><small>{{item.configuration && item.configuration.ident ? item.configuration.ident : `&lt;no ident&gt;`}}</small></q-item-tile>
+                    <q-item-tile class="ellipsis overflow-hidden" sublabel><small>{{item.configuration && item.configuration.ident ? item.configuration.ident : `&lt;no ident&gt;`}}</small></q-item-tile>
                   </q-item-main>
                   <q-item-side class="text-center">
                     <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
@@ -46,9 +46,11 @@
         </q-item>
       </div>
       <div v-if="active">
-        <q-btn title="Mode (Real-time/History)" size="sm" v-if="!selectedItem.deleted" flat class="on-left" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'"  :rounded="$q.platform.is.mobile">
-          <span class="gt-xs">{{modeModel ? 'Real-time' : 'History'}}</span>
-          <q-chip small square color="red" v-if="newMessagesCount" class="cursor-pointer q-ml-sm">{{newMessagesCount}}</q-chip>
+        <q-btn v-if="!selectedItem.deleted" flat dense class="on-right pull-right text-center round-borders q-px-xs q-py-none" color="white" @click="modeModel = !modeModel" style="min-width: 70px; max-width: 70px;">
+          <q-icon size="1.5rem" color="white" :name="modeModel ? 'playlist_play' : 'history'"/>
+          <div style="font-size: .7rem;">{{modeModel ? 'Real-time' : 'History'}}</div>
+          <div class="bg-red text-white q-pa-xs round-borders cursor-pointer absolute-top-right" v-if="newMessagesCount" style="font-size: .6rem;">{{newMessagesCount}}</div>
+          <q-tooltip>Mode (Real-time/History)</q-tooltip>
         </q-btn>
         <q-btn-toggle
           v-if="!selectedItem.deleted"
@@ -79,22 +81,22 @@
       </div>
       <div v-if="active && $q.platform.is.desktop" class="flex justify-end" style="width: 177px;">
         <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
-          <div title="Intervals" class="on-left cursor-pointer pull-right text-center round-borders q-px-xs" @click="moveToIntervals(active, null)" v-if="tasksByDevice.length">
+          <q-btn title="Intervals" class="on-left cursor-pointer pull-right text-center round-borders q-px-xs q-py-none" @click="moveToIntervals(active, null)" v-if="tasksByDevice.length" flat dense style="width: 60px">
             <q-icon size="1.5rem" name="mdi-set-center"/>
-            <div style="font-size: .9rem;">Intervals</div>
-          </div>
+            <div style="font-size: .7rem;">Intervals</div>
+          </q-btn>
         </transition>
         <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
-          <div title="Map" v-if="messagesWithPosition.length" class="on-left cursor-pointer pull-right text-center round-borders q-px-xs" @click="isVisibleMap = !isVisibleMap">
+          <q-btn title="Map" v-if="messagesWithPosition.length" class="on-left cursor-pointer pull-right text-center round-borders q-px-xs q-py-none" @click="isVisibleMap = !isVisibleMap" flat dense style="width: 50px">
             <q-icon size="1.5rem" name="mdi-map"/>
-            <div style="font-size: .9rem;">Map</div>
-          </div>
+            <div style="font-size: .7rem;">Map</div>
+          </q-btn>
         </transition>
         <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
-          <div title="Clear all panes" class="on-left cursor-pointer pull-right text-center" v-if="modeModel && !isEmptyMessages" @click="clearHandler">
+          <q-btn title="Clear all panes" class="on-left pull-right text-center q-py-none" v-if="modeModel && !isEmptyMessages" @click="clearHandler" flat dense style="width: 60px">
             <q-icon size="1.5rem" color="white" name="mdi-playlist-remove"/>
-            <div style="font-size: .9rem;">Clear</div>
-          </div>
+            <div style="font-size: .7rem;">Clear</div>
+          </q-btn>
         </transition>
       </div>
       <div v-else-if="active && !$q.platform.is.desktop">

@@ -4,30 +4,24 @@
     <div>
       <q-toolbar color="dark" v-if="(Object.keys(connections).length && mode) || !mode || type === 'messages'">
         <q-search
-          :class="{collapsed: !mode && !showSearch}"
-          @focus="showSearch = true"
-          @blur="searchBlurHandler"
-          v-if="showSearch || mode || filter"
-          :autofocus="!mode"
           type="text" v-model="filter"
           inverted
           :placeholder="connection ? 'incoming or target *' : 'host:port'"
           :debounce="0"
           color="none"
           style="margin-right: 5px"
-          :style="{width: mode && connection ? 'calc(100% - 50px)' : '100%'}"
+          :style="{width: connection ? 'calc(100% - 50px)' : '100%'}"
         />
-        <q-icon name="search" @click.native="showSearch = true"
-          v-else
-          :style="{fontSize: '24px', paddingLeft: '8px', marginRight: '5px'}"
-          class="cursor-pointer"
-        />
-        <div title="Clear all connections" class="on-left cursor-pointer pull-right text-center" v-if="mode && !connection" @click="clearHandler">
+        <q-btn title="Clear all connections" class="on-left pull-right text-center" flat dense v-if="mode && !connection" @click="clearHandler">
           <q-icon size="1.5rem" color="white" name="mdi-playlist-remove"/>
-          <div style="font-size: .9rem;">Clear</div>
-        </div>
+          <div style="font-size: .8rem;">Clear</div>
+        </q-btn>
+        <q-btn v-if="type === 'messages'" style="position: absolute; right: 5px;" class="text-white" icon="mdi-close" @click="closeCurrentConnection">
+          <q-tooltip>Close current connection</q-tooltip>
+        </q-btn>
+      </q-toolbar>
+      <div class="flex flex-center" v-if="!mode && !connection" style="min-height: 50px;">
         <q-datetime
-          v-if="!mode && !showSearch && !connection"
           format="DD-MM-YYYY HH:mm:ss"
           @change="(val) => { from = val }"
           :value="from"
@@ -38,34 +32,30 @@
           class="vsl-date"
           style="margin-right: 5px"
         />
-        <q-btn v-if="!mode && !showSearch" class="text-white q-mr-sm" icon="arrow_forward" @click="paginationNextChangeHandler"/>
-        <q-btn v-if="type === 'messages' && (!showSearch || mode)" style="position: absolute; right: 5px;" class="text-white" icon="mdi-close" @click="closeCurrentConnection">
-          <q-tooltip>Close current connection</q-tooltip>
-        </q-btn>
-      </q-toolbar>
+      </div>
       <template v-if="messages.length && Object.keys(renderEntities).length">
-      <VirtualList
-        :onscroll="listScroll"
-        ref="scroller"
-          :style="{position: 'absolute', top: '50px', bottom: mode ? 0 : '36px', right: 0, left: 0, height: 'auto'}"
-        :class="{'bg-dark': true, 'text-white': true, 'cursor-pointer': true}"
-        :size="itemHeight"
-        :remain="itemsCount"
-        :debounce="10"
-        wclass="q-w-list">
-        <component
-          :is="`${type}-list-item`"
-          v-for="(item, index) in renderEntities"
-          :key="`${JSON.stringify(item)}${index}`"
-          :item="item"
-          :index="index"
-          :actions="actions"
-          :itemHeight="itemHeight"
-          :selected="selected.includes(index)"
-          @action="actionHandler"
-          @item-click="itemClickHandler"
-        />
-      </VirtualList>
+        <VirtualList
+          :onscroll="listScroll"
+          ref="scroller"
+          :style="{position: 'absolute', top: mode || connection ? '50px' : '100px', bottom: mode ? 0 : '36px', right: 0, left: 0, height: 'auto'}"
+          :class="{'bg-dark': true, 'text-white': true, 'cursor-pointer': true}"
+          :size="itemHeight"
+          :remain="itemsCount"
+          :debounce="10"
+          wclass="q-w-list">
+          <component
+            :is="`${type}-list-item`"
+            v-for="(item, index) in renderEntities"
+            :key="`${JSON.stringify(item)}${index}`"
+            :item="item"
+            :index="index"
+            :actions="actions"
+            :itemHeight="itemHeight"
+            :selected="selected.includes(index)"
+            @action="actionHandler"
+            @item-click="itemClickHandler"
+          />
+        </VirtualList>
         <q-btn v-if="!mode" color="dark" style="position: absolute; bottom: 0; width: 100%;" class="text-white" icon="mdi-download" @click="paginationNextChangeHandler">Get more</q-btn>
       </template>
       <div v-else class="no-messages text-center" :class="{'text-grey-6': true}"
@@ -76,7 +66,7 @@
 </template>
 
 <script>
-import { channelsMessagesModule } from 'qvirtualscroll'
+import { channelsMessagesModulePull } from 'qvirtualscroll'
 import VirtualList from 'vue-virtual-scroll-list'
 import Vue from 'vue'
 import { date } from 'quasar'
@@ -108,7 +98,6 @@ export default {
       connections: {},
       connectionsByIndex: [],
       selected: [],
-      showSearch: false,
       filter: '',
       connectionsFilter: '',
       messagesPerConnectionLimit: 10000,
@@ -337,9 +326,6 @@ export default {
         this.selected = []
       }
     },
-    searchBlurHandler () {
-      this.showSearch = false
-    },
     clearConnections () {
       this.connections = {}
       this.connectionsByIndex = []
@@ -388,7 +374,7 @@ export default {
     if (!this.$store.state[this.moduleName]) {
       this.$store.registerModule(
         this.moduleName,
-        channelsMessagesModule(
+        channelsMessagesModulePull(
           {
             Vue,
             LocalStorage: this.$q.localStorage,

@@ -2,10 +2,10 @@
   <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}">
     <div
       v-if="!item['__connectionStatus'] && !item['x-flespi-filter-prev'] && !item['x-flespi-filter-next']"
-      @click="(event) => { itemClickHandler(index, clearItem, event) }"
+      @click="event => itemClickHandler(index, clearItem, event)"
       class="cursor-pointer"
       :class="[item.__status ? 'missed-items' : '', selected ? 'bg-white-opasity' : highlightLevel ? `text-${highlightType}-${highlightLevel}` : '']"
-      :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, color: selected ? '#333' : ''}">
+      :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, color: selected ? '#333' : '', borderBottom: item.delimiter ? 'solid 1px #f40' : ''}">
     <span class="list__item item_actions" v-if="actionsVisible">
       <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
         <q-tooltip>{{action.label}}</q-tooltip>
@@ -19,7 +19,6 @@
       :title="values[prop.name].value"
       :style="{color: item['x-flespi-filter-fields'] && item['x-flespi-filter-fields'].includes(prop.name) ? '#4caf50' : ''}"
     >
-      <!--<q-tooltip>{{values[prop.name].value}}</q-tooltip>-->
       {{values[prop.name].value}}
     </span>
     <span v-if="etcVisible" class="list__item item_etc">
@@ -54,7 +53,9 @@
     }"
       :title="date.formatDate(item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')"
     >
-      <span style="padding: 0 5px; margin-left: 150px;" :style="{ backgroundColor: item.__connectionStatus === 'offline' ? '#ff0' : '#0f0'}" class="uppercase" v-for="n in Array(10)" :key="n">{{item['__connectionStatus']}}</span>
+    <span style="padding: 0 5px; margin-left: 150px;" :style="{ backgroundColor: item.__connectionStatus === 'offline' ? '#ff0' : '#0f0'}" class="uppercase" v-for="n in Array(10)" :key="n">
+      {{item['__connectionStatus']}}
+    </span>
     </div>
   </div>
 </template>
@@ -104,13 +105,20 @@ export default {
   },
   computed: {
     values () {
-      let vals = this.cols.reduce((res, col, index, arr) => {
-        res[col.name] = {value: null}
-        if (index === arr.length - 1) {
-          res.etc = {value: ''}
+      let vals = {}
+      if (this.cols.length) {
+        vals = this.cols.reduce((res, col, index, arr) => {
+          res[col.name] = {value: null}
+          if (index === arr.length - 1) {
+            res.etc = {value: ''}
+          }
+          return res
+        }, {})
+      } else {
+        vals = {
+          etc: {value: ''}
         }
-        return res
-      }, {})
+      }
       Object.keys(this.item).forEach((propName) => {
         if (propName.indexOf('#') !== -1) {
           let splitedName = propName.split('#'),
@@ -145,12 +153,17 @@ export default {
           }
         } else {
           if (
+            propName === 'delimiter' ||
             propName === '__status' ||
             propName === 'x-flespi-filter-fields' ||
             propName === 'x-flespi-filter-next' ||
             propName === 'x-flespi-filter-prev'
           ) { return false }
-          vals.etc.value += `${propName}: ${JSON.stringify(this.item[propName])}; `
+          if (propName.indexOf('image.bin.') !== -1) {
+            vals.etc.value += `${propName}: <binary image>`
+          } else {
+            vals.etc.value += `${propName}: ${JSON.stringify(this.item[propName])}; `
+          }
         }
       })
       Object.keys(vals).forEach((key) => {

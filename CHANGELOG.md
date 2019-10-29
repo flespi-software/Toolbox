@@ -1,5 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.18.6] - 2019-10-29
+[feature] new channels messages ui
+[feature] integration login empty page
+[feature] toolbox session setings
+[rebase] small ui items
 ### [0.18.5] - 2019-10-08
 [update] codes
 ### [0.18.4] - 2019-10-07

@@ -2,7 +2,7 @@
   <q-page>
     <q-toolbar color="dark" class="justify-between">
       <div class="flex" :class="{'middle-modificator': !active}" v-if="items.length">
-        <q-item class="no-padding" style="display: inline-flex;" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
+        <q-item class="no-padding" style="display: inline-flex;max-width: calc(100% - 80px);" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
           <q-item-main>
             <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{active ? selectedItem.name || '&lt;noname&gt;' : 'SELECT CHANNEL'}}</q-item-tile>
             <q-item-tile sublabel style="font-size: 0.8rem" v-if="active">{{selectedItem.uri}}</q-item-tile>
@@ -40,16 +40,16 @@
           </q-popover>
         </q-item>
         <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
-          <div title="View channels" class="on-right cursor-pointer pull-right text-center round-borders q-px-xs" v-if="active" @click="viewLogsHandler">
+          <q-btn title="View channels" class="on-right pull-right text-center round-borders q-px-xs q-py-none" style="width: 60px;" v-if="active" @click="viewLogsHandler" flat dense>
             <q-icon size="1.5rem" color="white" name="merge_type"/>
-            <div style="font-size: .9rem;">Channels</div>
-          </div>
+            <div style="font-size: .7rem;">Channels</div>
+          </q-btn>
         </transition>
       </div>
-      <q-btn v-if="active && !selectedItem.deleted" flat :class="{'on-left': $q.platform.is.desktop}" color="white" @click="modeModel = !modeModel" :icon="modeModel ? 'playlist_play' : 'history'" :rounded="$q.platform.is.mobile">
-        {{$q.platform.is.mobile ? '' : modeModel ? 'Real-time' : 'History'}}
-        <q-chip small square color="red" v-if="newMessagesCount && $q.platform.is.desktop" class="cursor-pointer q-ml-sm">{{newMessagesCount}}</q-chip>
-        <span v-if="newMessagesCount && $q.platform.is.mobile" style="position: absolute; top: 2px; right: 2px; width: 7px; height: 7px; background-color: red; border-radius: 50%"></span>
+      <q-btn v-if="active && !selectedItem.deleted" flat dense class="on-right pull-right text-center round-borders q-px-xs q-py-none" color="white" @click="modeModel = !modeModel" style="min-width: 70px; max-width: 70px;">
+        <q-icon size="1.5rem" color="white" :name="modeModel ? 'playlist_play' : 'history'"/>
+        <div style="font-size: .7rem;">{{modeModel ? 'Real-time' : 'History'}}</div>
+        <div class="bg-red text-white q-pa-xs round-borders cursor-pointer absolute-top-right" v-if="newMessagesCount" style="font-size: .6rem;">{{newMessagesCount}}</div>
         <q-tooltip>Mode (Real-time/History)</q-tooltip>
       </q-btn>
       <div></div>

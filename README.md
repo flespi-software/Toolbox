@@ -54,7 +54,7 @@ You need to have a separate token with at least the following ACLs:
 |---|---|---|
 | Platform | https://flespi.io/platform/customer/logs | flespi/log/platform/customer/+/# |
 | Channels | https://flespi.io/gw/channels/{selector}/logs<br />https://flespi.io/gw/channels/{selector}/messages | flespi/state/gw/channels/{selector}<br />flespi/log/gw/channels/{selector}/#<br />flespi/message/gw/channels/{selector}/+ |
-| Devices | https://flespi.io/gw/devices/{selector}/logs<br />https://flespi.io/gw/devices/{selector}/messages | flespi/state/gw/devices/{selector}<br />flespi/log/gw/devices/{selector}/#<br />flespi/message/gw/devices/{selector}/# |
+| Devices | https://flespi.io/gw/devices/{selector}/logs<br />https://flespi.io/gw/devices/{selector}/messages<br />https://flespi.io/gw/protocols/all/device-types/all | flespi/state/gw/devices/{selector}<br />flespi/log/gw/devices/{selector}/#<br />flespi/message/gw/devices/{selector}/# |
 | Intervals<br/>(all devices requarements needed) | https://flespi.io/gw/calcs/{calcSelector}/devices/{deviceSelector}/intervals/all | flespi/state/gw/calcs/+/devices/+/+<br/>flespi/state/gw/calcs/+ |
 | Calcs | https://flespi.io/gw/calcs/{selector}/logs | flespi/state/gw/calcs/{selector}<br />flespi/log/gw/calcs/{selector}/# |
 | Streams | https://flespi.io/gw/streams/{selector}/logs | state/gw/streams/{selector}<br />flespi/log/gw/streams/{selector}/# |
