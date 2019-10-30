@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.18.8] - 2019-10-30
+[fix] style
 ### [0.18.7] - 2019-10-29
 [fix] hex-viewer style
 [fix] reactivate entities active
