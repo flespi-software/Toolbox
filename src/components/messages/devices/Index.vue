@@ -83,15 +83,17 @@ export default {
         await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active device */
         this.$store.commit(`${this.moduleName}/setActive`, val)
         this.$store.commit(`${this.moduleName}/clearMessages`)
-        await this.$store.dispatch(`${this.moduleName}/getCols`)
-        if (this.$store.state[this.moduleName].mode === 0) {
-          await this.$store.dispatch(`${this.moduleName}/initTime`)
-          await this.$store.dispatch(`${this.moduleName}/get`)
-        } else if (this.$store.state[this.moduleName].mode === 1) {
-          this.$store.dispatch(`${this.moduleName}/pollingGet`)
-        }
-        if (this.$store.state[this.moduleName].mode === 1 && !this.item.deleted) {
-          await this.$store.dispatch(`${this.moduleName}/getHistory`, 200)
+        if (this.$store.state[this.moduleName].mode !== null) {
+          await this.$store.dispatch(`${this.moduleName}/getCols`)
+          if (this.$store.state[this.moduleName].mode === 0) {
+            await this.$store.dispatch(`${this.moduleName}/initTime`)
+            await this.$store.dispatch(`${this.moduleName}/get`)
+          } else if (this.$store.state[this.moduleName].mode === 1) {
+            this.$store.dispatch(`${this.moduleName}/pollingGet`)
+          }
+          if (this.$store.state[this.moduleName].mode === 1 && !this.item.deleted) {
+            await this.$store.dispatch(`${this.moduleName}/getHistory`, 200)
+          }
         }
       }
     },

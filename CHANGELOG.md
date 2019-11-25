@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.19.2] - 2019-11-25
+[fix] device init
 ### [0.19.1] - 2019-11-25
 [fix] session settings clear
 ### [0.19.0] - 2019-11-25

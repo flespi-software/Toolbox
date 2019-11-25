@@ -366,6 +366,8 @@ export default {
         if (idFromRoute.length > 1) {
           calcId = Number(idFromRoute[1])
           idFromRoute = Number(idFromRoute[0])
+        } else if (idFromRoute.length === 1) {
+          idFromRoute = Number(idFromRoute[0])
         }
         if (calcId) {
           this.moveToIntervals(idFromRoute, calcId)

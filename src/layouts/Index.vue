@@ -472,8 +472,8 @@ export default {
       }
     },
     routeParamsProcess (route) {
-      this.isNeedSelect = !this.$route.params.noselect
-      this.isVisibleToolbar = !route.params.fullscreen
+      this.isNeedSelect = !this.$route.params.noselect && !this.$q.platform.within.iframe
+      this.isVisibleToolbar = !route.params.fullscreen && !this.$q.platform.within.iframe
       this.$q.sessionStorage.set('toolbox-session-settings', { isNeedSelect: this.isNeedSelect, isVisibleToolbar: this.isVisibleToolbar })
       this.setToken(route.params.token)
       if (route.params.id && route.params.type) {
@@ -504,10 +504,6 @@ export default {
     connectionPreserveHandler () {
       this.isInit = true
       this.connectFlag = false
-    },
-    clearSession () {
-      this.$q.sessionStorage.remove('toolbox-session-settings')
-      this.$q.sessionStorage.remove('toolbox-token')
     }
   },
   watch: {
@@ -527,8 +523,8 @@ export default {
     this.routeProcess(this.$route)
     let sessionSettings = this.$q.sessionStorage.getItem('toolbox-session-settings')
     if (sessionSettings) {
-      this.isNeedSelect = sessionSettings.isNeedSelect
-      this.isVisibleToolbar = sessionSettings.isVisibleToolbar
+      this.isNeedSelect = sessionSettings.isNeedSelect || !this.$q.platform.within.iframe
+      this.isVisibleToolbar = sessionSettings.isVisibleToolbar || !this.$q.platform.within.iframe
     }
     if (!this.isInit) {
       this.connectFlag = true
@@ -536,7 +532,6 @@ export default {
     }
   },
   beforeDestroy () {
-    this.clearSession()
     this.connectionPreserveHandlerIndex !== undefined && Vue.connector.socket.off('connect', this.connectionPreserveHandlerIndex)
   },
   components: { ObjectViewer, RawViewer }
