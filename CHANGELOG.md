@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.19.1] - 2019-11-25
+[fix] session settings clear
 ### [0.19.0] - 2019-11-25
 [update] new quasar migration
 [fix] hex viewer: get messages in history mode

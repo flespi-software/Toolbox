@@ -2,42 +2,6 @@
   <q-page>
      <q-toolbar class="justify-between bg-grey-9">
       <div style="max-width: 50%" :class="{'middle-modificator': !active}" v-if="items.length">
-        <!-- <q-item class="no-padding" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
-          <q-item-section>
-            <q-item-label header class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{active ? selectedItem.name || '&lt;noname&gt;' : 'SELECT ACCOUNT'}}</q-item-label>
-            <q-item-label caption style="font-size: 0.8rem" v-if="active">{{selectedItem.id}}</q-item-label>
-          </q-item-section>
-          <q-item-section class="text-right">
-            <q-item-label style="display: inline-block" stamp color="white" class="text-center" v-if="active"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id}}</q-item-label>
-            <q-item-label v-if="isNeedSelect" style="display: inline-block" stamp color="white" size="2rem" icon="mdi-menu-down" />
-          </q-item-section>
-          <q-menu fit ref="popoverActive" v-if="isNeedSelect" :anchor="active ? undefined : 'bottom middle'" :self="active ? undefined : 'top middle'">
-            <q-list separator class="scroll">
-              <VirtualList
-                :size="40"
-                :remain="items.length > 6 ? 6 : items.length"
-              >
-                <q-item
-                  v-for="(item, index) in items"
-                  :key="index"
-                  v-close-popup
-                  @click="active = item.id, $emit('view-data-hide')"
-                  class="cursor-pointer"
-                  :class="{'text-grey-8': item.deleted}"
-                  clickable
-                >
-                  <q-item-section>
-                    <q-item-label header class="ellipsis overflow-hidden">{{item.name || '&lt;noname&gt;'}}</q-item-label>
-                  </q-item-section>
-                  <q-item-section class="text-center">
-                    <q-item-label v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-label>
-                    <q-item-label><small>#{{item.id}}</small></q-item-label>
-                  </q-item-section>
-                </q-item>
-              </VirtualList>
-            </q-list>
-          </q-menu>
-        </q-item> -->
         <q-select
           ref="itemSelect"
           class="items__select"

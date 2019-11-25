@@ -504,6 +504,10 @@ export default {
     connectionPreserveHandler () {
       this.isInit = true
       this.connectFlag = false
+    },
+    clearSession () {
+      this.$q.sessionStorage.remove('toolbox-session-settings')
+      this.$q.sessionStorage.remove('toolbox-token')
     }
   },
   watch: {
@@ -532,6 +536,7 @@ export default {
     }
   },
   beforeDestroy () {
+    this.clearSession()
     this.connectionPreserveHandlerIndex !== undefined && Vue.connector.socket.off('connect', this.connectionPreserveHandlerIndex)
   },
   components: { ObjectViewer, RawViewer }

@@ -2,49 +2,6 @@
   <q-page>
     <q-toolbar class="justify-between bg-grey-9">
       <div :class="{'middle-modificator': !active}" v-if="items.length" style="max-width: 50%">
-        <!-- <q-item class="no-padding" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
-          <q-item-section>
-            <q-item-label header class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{active ? selectedItem.name || `#${selectedItem.id}` : 'SELECT DEVICE'}}</q-item-label>
-            <q-item-label caption class="ellipsis overflow-hidden" style="font-size: 0.8rem" v-if="active && selectedItem.configuration && selectedItem.configuration.ident">{{selectedItem.configuration.ident}}</q-item-label>
-          </q-item-section>
-          <q-item-section class="text-right">
-            <q-item-label style="display: inline-block" stamp color="white" class="text-center" v-if="active"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id}}</q-item-label>
-            <q-item-label v-if="isNeedSelect" style="display: inline-block" stamp color="white" size="2rem" icon="mdi-menu-down" />
-          </q-item-section>
-          <q-menu fit ref="popoverActive" v-if="isNeedSelect" :anchor="active ? undefined : 'bottom middle'" :self="active ? undefined : 'top middle'">
-            <q-input :value="filter" @input="f => filter = f || ''" color="grey-9" clearable placeholder="Filter" class="q-ma-xs q-pa-xs items__filter"/>
-            <q-list separator class="scroll">
-              <VirtualList
-                v-if="filteredItems.length"
-                :size="56"
-                :remain="filteredItems.length > 6 ? 6 : filteredItems.length"
-              >
-                <q-item
-                  v-for="(item, index) in filteredItems"
-                  :key="index"
-                  v-close-popup
-                  @click.native="active = item.id, $emit('view-data-hide')"
-                  class="cursor-pointer"
-                  :class="{'text-grey-8': item.deleted}"
-                  clickable
-                >
-                  <q-item-section>
-                    <q-item-label header class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || `#${item.id}`}}</q-item-label>
-                    <q-item-label class="ellipsis overflow-hidden" caption><small>{{item.configuration && item.configuration.ident ? item.configuration.ident : `&lt;no ident&gt;`}}</small></q-item-label>
-                  </q-item-section>
-                  <q-item-section class="text-center">
-                    <q-item-label v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-label>
-                    <q-item-label><small>#{{item.id}}</small></q-item-label>
-                  </q-item-section>
-                </q-item>
-              </VirtualList>
-              <div v-else class="text-center q-ma-md">
-                No devices
-              </div>
-            </q-list>
-            <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler" v-if="needShowGetDeletedAction && tokenType === 1">see deleted</q-btn>
-          </q-menu>
-        </q-item> -->
         <q-select
           ref="itemSelect"
           class="items__select"
