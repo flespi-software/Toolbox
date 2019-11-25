@@ -1,0 +1,1 @@
+.list__item{display:inline-block;white-space:nowrap;margin:0 10px 0 5px;text-overflow:ellipsis;overflow:hidden}.message-viewer .q-w-list>.missed-items{background-color:hsla(0,0%,100%,0.05)}.message-viewer .q-w-list>.missed-items:nth-child(odd){background-color:hsla(0,0%,100%,0.1)}
