@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.19.0] - 2019-11-25
+[update] new quasar migration
+[fix] hex viewer: get messages in history mode
 ### [0.18.8] - 2019-10-30
 [fix] style
 ### [0.18.7] - 2019-10-29

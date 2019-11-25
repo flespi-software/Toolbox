@@ -37,7 +37,7 @@
       },
       "theme": {
         "color": "white",
-        "bgColor": "dark",
+        "bgColor": "grey-9",
         "contentInverted": true,
         "controlsInverted": true
       }
@@ -121,7 +121,7 @@
       },
       "theme": {
         "color": "white",
-        "bgColor": "dark",
+        "bgColor": "grey-9",
         "contentInverted": true,
         "controlsInverted": true
       }
@@ -145,7 +145,7 @@
       },
       "theme": {
         "color": "white",
-        "bgColor": "dark",
+        "bgColor": "grey-9",
         "contentInverted": true,
         "controlsInverted": true
       }
@@ -190,7 +190,7 @@
       },
       "theme": {
         "color": "white",
-        "bgColor": "dark",
+        "bgColor": "grey-9",
         "contentInverted": true,
         "controlsInverted": true
       }
@@ -287,7 +287,7 @@
       },
       "theme": {
         "color": "white",
-        "bgColor": "dark",
+        "bgColor": "grey-9",
         "contentInverted": true,
         "controlsInverted": true
       }
@@ -311,7 +311,7 @@
       },
       "theme": {
         "color": "white",
-        "bgColor": "dark",
+        "bgColor": "grey-9",
         "contentInverted": true,
         "controlsInverted": true
       }
@@ -339,7 +339,7 @@
       },
       "theme": {
         "color": "white",
-        "bgColor": "dark",
+        "bgColor": "grey-9",
         "contentInverted": true,
         "controlsInverted": true
       }
@@ -390,7 +390,7 @@
       },
       "theme": {
         "color": "white",
-        "bgColor": "dark",
+        "bgColor": "grey-9",
         "contentInverted": true,
         "controlsInverted": true
       }
@@ -453,7 +453,7 @@
       },
       "theme": {
         "color": "white",
-        "bgColor": "dark",
+        "bgColor": "grey-9",
         "contentInverted": true,
         "controlsInverted": true
       }
@@ -498,7 +498,7 @@
       },
       "theme": {
         "color": "white",
-        "bgColor": "dark",
+        "bgColor": "grey-9",
         "contentInverted": true,
         "controlsInverted": true
       }
@@ -555,7 +555,7 @@
       },
       "theme": {
         "color": "white",
-        "bgColor": "dark",
+        "bgColor": "grey-9",
         "contentInverted": true,
         "controlsInverted": true
       }
@@ -618,7 +618,7 @@
       },
       "theme": {
         "color": "white",
-        "bgColor": "dark",
+        "bgColor": "grey-9",
         "contentInverted": true,
         "controlsInverted": true
       }
@@ -649,7 +649,7 @@
       },
       "theme": {
         "color": "white",
-        "bgColor": "dark",
+        "bgColor": "grey-9",
         "contentInverted": true,
         "controlsInverted": true
       }

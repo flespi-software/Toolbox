@@ -1,54 +1,83 @@
 <template>
   <q-page>
-     <q-toolbar color="dark" class="justify-between">
+     <q-toolbar class="justify-between bg-grey-9">
       <div style="max-width: 50%" :class="{'middle-modificator': !active}" v-if="items.length">
-        <q-item class="no-padding" :style="{cursor: isNeedSelect ? '' : 'default!important'}">
-          <q-item-main>
-            <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{active ? selectedItem.name || '&lt;noname&gt;' : 'SELECT ACCOUNT'}}</q-item-tile>
-            <q-item-tile sublabel style="font-size: 0.8rem" v-if="active">{{selectedItem.id}}</q-item-tile>
-          </q-item-main>
-          <q-item-side class="text-right">
-            <q-item-tile style="display: inline-block" stamp color="white" class="text-center" v-if="active"><div v-if="selectedItem.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedItem.id}}</q-item-tile>
-            <q-item-tile v-if="isNeedSelect" style="display: inline-block" stamp color="white" size="2rem" icon="mdi-menu-down" />
-          </q-item-side>
-          <q-popover fit ref="popoverActive" v-if="isNeedSelect" :anchor="active ? undefined : 'bottom middle'" :self="active ? undefined : 'top middle'">
-            <q-list link separator class="scroll">
-              <VirtualList
-                :size="40"
-                :remain="items.length > 6 ? 6 : items.length"
-              >
-                <q-item
-                  v-for="(item, index) in items"
-                  :key="index"
-                  @click.native="active = item.id, $refs.popoverActive.hide(), $emit('view-data-hide')"
-                  class="cursor-pointer"
-                  :class="{'text-grey-8': item.deleted}"
-                  highlight
-                >
-                  <q-item-main>
-                    <q-item-tile label class="ellipsis overflow-hidden">{{item.name || '&lt;noname&gt;'}}</q-item-tile>
-                  </q-item-main>
-                  <q-item-side class="text-center">
-                    <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
-                    <q-item-tile><small>#{{item.id}}</small></q-item-tile>
-                  </q-item-side>
-                </q-item>
-              </VirtualList>
-            </q-list>
-          </q-popover>
-        </q-item>
+        <q-select
+          ref="itemSelect"
+          class="items__select"
+          :class="{'items__select--no-selected': !active}"
+          :value="active"
+          :options="filteredItems"
+          filled
+          :label="active ? 'Account' : 'SELECT ACCOUNT'"
+          hide-bottom-space dense color="white" dark
+          :disable="!isNeedSelect"
+          :virtual-scroll-item-size="48"
+          :virtual-scroll-slice-size="6"
+          :virtual-scroll-sticky-start="48"
+          popup-content-class="items__popup"
+          :popup-content-style="{height: `${((filteredItems.length > 6 ? 6 : filteredItems.length) * 48) + 48 + (filteredItems.length ? 0 : 33)}px`}"
+          @filter="filterItems"
+        >
+          <div slot="before-options" class="q-pa-xs select__filter bg-dark">
+            <q-input v-model="filter" outlined hide-bottom-space rounded dense dark color="white" placeholder="Filter" @input="filter => $refs.itemSelect.filter(filter)" autofocus>
+              <q-icon slot="prepend" name="mdi-magnify" color="white" />
+            </q-input>
+          </div>
+          <template v-slot:no-option>
+            <div style="min-height: 77px;">
+              <q-input v-model="filter" @input="filter => $refs.itemSelect.filter(filter)" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" class="q-ma-xs" autofocus>
+                <q-icon slot="prepend" name="mdi-magnify" color="white" />
+              </q-input>
+              <div class="text-center">No results</div>
+            </div>
+          </template>
+          <template v-slot:selected-item="scope">
+            <q-item
+              v-bind="scope.itemProps"
+              v-on="scope.itemEvents"
+              class="q-pa-none"
+              style="min-height: 20px; margin-top: 2px; max-width: 100%"
+            >
+              <q-item-section>
+                <q-item-label header class="ellipsis overflow-hidden q-pa-none text-white">{{selectedItem.name || '&lt;noname&gt;'}}</q-item-label>
+              </q-item-section>
+              <q-item-section class="text-white" side>
+                <q-item-label v-if="selectedItem.deleted" class="cheap-modifier q-pa-none"><small>DELETED</small></q-item-label>
+                <q-item-label class="q-pa-none q-mt-none text-right"><small>#{{selectedItem.id}}</small></q-item-label>
+              </q-item-section>
+            </q-item>
+          </template>
+          <template v-slot:option="scope">
+            <q-item
+              v-bind="scope.itemProps"
+              @click="active = scope.opt.id, $emit('view-data-hide')"
+              v-on="scope.itemEvents"
+              :class="{'text-grey-8': scope.opt.deleted}"
+              class="q-pa-xs"
+              clickable
+            >
+              <q-item-section>
+                <q-item-label header class="ellipsis overflow-hidden q-pa-xs">{{scope.opt.name || '&lt;noname&gt;'}}</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-item-label v-if="scope.opt.deleted" class="q-pa-xs text-right"><small class="cheap-modifier cheap-modifier--item">DELETED</small></q-item-label>
+                <q-item-label class="q-pa-none q-mt-none text-right"><small>#{{scope.opt.id}}</small></q-item-label>
+              </q-item-section>
+            </q-item>
+          </template>
+        </q-select>
       </div>
-      <q-btn v-if="active && !selectedItem.deleted" flat dense class="on-right pull-right text-center round-borders q-px-xs q-py-none" color="white" @click="modeModel = !modeModel" style="min-width: 70px; max-width: 70px;">
+      <q-btn v-if="active && !selectedItem.deleted" flat dense class="on-right pull-right text-center rounded-borders q-px-xs q-py-none" color="white" @click="modeModel = !modeModel" style="min-width: 70px; max-width: 70px;">
         <q-icon size="1.5rem" color="white" :name="modeModel ? 'playlist_play' : 'history'"/>
-        <div style="font-size: .7rem;">{{modeModel ? 'Real-time' : 'History'}}</div>
-        <div class="bg-red text-white q-pa-xs round-borders cursor-pointer absolute-top-right" v-if="newMessagesCount" style="font-size: .6rem;">{{newMessagesCount}}</div>
+        <div style="font-size: .7rem; line-height: .7rem">{{modeModel ? 'Real-time' : 'History'}}</div>
         <q-tooltip>Mode (Real-time/History)</q-tooltip>
       </q-btn>
       <div v-if="active" class="flex" style="width: 46px;">
         <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
-          <q-btn title="Clear all panes" class="on-left pull-right text-center q-py-none" v-if="modeModel && !isEmptyMessages" @click="clearHandler" flat dense style="width: 60px">
+          <q-btn title="Clear all panes" class="on-left pull-right text-center q-py-none text-white" v-if="modeModel && !isEmptyMessages" @click="clearHandler" flat dense style="width: 60px">
             <q-icon size="1.5rem" color="white" name="mdi-playlist-remove"/>
-            <div style="font-size: .7rem;">Clear</div>
+            <div style="font-size: .7rem; line-height: .7rem">Clear</div>
           </q-btn>
         </transition>
       </div>
@@ -75,7 +104,7 @@
 <script>
 import logs from '../../components/logs/Index.vue'
 import { mapState } from 'vuex'
-import VirtualList from 'vue-virtual-scroll-list'
+// import VirtualList from 'vue-virtual-scroll-list'
 import init from '../../mixins/entitiesInit'
 
 export default {
@@ -91,14 +120,12 @@ export default {
     return {
       mode: 1,
       active: null,
-      isInit: false
+      isInit: false,
+      filter: ''
     }
   },
   computed: {
     ...mapState({
-      newMessagesCount (state) {
-        return state[this.config.logs.vuexModuleName] ? state[this.config.logs.vuexModuleName].newMessagesCount : 0
-      },
       isEmptyMessages (state) {
         return state[this.config.logs.vuexModuleName] ? !state[this.config.logs.vuexModuleName].messages.length : false
       },
@@ -111,12 +138,42 @@ export default {
       tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
       itemsCollection (state) {
         let defaultItem = this.myAccount
-        let items = {[defaultItem.id]: defaultItem, ...state.items}
+        let items = { [defaultItem.id]: defaultItem, ...state.items }
         return items
       }
     }),
     items () {
       return Object.values(this.itemsCollection)
+    },
+    filteredItems () {
+      let filter = this.filter.toLowerCase()
+      let filteredItems = this.filter ? this.items.filter(item => {
+        return (
+          item &&
+          typeof item.name !== 'undefined' &&
+          item.name !== null &&
+          item.name.toLowerCase().indexOf(filter) >= 0
+        ) ||
+        (
+          item &&
+          typeof item.id !== 'undefined' &&
+          item.id !== null &&
+          (item.id + '').indexOf(filter) >= 0
+        )
+      }) : this.items
+      filteredItems.sort((l, r) => {
+        if (!l.name) { return -1 }
+        if (!r.name) { return 1 }
+        let lName = l.name.toLowerCase()
+        let rName = r.name.toLowerCase()
+        if (lName < rName) {
+          return -1
+        } else if (lName > rName) {
+          return 1
+        }
+        return 1
+      })
+      return filteredItems
     },
     selectedItem () {
       let item = this.itemsCollection[this.active] || {}
@@ -138,6 +195,9 @@ export default {
     }
   },
   methods: {
+    filterItems (filter, update) {
+      update()
+    },
     viewDataHandler (content) {
       this.$emit('view-data', content)
     },
@@ -150,8 +210,8 @@ export default {
         message: 'Do you really want to clear all data from the panes?',
         ok: true,
         cancel: true
-      }).then(() => { this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`) })
-        .catch(() => {})
+      }).onOk(() => { this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`) })
+        .onCancel(() => {})
     },
     clearActive () {
       this.active = null
@@ -161,7 +221,7 @@ export default {
     },
     init () {
       let entity = 'platform',
-        activeFromLocaleStorage = this.$q.localStorage.get.item(entity),
+        activeFromLocaleStorage = this.$q.localStorage.getItem(entity),
         idFromRoute = this.$route.params && this.$route.params.id ? Number(this.$route.params.id) : null
       this.isInit = true
       if (idFromRoute) {
@@ -198,41 +258,54 @@ export default {
       let currentItem = this.itemsCollection[val] || {}
       if (val) {
         this.$q.localStorage.set('platform', val)
-        this.$router.push(`/platform/${val}`)
+        this.$router.push(`/platform/${val}`).catch(err => err)
       } else {
-        this.$router.push('/platform')
+        this.$router.push('/platform').catch(err => err)
       }
       if (currentItem.deleted) {
         this.deletedHandler()
       }
     }
   },
-  components: { logs, VirtualList }
+  components: { logs }
 }
 </script>
 <style lang="stylus">
   .middle-modificator
     position absolute
-    left calc(50% - 71px)
-  .no-top-bottom-margin {
-    margin-bottom: 0;
-    margin-top: 0;
-  }
-  .cheap-modifier {
-    font-size: .7rem;
-    font-weight: bolder;
-    border-radius: 3px;
-    background-color: #90a4ae;
-    color: white;
-    padding: 0 3px;
-    margin-bottom: 3px;
-  }
-  .deleted-action {
-    width: 100%;
-    color: #999;
-    background-color: #eee;
-    font-size: .7rem;
-    padding-top: 0;
-    padding-bottom: 0
-  }
+    left calc(50% - 123px)
+    min-width 30%
+  .items__select
+    max-width 100%
+    &--no-selected
+      width 180px
+      .q-field__marginal
+        height auto!important
+    .q-field__marginal
+      height 48px
+  .items__popup
+    .select__filter
+      position sticky
+      top 0
+      z-index 1
+  .cheap-modifier
+    font-size .6rem
+    font-weight bolder
+    border-radius 3px
+    background-color #90a4ae
+    color white
+    padding 0 2px
+    width 45px
+    position absolute
+    top -10px
+    right 0px
+    &--item
+      top 5px
+  .deleted-action
+    width 100%
+    color #999
+    background-color #eee
+    font-size .7rem
+    padding-top 0
+    padding-bottom 0
 </style>

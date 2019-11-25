@@ -9,11 +9,11 @@ function getIndexChildrenRoutes (config) {
     let route = {
       path: path,
       component: () => import(`pages/${type}/${componentName}`),
-      meta: {moduleName},
+      meta: { moduleName },
       children: [
         {
           path: `:id`,
-          meta: {moduleName}
+          meta: { moduleName }
         }
       ]
     }
@@ -21,7 +21,7 @@ function getIndexChildrenRoutes (config) {
       result.push({
         path: `devices/:id/calc/:calcId/intervals`,
         component: () => import(`pages/${type}/Intervals`),
-        meta: {moduleName: 'intervals'}
+        meta: { moduleName: 'intervals' }
       })
     }
     result.push(route)

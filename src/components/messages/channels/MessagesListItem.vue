@@ -36,7 +36,7 @@
       overflow: 'hidden'
     }"
     >
-      <span class="uppercase text-white" style="padding: 0 5px;" >{{item['x-flespi-filter-next'] ? `Next results will be filtered by: "${item['x-flespi-filter-next']}"` : `Filter removed: "${item['x-flespi-filter-prev']}"`}}</span>
+      <span class="text-uppercase text-white" style="padding: 0 5px;" >{{item['x-flespi-filter-next'] ? `Next results will be filtered by: "${item['x-flespi-filter-next']}"` : `Filter removed: "${item['x-flespi-filter-prev']}"`}}</span>
     </div>
     <div
       v-else
@@ -53,7 +53,7 @@
     }"
       :title="date.formatDate(item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')"
     >
-    <span style="padding: 0 5px; margin-left: 150px;" :style="{ backgroundColor: item.__connectionStatus === 'offline' ? '#ff0' : '#0f0'}" class="uppercase" v-for="n in Array(10)" :key="n">
+    <span style="padding: 0 5px; margin-left: 150px;" :style="{ backgroundColor: item.__connectionStatus === 'offline' ? '#ff0' : '#0f0'}" class="text-uppercase" v-for="n in Array(10)" :key="n">
       {{item['__connectionStatus']}}
     </span>
     </div>
@@ -108,15 +108,15 @@ export default {
       let vals = {}
       if (this.cols.length) {
         vals = this.cols.reduce((res, col, index, arr) => {
-          res[col.name] = {value: null}
+          res[col.name] = { value: null }
           if (index === arr.length - 1) {
-            res.etc = {value: ''}
+            res.etc = { value: '' }
           }
           return res
         }, {})
       } else {
         vals = {
-          etc: {value: ''}
+          etc: { value: '' }
         }
       }
       Object.keys(this.item).forEach((propName) => {
@@ -209,10 +209,10 @@ export default {
   },
   methods: {
     clickHandler (index, type, content) {
-      this.$emit(`action`, {index, type, content})
+      this.$emit(`action`, { index, type, content })
     },
     itemClickHandler (index, content, event) {
-      this.$emit(`item-click`, {index, content, event})
+      this.$emit(`item-click`, { index, content, event })
     }
   }
 }

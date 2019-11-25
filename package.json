@@ -1,52 +1,48 @@
 {
   "name": "toolbox",
-  "version": "0.18.8",
-  "description": "ToolboX",
+  "version": "0.19.0",
+  "description": "Flespi ToolboX",
   "productName": "ToolboX",
   "cordovaId": "org.cordova.quasar.app",
-  "author": "Sergei Buntsevich <sebu@gurtam.com>",
+  "capacitorId": "",
+  "author": "Sergey Buntsevich <scarry92@yandex.ru>",
   "private": true,
   "scripts": {
     "lint": "eslint --ext .js,.vue src",
     "dev": "node ./build.js \"dev -m spa\" \"flespi\"",
     "build": "node ./build.js \"build -m spa\" \"flespi\"",
     "dev_local": "node ./build.js \"dev -m spa\" \"local\"",
-    "deploy": "rm -rf dist && npm run build && rm -rf deploy && mkdir deploy && cp -R dist/spa-mat/* misc CNAME LICENSE package.json deploy && cp README.md deploy/README.md && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rhttps://git.gurtam.net/flespi/frontend/toolbox.git && rm -rf deploy && git push github gh-pages"
+    "deploy": "rm -rf dist && npm run build && rm -rf deploy && mkdir deploy && cp -R dist/spa/* misc CNAME LICENSE package.json deploy && cp README.md deploy/README.md && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rhttps://git.gurtam.net/flespi/frontend/toolbox.git && rm -rf deploy && git push github gh-pages"
   },
   "dependencies": {
+    "@quasar/extras": "^1.0.0",
     "flespi-io-js": "git+https://github.com/flespi-software/flespi-io-js.git",
     "leaflet": "^1.5.1",
     "lodash": "^4.17.15",
     "mqtt-board": "git+https://github.com/flespi-software/MQTT-Board.git",
+    "quasar": "^1.0.0",
     "qvirtualscroll": "git+https://github.com/flespi-software/QVirtualScroll.git",
     "shelljs": "^0.8.3",
     "vue-clipboard2": "0.0.8",
     "vue-draggable-resizable": "^1.7.5",
-    "vue-i18n": "^7.8.1",
+    "vue-i18n": "^8.0.0",
     "vue-virtual-scroll-list": "^1.4.2"
   },
   "devDependencies": {
-    "babel-eslint": "^8.2.6",
-    "eslint": "^4.19.1",
-    "eslint-config-standard": "^11.0.0",
-    "eslint-friendly-formatter": "^3.0.0",
-    "eslint-loader": "^2.2.1",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-node": "^6.0.1",
-    "eslint-plugin-promise": "^3.8.0",
-    "eslint-plugin-standard": "^3.1.0",
-    "eslint-plugin-vue": "^4.7.1",
-    "git-directory-deploy": "^1.5.1",
-    "quasar-cli": "^0.17.26",
-    "strip-ansi": "^3.0.1"
+    "@quasar/app": "^1.0.0",
+    "@vue/eslint-config-standard": "^4.0.0",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.10.0",
+    "eslint-loader": "^2.1.1",
+    "eslint-plugin-vue": "^5.0.0",
+    "git-directory-deploy": "^1.5.1"
   },
   "engines": {
     "node": ">= 8.9.0",
-    "npm": ">= 5.6.0"
+    "npm": ">= 5.6.0",
+    "yarn": ">= 1.6.0"
   },
   "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not ie <= 10"
+    "last 1 version, not dead, ie >= 11"
   ]
 }

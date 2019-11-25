@@ -1,4 +1,4 @@
-import {mapActions} from 'vuex'
+import { mapActions } from 'vuex'
 
 export default {
   beforeRouteEnter (to, from, next) {
@@ -15,34 +15,34 @@ export default {
               if (fromEntity === 'intervals') { fromEntity = 'devices' }
               if (entity !== fromEntity) {
                 if (idFromRoute) {
-                  promises.push({entity: 'tasks', addition: true, id: Number(idFromRoute), mode: 1})
+                  promises.push({ entity: 'tasks', addition: true, id: Number(idFromRoute), mode: 1 })
                 }
-                promises.push(vm.isNeedSelect ? entity : {entity, id: Number(idFromRoute.split('-')[0])})
+                promises.push(vm.isNeedSelect ? entity : { entity, id: Number(idFromRoute.split('-')[0]) })
               }
               break
             }
             case 'intervals': {
-              promises.push({entity: 'calcs', addition: true})
+              promises.push({ entity: 'calcs', addition: true })
               entity = 'devices'
               if (entity !== fromEntity) {
                 if (idFromRoute) {
-                  promises.push({entity: 'tasks', addition: true, id: Number(idFromRoute), mode: 1})
+                  promises.push({ entity: 'tasks', addition: true, id: Number(idFromRoute), mode: 1 })
                 }
-                promises.push(vm.isNeedSelect ? entity : {entity, id: Number(idFromRoute.split('-')[0])})
+                promises.push(vm.isNeedSelect ? entity : { entity, id: Number(idFromRoute.split('-')[0]) })
               }
               break
             }
             case 'hexViewer': {
               entity = 'channels'
               if (entity !== fromEntity) {
-                promises.push(vm.isNeedSelect ? entity : {entity, id: Number(idFromRoute.split('-')[0])})
+                promises.push(vm.isNeedSelect ? entity : { entity, id: Number(idFromRoute.split('-')[0]) })
               }
               break
             }
             case 'channels': {
               fromEntity = fromEntity === 'hexViewer' ? 'channels' : fromEntity
               if (entity !== fromEntity) {
-                promises.push(vm.isNeedSelect ? entity : {entity, id: Number(idFromRoute.split('-')[0])})
+                promises.push(vm.isNeedSelect ? entity : { entity, id: Number(idFromRoute.split('-')[0]) })
               }
               break
             }
@@ -50,18 +50,18 @@ export default {
               if (fromEntity === 'mqtt') {
                 break
               }
-              promises.push(vm.isNeedSelect ? 'subaccounts' : {entity: 'subaccounts', id: Number(idFromRoute.split('-')[0])})
+              promises.push(vm.isNeedSelect ? 'subaccounts' : { entity: 'subaccounts', id: Number(idFromRoute.split('-')[0]) })
               break
             }
             case 'mqtt': {
               if (fromEntity === 'platform') {
                 break
               }
-              promises.push(vm.isNeedSelect ? 'subaccounts' : {entity: 'subaccounts', id: Number(idFromRoute.split('-')[0])})
+              promises.push(vm.isNeedSelect ? 'subaccounts' : { entity: 'subaccounts', id: Number(idFromRoute.split('-')[0]) })
               break
             }
             default: {
-              promises.push(vm.isNeedSelect ? entity : {entity, id: idFromRoute.split('-')[0]})
+              promises.push(vm.isNeedSelect ? entity : { entity, id: idFromRoute.split('-')[0] })
             }
           }
         }
@@ -80,12 +80,12 @@ export default {
       if (toId) {
         switch (toEntity) {
           case 'devices': {
-            init.push({entity: 'tasks', addition: true, id: toId, mode: 1})
+            init.push({ entity: 'tasks', addition: true, id: toId, mode: 1 })
             break
           }
           case 'intervals': {
             if (toId !== fromId) {
-              init.push({entity: 'tasks', addition: true, id: toId, mode: 1})
+              init.push({ entity: 'tasks', addition: true, id: toId, mode: 1 })
             }
             break
           }
@@ -94,12 +94,12 @@ export default {
       if (fromId) {
         switch (toEntity) {
           case 'devices': {
-            uninit.push({entity: 'tasks', addition: true, id: fromId, mode: 1})
+            uninit.push({ entity: 'tasks', addition: true, id: fromId, mode: 1 })
             break
           }
           case 'intervals': {
             if (toId !== fromId) {
-              uninit.push({entity: 'tasks', addition: true, id: fromId, mode: 1})
+              uninit.push({ entity: 'tasks', addition: true, id: fromId, mode: 1 })
             }
             break
           }
@@ -120,24 +120,24 @@ export default {
         case 'devices': {
           if (toEntity === 'intervals') { toEntity = 'devices' }
           if (toEntity !== fromEntity) {
-            promises.push({entity: 'tasks', addition: true, id: idFromRoute, mode: 1})
-            promises.push(this.isNeedSelect ? fromEntity : {fromEntity, id: idFromRoute})
+            promises.push({ entity: 'tasks', addition: true, id: idFromRoute, mode: 1 })
+            promises.push(this.isNeedSelect ? fromEntity : { fromEntity, id: idFromRoute })
           }
           break
         }
         case 'intervals': {
-          promises.push({entity: 'calcs', addition: true})
+          promises.push({ entity: 'calcs', addition: true })
           fromEntity = 'devices'
           if (toEntity !== fromEntity) {
-            promises.push({entity: 'tasks', addition: true, id: idFromRoute, mode: 1})
-            promises.push(this.isNeedSelect ? fromEntity : {fromEntity, id: idFromRoute})
+            promises.push({ entity: 'tasks', addition: true, id: idFromRoute, mode: 1 })
+            promises.push(this.isNeedSelect ? fromEntity : { fromEntity, id: idFromRoute })
           }
           break
         }
         case 'hexViewer': {
           fromEntity = 'channels'
           if (fromEntity !== toEntity) {
-            promises.push(this.isNeedSelect ? fromEntity : {fromEntity, id: idFromRoute})
+            promises.push(this.isNeedSelect ? fromEntity : { fromEntity, id: idFromRoute })
           }
           break
         }
@@ -145,18 +145,18 @@ export default {
           if (toEntity === 'mqtt') {
             break
           }
-          promises.push(this.isNeedSelect ? 'subaccounts' : {fromEntity: 'subaccounts', id: idFromRoute})
+          promises.push(this.isNeedSelect ? 'subaccounts' : { fromEntity: 'subaccounts', id: idFromRoute })
           break
         }
         case 'mqtt': {
           if (toEntity === 'platform') {
             break
           }
-          promises.push(this.isNeedSelect ? 'subaccounts' : {fromEntity: 'subaccounts', id: idFromRoute})
+          promises.push(this.isNeedSelect ? 'subaccounts' : { fromEntity: 'subaccounts', id: idFromRoute })
           break
         }
         default: {
-          promises.push(this.isNeedSelect ? fromEntity : {fromEntity, id: idFromRoute})
+          promises.push(this.isNeedSelect ? fromEntity : { fromEntity, id: idFromRoute })
         }
       }
     }

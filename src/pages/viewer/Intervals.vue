@@ -1,142 +1,151 @@
 <template>
   <q-page>
-    <q-resize-observable @resize="onResize" />
-    <q-toolbar color="dark" class="justify-between q-py-none">
+    <q-resize-observer @resize="onResize" />
+    <q-toolbar class="justify-between q-py-none bg-grey-9">
       <div style="max-width: 75%;">
-        <q-btn icon="mdi-arrow-left" @click="goBack" flat class="q-mr-sm" :class="{'q-px-none': $q.platform.is.mobile}"/>
+        <q-btn icon="mdi-arrow-left" @click="goBack" flat class="q-mr-sm" :class="{'q-px-none': $q.platform.is.mobile}" color="white"/>
         <!-- device selector -->
-        <q-item class="no-padding q-mr-sm" style="display: inline-flex" :style="{cursor: isNeedSelect && false ? '' : 'default!important', maxWidth: $q.platform.is.mobile ? '35%' : '50%'}">
-          <q-item-side style="min-width: 25px;" v-if="$q.platform.is.desktop">
-            <q-item-tile><q-icon color="white" name="mdi-developer-board" size="25px"/></q-item-tile>
-          </q-item-side>
-          <q-item-main>
-            <template v-if="active">
-              <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">{{selectedDevice.name || `#${selectedDevice.id}`}}</q-item-tile>
-              <q-item-tile sublabel style="font-size: 0.8rem" v-if="selectedDevice.ident">{{selectedDevice.ident}}</q-item-tile>
+        <div :style="{maxWidth: $q.platform.is.mobile ? '35%' : '50%'}" style="display: inline-flex" class="q-mr-sm">
+          <q-select
+            ref="itemDeviceSelect"
+            class="items__select"
+            :class="{'items__select--no-selected': !active}"
+            :value="active"
+            :options="filteredDevices"
+            filled
+            :label="active ? 'Device' : 'SELECT DEVICE'"
+            dark hide-bottom-space dense color="white"
+            :disable="!isNeedSelect || true"
+            :virtual-scroll-item-size="48"
+            :virtual-scroll-slice-size="6"
+            :virtual-scroll-sticky-size-start="48"
+            popup-content-class="items__popup"
+            :popup-content-style="{height: `${((filteredDevices.length > 6 ? 6 : filteredDevices.length) * 48) + 48 + (filteredDevices.length ? 0 : 34)}px`}"
+            @filter="filterSelectItems"
+          >
+            <div slot="before-options" class="bg-dark q-pa-xs select__filter">
+              <q-input v-model="deviceFilter" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" autofocus @input="filter => $refs.itemDeviceSelect.filter(filter)">
+                <q-icon slot="prepend" name="mdi-magnify" color="white" />
+              </q-input>
+            </div>
+            <q-icon slot="prepend" name="mdi-developer-board" color="white"/>
+            <template v-slot:no-option>
+              <div style="min-height: 77px;">
+                <q-input v-model="deviceFilter" @input="filter => $refs.itemDeviceSelect.filter(filter)" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" class="q-ma-xs" autofocus>
+                  <q-icon slot="prepend" name="mdi-magnify" color="white" />
+                </q-input>
+                <div class="text-center">No results</div>
+              </div>
             </template>
-            <q-item-tile v-else label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}">Select device</q-item-tile>
-          </q-item-main>
-          <q-item-side class="text-right">
-            <q-item-tile style="display: inline-block" stamp color="white" class="text-center"><div v-if="selectedDevice.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedDevice.id}}</q-item-tile>
-            <q-item-tile v-if="isNeedSelect && false" style="display: inline-block" stamp color="white" size="2rem" icon="mdi-menu-down" />
-          </q-item-side>
-          <q-popover fit ref="popoverActive" v-if="isNeedSelect && false">
-            <q-input v-model="deviceFilter" color="dark" clearable placeholder="Filter" hide-underline class="q-ma-xs q-pa-xs items__filter"/>
-            <q-list link separator class="scroll">
-              <VirtualList
-                v-if="filteredDevices.length"
-                :size="55"
-                :remain="filteredDevices.length + 1 > 6 ? 6 : filteredDevices.length + 1"
+            <template v-slot:selected-item="scope">
+              <q-item
+                v-bind="scope.itemProps"
+                v-on="scope.itemEvents"
+                class="q-pa-none"
+                style="min-height: 20px; margin-top: 2px; max-width: 100%"
               >
-                <q-item
-                  v-for="(item, index) in filteredDevices"
-                  :key="index"
-                  @click.native="active = item.id, $refs.popoverActive.hide(), $emit('view-data-hide')"
-                  class="cursor-pointer"
-                  :class="{'text-grey-8': item.deleted}"
-                  highlight
-                >
-                  <q-item-main>
-                    <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: $q.platform.is.mobile ? '' : '140px'}">{{item.name || `#${item.id}`}}</q-item-tile>
-                    <q-item-tile sublabel><small>{{item.ident || `&lt;no ident&gt;`}}</small></q-item-tile>
-                  </q-item-main>
-                  <q-item-side class="text-center">
-                    <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
-                    <q-item-tile><small>#{{item.id}}</small></q-item-tile>
-                  </q-item-side>
-                </q-item>
-              </VirtualList>
-              <div v-else class="text-center q-ma-md">
-                No devices
-              </div>
-            </q-list>
-          </q-popover>
-        </q-item>
+                <q-item-section>
+                  <q-item-label header class="ellipsis overflow-hidden q-pa-none text-white">{{selectedDevice.name || '&lt;noname&gt;'}}</q-item-label>
+                  <q-item-label class="q-pa-none q-mt-none text-white ellipsis" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{selectedDevice.configuration && selectedDevice.configuration.ident ? selectedDevice.configuration.ident : `&lt;no ident&gt;`}}</small></q-item-label>
+                </q-item-section>
+                <q-item-section class="text-white" side>
+                  <q-item-label v-if="selectedDevice.deleted" class="q-pa-none text-right"><small class="cheap-modifier">DELETED</small></q-item-label>
+                  <q-item-label class="q-pa-none q-mt-none text-right"><small>#{{selectedDevice.id}}</small></q-item-label>
+                </q-item-section>
+              </q-item>
+            </template>
+            <template v-slot:option="scope">
+              <q-item
+                v-bind="scope.itemProps"
+                @click="active = scope.opt.id, $emit('view-data-hide')"
+                v-on="scope.itemEvents"
+                :class="{'text-grey-8': scope.opt.deleted}"
+                class="q-pa-xs"
+                clickable
+              >
+                <q-item-section>
+                  <q-item-label header class="ellipsis overflow-hidden q-pa-xs">{{scope.opt.name || '&lt;noname&gt;'}}</q-item-label>
+                  <q-item-label class="q-pa-none q-mt-none" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{scope.opt.configuration && scope.opt.configuration.ident ? scope.opt.configuration.ident : `&lt;no ident&gt;`}}</small></q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-item-label v-if="scope.opt.deleted" class="q-pa-xs text-right"><small class="cheap-modifier cheap-modifier--item">DELETED</small></q-item-label>
+                  <q-item-label class="q-pa-none q-mt-none text-right"><small>#{{scope.opt.id}}</small></q-item-label>
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+        </div>
         <!-- device selector -->
-        <q-item class="no-padding q-mr-sm" style="display: inline-flex;" :style="{maxWidth: $q.platform.is.mobile ? '35%' : '50%'}">
-          <q-item-side style="min-width: 25px;" v-if="$q.platform.is.desktop">
-            <q-item-tile><q-icon color="white" name="mdi-calculator-variant" size="25px"/></q-item-tile>
-          </q-item-side>
-          <q-item-main>
-            <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}" v-if="activeCalcId">{{selectedCalc.name || '&lt;noname&gt;'}}</q-item-tile>
-            <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}" v-else-if="!activeCalcId && filteredCalcs.length">Select calc</q-item-tile>
-            <q-item-tile label class="ellipsis overflow-hidden" :style="{maxWidth: '140px'}" v-else>No calcs available</q-item-tile>
-          </q-item-main>
-          <q-item-side class="text-right">
-            <q-item-tile style="display: inline-block" stamp color="white" class="text-center"  v-if="selectedCalc.id"><div v-if="selectedCalc.deleted" class="cheap-modifier"><small>DELETED</small></div>#{{selectedCalc.id.toString()}}</q-item-tile>
-            <q-item-tile style="display: inline-block" stamp color="white" size="2rem" icon="mdi-menu-down" />
-          </q-item-side>
-          <q-popover fit ref="popoverActive">
-            <q-input v-model="calcFilter" color="dark" clearable placeholder="Filter" hide-underline class="q-ma-xs q-pa-xs items__filter"/>
-            <q-list link separator class="scroll">
-              <VirtualList
-                v-if="filteredCalcs.length"
-                :size="40"
-                :remain="filteredCalcs.length + 1 > 6 ? 6 : filteredCalcs.length + 1"
-              >
-                <q-item
-                  @click.native="clearActiveCalc(), $refs.popoverActive.hide(), $emit('view-data-hide')"
-                  class="cursor-pointer text-grey"
-                  highlight
-                >
-                  <q-item-main>
-                    <q-item-tile label class="ellipsis overflow-hidden">Select calc...</q-item-tile>
-                  </q-item-main>
-                  <q-item-side class="text-right">
-                    <q-icon name="mdi-close"/>
-                  </q-item-side>
-                </q-item>
-                <q-item
-                  v-for="(item, index) in filteredCalcs"
-                  :key="index"
-                  @click.native="setActiveCalc(item.id), $refs.popoverActive.hide(), $emit('view-data-hide')"
-                  class="cursor-pointer"
-                  :class="{'text-grey-8': item.deleted}"
-                  highlight
-                >
-                  <q-item-main>
-                    <q-item-tile label class="ellipsis overflow-hidden">{{item.name || '&lt;noname&gt;'}}</q-item-tile>
-                  </q-item-main>
-                  <q-item-side class="text-center">
-                    <q-item-tile v-if="item.deleted" class="cheap-modifier"><small>DELETED</small></q-item-tile>
-                    <q-item-tile v-if="item.id"><small>#{{item.id.toString()}}</small></q-item-tile>
-                  </q-item-side>
-                </q-item>
-              </VirtualList>
-              <div v-else class="text-center q-ma-md">
-                No calcs
+        <div :style="{maxWidth: $q.platform.is.mobile ? '35%' : '50%'}" style="display: inline-flex">
+          <q-select
+            ref="itemCalcSelect"
+            class="items__select"
+            :class="{'items__select--no-selected': !activeCalcId}"
+            :value="activeCalcId"
+            :options="filteredCalcs"
+            filled
+            clearable
+            @clear="clearActiveCalc(), $emit('view-data-hide')"
+            :label="activeCalcId ? 'Calc' : 'SELECT CALC'"
+            dark hide-bottom-space dense color="white"
+            :disable="!isNeedSelect"
+            :virtual-scroll-item-size="48"
+            :virtual-scroll-slice-size="6"
+            :virtual-scroll-sticky-size-start="48"
+            popup-content-class="items__popup"
+            :popup-content-style="{height: `${((filteredCalcs.length > 6 ? 6 : filteredCalcs.length) * 48) + 48 + (filteredCalcs.length ? 0 : 34)}px`}"
+            @filter="filterSelectItems"
+          >
+            <div slot="before-options" class="bg-dark q-pa-xs select__filter">
+              <q-input v-model="calcFilter" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" @input="filter => $refs.itemCalcSelect.filter(filter)" autofocus>
+                <q-icon slot="prepend" name="mdi-magnify" color="white" />
+              </q-input>
+            </div>
+            <q-icon slot="prepend" name="mdi-calculator-variant" color="white"/>
+            <template v-slot:no-option>
+              <div style="min-height: 77px;">
+                <q-input v-model="calcFilter" @input="filter => $refs.itemCalcSelect.filter(filter)" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" class="q-ma-xs" autofocus>
+                  <q-icon slot="prepend" name="mdi-magnify" color="white" />
+                </q-input>
+                <div class="text-center">No results</div>
               </div>
-            </q-list>
-          </q-popover>
-        </q-item>
-      </div>
-      <div>
-        <!-- <q-btn-toggle
-          v-if="!selectedItem.deleted"
-          dense
-          color="grey-8"
-          toggle-color="white"
-          toggle-text-color="dark"
-          class="q-ml-sm gt-xs" size="sm"
-          v-model="ratio"
-          :options="[{label: 'logs', value: 100},{label: 'both', value: 50},{label: 'intervals', value: 0}]"
-        />
-        <q-btn class="lt-sm" dense size="sm">
-          {{ratio === 50 ? 'both' : (ratio === 0 ? 'intervals' : 'logs')}}
-          <q-popover style="background-color: transparent">
-            <q-btn-toggle
-              v-close-overlay
-              v-if="!selectedItem.deleted"
-              dense
-              color="grey-8"
-              toggle-color="white"
-              toggle-text-color="dark"
-              size="sm"
-              v-model="ratio"
-              :options="[{label: 'logs', value: 100},{label: 'both', value: 50},{label: 'intervals', value: 0}]"
-            />
-          </q-popover>
-        </q-btn> -->
+            </template>
+            <template v-slot:selected-item="scope">
+              <q-item
+                v-bind="scope.itemProps"
+                v-on="scope.itemEvents"
+                class="q-pa-none"
+                style="min-height: 20px; margin-top: 2px; max-width: 100%"
+              >
+                <q-item-section>
+                  <q-item-label header class="ellipsis overflow-hidden q-pa-none text-white">{{selectedCalc.name || '&lt;noname&gt;'}}</q-item-label>
+                </q-item-section>
+                <q-item-section class="text-white" side>
+                  <q-item-label v-if="selectedCalc.deleted" class="q-pa-none text-right"><small class="cheap-modifier">DELETED</small></q-item-label>
+                  <q-item-label class="q-pa-none q-mt-none text-right"><small>#{{selectedCalc.id}}</small></q-item-label>
+                </q-item-section>
+              </q-item>
+            </template>
+            <template v-slot:option="scope">
+              <q-item
+                v-bind="scope.itemProps"
+                @click="setActiveCalc(scope.opt.id), $emit('view-data-hide')"
+                v-on="scope.itemEvents"
+                :class="{'text-grey-8': scope.opt.deleted}"
+                class="q-pa-xs"
+                clickable
+              >
+                <q-item-section>
+                  <q-item-label header class="ellipsis overflow-hidden q-pa-xs">{{scope.opt.name || '&lt;noname&gt;'}}</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-item-label v-if="scope.opt.deleted" class="q-pa-xs text-right"><small class="cheap-modifier cheap-modifier--item">DELETED</small></q-item-label>
+                  <q-item-label class="q-pa-none q-mt-none text-right"><small>#{{scope.opt.id}}</small></q-item-label>
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+        </div>
       </div>
     </q-toolbar>
     <div v-if="+size[1] && active">
@@ -172,7 +181,6 @@
 <script>
 import intervals from '../../components/intervals/Index.vue'
 import { mapState } from 'vuex'
-import VirtualList from 'vue-virtual-scroll-list'
 import init from '../../mixins/entitiesInit'
 import MapFrame from '../../components/MapFrame'
 
@@ -281,6 +289,9 @@ export default {
       })
       return filteredItems
     },
+    filterSelectItems (filter, update) {
+      update()
+    },
     viewDataHandler (content) {
       if (content) {
         this.$emit('view-data', content)
@@ -314,7 +325,7 @@ export default {
       this.setActiveCalc(null)
     },
     goBack () {
-      this.$router.push(`/devices/${this.active}`)
+      this.$router.push(`/devices/${this.active}`).catch(err => err)
     },
     init () {
       let deviceIdFromRoute = this.$route.params && this.$route.params.id ? Number(this.$route.params.id) : null,
@@ -339,7 +350,7 @@ export default {
       this.isVisibleMap = !this.isVisibleMap
     },
     onResize () {
-      this.$refs.map && this.$refs.map.onWindowResize({width: window.innerWidth, height: window.innerHeight})
+      this.$refs.map && this.$refs.map.onWindowResize({ width: window.innerWidth, height: window.innerHeight })
     }
   },
   watch: {
@@ -378,46 +389,63 @@ export default {
     },
     active (id, old) {
       if (id) {
-        this.$router.push(`/devices/${id}/calc/${this.activeCalcId || 'null'}/intervals`)
+        this.$router.push(`/devices/${id}/calc/${this.activeCalcId || 'null'}/intervals`).catch(err => err)
       } else {
-        this.$router.push('/devices')
+        this.$router.push('/devices').catch(err => err)
       }
     },
     activeCalcId (activeCalcId) {
       if (activeCalcId) {
-        this.$router.push(`/devices/${this.active}/calc/${activeCalcId}/intervals`)
+        this.$router.push(`/devices/${this.active}/calc/${activeCalcId}/intervals`).catch(err => err)
       }
     }
   },
-  components: { intervals, VirtualList, MapFrame }
+  components: { intervals, MapFrame }
 }
 </script>
 <style lang="stylus">
-  @import '~variables'
-  .items__filter {
-    min-width: 250px;
-    border: 1px solid $dark;
-    border-radius: 3px;
-  }
-  .no-top-bottom-margin {
-    margin-bottom: 0;
-    margin-top: 0;
-  }
-  .cheap-modifier {
-    font-size: .7rem;
-    font-weight: bolder;
-    border-radius: 3px;
-    background-color: #90a4ae;
-    color: white;
-    padding: 0 3px;
-    margin-bottom: 3px;
-  }
-  .deleted-action {
-    width: 100%;
-    color: #999;
-    background-color: #eee;
-    font-size: .7rem;
-    padding-top: 0;
-    padding-bottom: 0
-  }
+  .middle-modificator
+    position absolute
+    left calc(50% - 71px)
+  .items__select
+    max-width 100%
+    &--no-selected
+      width 180px
+      .q-field__marginal
+        height auto!important
+    .q-field__marginal
+      height 48px
+  .items__popup
+    .select__filter
+      position sticky
+      top 0
+      z-index 1
+    .select__get-deleted
+      position sticky
+      bottom 0
+      z-index 1
+  .items__filter
+    min-width 250px
+    border 1px solid $grey-9
+    border-radius 3px
+  .cheap-modifier
+    font-size .6rem
+    font-weight bolder
+    border-radius 3px
+    background-color #90a4ae
+    color white
+    padding 0 2px
+    width 45px
+    position absolute
+    top -10px
+    right 0px
+    &--item
+      top 5px
+  .deleted-action
+    width 100%
+    color #eee
+    background-color #999
+    font-size .7rem
+    padding-top 0
+    padding-bottom 0
 </style>

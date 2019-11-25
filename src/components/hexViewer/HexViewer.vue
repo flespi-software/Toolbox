@@ -1,32 +1,32 @@
 <template>
   <div @click="clearSelectedHandler" ref="wrapper">
-    <q-context-menu>
-      <q-list v-if="hex" link separator style="min-width: 150px; max-height: 300px;">
-        <q-item v-close-overlay @click.native="copy('hex')">
-          <q-item-main label="Copy as hex" />
+    <q-menu context-menu>
+      <q-list v-if="hex" separator style="min-width: 150px; max-height: 300px;">
+        <q-item v-close-popup @click="copy('hex')" clickable>
+          <q-item-section>Copy as hex</q-item-section>
         </q-item>
 
-        <q-item v-close-overlay @click.native="copy('text')">
-          <q-item-main label="Copy as raw" />
+        <q-item v-close-popup @click="copy('text')" clickable>
+          <q-item-section>Copy as raw</q-item-section>
         </q-item>
 
-        <q-item v-close-overlay @click.native="copy('view')">
-          <q-item-main label="Copy as seen" />
+        <q-item v-close-popup @click="copy('view')" clickable>
+          <q-item-section>Copy as seen</q-item-section>
         </q-item>
 
-        <q-item v-close-overlay @click.native="exportData('hex')">
-          <q-item-main label="Export as hex" />
+        <q-item v-close-popup @click="exportData('hex')" clickable>
+          <q-item-section>Export as hex</q-item-section>
         </q-item>
 
-        <q-item v-close-overlay @click.native="exportData('text')">
-          <q-item-main label="Export as raw" />
+        <q-item v-close-popup @click="exportData('text')" clickable>
+          <q-item-section>Export as raw</q-item-section>
         </q-item>
 
-        <q-item v-close-overlay @click.native="exportData('view')">
-          <q-item-main label="Export as seen" />
+        <q-item v-close-popup @click="exportData('view')" clickable>
+          <q-item-section>Export as seen</q-item-section>
         </q-item>
       </q-list>
-    </q-context-menu>
+    </q-menu>
     <div class="text-white hex-viewer" :style="{wordBreak: view === 'text' ? 'break-all' : ''}" v-if="hex" @click="selectAllHandler">
       <template v-if="view === 'hex'">
         <div class="hex-viewer__addresses">
@@ -129,12 +129,14 @@ export default {
   },
   computed: {
     bytesArray () {
+      let bytesArray
       if (this.view === 'hex') {
         let bytes16Array = this.hex.match(/.{1,32}/g)
-        return bytes16Array.map(byte16 => byte16.match(/.{1,2}/g))
+        bytesArray = bytes16Array.map(byte16 => byte16.match(/.{1,2}/g))
       } else if (this.view === 'text') {
-        return this.hex.match(/.{1,2}/g)
+        bytesArray = this.hex.match(/.{1,2}/g)
       }
+      return bytesArray
     },
     addresses () { return range(0x00, 0x10 * this.hex.match(/.{1,32}/g).length, 0x10) },
     selected () {

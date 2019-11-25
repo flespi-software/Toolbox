@@ -23,7 +23,7 @@
     </div>
     <div v-else>
       <div class="login-card shadow-4 bg-white column items-center justify-center no-wrap">
-        <q-progress indeterminate color="positive" style="width: 100%; height: 45px" />
+        <q-progress indeterminate color="green-6" style="width: 100%; height: 45px" />
       </div>
     </div>
   </div>
@@ -64,11 +64,11 @@ export default {
     ...mapMutations(['setToken']),
     goto (to) {
       if (this.tokenInfo) {
-        this.$router.push(to)
+        this.$router.push(to).catch(err => err)
       } else {
         let connectEventIndex, errorEventIndex,
           eventHandler = () => {
-            this.$router.push(to)
+            this.$router.push(to).catch(err => err)
             connectEventIndex && Vue.connector.socket.on('connect', connectEventIndex)
             errorEventIndex && Vue.connector.socket.on('error', errorEventIndex)
           }
@@ -91,7 +91,7 @@ export default {
       this.goto('/')
     },
     checkHasToken () {
-      let sessionStorageToken = this.$q.sessionStorage.get.item('toolbox-token')
+      let sessionStorageToken = this.$q.sessionStorage.getItem('toolbox-token')
       if (this.$route.params && this.$route.params.token) {
         this.autoLogin()
       } else if (sessionStorageToken) {
@@ -126,7 +126,7 @@ export default {
     }
   },
   created () {
-    let sessionSettings = this.$q.sessionStorage.get.item('toolbox-session-settings')
+    let sessionSettings = this.$q.sessionStorage.getItem('toolbox-session-settings')
     if (sessionSettings) {
       this.canLogin = sessionSettings.isVisibleToolbar
     }

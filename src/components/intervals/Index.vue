@@ -206,27 +206,27 @@ export default {
       this.$store.commit(`${this.moduleName}/clearMessages`)
       this.$store.dispatch(`${this.moduleName}/get`)
     },
-    actionHandler ({index, type, content}) {
+    actionHandler ({ index, type, content }) {
       switch (type) {
         case 'view': {
-          this.viewMessagesHandler({index, content})
+          this.viewMessagesHandler({ index, content })
           break
         }
         case 'map': {
-          this.onMapHandler({index, content})
+          this.onMapHandler({ index, content })
           break
         }
         case 'copy': {
-          this.copyMessageHandler({index, content})
+          this.copyMessageHandler({ index, content })
           break
         }
       }
     },
-    viewMessagesHandler ({index, content}) {
+    viewMessagesHandler ({ index, content }) {
       this.selected = [index]
       this.$emit('view-data', content)
     },
-    onMapHandler ({index, content}) {
+    onMapHandler ({ index, content }) {
       let routes = Object.keys(content).reduce((routes, fieldName) => {
         if (this.routesFileds.filter(field => field.name === fieldName).length) {
           routes.push(content[fieldName])
@@ -235,7 +235,7 @@ export default {
       }, [])
       this.$emit('on-map', routes)
     },
-    copyMessageHandler ({index, content}) {
+    copyMessageHandler ({ index, content }) {
       this.$copyText(JSON.stringify(content)).then((e) => {
         this.$q.notify({
           type: 'positive',
@@ -261,7 +261,7 @@ export default {
       if (this.selected && this.selected.length) {
         let selectedIndex = this.selected[0]
         let message = messages[selectedIndex]
-        this.viewMessagesHandler({index: selectedIndex, content: message})
+        this.viewMessagesHandler({ index: selectedIndex, content: message })
       }
     }
   },
@@ -278,7 +278,7 @@ export default {
   },
   created () {
     if (!this.$store.state[this.moduleName]) {
-      this.$store.registerModule(this.moduleName, intervalsModule({Vue, LocalStorage: this.$q.localStorage, name: this.moduleName, errorHandler: (err) => { this.$store.commit('reqFailed', err) }, filterHandler: this.filterMessages}))
+      this.$store.registerModule(this.moduleName, intervalsModule({ Vue, LocalStorage: this.$q.localStorage, name: this.moduleName, errorHandler: (err) => { this.$store.commit('reqFailed', err) }, filterHandler: this.filterMessages }))
     } else {
       this.$store.commit(`${this.moduleName}/clear`)
     }

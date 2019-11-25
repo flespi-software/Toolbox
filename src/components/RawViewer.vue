@@ -1,25 +1,34 @@
 <template>
-  <q-modal @show="openHandler" @hide="tabModel = ''" ref="modal" :content-css="{maxWidth: '100vw', maxHeight: '100vh', width: '700px', height: '700px'}" :content-classes="{'bg-dark': inverted !== undefined, 'modal-tabs': true}">
-    <q-modal-layout>
-      <q-toolbar slot="footer" color="dark"  style="justify-content: flex-end;">
-        <q-btn flat @click="$refs.modal.hide()">Close</q-btn>
-      </q-toolbar>
-      <div v-if="!hasData" class="text-center" style="font-size: 2rem; margin-top: 50px" :class="{'text-white': inverted !== undefined}">No additional data available</div>
-      <q-tabs color="dark" no-pane-border v-model="tabModel" v-if="hasData">
-        <template v-for="(item, key) in config">
-          <template v-if="item.data">
-            <q-tab slot="title" :name="key" :label="item.title" :key="`tab-${key}`"/>
-            <q-tab-pane :name="key" :key="`tab-pane-${key}`">
-              <div style="font-size: 1.1rem" class="text-center q-mb-sm" :class="[item.data._color]" v-if="item.description">{{item.description}}</div>
-              <component v-if="item.wrapper && typeof item.wrapper === 'object'" :is="item.wrapper" :data="getData(item.data)" :inverted="inverted"/>
-              <component v-else-if="item.wrapper && typeof item.wrapper === 'string'" :is="item.wrapper" :class="{'text-white': inverted !== undefined}">{{getData(item.data)}}</component>
-              <div v-else :class="{'text-white': inverted !== undefined}">{{getData(item.data)}}</div>
-            </q-tab-pane>
-          </template>
+  <q-dialog class="modal-date" :maximized="$q.platform.is.mobile" @show="openHandler" @hide="tabModel = ''" ref="modal">
+    <q-card :style="{minWidth: $q.platform.is.mobile ? '100%' : '30vw'}" :class="{'bg-grey-9': inverted !== undefined}">
+      <q-card-section :style="{height: $q.platform.is.mobile ? 'calc(100% - 52px)' : ''}" class="scroll q-pa-none">
+        <template v-if="hasData">
+          <q-tabs v-model="tabModel" class="text-white">
+            <template v-for="(item, key) in config">
+              <template v-if="item.data">
+                <q-tab :name="key" :label="item.title" :key="`tab-${key}`" color="grey-9"/>
+              </template>
+            </template>
+          </q-tabs>
+          <q-tab-panels v-model="tabModel" animated class="bg-grey-9">
+            <q-tab-panel v-for="(item, key) in config" :name="key" :key="`tab-pane-${key}`">
+              <template v-if="item.data">
+                <div style="font-size: 1.1rem" class="text-center q-mb-sm" :class="[item.data._color]" v-if="item.description">{{item.description}}</div>
+                <component v-if="item.wrapper && typeof item.wrapper === 'object'" :is="item.wrapper" :data="getData(item.data)" :inverted="inverted"/>
+                <component v-else-if="item.wrapper && typeof item.wrapper === 'string'" :is="item.wrapper" :class="{'text-white': inverted !== undefined}">{{getData(item.data)}}</component>
+                <div v-else :class="{'text-white': inverted !== undefined}">{{getData(item.data)}}</div>
+              </template>
+            </q-tab-panel>
+          </q-tab-panels>
         </template>
-      </q-tabs>
-    </q-modal-layout>
-  </q-modal>
+        <div v-else class="text-center" style="font-size: 2rem; margin-top: 50px" :class="{'text-white': inverted !== undefined}">No additional data available</div>
+      </q-card-section>
+      <q-separator color="white"/>
+      <q-card-actions align="right" class="bg-grey-9 text-white">
+        <q-btn flat @click="$refs.modal.hide()">Close</q-btn>
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script>
@@ -67,10 +76,4 @@ export default {
 </script>
 
 <style lang="stylus">
-  .modal-tabs
-    .q-tabs
-      height 100%
-      .q-tabs-panes
-        height: 100%;
-        overflow: auto;
 </style>

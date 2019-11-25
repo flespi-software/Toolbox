@@ -46,7 +46,7 @@
       overflow: 'hidden'
     }"
     >
-      <span class="uppercase text-white" style="padding: 0 5px;" >{{item['x-flespi-filter-next'] ? `Next results will be filtered by: "${item['x-flespi-filter-next']}"` : `Filter removed: "${item['x-flespi-filter-prev']}"`}}</span>
+      <span class="text-uppercase text-white" style="padding: 0 5px;" >{{item['x-flespi-filter-next'] ? `Next results will be filtered by: "${item['x-flespi-filter-next']}"` : `Filter removed: "${item['x-flespi-filter-prev']}"`}}</span>
     </div>
     <div
       v-else
@@ -63,7 +63,7 @@
     }" :class="[color]"
       :title="date.formatDate(item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')"
     >
-      <span style="padding: 0 5px; margin-left: 150px;" :style="{ backgroundColor: item.__connectionStatus === 'offline' ? '#ff0' : '#0f0'}"  class="uppercase" v-for="n in Array(10)" :key="n">{{item['__connectionStatus']}}</span>
+      <span style="padding: 0 5px; margin-left: 150px;" :style="{ backgroundColor: item.__connectionStatus === 'offline' ? '#ff0' : '#0f0'}"  class="text-uppercase" v-for="n in Array(10)" :key="n">{{item['__connectionStatus']}}</span>
     </div>
   </div>
 </template>
@@ -324,7 +324,7 @@ export default {
       return !!this.cols.filter(col => prop === col.name).length
     },
     clickHandler (index, type, content) {
-      this.$emit(`action`, {index, type, content})
+      this.$emit(`action`, { index, type, content })
     },
     linkMoreClickHandler () {
       openURL(this.eventLinkMore)
@@ -345,7 +345,7 @@ export default {
     itemClickHandler (index, content) {
       content._description = `[${date.formatDate(this.item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}] ${this.item.event_code}: ${this.description}`
       content._color = this.color
-      this.$emit(`item-click`, {index, content})
+      this.$emit(`item-click`, { index, content })
     }
   }
 }

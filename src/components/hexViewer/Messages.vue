@@ -1,44 +1,56 @@
 <template>
   <div ref="wrapper">
-    <q-resize-observable @resize="wrapperResizeHandler"/>
+    <q-resize-observer @resize="wrapperResizeHandler"/>
     <div>
-      <q-toolbar color="dark" v-if="(Object.keys(connections).length && mode) || !mode || type === 'messages'">
-        <q-search
-          type="text" v-model="filter"
-          inverted
-          :placeholder="connection ? 'incoming or target *' : 'host:port'"
-          :debounce="0"
-          color="none"
-          style="margin-right: 5px"
-          :style="{width: connection ? 'calc(100% - 50px)' : '100%'}"
-        />
-        <q-btn title="Clear all connections" class="on-left pull-right text-center" flat dense v-if="mode && !connection" @click="clearHandler">
+      <q-toolbar class="bg-grey-9" v-if="(Object.keys(connections).length && mode) || !mode || type === 'messages'">
+        <q-input v-model="filter" outlined hide-bottom-space rounded dense color="white" dark :placeholder="connection ? 'incoming or target *' : 'host:port'" :debounce="0" :style="{width: connection ? 'calc(100% - 50px)' : '100%'}">
+          <q-icon slot="prepend" name="mdi-magnify" color="white" />
+        </q-input>
+        <q-btn title="Clear all connections" class="on-left pull-right text-center text-white" flat dense v-if="mode && !connection" @click="clearHandler">
           <q-icon size="1.5rem" color="white" name="mdi-playlist-remove"/>
-          <div style="font-size: .8rem;">Clear</div>
+          <div style="font-size: .7rem; line-height: .7rem;">Clear</div>
         </q-btn>
-        <q-btn v-if="type === 'messages'" style="position: absolute; right: 5px;" class="text-white" icon="mdi-close" @click="closeCurrentConnection">
+        <q-btn v-if="type === 'messages'" style="position: absolute; right: 5px;" class="text-white" flat round icon="mdi-close" @click="closeCurrentConnection">
           <q-tooltip>Close current connection</q-tooltip>
         </q-btn>
       </q-toolbar>
       <div class="flex flex-center" v-if="!mode && !connection" style="min-height: 50px;">
-        <q-datetime
-          format="DD-MM-YYYY HH:mm:ss"
-          @change="(val) => { from = val }"
-          :value="from"
-          inverted
-          color="grey-8"
-          type="datetime"
-          format24h
-          class="vsl-date"
-          style="margin-right: 5px"
-        />
+        <q-btn flat :color="theme.color" style="max-width: 120px; font-size: .8rem; line-height: .8rem;" class="q-pa-sm" @click="$refs.datePickerModal.toggle()">
+          <div>{{formatDate(from)}}</div>
+        </q-btn>
+        <q-dialog ref="datePickerModal" :content-css="{maxWidth: '500px'}" class="modal-date" :maximized="$q.platform.is.mobile">
+          <q-card :style="{minWidth: $q.platform.is.mobile ? '100%' : '30vw'}" class="bg-grey-9">
+            <q-card-section class="q-pa-none">
+              <q-toolbar>
+                <div class="q-toolbar-title text-h6 text-white">
+                  Date/Time
+                </div>
+              </q-toolbar>
+            </q-card-section>
+            <q-separator />
+            <q-card-section :style="{height: $q.platform.is.mobile ? 'calc(100% - 104px)' : ''}" class="scroll">
+              <div class="flex flex-center">
+                <vue-flat-pickr
+                  v-model="fromModel"
+                  :config="dateConfig"
+                  :theme="theme"
+                />
+              </div>
+            </q-card-section>
+            <q-separator />
+            <q-card-actions align="right">
+              <q-btn flat :color="theme.color" @click="datePickerModalClose">close</q-btn>
+              <q-btn flat :color="theme.color" @click="datePickerModalSave">save</q-btn>
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
       </div>
       <template v-if="messages.length && Object.keys(renderEntities).length">
         <VirtualList
           :onscroll="listScroll"
           ref="scroller"
           :style="{position: 'absolute', top: mode || connection ? '50px' : '100px', bottom: mode ? 0 : '36px', right: 0, left: 0, height: 'auto'}"
-          :class="{'bg-dark': true, 'text-white': true, 'cursor-pointer': true}"
+          :class="{'bg-grey-9': true, 'text-white': true, 'cursor-pointer': true}"
           :size="itemHeight"
           :remain="itemsCount"
           :debounce="10"
@@ -56,10 +68,10 @@
             @item-click="itemClickHandler"
           />
         </VirtualList>
-        <q-btn v-if="!mode" color="dark" style="position: absolute; bottom: 0; width: 100%;" class="text-white" icon="mdi-download" @click="paginationNextChangeHandler">Get more</q-btn>
+        <q-btn v-if="!mode" color="grey-9" style="position: absolute; bottom: 0; width: 100%;" class="text-white" icon="mdi-download" @click="paginationNextChangeHandler">Get more</q-btn>
       </template>
-      <div v-else class="no-messages text-center" :class="{'text-grey-6': true}"
-            style="font-size: 3rem; padding-top: 40px; ">{{`${type === 'connections' ? 'No connections' : 'No events'}`}}
+      <div v-else class="no-messages text-center" :class="{'text-grey-6': true}" style="font-size: 3rem; padding-top: 40px; ">
+        {{`${type === 'connections' ? 'No connections' : 'No events'}`}}
       </div>
     </div>
   </div>
@@ -68,6 +80,7 @@
 <script>
 import { channelsMessagesModulePull } from 'qvirtualscroll'
 import VirtualList from 'vue-virtual-scroll-list'
+import { VueFlatPickr } from 'datetimerangepicker'
 import Vue from 'vue'
 import { date } from 'quasar'
 import filterMessages from '../../mixins/filterMessages'
@@ -102,7 +115,16 @@ export default {
       connectionsFilter: '',
       messagesPerConnectionLimit: 10000,
       connectionsLimit: 100,
-      scrollerScrollTop: 0
+      scrollerScrollTop: 0,
+      dateConfig: {
+        enableTime: true,
+        time_24hr: true,
+        inline: true,
+        maxDate: (new Date()).setHours(23, 59, 59, 999),
+        mode: 'single',
+        locale: { firstDayOfWeek: 1 }
+      },
+      fromModel: this.from
     }
   },
   computed: {
@@ -134,20 +156,36 @@ export default {
       get () {
         return this.$store.state[this.moduleName].active
       },
-      async set (val) {
+      async set (active) {
         await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active channel */
-        this.$store.commit(`${this.moduleName}/setActive`, val)
-        let activeItem = this.$store.state.items[val] || {}
+        this.$store.commit(`${this.moduleName}/setActive`, active)
+        let activeItem = this.$store.state.items[active] || {}
         Vue.set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
         await this.$store.dispatch(`${this.moduleName}/getCols`)
-        this.modeChange(this.mode)
-        this.$store.dispatch(`${this.moduleName}/pollingGet`)
+        this.$store.commit(`${this.moduleName}/clearMessages`)
+        this.clearSelected()
+        switch (this.mode) {
+          case 0: {
+            if (active) {
+              this.getMessages()
+            }
+            break
+          }
+          case 1: {
+            if (active) {
+              this.$store.dispatch(`${this.moduleName}/pollingGet`)
+            }
+            break
+          }
+        }
       }
     },
     from: {
       get () {
-        let module = this.$store.state[this.moduleName]
-        return module.messages[0] && module.messages[0].timestamp ? Math.ceil(module.messages[0].timestamp * 1000) : Date.now()
+        let module = this.$store.state[this.moduleName],
+          from = module.messages[0] && module.messages[0].timestamp ? Math.ceil(module.messages[0].timestamp * 1000) : Date.now()
+        this.setFromModel(from)
+        return from
       },
       set (val) {
         val ? this.$store.commit(`${this.moduleName}/setFrom`, Math.ceil(new Date(val).setSeconds(0) / 1000)) : this.$store.commit(`${this.moduleName}/setFrom`, 0)
@@ -243,6 +281,7 @@ export default {
     },
     modeChange (val) {
       val = +val
+      this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active channel */
       this.$store.commit(`${this.moduleName}/clearMessages`)
       this.$store.commit(`${this.moduleName}/setMode`, val)
       this.needAutoScroll = !!val
@@ -254,28 +293,35 @@ export default {
           }
           break
         }
+        case 1: {
+          if (this.active) {
+            this.$store.dispatch(`${this.moduleName}/pollingGet`)
+          }
+          break
+        }
       }
     },
     paginationNextChangeHandler () {
+      this.$store.commit(`${this.moduleName}/setFrom`, this.$store.state[this.moduleName].to)
       this.getMessages()
     },
-    actionHandler ({index, type, content}) {
+    actionHandler ({ index, type, content }) {
       switch (type) {
         case 'view': {
-          this.viewMessagesHandler({index, content})
+          this.viewMessagesHandler({ index, content })
           break
         }
         case 'copy': {
-          this.copyMessageHandler({index, content})
+          this.copyMessageHandler({ index, content })
           break
         }
       }
     },
-    viewMessagesHandler ({index, content}) {
+    viewMessagesHandler ({ index, content }) {
       this.selected = [index]
       this.$emit('view-data', content)
     },
-    itemClickHandler ({index, content, event}) {
+    itemClickHandler ({ index, content, event }) {
       if (this.type === 'messages') {
         if (event.shiftKey) {
           if (this.selected[0]) {
@@ -304,7 +350,7 @@ export default {
         this.$emit('change:connection', content)
       }
     },
-    copyMessageHandler ({index, content}) {
+    copyMessageHandler ({ index, content }) {
       this.$copyText(JSON.stringify(content)).then((e) => {
         this.$q.notify({
           type: 'positive',
@@ -342,8 +388,22 @@ export default {
         message: 'Do you really want to clear all connections?',
         ok: true,
         cancel: true
-      }).then(() => { this.$store.commit(`${this.moduleName}/clearMessages`) })
-        .catch(() => {})
+      }).onOk(() => { this.$store.commit(`${this.moduleName}/clearMessages`) })
+        .onCancel(() => {})
+    },
+    setFromModel (from) {
+      this.fromModel = from
+    },
+    formatDate (timestamp) {
+      return date.formatDate(timestamp, 'DD/MM/YYYY HH:mm:ss')
+    },
+    datePickerModalClose () {
+      this.fromModel = this.from
+      this.$refs.datePickerModal.hide()
+    },
+    datePickerModalSave () {
+      this.from = this.fromModel
+      this.$refs.datePickerModal.hide()
     }
   },
   watch: {
@@ -392,7 +452,6 @@ export default {
     }
     if (this.$store.state[this.moduleName].mode === null) {
       this.modeChange(this.mode)
-      this.$store.dispatch(`${this.moduleName}/pollingGet`)
     }
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
       if (this.mode === 1) {
@@ -416,13 +475,14 @@ export default {
     }
   },
   destroyed () {
+    this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
     this.offlineHandler !== undefined && Vue.connector.socket.off('offline', this.offlineHandler)
     this.connectHandler !== undefined && Vue.connector.socket.off('connect', this.connectHandler)
     this.$store.commit(`${this.moduleName}/clear`)
     this.$store.unregisterModule(this.moduleName)
   },
   mixins: [filterMessages],
-  components: { MessagesListItem, VirtualList, ConnectionsListItem }
+  components: { MessagesListItem, VirtualList, ConnectionsListItem, VueFlatPickr }
 }
 </script>
 

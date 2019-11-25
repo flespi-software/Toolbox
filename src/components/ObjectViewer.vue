@@ -1,32 +1,32 @@
 <template>
   <div>
-    <q-item>
-      <q-item-side left><q-icon color="white" size="1.8rem" name="mdi-view-list"/></q-item-side>
-      <q-item-main>
-        <q-item-tile label class="ellipsis text-bold text-white">Object</q-item-tile>
-      </q-item-main>
-      <q-item-side right><q-icon color="white" class="pull-right cursor-pointer" name="mdi-close" @click.native="$emit('close')" size="1.8rem" /></q-item-side>
+    <q-item class="q-pa-none">
+      <q-item-section avatar><q-icon color="white" size="1.8rem" name="mdi-view-list"/></q-item-section>
+      <q-item-section>
+        <q-item-label header class="ellipsis text-bold text-white">Object</q-item-label>
+      </q-item-section>
+      <q-item-section side><q-icon color="white" class="pull-right cursor-pointer" name="mdi-close" @click.native="$emit('close')" size="1.8rem" /></q-item-section>
     </q-item>
-    <q-item>
-      <q-item-main>
-        <q-input type="text" inverted color="none" float-label="Search" v-model="search" class="no-top-bottom-margin"/>
-      </q-item-main>
+    <q-item  class="q-pa-none">
+      <q-item-section>
+        <q-input type="text" color="white" dark label="Search" v-model="search" class="q-py-none"/>
+      </q-item-section>
     </q-item>
-    <q-list separator no-border>
+    <q-list separator dark>
       <q-item v-if="!Object.keys(object).length || !Object.keys(filteredObject).length">
-        <q-item-main>
-          <q-item-tile label class="ellipsis text-bold text-center text-white">Object is empty</q-item-tile>
-          <q-item-tile v-if="!Object.keys(object).length" sublabel class="ellipsis text-center text-white">Message has not fields</q-item-tile>
-          <q-item-tile v-if="!Object.keys(filteredObject).length && this.search" sublabel class="ellipsis text-center text-white">Nothing found on your search</q-item-tile>
-        </q-item-main>
+        <q-item-section>
+          <q-item-label header class="ellipsis text-bold text-center text-white">Object is empty</q-item-label>
+          <q-item-label v-if="!Object.keys(object).length" caption class="ellipsis text-center text-white">Message has not fields</q-item-label>
+          <q-item-label v-if="!Object.keys(filteredObject).length && this.search" caption class="ellipsis text-center text-white">Nothing found on your search</q-item-label>
+        </q-item-section>
       </q-item>
       <template v-if="Object.keys(filteredObject).length">
         <q-item v-for="(key) in Object.keys(filteredObject)" :key="key">
-          <q-item-main>
-            <q-item-tile label class="ellipsis text-bold text-white">{{key}}<q-tooltip>{{key}}</q-tooltip></q-item-tile>
-            <q-item-tile v-if="key.indexOf('image.bin.') === -1" sublabel class="ellipsis text-white">{{JSON.stringify(filteredObject[key])}}<q-tooltip>{{JSON.stringify(filteredObject[key])}}</q-tooltip></q-item-tile>
-            <q-item-tile v-else sublabel><img class="image-bin" :src="`data:image/${key.split('.')[2]};base64, ${filteredObject[key]}`" :alt="key"></q-item-tile>
-          </q-item-main>
+          <q-item-section>
+            <q-item-label header class="ellipsis text-bold text-white q-pa-none">{{key}}<q-tooltip>{{key}}</q-tooltip></q-item-label>
+            <q-item-label v-if="key.indexOf('image.bin.') === -1" caption class="ellipsis text-white">{{JSON.stringify(filteredObject[key])}}<q-tooltip>{{JSON.stringify(filteredObject[key])}}</q-tooltip></q-item-label>
+            <q-item-label v-else caption><img class="image-bin" :src="`data:image/${key.split('.')[2]};base64, ${filteredObject[key]}`" :alt="key"></q-item-label>
+          </q-item-section>
         </q-item>
       </template>
     </q-list>
@@ -54,12 +54,7 @@ export default {
 }
 </script>
 
-<style>
-  .no-top-bottom-margin {
-    margin-bottom: 0;
-    margin-top: 0;
-  }
-  .image-bin {
-    max-width: 265px;
-  }
+<style lang="stylus">
+  .image-bin
+    max-width 265px
 </style>

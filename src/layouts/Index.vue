@@ -1,8 +1,8 @@
 <template>
   <div>
-    <q-layout ref="layout" view="hHh LpR lFf" class="bg-dark">
-      <q-layout-header v-if="isVisibleToolbar">
-        <q-toolbar color="dark" class="header__main-toolbar">
+    <q-layout ref="layout" view="hHh LpR lFf" class="bg-grey-9">
+      <q-header v-if="isVisibleToolbar">
+        <q-toolbar class="header__main-toolbar bg-grey-9">
           <q-btn flat icon="mdi-menu" @click="sides.left = !sides.left"/>
           <q-toolbar-title :style="{minWidth: $q.platform.is.mobile ? '60px' : '210px'}">
             <img class="gt-sm" src="statics/toolbox50.png" alt="Toolbox" style="height: 30px">
@@ -11,165 +11,166 @@
             <span v-if="configByEntity" style="position: relative; top: -5px; margin-left: 10px;">{{configByEntity.label}}</span>
           </q-toolbar-title>
           <q-btn v-if="errors.length" @click="clearNotificationCounter" small flat round icon="notifications">
-            <q-chip v-if="newNotificationCounter" floating color="red">{{newNotificationCounter}}</q-chip>
-            <q-popover fit ref="popoverError">
-              <q-list no-border style="max-height: 200px" link separator class="scroll q-py-none">
+            <q-chip v-if="newNotificationCounter" color="red">{{newNotificationCounter}}</q-chip>
+            <q-menu fit ref="popoverError">
+              <q-list style="max-height: 200px" separator class="scroll q-py-none">
                 <q-item
                   v-for="(error, index) in errors"
                   :key="index"
                   style="cursor: default"
                 >
-                  <q-item-main>
-                    <q-item-tile label>{{error}}</q-item-tile>
-                  </q-item-main>
+                  <q-item-section>
+                    <q-item-label header>{{error}}</q-item-label>
+                  </q-item-section>
                 </q-item>
               </q-list>
-            </q-popover>
+            </q-menu>
           </q-btn>
           <q-btn @click="settingsHandler" small flat round icon="mdi-settings"/>
           <q-btn class="within-iframe-hide" @click="confirmExitHandler" small  flat round icon="mdi-exit-to-app"/>
         </q-toolbar>
-      </q-layout-header>
-      <q-layout-drawer side="right" no-swipe-open no-swipe-close v-model="sides.right" :content-class="{'bg-dark':true}">
+      </q-header>
+      <q-drawer side="right" no-swipe-open no-swipe-close v-model="sides.right" :content-class="{'bg-grey-9':true}">
         <object-viewer
           @close="hideRightHandler"
           :object="currentMessage"
           v-if="Object.keys(currentMessage).length"
         />
-      </q-layout-drawer>
-      <q-layout-drawer side="left" v-model="sides.left" :content-class="{'bg-white':true}" v-if="isVisibleToolbar">
+      </q-drawer>
+      <q-drawer side="left" v-model="sides.left" :content-class="{'bg-white':true}" v-if="isVisibleToolbar">
         <q-list separator class="q-py-none">
-          <q-item v-if="renderEntities.includes('platform')" to='/platform' class="q-pt-md q-pb-md">
-            <q-item-side color="red" :icon="config.platform.icon"></q-item-side>
-            <q-item-main><q-item-tile>{{config.platform.label}}</q-item-tile></q-item-main>
+          <q-item v-if="renderEntities.includes('platform')" to='/platform' active-class="bg-grey-6 text-white">
+            <q-item-section avatar>
+              <q-icon :name="config.platform.icon" color="red"/>
+            </q-item-section>
+            <q-item-section>
+              {{config.platform.label}}
+            </q-item-section>
           </q-item>
-          <q-collapsible
+          <q-expansion-item
             v-if="renderEntities.includes('channels') || renderEntities.includes('devices') || renderEntities.includes('streams') || renderEntities.includes('modems')"
             group="menu"
             label="Telematics Hub"
             icon="mdi-sitemap"
-            class="q-pt-md q-pb-md"
             :value="hubGroupModel"
           >
             <div>
               <q-list class="row q-py-none">
-                <q-item v-if="renderEntities.includes('channels')" to='/channels' class="col-6">
-                  <q-item-main class="text-center">
+                <q-item v-if="renderEntities.includes('channels')" to='/channels' class="col-6" active-class="bg-grey-6 text-white">
+                  <q-item-section class="text-center">
                     <div>
                       <q-icon :name="config.channels.icon" size="2.6em"/>
                     </div>
                     <div>{{config.channels.label}}</div>
-                  </q-item-main>
+                  </q-item-section>
                 </q-item>
-                <q-item v-if="renderEntities.includes('devices')" to='/devices' class="col-6">
-                  <q-item-main class="text-center">
+                <q-item v-if="renderEntities.includes('devices')" to='/devices' class="col-6" active-class="bg-grey-6 text-white">
+                  <q-item-section class="text-center">
                     <div>
                       <q-icon :name="config.devices.icon" size="2.6em"/>
                     </div>
                     <div>{{config.devices.label}}</div>
-                  </q-item-main>
+                  </q-item-section>
                 </q-item>
-                <q-item v-if="renderEntities.includes('streams')" to='/streams' class="col-6">
-                  <q-item-main class="text-center">
+                <q-item v-if="renderEntities.includes('streams')" to='/streams' class="col-6" active-class="bg-grey-6 text-white">
+                  <q-item-section class="text-center">
                     <div>
                       <q-icon :name="config.streams.icon" size="2.6em"/>
                     </div>
                     <div>{{config.streams.label}}</div>
-                  </q-item-main>
+                  </q-item-section>
                 </q-item>
-                <q-item v-if="renderEntities.includes('modems')" to='/modems' class="col-6">
-                  <q-item-main class="text-center">
+                <q-item v-if="renderEntities.includes('modems')" to='/modems' class="col-6" active-class="bg-grey-6 text-white">
+                  <q-item-section class="text-center">
                     <div>
                       <q-icon :name="config.modems.icon" size="2.6em"/>
                     </div>
                     <div>{{config.modems.label}}</div>
-                  </q-item-main>
+                  </q-item-section>
                 </q-item>
-                <q-item-separator style="width: 100%" v-if="renderEntities.includes('channels') || renderEntities.includes('devices') || renderEntities.includes('streams') || renderEntities.includes('modems')"/>
-                <q-item v-if="renderEntities.includes('calcs')" to='/calcs' class="col-6">
-                  <q-item-main class="text-center">
+                <q-separator style="width: 100%" v-if="renderEntities.includes('channels') || renderEntities.includes('devices') || renderEntities.includes('streams') || renderEntities.includes('modems')"/>
+                <q-item v-if="renderEntities.includes('calcs')" to='/calcs' class="col-6" active-class="bg-grey-6 text-white">
+                  <q-item-section class="text-center">
                     <div>
                       <q-icon :name="config.calcs.icon" size="2.6em"/>
                     </div>
                     <div>{{config.calcs.label}}</div>
-                  </q-item-main>
+                  </q-item-section>
                 </q-item>
-                <q-item-separator style="width: 100%" v-if="renderEntities.includes('calcs')"/>
-                <q-list-header class="col-12" v-if="renderEntities.includes('hexViewer')">Tools</q-list-header>
-                <q-item to='/tools/hex' class="col-6" v-if="renderEntities.includes('hexViewer')">
-                  <q-item-main class="text-center">
+                <q-separator style="width: 100%" v-if="renderEntities.includes('calcs')"/>
+                <q-item-label header class="col-12" v-if="renderEntities.includes('hexViewer')">Tools</q-item-label>
+                <q-item to='/tools/hex' class="col-6" v-if="renderEntities.includes('hexViewer')" active-class="bg-grey-6 text-white">
+                  <q-item-section class="text-center">
                     <div>
                       <q-icon :name="config.hexViewer.icon" size="2.6em"/>
                     </div>
                     <div>{{config.hexViewer.label}}</div>
-                  </q-item-main>
+                  </q-item-section>
                 </q-item>
               </q-list>
             </div>
-          </q-collapsible>
-          <q-collapsible
+          </q-expansion-item>
+          <q-expansion-item
             v-if="renderEntities.includes('containers') || renderEntities.includes('cdns')"
             group="menu"
             label="Storage"
             icon="mdi-database"
-            class="q-pt-md q-pb-md"
             :value="storageGroupModel"
           >
             <div>
               <q-list class="row q-py-none">
-                <q-item v-if="renderEntities.includes('containers')" to='/containers' class="col-6">
-                  <q-item-main class="text-center">
+                <q-item v-if="renderEntities.includes('containers')" to='/containers' class="col-6" active-class="bg-grey-6 text-white">
+                  <q-item-section class="text-center">
                     <div>
                       <q-icon :name="config.containers.icon" size="2.6em"/>
                     </div>
                     <div>{{config.containers.label}}</div>
-                  </q-item-main>
+                  </q-item-section>
                 </q-item>
-                <q-item v-if="renderEntities.includes('cdns')" to='/cdns' class="col-6">
-                  <q-item-main class="text-center">
+                <q-item v-if="renderEntities.includes('cdns')" to='/cdns' class="col-6" active-class="bg-grey-6 text-white">
+                  <q-item-section class="text-center">
                     <div>
                       <q-icon :name="config.cdns.icon" size="2.6em"/>
                     </div>
                     <div>{{config.cdns.label}}</div>
-                  </q-item-main>
+                  </q-item-section>
                 </q-item>
               </q-list>
             </div>
-          </q-collapsible>
-          <q-collapsible
+          </q-expansion-item>
+          <q-expansion-item
             group="menu"
             label="MQTT"
             icon="mdi-access-point-network"
-            class="q-pt-md q-pb-md"
             :value="mqttGroupModel"
             v-if="renderEntities.includes('mqtt') || renderEntities.includes('mqttClient')"
           >
             <div>
               <q-list class="row q-py-none">
-                <q-item v-if="renderEntities.includes('mqtt')" to='/mqtt' class="col-6">
-                  <q-item-main class="text-center">
+                <q-item v-if="renderEntities.includes('mqtt')" to='/mqtt' class="col-6" active-class="bg-grey-6 text-white">
+                  <q-item-section class="text-center">
                     <div>
                       <q-icon :name="config.mqtt.icon" size="2.6em"/>
                     </div>
                     <div>{{config.mqtt.label}}</div>
-                  </q-item-main>
+                  </q-item-section>
                 </q-item>
-                <q-item-separator v-if="renderEntities.includes('mqtt')" style="width: 100%"/>
-                <q-list-header class="col-12">Tools</q-list-header>
-                <q-item to='/tools/mqtt' class="col-6">
-                  <q-item-main class="text-center">
+                <q-separator v-if="renderEntities.includes('mqtt')" style="width: 100%"/>
+                <q-item-label header class="col-12">Tools</q-item-label>
+                <q-item to='/tools/mqtt' class="col-6" active-class="bg-grey-6 text-white">
+                  <q-item-section class="text-center">
                     <div>
                       <q-icon :name="config.mqttClient.icon" size="2.6em"/>
                     </div>
                     <div>{{config.mqttClient.label}}</div>
-                  </q-item-main>
+                  </q-item-section>
                 </q-item>
               </q-list>
             </div>
-          </q-collapsible>
+          </q-expansion-item>
         </q-list>
-      </q-layout-drawer>
-      <q-page-container class="bg-dark">
+      </q-drawer>
+      <q-page-container class="bg-grey-9">
         <raw-viewer
           ref="rawViewer"
           :config="rawConfig"
@@ -190,7 +191,7 @@
         </router-view>
       </q-page-container>
     </q-layout>
-    <q-inner-loading :visible="loadingFlag" style="z-index: 2001" dark>
+    <q-inner-loading :showing="loadingFlag" style="z-index: 2001" dark>
       <q-spinner-gears size="100px" color="white" />
     </q-inner-loading>
   </div>
@@ -212,7 +213,7 @@ export default {
       currentMessage: {},
       currentData: {},
       sides: {
-        left: !this.$q.platform.within.iframe,
+        left: !this.$q.platform.within.iframe && !this.$q.platform.is.mobile,
         right: false
       },
       currentLimit: 1000,
@@ -374,21 +375,22 @@ export default {
         message: 'Do you really want to exit?',
         cancel: true,
         ok: true
-      }).then(() => { this.reset() })
-        .catch(() => {})
+      }).onOk(() => { this.reset() })
+        .onCancel(() => {})
     },
     settingsHandler () {
       this.$q.dialog({
         title: 'Settings',
         message: 'Page row count',
+        color: 'grey-9',
         prompt: {
           model: this.limit,
           type: 'number'
         },
         ok: true,
         cancel: true
-      }).then((data) => { this.limit = data })
-        .catch(() => {})
+      }).onOk((data) => { this.limit = data })
+        .onCancel(() => {})
     },
     viewLogMessagesHandler (content) {
       this.currentData = JSON.parse(JSON.stringify(content))
@@ -436,14 +438,14 @@ export default {
     },
     reset (errMessage) {
       this.clearToken()
-      this.$router.push(`/login`)
+      this.$router.push(`/login`).catch(err => err)
       if (errMessage) {
         this.addError(errMessage)
       }
     },
     setDefaultEntity () {
       if (this.renderEntities.length) {
-        this.$router.push(`/${this.config[this.renderEntities[0]].path || this.renderEntities[0]}`)
+        this.$router.push(`/${this.config[this.renderEntities[0]].path || this.renderEntities[0]}`).catch(err => err)
         this.entity = this.renderEntities[0]
       } else {
         this.reset('Nothing to show by current token')
@@ -464,7 +466,7 @@ export default {
       if (route.params.token) {
         this.routeParamsProcess(route)
       } else if (!this.token) { // if not logged in
-        this.$router.push({name: 'simpleLogin', params: { goto: route.path }})
+        this.$router.push({ name: 'simpleLogin', params: { goto: route.path } }).catch(err => err)
       } else {
         this.routeMainProcess(route)
       }
@@ -478,7 +480,7 @@ export default {
         let routeProcessIndex = Vue.connector.socket.on('connect', () => {
           if (this.renderEntities.includes(route.params.type)) {
             this.entity = this.$route.params.type
-            this.$router.push(`/${route.params.type}/${route.params.id}`)
+            this.$router.push(`/${route.params.type}/${route.params.id}`).catch(err => err)
           } else {
             this.reset('Nothing to show by current token')
           }
@@ -493,9 +495,9 @@ export default {
         if (this.$route.meta.moduleName) {
           this.entity = this.$route.meta.moduleName
           if (this.$route.meta.moduleName === this.entity) { return false }
-          this.$router.push(this.$route.path)
+          this.$router.push(this.$route.path).catch(err => err)
         } else {
-          this.$router.push(this.$route.path)
+          this.$router.push(this.$route.path).catch(err => err)
         }
       }
     },
@@ -507,7 +509,7 @@ export default {
   watch: {
     token (val) {
       if (!val) {
-        this.$router.push('/login')
+        this.$router.push('/login').catch(err => err)
       }
     },
     $route (route) {
@@ -519,7 +521,7 @@ export default {
   },
   created () {
     this.routeProcess(this.$route)
-    let sessionSettings = this.$q.sessionStorage.get.item('toolbox-session-settings')
+    let sessionSettings = this.$q.sessionStorage.getItem('toolbox-session-settings')
     if (sessionSettings) {
       this.isNeedSelect = sessionSettings.isNeedSelect
       this.isVisibleToolbar = sessionSettings.isVisibleToolbar
@@ -543,7 +545,8 @@ export default {
     top 4px
     font-size 0.7rem
     &--mobile
-      left 105px
+      top 2px
+      left 110px
   .header__main-toolbar
     padding 1px 12px
 </style>

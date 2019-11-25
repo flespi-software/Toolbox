@@ -40,7 +40,7 @@ async function getItems ({ state, commit }, payload) {
       try {
         // init getting protocols name
         if (entity === 'channels' && !state.protocols) {
-          let protocolsResp = await Vue.connector.gw.getProtocols('all', {fields: 'name,id'})
+          let protocolsResp = await Vue.connector.gw.getProtocols('all', { fields: 'name,id' })
           let protocols = protocolsResp.data.result.reduce((result, protocol) => {
             result[protocol.id] = protocol.name
             return result
@@ -90,12 +90,12 @@ async function getItems ({ state, commit }, payload) {
           if (source[id]) {
             Vue.set(source[id], name, JSON.parse(value.toString()))
           } else {
-            Vue.set(source, id, {id: id, [name]: JSON.parse(value.toString())})
+            Vue.set(source, id, { id: id, [name]: JSON.parse(value.toString()) })
           }
         }
         let subsIds = await Vue.connector.socket.subscribe({
           name: origin,
-          handler: mode === GET_ITEMS_MODE_OBJECT ? objectModeHandler : fieldModeHandler}
+          handler: mode === GET_ITEMS_MODE_OBJECT ? objectModeHandler : fieldModeHandler }
         )
         Vue.set(state, writePath, items)
         return subsIds
@@ -107,7 +107,7 @@ async function getItems ({ state, commit }, payload) {
   }
 }
 
-async function unsubscribeItems ({state, commit}, payload) {
+async function unsubscribeItems ({ state, commit }, payload) {
   let entity = '',
     id = null,
     mode = GET_ITEMS_MODE_OBJECT
@@ -136,7 +136,7 @@ async function unsubscribeItems ({state, commit}, payload) {
 }
 
 async function getEntities (store, payload) {
-  let {state} = store
+  let { state } = store
   Vue.set(state, 'isLoading', true)
   let res = await Promise.all(payload.map(config => getItems(store, config)))
   Vue.set(state, 'isLoading', false)
@@ -144,43 +144,43 @@ async function getEntities (store, payload) {
 }
 
 async function removeEntities (store, payload) {
-  let {state} = store
+  let { state } = store
   Vue.set(state, 'isLoading', true)
   let res = await Promise.all(payload.map(config => unsubscribeItems(store, config)))
   Vue.set(state, 'isLoading', false)
   return res
 }
 
-async function getDeleted ({state, commit}, entity) {
+async function getDeleted ({ state, commit }, entity) {
   if (entity) {
-    let deletedParams = {fields: 'item_data', count: 2000, reverse: true}
+    let deletedParams = { fields: 'item_data', count: 2000, reverse: true }
     switch (entity) {
       case 'devices': {
-        deletedParams = Object.assign(deletedParams, {filter: 'event_origin=gw/devices/*,event_code=3'})
+        deletedParams = Object.assign(deletedParams, { filter: 'event_origin=gw/devices/*,event_code=3' })
         break
       }
       case 'channels': {
-        deletedParams = Object.assign(deletedParams, {filter: 'event_origin=gw/channels/*,event_code=3'})
+        deletedParams = Object.assign(deletedParams, { filter: 'event_origin=gw/channels/*,event_code=3' })
         break
       }
       case 'streams': {
-        deletedParams = Object.assign(deletedParams, {filter: 'event_origin=gw/streams/*,event_code=3'})
+        deletedParams = Object.assign(deletedParams, { filter: 'event_origin=gw/streams/*,event_code=3' })
         break
       }
       case 'calcs': {
-        deletedParams = Object.assign(deletedParams, {filter: 'event_origin=gw/calcs/*,event_code=3'})
+        deletedParams = Object.assign(deletedParams, { filter: 'event_origin=gw/calcs/*,event_code=3' })
         break
       }
       case 'modems': {
-        deletedParams = Object.assign(deletedParams, {filter: 'event_origin=gw/modems/*,event_code=3'})
+        deletedParams = Object.assign(deletedParams, { filter: 'event_origin=gw/modems/*,event_code=3' })
         break
       }
       case 'containers': {
-        deletedParams = Object.assign(deletedParams, {filter: 'event_origin=storage/containers/*,event_code=3'})
+        deletedParams = Object.assign(deletedParams, { filter: 'event_origin=storage/containers/*,event_code=3' })
         break
       }
       case 'cdns': {
-        deletedParams = Object.assign(deletedParams, {filter: 'event_origin=storage/cdns/*,event_code=3'})
+        deletedParams = Object.assign(deletedParams, { filter: 'event_origin=storage/cdns/*,event_code=3' })
         break
       }
     }
@@ -191,7 +191,7 @@ async function getDeleted ({state, commit}, entity) {
         }
         let deleted = []
         if (state.tokenInfo.access.type === 1) {
-          let deletedResp = await Vue.connector.platform.getCustomerLogs({data: JSON.stringify(deletedParams)})
+          let deletedResp = await Vue.connector.platform.getCustomerLogs({ data: JSON.stringify(deletedParams) })
           let deletedData = deletedResp.data
           if (deletedData.errors) {
             deletedData.errors.forEach((error) => {
@@ -203,6 +203,9 @@ async function getDeleted ({state, commit}, entity) {
         if (!deleted.length) {
           Notify.create({
             message: `No deleted ${entity} found.`,
+            color: 'warning',
+            classes: 'text-center',
+            icon: 'mdi-alert-octagon-outline',
             timeout: 1000
           })
         }

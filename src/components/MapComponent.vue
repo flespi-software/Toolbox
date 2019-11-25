@@ -1,19 +1,18 @@
 <template>
   <vue-draggable-resizable ref="dragResize" class="map-component__wrapper" :class="[isMapMinimized || isMapMaximized ? 'map-component--minimized' : '']" :active="true" :style="wrapperStyles" :x="startX" :y="startY" :w="width" :h="height" :minw="100" :minh="100" @resizing="mapResizeHandler" :parent="true" @dragging="draggingHandler">
-    <q-window-resize-observable @resize="onWindowResize" />
-    <div class="map-container__header" :style="{height: `${headerMapHeight}px`}" v-show="!isMapMinimized && !isMapMaximized">
+    <div class="map-container__header" :style="{height: `${headerMapHeight}px`}" v-show="!isMapMinimized && !isMapMaximized" style="padding-right: 1px; padding-top: 3px;">
       <q-icon @mousedown.stop.prevent.native="closeMapHandler" name="mdi-close" class="float-right cursor-pointer" color="white"/>
       <q-icon @mousedown.stop.prevent.native="maximizeHandler" :name="isMapMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" class="float-right cursor-pointer" color="white"/>
       <q-icon v-if="siblingHeight !== 0" @mousedown.stop.prevent.native="minimizeHandler('messages')" name="mdi-arrow-bottom-right" class="float-right cursor-pointer" color="white"/>
       <q-icon v-if="siblingHeight !== 100" :class='{[`height${siblingHeight}`]: true}' @mousedown.stop.prevent.native="minimizeHandler('logs')" name="mdi-arrow-top-right" class="float-right cursor-pointer" color="white"/>
     </div>
     <div id="map" :style="mapStyles">
-      <q-resize-observable @resize="onResize" />
+      <q-resize-observer @resize="onResize" />
     </div>
     <div class="map-component__custom-controls" v-if="isMapMinimized || isMapMaximized">
-      <q-icon @mousedown.stop.prevent.native="closeMapHandler" name="mdi-close" class="pull-right cursor-pointer" size="30px" color="dark"/>
-      <q-icon v-if="isMapMinimized" @mousedown.stop.prevent.native="restoreHandler" name="mdi-window-restore" size="30px" class="pull-right cursor-pointer" color="dark"/>
-      <q-icon v-if="isMapMaximized" @mousedown.stop.prevent.native="maximizeHandler" :name="isMapMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" size="30px" class="pull-right cursor-pointer" color="dark"/>
+      <q-icon @mousedown.stop.prevent.native="closeMapHandler" name="mdi-close" class="pull-right cursor-pointer" size="30px" color="grey-9"/>
+      <q-icon v-if="isMapMinimized" @mousedown.stop.prevent.native="restoreHandler" name="mdi-window-restore" size="30px" class="pull-right cursor-pointer" color="grey-9"/>
+      <q-icon v-if="isMapMaximized" @mousedown.stop.prevent.native="maximizeHandler" :name="isMapMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" size="30px" class="pull-right cursor-pointer" color="grey-9"/>
     </div>
   </vue-draggable-resizable>
 </template>
@@ -53,22 +52,24 @@ export default {
   },
   computed: {
     mapStyles () {
+      let size = {}
       if (this.device && this.messages && this.messages.length) {
-        return {
-          width: `${this.width}px`,
-          height: `${this.height - (this.isMapMinimized || this.isMapMaximized ? 0 : this.headerMapHeight)}px`
-        }
+        size.width = `${this.width}px`
+        size.height = `${this.height - (this.isMapMinimized || this.isMapMaximized ? 0 : this.headerMapHeight)}px`
       }
+      return size
     },
     wrapperStyles () {
+      let styles = {}
       if (this.device && this.messages && this.messages.length) {
-        return {
+        styles = {
           width: `${this.width}px`,
           height: `${this.height}px`,
           position: 'absolute',
           backgroundColor: '#666'
         }
       }
+      return styles
     }
   },
   methods: {
@@ -90,7 +91,7 @@ export default {
         this.map.addEventListener('mousedown', e => {
           e.originalEvent.stopPropagation()
         })
-        L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {minZoom: 3, noWrap: true}).addTo(this.map)
+        L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { minZoom: 3, noWrap: true }).addTo(this.map)
       }
     },
     flyTo (position) {
@@ -280,7 +281,7 @@ export default {
     },
     initDeviceOnMap () {
       this.initMarker()
-      this.track = L.polyline(this.getLatLngArr(), {color: this.color}).addTo(this.map)
+      this.track = L.polyline(this.getLatLngArr(), { color: this.color }).addTo(this.map)
     },
     updateDeviceOnMap () {
       let currentArrPos = this.getLatLngArr(),
@@ -296,7 +297,7 @@ export default {
           this.initMarker()
         }
         if (!(this.track instanceof L.Polyline)) {
-          this.track = L.polyline(this.getLatLngArr(), {color: this.color}).addTo(this.map)
+          this.track = L.polyline(this.getLatLngArr(), { color: this.color }).addTo(this.map)
         }
       }
       this.marker.setLatLng(currentArrPos[this.messages.length - 1]).update()
@@ -313,6 +314,24 @@ export default {
   watch: {
     messages (messages) {
       this.updateDeviceOnMap()
+    },
+    '$q.screen.width': {
+      immediate: true,
+      handler (width) {
+        this.onWindowResize({
+          height: this.$q.screen.height,
+          width
+        })
+      }
+    },
+    '$q.screen.height': {
+      immediate: true,
+      handler (height) {
+        this.onWindowResize({
+          width: this.$q.screen.width,
+          height
+        })
+      }
     },
     minimizeTo (minimizeTo) {
       if (minimizeTo) {
