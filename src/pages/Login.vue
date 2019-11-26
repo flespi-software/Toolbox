@@ -91,7 +91,7 @@ export default {
       this.goto('/')
     },
     checkHasToken () {
-      let sessionStorageToken = this.$q.sessionStorage.getItem('toolbox-token')
+      let sessionStorageToken = this.$q.sessionStorage.getItem(`toolbox-token[${window.name || 'default'}]`)
       if (this.$route.params && this.$route.params.token) {
         this.autoLogin()
       } else if (sessionStorageToken) {
@@ -126,7 +126,7 @@ export default {
     }
   },
   created () {
-    let sessionSettings = this.$q.sessionStorage.getItem('toolbox-session-settings')
+    let sessionSettings = this.$q.sessionStorage.getItem(`toolbox-session-settings[${window.name || 'default'}]`)
     if (sessionSettings) {
       this.canLogin = sessionSettings.isVisibleToolbar
     }

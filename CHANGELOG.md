@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.19.4] - 2019-11-26
+[fix] storage session settings
 ### [0.19.3] - 2019-11-26
 [fix] noselect and fullscreen logic
 ### [0.19.2] - 2019-11-25
