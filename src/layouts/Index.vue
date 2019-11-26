@@ -472,8 +472,8 @@ export default {
       }
     },
     routeParamsProcess (route) {
-      this.isNeedSelect = !this.$route.params.noselect && !this.$q.platform.within.iframe
-      this.isVisibleToolbar = !route.params.fullscreen && !this.$q.platform.within.iframe
+      this.isNeedSelect = !this.$route.params.noselect || !this.$q.platform.within.iframe
+      this.isVisibleToolbar = !route.params.fullscreen || !this.$q.platform.within.iframe
       this.$q.sessionStorage.set('toolbox-session-settings', { isNeedSelect: this.isNeedSelect, isVisibleToolbar: this.isVisibleToolbar })
       this.setToken(route.params.token)
       if (route.params.id && route.params.type) {
