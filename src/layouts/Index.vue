@@ -530,6 +530,12 @@ export default {
       this.connectFlag = true
       this.connectionPreserveHandlerIndex = Vue.connector.socket.on('connect', this.connectionPreserveHandler)
     }
+    if (window && window.name) {
+      window.addEventListener('beforeunload', () => {
+        this.$q.sessionStorage.remove(`toolbox-session-settings[${window.name}]`)
+        this.$q.sessionStorage.remove(`toolbox-token[${window.name}]`)
+      })
+    }
   },
   beforeDestroy () {
     this.connectionPreserveHandlerIndex !== undefined && Vue.connector.socket.off('connect', this.connectionPreserveHandlerIndex)

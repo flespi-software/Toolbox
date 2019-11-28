@@ -3,19 +3,19 @@
     <q-item class="q-pa-none">
       <q-item-section avatar><q-icon color="white" size="1.8rem" name="mdi-view-list"/></q-item-section>
       <q-item-section>
-        <q-item-label header class="ellipsis text-bold text-white">Object</q-item-label>
+        <q-item-label class="ellipsis text-bold text-white">Message</q-item-label>
       </q-item-section>
       <q-item-section side><q-icon color="white" class="pull-right cursor-pointer" name="mdi-close" @click.native="$emit('close')" size="1.8rem" /></q-item-section>
     </q-item>
     <q-item  class="q-pa-none">
-      <q-item-section>
-        <q-input type="text" color="white" dark label="Search" v-model="search" class="q-py-none"/>
+      <q-item-section class="q-px-sm">
+        <q-input type="text" color="white" dark label="Search" v-model="search" class="q-py-none" outlined/>
       </q-item-section>
     </q-item>
     <q-list separator dark>
       <q-item v-if="!Object.keys(object).length || !Object.keys(filteredObject).length">
         <q-item-section>
-          <q-item-label header class="ellipsis text-bold text-center text-white">Object is empty</q-item-label>
+          <q-item-label header class="ellipsis text-bold text-center text-white">Message is empty</q-item-label>
           <q-item-label v-if="!Object.keys(object).length" caption class="ellipsis text-center text-white">Message has not fields</q-item-label>
           <q-item-label v-if="!Object.keys(filteredObject).length && this.search" caption class="ellipsis text-center text-white">Nothing found on your search</q-item-label>
         </q-item-section>

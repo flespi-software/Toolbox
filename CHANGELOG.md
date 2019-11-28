@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.19.5] - 2019-11-27
+[fix] styles
 ### [0.19.4] - 2019-11-26
 [fix] storage session settings
 ### [0.19.3] - 2019-11-26

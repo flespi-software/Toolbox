@@ -88,7 +88,6 @@
             @clear="clearActiveCalc(), $emit('view-data-hide')"
             :label="activeCalcId ? 'Calc' : 'SELECT CALC'"
             dark hide-bottom-space dense color="white"
-            :disable="!isNeedSelect"
             :virtual-scroll-item-size="48"
             :virtual-scroll-slice-size="6"
             :virtual-scroll-sticky-size-start="48"
