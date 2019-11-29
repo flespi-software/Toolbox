@@ -38,7 +38,7 @@
 <script>
 import { VirtualScrollList, intervalsModule } from 'qvirtualscroll'
 import Vue from 'vue'
-import { date } from 'quasar'
+import { date, copyToClipboard } from 'quasar'
 import filterMessages from '../../mixins/filterMessages'
 import MessagesListItem from './MessagesListItem.vue'
 
@@ -236,7 +236,7 @@ export default {
       this.$emit('on-map', routes)
     },
     copyMessageHandler ({ index, content }) {
-      this.$copyText(JSON.stringify(content)).then((e) => {
+      copyToClipboard(JSON.stringify(content)).then((e) => {
         this.$q.notify({
           type: 'positive',
           icon: 'content_copy',

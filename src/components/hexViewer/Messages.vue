@@ -82,7 +82,7 @@ import { channelsMessagesModulePull } from 'qvirtualscroll'
 import VirtualList from 'vue-virtual-scroll-list'
 import { VueFlatPickr } from 'datetimerangepicker'
 import Vue from 'vue'
-import { date } from 'quasar'
+import { date, copyToClipboard } from 'quasar'
 import filterMessages from '../../mixins/filterMessages'
 import MessagesListItem from './MessagesListItem.vue'
 import ConnectionsListItem from './ConnectionsListItem.vue'
@@ -351,7 +351,7 @@ export default {
       }
     },
     copyMessageHandler ({ index, content }) {
-      this.$copyText(JSON.stringify(content)).then((e) => {
+      copyToClipboard(JSON.stringify(content)).then((e) => {
         this.$q.notify({
           type: 'positive',
           icon: 'content_copy',

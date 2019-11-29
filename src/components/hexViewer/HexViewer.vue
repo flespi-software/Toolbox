@@ -114,6 +114,7 @@
 <script>
 import range from 'lodash/range'
 import chunk from 'lodash/chunk'
+import { copyToClipboard } from 'quasar'
 export default {
   name: 'HexViewer',
   props: ['hex', 'view'],
@@ -310,7 +311,7 @@ export default {
     copy (type) {
       let content = this.getContent(type, true)
 
-      this.$copyText(content).then((e) => {
+      copyToClipboard(content).then((e) => {
         this.$q.notify({
           type: 'positive',
           icon: 'content_copy',
