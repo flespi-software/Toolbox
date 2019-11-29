@@ -16,6 +16,7 @@
             :label="active ? 'Device' : 'SELECT DEVICE'"
             dark hide-bottom-space dense color="white"
             :disable="!isNeedSelect || true"
+            :hide-dropdown-icon="!isNeedSelect || true"
             :virtual-scroll-item-size="48"
             :virtual-scroll-slice-size="6"
             :virtual-scroll-sticky-size-start="48"

@@ -8,6 +8,7 @@
           :class="{'items__select--no-selected': !active}"
           :value="active"
           :options="filteredItems"
+          :hide-dropdown-icon="!isNeedSelect"
           filled
           :label="active ? 'Channel' : 'SELECT CHANNEL'"
           dark hide-bottom-space dense color="white"

@@ -248,7 +248,27 @@ export default {
       } else {
         this.selected = [index]
       }
-      this.$emit('view-data', this.messages.filter((message, index) => this.selected.includes(index)))
+      let messages = this.messages.reduce((messages, message, index) => {
+        let includes = this.selected.includes(index)
+        if (includes) {
+          let modifiedMessage = Object.keys(message).reduce((result, key) => {
+            if (
+              key === 'delimiter' ||
+              key === '__status' ||
+              key === 'x-flespi-filter-fields' ||
+              key === 'x-flespi-filter-next' ||
+              key === 'x-flespi-filter-prev'
+            ) {
+              return result
+            }
+            result[key] = message[key]
+            return result
+          }, {})
+          messages.push(modifiedMessage)
+        }
+        return messages
+      }, [])
+      this.$emit('view-data', messages)
     },
     copyMessageHandler ({ index, content }) {
       this.$copyText(JSON.stringify(content)).then((e) => {

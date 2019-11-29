@@ -12,6 +12,7 @@
           :label="active ? 'Stream' : 'SELECT STREAM'"
           dark hide-bottom-space dense color="white"
           :disable="!isNeedSelect"
+          :hide-dropdown-icon="!isNeedSelect"
           :virtual-scroll-item-size="48"
           :virtual-scroll-slice-size="6"
           :virtual-scroll-sticky-size-start="48"

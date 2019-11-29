@@ -9,6 +9,7 @@
           :value="active"
           :options="filteredItems"
           filled
+          :hide-dropdown-icon="!isNeedSelect"
           :label="active ? 'Device' : 'SELECT DEVICE'"
           dark hide-bottom-space dense color="white"
           :disable="!isNeedSelect"

@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.19.6] - 2019-11-29
+[fix] channel clear message
+[fix] styles
 ### [0.19.5] - 2019-11-27
 [fix] styles
 ### [0.19.4] - 2019-11-26

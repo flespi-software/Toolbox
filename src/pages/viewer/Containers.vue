@@ -8,6 +8,7 @@
           :class="{'items__select--no-selected': !active}"
           :value="active"
           :options="filteredItems"
+          :hide-dropdown-icon="!isNeedSelect"
           filled
           :label="active ? 'Containers' : 'SELECT CONTAINER'"
           dark hide-bottom-space dense color="white"

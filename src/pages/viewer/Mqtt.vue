@@ -9,6 +9,7 @@
           :value="active"
           :options="filteredItems"
           filled
+          :hide-dropdown-icon="!isNeedSelect"
           :label="active ? 'Account' : 'SELECT ACCOUNT'"
           hide-bottom-space dense color="white" dark
           :disable="!isNeedSelect"
