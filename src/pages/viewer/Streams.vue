@@ -75,7 +75,7 @@
           </template>
         </q-select>
       </div>
-      <q-btn v-if="active && !selectedItem.deleted" flat dense class="on-right pull-right text-center rounded-borders q-px-xs q-py-none" color="white" @click="modeModel = !modeModel" style="min-width: 70px; max-width: 70px;">
+      <q-btn v-if="active && !selectedItem.deleted" flat dense class="on-right pull-right text-center rounded-borders q-px-xs q-py-none" color="white" @click="modeModel = !modeModel" style="min-width: 73px; max-width: 73px;">
         <q-icon size="1.5rem" color="white" :name="modeModel ? 'playlist_play' : 'history'"/>
         <div style="font-size: .7rem; line-height: .7rem">{{modeModel ? 'Real-time' : 'History'}}</div>
         <q-tooltip>Mode (Real-time/History)</q-tooltip>
