@@ -54,11 +54,12 @@
           :size="itemHeight"
           :remain="itemsCount"
           :debounce="10"
-          wclass="q-w-list">
+          wclass="q-w-list"
+        >
           <component
             :is="`${type}-list-item`"
             v-for="(item, index) in renderEntities"
-            :key="`${JSON.stringify(item)}${index}`"
+            :key="`${type}-${index}`"
             :item="item"
             :index="index"
             :actions="actions"
@@ -129,9 +130,10 @@ export default {
   },
   computed: {
     renderEntities () {
-      return this.connection
+      let entities = this.connection
         ? this.currentMessages
         : this.currentConnections
+      return entities
     },
     currentConnections () {
       return this.filter ? this.connectionsByIndex.reduce((res, connectionId) => {
@@ -210,7 +212,8 @@ export default {
       }
       this.wrapperHeight = this.$refs.wrapper.offsetHeight - this.itemHeight // - header - scroll-bottom
       this.itemsCount = Math.ceil(this.wrapperHeight / this.itemHeight)
-      if (this.$refs.scroller) {
+      this.$refs.scroller && this.$refs.scroller.forceRender()
+      if (this.$refs.scroller && this.$refs.scroller.$el) {
         let element = this.$refs.scroller.$el
         element.scrollTop += 1
       }
@@ -346,7 +349,9 @@ export default {
         }
         this.$emit('view-data', this.connection.messages.filter((message, index) => this.selected.includes(index)))
       } else if (this.type === 'connections') {
-        this.scrollerScrollTop = this.$refs.scroller.$el.scrollTop
+        if (this.$refs.scroller && this.$refs.scroller.$el) {
+          this.scrollerScrollTop = this.$refs.scroller.$el.scrollTop
+        }
         this.$emit('change:connection', content)
       }
     },
@@ -379,7 +384,9 @@ export default {
     closeCurrentConnection () {
       this.$emit('close')
       this.$nextTick(() => {
-        this.$refs.scroller.$el.scrollTop = this.scrollerScrollTop
+        if (this.$refs.scroller && this.$refs.scroller.$el) {
+          this.$refs.scroller.$el.scrollTop = this.scrollerScrollTop
+        }
       })
     },
     clearHandler () {
@@ -471,7 +478,7 @@ export default {
     if (!this.messages.length) {
       this.currentScrollTop = 0
     } else {
-      if (this.needAutoScroll && this.$refs.scroller) { this.$refs.scroller.$el.scrollTop = this.$refs.scroller.$el.scrollHeight }
+      if (this.needAutoScroll && this.$refs.scroller && this.$refs.scroller.$el) { this.$refs.scroller.$el.scrollTop = this.$refs.scroller.$el.scrollHeight }
     }
   },
   destroyed () {
