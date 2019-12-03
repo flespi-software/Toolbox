@@ -93,7 +93,12 @@ module.exports = function (ctx) {
         'Dialog',
         'LocalStorage',
         'SessionStorage'
-      ]
+      ],
+      config: {
+        screen: {
+          bodyClasses: true
+        }
+      }
     },
 
     // https://quasar.dev/quasar-cli/cli-documentation/supporting-ie

@@ -15,7 +15,7 @@
     <q-list separator dark>
       <q-item v-if="!Object.keys(object).length || !Object.keys(filteredObject).length">
         <q-item-section>
-          <q-item-label header class="ellipsis text-bold text-center text-white">Message is empty</q-item-label>
+          <q-item-label header class="ellipsis text-bold text-center text-white">No parameters</q-item-label>
           <q-item-label v-if="!Object.keys(object).length" caption class="ellipsis text-center text-white">Message has not fields</q-item-label>
           <q-item-label v-if="!Object.keys(filteredObject).length && this.search" caption class="ellipsis text-center text-white">Nothing found on your search</q-item-label>
         </q-item-section>

@@ -1,5 +1,5 @@
 <template>
-  <vue-draggable-resizable ref="dragResize" class="map-component__wrapper" :class="[isMapMinimized || isMapMaximized ? 'map-component--minimized' : '']" :active="true" :style="wrapperStyles" :x="startX" :y="startY" :w="width" :h="height" :minw="100" :minh="100" @resizing="mapResizeHandler" :parent="true" @dragging="draggingHandler">
+  <vue-draggable-resizable ref="dragResize" class="map-component__wrapper" :class="[isMapMinimized || isMapMaximized ? 'map-component--minimized' : '']" :active="true" :style="wrapperStyles" :x="startX" :y="startY" :w="width" :h="height" :z="1000" :minw="100" :minh="100" @resizing="mapResizeHandler" :parent="true" @dragging="draggingHandler">
     <div class="map-container__header" :style="{height: `${headerMapHeight}px`}" v-show="!isMapMinimized && !isMapMaximized" style="padding-right: 1px; padding-top: 3px;">
       <q-icon @mousedown.stop.prevent.native="closeMapHandler" name="mdi-close" class="float-right cursor-pointer" color="white"/>
       <q-icon @mousedown.stop.prevent.native="maximizeHandler" :name="isMapMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" class="float-right cursor-pointer" color="white"/>
@@ -80,6 +80,7 @@ export default {
         this.map = L.map('map', {
           center: position,
           zoom: this.zoom,
+          attributionControl: false,
           maxBounds: [
             [90, -180],
             [-90, 180]
@@ -91,6 +92,7 @@ export default {
         this.map.addEventListener('mousedown', e => {
           e.originalEvent.stopPropagation()
         })
+        L.control.attribution({ prefix: '<span class="leaflet-map__attribution">Leaflet</span>' }).addTo(this.map)
         L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { minZoom: 3, noWrap: true }).addTo(this.map)
       }
     },
@@ -347,6 +349,9 @@ export default {
 </script>
 
 <style lang="stylus">
+  .leaflet-map__attribution
+    bottom 2px
+    right 2px
   .my-div-icon__inner
     border 3px solid
     border-radius 50% 0 50% 50%

@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.19.9] - 2019-12-03
+[update] quasar to 1.5.3
+[fix] map attribution
+[fix] helping messages in object viewer
 ### [0.19.8] - 2019-12-02
 [fix] styles
 ### [0.19.7] - 2019-11-29
