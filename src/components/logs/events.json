@@ -1,8 +1,8 @@
 {
   "types": {
-    "1": "item was created, usually by customer via REST API",
-    "2": "item was updated, usually by customer via REST API",
-    "3": "item was deleted, usually by customer via REST API",
+    "1": "item was created via REST API",
+    "2": "item was updated via REST API",
+    "3": "item was deleted via REST API",
     "20": "item was blocked",
     "21": "item was unblocked",
     "100": "channel has accepted connection",
