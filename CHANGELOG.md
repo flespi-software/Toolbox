@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.19.12] - 2019-12-12
+[fix] build
+### [0.19.11] - 2019-12-12
+[update] deps
 ### [0.19.10] - 2019-12-03
 [fix] rerender hexviewer
 ### [0.19.9] - 2019-12-03
