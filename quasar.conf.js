@@ -41,44 +41,44 @@ module.exports = function (ctx) {
       all: false,
 
       components: [
-        'QLayout', //
-        'QHeader', //
-        'QDrawer', //
-        'QPageContainer', //
-        'QPage', //
-        'QToolbar', //
-        'QToolbarTitle', //
-        'QBtn', //
-        'QIcon', //
-        'QList', //
-        'QItem', //
-        'QItemSection', //
-        'QItemLabel', //
+        'QLayout',
+        'QHeader',
+        'QDrawer',
+        'QPageContainer',
+        'QPage',
+        'QToolbar',
+        'QToolbarTitle',
+        'QBtn',
+        'QIcon',
+        'QList',
+        'QItem',
+        'QItemSection',
+        'QItemLabel',
 
-        'QSeparator', //
-        'QInput', //
-        'QCircularProgress', //
-        'QResizeObserver', //
-        'QTabs', //
-        'QTab', //
-        'QTabPanels', //
-        'QTabPanel', //
-        'QMenu', //
-        'QInnerLoading', //
-        'QSpinnerGears', //
-        'QDialog', //
-        'QTooltip', //
-        'QSelect', //
-        'QChip', //
-        'QSlider', //
-        'QToggle', //
-        'QField', //
-        'QCheckbox', //
-        'QExpansionItem', //
-        'QBtnToggle', //
-        'QCard', //
-        'QCardSection', //
-        'QCardActions' //
+        'QSeparator',
+        'QInput',
+        'QCircularProgress',
+        'QResizeObserver',
+        'QTabs',
+        'QTab',
+        'QTabPanels',
+        'QTabPanel',
+        'QMenu',
+        'QInnerLoading',
+        'QSpinnerGears',
+        'QDialog',
+        'QTooltip',
+        'QSelect',
+        'QChip',
+        'QSlider',
+        'QToggle',
+        'QField',
+        'QCheckbox',
+        'QExpansionItem',
+        'QBtnToggle',
+        'QCard',
+        'QCardSection',
+        'QCardActions'
       ],
 
       directives: [

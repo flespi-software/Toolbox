@@ -75,6 +75,7 @@
     "12": "Current connection closed because of ident collision: device has opened another connection to the channel without closing first one. It may happen because of device firmware bug or by an unstable connectivity provider. In general, this happens to plenty of devices and usually can be ignored.",
     "13": "device is blocked",
     "14": "password mismatch",
+    "15": "device associated with the connection was created, changed or deleted",
     "128": "Unspecified error",
     "129": "Malformed Packet",
     "130": "Protocol Error",
