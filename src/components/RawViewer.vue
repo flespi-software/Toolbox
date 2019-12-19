@@ -1,7 +1,7 @@
 <template>
   <q-dialog class="modal-date" :maximized="$q.platform.is.mobile" @show="openHandler" @hide="tabModel = ''" ref="modal">
-    <q-card :style="{minWidth: $q.platform.is.mobile ? '100%' : '30vw'}" :class="{'bg-grey-9': inverted !== undefined}">
-      <q-card-section :style="{height: $q.platform.is.mobile ? 'calc(100% - 52px)' : ''}" class="scroll q-pa-none">
+    <q-card :style="{minWidth: $q.platform.is.mobile ? '100%' : '30vw', height: $q.platform.is.mobile ? '100%' : '60vh'}" :class="{'bg-grey-9': inverted !== undefined}">
+      <q-card-section :style="{height: 'calc(100% - 54px)'}" class="q-pa-none">
         <template v-if="hasData">
           <q-tabs v-model="tabModel" class="text-white">
             <template v-for="(item, key) in config">
@@ -10,7 +10,7 @@
               </template>
             </template>
           </q-tabs>
-          <q-tab-panels v-model="tabModel" animated class="bg-grey-9">
+          <q-tab-panels v-model="tabModel" class="bg-grey-9 scroll" style="height: calc(100% - 48px)">
             <q-tab-panel v-for="(item, key) in config" :name="key" :key="`tab-pane-${key}`">
               <template v-if="item.data">
                 <div style="font-size: 1.1rem" class="text-center q-mb-sm" :class="[item.data._color]" v-if="item.description">{{item.description}}</div>

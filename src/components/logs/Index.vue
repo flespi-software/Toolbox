@@ -13,6 +13,7 @@
       :filter="filter"
       :theme="theme"
       :title="'Logs'"
+      :loading="loadingFlag"
       @change:filter="filterChangeHandler"
       @change:pagination-prev="paginationPrevChangeHandler"
       @change:pagination-next="paginationNextChangeHandler"
@@ -85,7 +86,7 @@ export default {
         }
         await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active entity */
         this.$store.commit(`${this.moduleName}/setOrigin`, val)
-        this.$store.commit(`${this.moduleName}/setItemDeletedStatus`, this.item.deleted)
+        this.$store.commit(`${this.moduleName}/setItemDeletedStatus`, (this.item && this.item.deleted))
         this.$store.commit(`${this.moduleName}/clearMessages`)
         this.$store.dispatch(`${this.moduleName}/getCols`, this.config.cols)
         if (this.$store.state[this.moduleName].mode === 0) {
@@ -151,9 +152,14 @@ export default {
       }
     },
     originByPattern () {
+      if (!this.item) { return '' }
       return this.originPattern.replace(/\/:(\w*)(\/)?/g, (match, p1, p2) => {
         return `/${this.item[p1]}${p2 || ''}`
       })
+    },
+    loadingFlag () {
+      let state = this.$store.state
+      return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
     }
   },
   methods: {
@@ -191,7 +197,10 @@ export default {
       this.cols = cols
     },
     dateChangeHandler (date) {
+      let to = new Date(date).setHours(0, 0, 0, 0)
+      to += 86400000
       this.$store.dispatch(`${this.moduleName}/get`, { name: 'setFrom', payload: date })
+      this.$store.dispatch(`${this.moduleName}/get`, { name: 'setTo', payload: to })
     },
     datePrevChangeHandler () {
       this.$store.dispatch(`${this.moduleName}/get`, { name: 'datePrev' })

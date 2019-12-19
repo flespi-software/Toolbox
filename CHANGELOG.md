@@ -1,5 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.20.0] - 2019-12-19
+[feature] data getting optimizations
+[feature] custom scrolls
+[feature] lazy loading for items and messages
+[update] main menu styles
+[update] log code
+[fix] get messages by time
 ### [0.19.13] - 2019-12-16
 [update] log codes
 [update] routes for login

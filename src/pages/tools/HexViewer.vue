@@ -1,7 +1,10 @@
 <template>
   <q-page>
-    <q-toolbar class="justify-between bg-grey-9">
-      <div class="flex" :class="{'middle-modificator': !active}" v-if="items.length">
+    <entities-toolbar
+      :item="selectedItem" :ratio="ratio" :mode="modeModel"
+      @change:mode="mode => modeModel = mode" @change:ratio="r => ratio = r"
+    >
+      <div class="flex" :class="{'middle-modificator': !active}" slot="selects">
         <div style="display: inline-flex;max-width: calc(100% - 80px);">
           <q-select
             ref="itemSelect"
@@ -44,6 +47,7 @@
                 v-on="scope.itemEvents"
                 class="q-pa-none"
                 style="min-height: 20px; margin-top: 2px; max-width: 100%"
+                v-if="selectedItem"
               >
                 <q-item-section>
                   <q-item-label header class="ellipsis overflow-hidden q-pa-none text-white">{{selectedItem.name || '&lt;noname&gt;'}}</q-item-label>
@@ -70,8 +74,8 @@
                   <q-item-label class="q-pa-none q-mt-none" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{scope.opt.uri || '&lt;no uri&gt;'}}</small></q-item-label>
                 </q-item-section>
                 <q-item-section side>
-                  <q-item-label v-if="scope.opt.deleted" class="q-pa-xs text-right"><small class="cheap-modifier cheap-modifier--item">DELETED</small></q-item-label>
-                  <q-item-label class="q-pa-none q-mt-none text-right"><small>#{{scope.opt.id}}</small></q-item-label>
+                  <q-item-label v-if="scope.opt.deleted" class="q-pa-xs text-right"><small class="cheap-modifier cheap-modifier--item" :class="{'cheap-modifier--mobile': $q.platform.is.mobile}">DELETED</small></q-item-label>
+                  <q-item-label class="q-pa-none q-mt-none text-right" :class="{'q-pr-xs': $q.platform.is.mobile}"><small>#{{scope.opt.id}}</small></q-item-label>
                 </q-item-section>
               </q-item>
             </template>
@@ -84,13 +88,7 @@
           </q-btn>
         </transition>
       </div>
-      <q-btn v-if="active && !selectedItem.deleted" flat dense class="on-right pull-right text-center rounded-borders q-px-xs q-py-none text-white" color="white" @click="modeModel = !modeModel" style="min-width: 73px; max-width: 73px;">
-        <q-icon size="1.5rem" color="white" :name="modeModel ? 'playlist_play' : 'history'"/>
-        <div style="font-size: .7rem; line-height: .7rem;">{{modeModel ? 'Real-time' : 'History'}}</div>
-        <q-tooltip>Mode (Real-time/History)</q-tooltip>
-      </q-btn>
-      <div></div>
-    </q-toolbar>
+    </entities-toolbar>
     <div style="display: flex;" v-if="active">
       <messages
         v-show="$q.platform.is.desktop || ($q.platform.is.mobile && !selectedMessages)"
@@ -101,7 +99,7 @@
         :config="config.messages"
         :connection="activeConnection"
         :type="activeConnection ? 'messages' : 'connections'"
-        :style="{minHeight: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', width: $q.platform.is.desktop ? '25%' : '100%'}"
+        :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', width: $q.platform.is.desktop ? '25%' : '100%'}"
         @view-data="(content) => { selectedMessages = content }"
         @change:connection="content => { activeConnection = content }"
         @close="() => { activeConnection = null, selectedMessages = '' }"
@@ -126,16 +124,18 @@
         <div style="text-align: center; color: #9e9e9e; font-size: 3rem; padding-top: 40px;" v-else>Select connection</div>
       </div>
     </div>
-    <div v-if="!items.length" class="text-center text-grey-3 q-mt-lg" style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Proxy channels not found'}}</div>
-    <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="active && selectedItem.deleted">Nothing to show by channel &#171;{{selectedItem.name}}&#187; <div style="font-size: 0.9rem">or you haven`t access</div></div>
+    <div v-if="!items.length && isItemsInit" class="text-center text-grey-3 q-mt-lg" style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Proxy channels not found'}}</div>
+    <div class="text-center" style="font-size: 1.5rem; margin-top: 30px; color: white" v-if="active && selectedItem && selectedItem.deleted">Nothing to show by channel &#171;{{selectedItem.name}}&#187; <div style="font-size: 0.9rem">or you haven`t access</div></div>
   </q-page>
 </template>
 
 <script>
 import messages from '../../components/hexViewer/Messages'
 import HexViewer from '../../components/hexViewer/HexViewer'
+import EntitiesToolbar from '../../components/EntitiesToolbar'
 import { mapState, mapActions } from 'vuex'
 import init from '../../mixins/entitiesInit'
+import get from 'lodash/get'
 
 export default {
   name: 'PageHexViewer',
@@ -144,7 +144,8 @@ export default {
     'isLoading',
     'isVisibleToolbar',
     'isNeedSelect',
-    'config'
+    'config',
+    'settings'
   ],
   mixins: [init],
   data () {
@@ -153,6 +154,7 @@ export default {
       active: null,
       activeConnection: null,
       isInit: false,
+      isItemsInit: false,
       needShowGetDeletedAction: true,
       selectedMessages: '',
       typeOfHexView: 'hex',
@@ -175,7 +177,7 @@ export default {
           return proxyId
         }, 0)
       },
-      items (state) { return Object.values(state.items).filter(item => this.PROXY_PROTOCOL_ID && item.protocol_id === this.PROXY_PROTOCOL_ID) }
+      items (state) { return Object.values(state.channels || {}).filter(item => this.PROXY_PROTOCOL_ID && item.protocol_id === this.PROXY_PROTOCOL_ID) }
     }),
     filteredItems () {
       let filter = this.filter.toLowerCase()
@@ -236,7 +238,12 @@ export default {
   methods: {
     ...mapActions(['getDeleted']),
     filterItems (filter, update) {
-      update()
+      if (this.isItemsInit) {
+        update()
+        return
+      }
+      let entity = 'channels'
+      this.itemsLoad(entity, update, this.active, () => { this.isItemsInit = true })
     },
     unselect () {
       this.$refs.messages.unselect()
@@ -250,7 +257,8 @@ export default {
       this.$router.push(`/channels/${this.active}`).catch(err => err)
     },
     init () {
-      let activeFromLocaleStorage = this.$q.localStorage.getItem('tools/hex')
+      let entity = 'tools/hex'
+      let activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined)
       this.isInit = true
       if (this.$route.params && this.$route.params.id) {
         if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
@@ -265,6 +273,7 @@ export default {
       if (this.selectedItem && this.selectedItem.deleted) {
         this.mode = 0
       }
+      this.$emit('inited')
     }
   },
   watch: {
@@ -284,7 +293,7 @@ export default {
       this.selectedMessages = ''
       let currentItem = this.items.filter(item => item.id === val)[0] || {}
       if (val) {
-        this.$q.localStorage.set('tools/hex', val)
+        this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: 'tools/hex' }, value: currentItem.id })
         this.$router.push(`/tools/hex/${val}`).catch(err => err)
       } else {
         this.$router.push('/tools/hex').catch(err => err)
@@ -294,7 +303,7 @@ export default {
       }
     }
   },
-  components: { messages, HexViewer }
+  components: { messages, HexViewer, EntitiesToolbar }
 }
 </script>
 <style lang="stylus">
@@ -335,6 +344,8 @@ export default {
     right 0px
     &--item
       top 5px
+    &--mobile
+      right 7px
   .deleted-action
     width 100%
     color #eee

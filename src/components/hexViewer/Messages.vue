@@ -203,6 +203,10 @@ export default {
       set (val) {
         val ? this.$store.commit(`${this.moduleName}/setLimit`, val) : this.$store.commit(`${this.moduleName}/setLimit`, 1000)
       }
+    },
+    loadingFlag () {
+      let state = this.$store.state
+      return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
     }
   },
   methods: {

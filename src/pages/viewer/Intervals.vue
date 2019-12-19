@@ -22,7 +22,7 @@
             :virtual-scroll-sticky-size-start="48"
             popup-content-class="items__popup"
             :popup-content-style="{height: `${((filteredDevices.length > 6 ? 6 : filteredDevices.length) * 48) + 48 + (filteredDevices.length ? 0 : 34)}px`}"
-            @filter="filterSelectItems"
+            @filter="filterDevicesSelectItems"
           >
             <div slot="before-options" class="bg-dark q-pa-xs select__filter">
               <q-input v-model="deviceFilter" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" autofocus @input="filter => $refs.itemDeviceSelect.filter(filter)">
@@ -69,8 +69,8 @@
                   <q-item-label class="q-pa-none q-mt-none" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{scope.opt.configuration && scope.opt.configuration.ident ? scope.opt.configuration.ident : `&lt;no ident&gt;`}}</small></q-item-label>
                 </q-item-section>
                 <q-item-section side>
-                  <q-item-label v-if="scope.opt.deleted" class="q-pa-xs text-right"><small class="cheap-modifier cheap-modifier--item">DELETED</small></q-item-label>
-                  <q-item-label class="q-pa-none q-mt-none text-right"><small>#{{scope.opt.id}}</small></q-item-label>
+                  <q-item-label v-if="scope.opt.deleted" class="q-pa-xs text-right"><small class="cheap-modifier cheap-modifier--item" :class="{'cheap-modifier--mobile': $q.platform.is.mobile}">DELETED</small></q-item-label>
+                  <q-item-label class="q-pa-none q-mt-none text-right" :class="{'q-pr-xs': $q.platform.is.mobile}"><small>#{{scope.opt.id}}</small></q-item-label>
                 </q-item-section>
               </q-item>
             </template>
@@ -94,7 +94,7 @@
             :virtual-scroll-sticky-size-start="48"
             popup-content-class="items__popup"
             :popup-content-style="{height: `${((filteredCalcs.length > 6 ? 6 : filteredCalcs.length) * 48) + 48 + (filteredCalcs.length ? 0 : 34)}px`}"
-            @filter="filterSelectItems"
+            @filter="filterCalcsSelectItems"
           >
             <div slot="before-options" class="bg-dark q-pa-xs select__filter">
               <q-input v-model="calcFilter" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" @input="filter => $refs.itemCalcSelect.filter(filter)" autofocus>
@@ -112,6 +112,7 @@
             </template>
             <template v-slot:selected-item="scope">
               <q-item
+                v-if="selectedCalc"
                 v-bind="scope.itemProps"
                 v-on="scope.itemEvents"
                 class="q-pa-none"
@@ -139,8 +140,8 @@
                   <q-item-label header class="ellipsis overflow-hidden q-pa-xs">{{scope.opt.name || '&lt;noname&gt;'}}</q-item-label>
                 </q-item-section>
                 <q-item-section side>
-                  <q-item-label v-if="scope.opt.deleted" class="q-pa-xs text-right"><small class="cheap-modifier cheap-modifier--item">DELETED</small></q-item-label>
-                  <q-item-label class="q-pa-none q-mt-none text-right"><small>#{{scope.opt.id}}</small></q-item-label>
+                  <q-item-label v-if="scope.opt.deleted" class="q-pa-xs text-right"><small class="cheap-modifier cheap-modifier--item" :class="{'cheap-modifier--mobile': $q.platform.is.mobile}">DELETED</small></q-item-label>
+                  <q-item-label class="q-pa-none q-mt-none text-right" :class="{'q-pr-xs': $q.platform.is.mobile}"><small>#{{scope.opt.id}}</small></q-item-label>
                 </q-item-section>
               </q-item>
             </template>
@@ -161,7 +162,7 @@
         :limit="0"
         :config="config.intervals"
         v-if="activeCalcId && isInit"
-        :style="{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'top' ? '66%' : ''}"
+        :style="{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'top' ? '66%' : ''}"
       />
       <div v-else-if="!activeCalcId" class="text-grey text-center q-pt-lg" style="font-size: 2.5rem;" :style="{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}">
         Select calc
@@ -180,7 +181,7 @@
 
 <script>
 import intervals from '../../components/intervals/Index.vue'
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import init from '../../mixins/entitiesInit'
 import MapFrame from '../../components/MapFrame'
 
@@ -202,6 +203,7 @@ export default {
       activeCalcId: null,
       ratio: 0,
       isInit: false,
+      isItemsInit: false,
       isVisibleMap: false,
       siblingHeight: 0,
       mapMinimizedOptions: {},
@@ -212,31 +214,31 @@ export default {
     ...mapState({
       tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
       devicesCollection (state) {
-        return state.items || {}
-      },
-      devices (state) {
-        return Object.values(state.items || {})
+        return state.devices || {}
       },
       tasksCollection (state) {
-        return state['addition.tasks'] || {}
-      },
-      tasks (state) {
-        let tasks = Object.values(state['addition.tasks'] || {})
-        return tasks
+        return state.tasks || {}
       },
       calcsCollection (state) {
-        return state['addition.calcs'] || {}
-      },
-      calcs (state) {
-        return Object.values(state['addition.calcs'] || {})
-      },
-      selectedDevice (state) {
-        return state.items[this.active] || {}
-      },
-      selectedCalc (state) {
-        return state['addition.calcs'] && state['addition.calcs'][this.activeCalcId] ? state['addition.calcs'][this.activeCalcId] : {}
+        return state.calcs || {}
       }
     }),
+    devices () {
+      return Object.values(this.devicesCollection)
+    },
+    tasks () {
+      let tasks = Object.values(this.tasksCollection)
+      return tasks
+    },
+    calcs () {
+      return Object.values(this.calcsCollection)
+    },
+    selectedDevice () {
+      return this.devicesCollection[this.active] || {}
+    },
+    selectedCalc () {
+      return this.calcsCollection[this.activeCalcId] ? this.calcsCollection[this.activeCalcId] : {}
+    },
     filteredDevices () {
       let devices = this.devices
       // let devicesIdsByTasks = this.tasks.map(task => task.device_id)
@@ -289,7 +291,15 @@ export default {
       })
       return filteredItems
     },
-    filterSelectItems (filter, update) {
+    ...mapActions(['getDeleted']),
+    filterDevicesSelectItems (filter, update) {
+      if (this.isItemsInit) {
+        update()
+        return
+      }
+      this.itemsLoad('devices', update, this.active, () => { this.isItemsInit = true })
+    },
+    filterCalcsSelectItems (filter, update) {
       update()
     },
     viewDataHandler (content) {
@@ -337,6 +347,7 @@ export default {
           this.activeCalcId = calcIdFromRoute
         }
       }
+      this.$emit('inited')
     },
     mapMinimizeHandler (options) {
       this.mapMinimizedOptions = options
@@ -441,6 +452,8 @@ export default {
     right 0px
     &--item
       top 5px
+    &--mobile
+      right 7px
   .deleted-action
     width 100%
     color #eee

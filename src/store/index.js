@@ -8,7 +8,7 @@ Vue.use(Vuex)
 
 let state = {
   token: '',
-  items: {},
+  settings: {},
   offline: false,
   socketOffline: false,
   isLoading: false,

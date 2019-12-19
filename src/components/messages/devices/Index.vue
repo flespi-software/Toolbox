@@ -13,6 +13,7 @@
       :filter="filter"
       :theme="theme"
       :title="'Messages'"
+      :loading="loadingFlag"
       @change:filter="filterChangeHandler"
       @change:pagination-prev="paginationPrevChangeHandler"
       @change:pagination-next="paginationNextChangeHandler"
@@ -152,6 +153,10 @@ export default {
       set (val) {
         this.$store.commit(`${this.moduleName}/setSelected`, val)
       }
+    },
+    loadingFlag () {
+      let state = this.$store.state
+      return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
     }
   },
   methods: {
@@ -190,7 +195,10 @@ export default {
       this.cols = cols
     },
     dateChangeHandler (date) {
+      let to = new Date(date).setHours(0, 0, 0, 0)
+      to += 86400000
       this.$store.dispatch(`${this.moduleName}/get`, { name: 'setFrom', payload: date })
+      this.$store.dispatch(`${this.moduleName}/get`, { name: 'setTo', payload: to })
     },
     datePrevChangeHandler () {
       this.$store.dispatch(`${this.moduleName}/get`, { name: 'datePrev' })

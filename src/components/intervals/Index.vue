@@ -13,6 +13,7 @@
       :filter="filter"
       :theme="theme"
       :title="'Intervals'"
+      :loading="loadingFlag"
       @change:filter="filterChangeHandler"
       @change:date-range="dateRangeChangeHandler"
       @update:cols="updateColsHandler"
@@ -172,6 +173,10 @@ export default {
     },
     routesFileds () {
       return this.getRouteFields()
+    },
+    loadingFlag () {
+      let state = this.$store.state
+      return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
     }
   },
   methods: {

@@ -23,7 +23,7 @@
     </div>
     <div v-else>
       <div class="login-card shadow-4 bg-white column items-center justify-center no-wrap">
-        <q-progress indeterminate color="green-6" style="width: 100%; height: 45px" />
+        <q-circular-progress indeterminate color="green-6" style="width: 100%; height: 45px" />
       </div>
     </div>
   </div>

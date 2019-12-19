@@ -12,13 +12,23 @@ const origins = {
     tasks: '/gw/calcs/+/devices',
     subaccounts: '/platform/subaccounts'
   },
+  basicEntitiesFields = {
+    devices: ['id', 'name', 'deleted', 'configuration'],
+    channels: ['id', 'name', 'deleted', 'protocol_id', 'uri'],
+    calcs: ['id', 'name', 'deleted'],
+    streams: ['id', 'name', 'deleted', 'configuration'],
+    modems: ['id', 'name', 'deleted', 'configuration'],
+    containers: ['id', 'name', 'deleted'],
+    cdns: ['id', 'name', 'deleted'],
+    tasks: ['device_id', 'calc_id'],
+    subaccounts: ['id', 'name', 'deleted']
+  },
   GET_ITEMS_MODE_OBJECT = 0,
   GET_ITEMS_MODE_FIELDS = 1
 
-async function getItems ({ state, commit }, payload) {
+function getParams (payload) {
   let entity = '',
     id = null,
-    writePath = 'items',
     mode = GET_ITEMS_MODE_OBJECT
   if (typeof payload === 'string') {
     entity = payload
@@ -27,15 +37,18 @@ async function getItems ({ state, commit }, payload) {
     if (payload.id) {
       id = payload.id
     }
-    if (payload.addition) {
-      writePath = `addition.${entity}`
-    }
     if (payload.mode) {
       mode = payload.mode
     }
   }
+  return { id, mode, entity }
+}
+async function getItems ({ state, commit }, payload) {
+  let { id, mode, entity } = getParams(payload)
+  let writePath = entity
+  if (!state[writePath]) { Vue.set(state, writePath, {}) }
   if (entity) {
-    let origin = `flespi/state${origins[entity]}/${id || '+'}${mode === GET_ITEMS_MODE_FIELDS ? '/+' : ''}`
+    let origin = `flespi/state${origins[entity]}/${id || '+'}${mode === GET_ITEMS_MODE_FIELDS ? `/${basicEntitiesFields[entity].join(',')}` : ''}`
     if (state.token) {
       try {
         // init getting protocols name
@@ -77,7 +90,6 @@ async function getItems ({ state, commit }, payload) {
             }, []).reverse(),
             id = idsParts.length === 0 ? parseInt(partsOfTopic.shift()) : idsParts.join('-'),
             source = subsIds ? state[writePath] : items
-
           if (name === 'deleted') {
             commit('deleteItem', { id, mode: entity === 'tasks', source })
             return false
@@ -93,40 +105,26 @@ async function getItems ({ state, commit }, payload) {
             Vue.set(source, id, { id: id, [name]: JSON.parse(value.toString()) })
           }
         }
-        let subsIds = await Vue.connector.socket.subscribe({
-          name: origin,
-          handler: mode === GET_ITEMS_MODE_OBJECT ? objectModeHandler : fieldModeHandler }
+        let subsIds = await Vue.connector.socket.subscribe(
+          {
+            name: origin,
+            handler: mode === GET_ITEMS_MODE_OBJECT ? objectModeHandler : fieldModeHandler
+          }
         )
         Vue.set(state, writePath, items)
         return subsIds
       } catch (e) {
         commit('reqFailed', e)
-        commit('setItems', {})
+        commit('setItems', { items: {}, entity })
       }
     }
   }
 }
 
 async function unsubscribeItems ({ state, commit }, payload) {
-  let entity = '',
-    id = null,
-    mode = GET_ITEMS_MODE_OBJECT
-  if (typeof payload === 'string') {
-    entity = payload
-  } else {
-    entity = payload.entity
-    if (payload.id) {
-      id = payload.id
-    }
-    if (payload.addition) {
-      Vue.delete(state, `addition.${entity}`)
-    }
-    if (payload.mode) {
-      mode = payload.mode
-    }
-  }
+  let { id, mode, entity } = getParams(payload)
   if (entity) {
-    let origin = `flespi/state${origins[entity]}/${id || '+'}${mode === GET_ITEMS_MODE_FIELDS ? '/+' : ''}`
+    let origin = `flespi/state${origins[entity]}/${id || '+'}${mode === GET_ITEMS_MODE_FIELDS ? `/${basicEntitiesFields[entity].join(',')}` : ''}`
     try {
       return await Vue.connector.socket.unsubscribe(origin)
     } catch (e) {
@@ -146,7 +144,11 @@ async function getEntities (store, payload) {
 async function removeEntities (store, payload) {
   let { state } = store
   Vue.set(state, 'isLoading', true)
-  let res = await Promise.all(payload.map(config => unsubscribeItems(store, config)))
+  let res = await Promise.all(payload.map(config => {
+    let { entity } = getParams(payload)
+    Vue.delete(state, entity)
+    unsubscribeItems(store, config)
+  }))
   Vue.set(state, 'isLoading', false)
   return res
 }
@@ -210,7 +212,7 @@ async function getDeleted ({ state, commit }, entity) {
           })
         }
         let result = {
-          ...state.items,
+          ...state[entity],
           ...deleted.reduce((deleted, item) => {
             let itemObj = item.item_data
             itemObj.deleted = true
@@ -218,13 +220,13 @@ async function getDeleted ({ state, commit }, entity) {
             return deleted
           }, {})
         }
-        commit('setItems', result)
+        commit('setItems', { items: result, entity })
         if (typeof state.isLoading !== 'undefined') {
           Vue.set(state, 'isLoading', false)
         }
       } catch (e) {
         commit('reqFailed', e)
-        commit('setItems', {})
+        commit('setItems', { items: {}, entity })
         if (typeof state.isLoading !== 'undefined') {
           Vue.set(state, 'isLoading', false)
         }

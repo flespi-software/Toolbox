@@ -1,7 +1,10 @@
 <template>
   <q-page>
-    <q-toolbar class="justify-between bg-grey-9">
-      <div :class="{'middle-modificator': !active}" v-if="items.length" style="max-width: 50%">
+    <entities-toolbar
+      :item="selectedItem" :ratio="ratio" :mode="modeModel" :actions="actions"
+      @change:mode="mode => modeModel = mode" @change:ratio="r => ratio = r"
+    >
+      <div :class="{'middle-modificator': !active}" style="max-width: 50%" slot="selects">
         <q-select
           ref="itemSelect"
           class="items__select"
@@ -39,6 +42,7 @@
           </template>
           <template v-slot:selected-item="scope">
             <q-item
+              v-if="selectedItem"
               v-bind="scope.itemProps"
               v-on="scope.itemEvents"
               class="q-pa-none"
@@ -68,87 +72,14 @@
                 <q-item-label class="q-pa-none q-mt-none" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{scope.opt.configuration && scope.opt.configuration.ident ? scope.opt.configuration.ident : `&lt;no ident&gt;`}}</small></q-item-label>
               </q-item-section>
               <q-item-section side>
-                <q-item-label v-if="scope.opt.deleted" class="q-pa-xs text-right"><small class="cheap-modifier cheap-modifier--item">DELETED</small></q-item-label>
-                <q-item-label class="q-pa-none q-mt-none text-right"><small>#{{scope.opt.id}}</small></q-item-label>
+                <q-item-label v-if="scope.opt.deleted" class="q-pa-xs text-right"><small class="cheap-modifier cheap-modifier--item" :class="{'cheap-modifier--mobile': $q.platform.is.mobile}">DELETED</small></q-item-label>
+                <q-item-label class="q-pa-none q-mt-none text-right" :class="{'q-pr-xs': $q.platform.is.mobile}"><small>#{{scope.opt.id}}</small></q-item-label>
               </q-item-section>
             </q-item>
           </template>
         </q-select>
       </div>
-      <div v-if="active">
-        <q-btn v-if="!selectedItem.deleted" flat dense class="on-right pull-right text-center rounded-borders q-px-xs q-py-none" color="white" @click="modeModel = !modeModel" style="min-width: 73px; max-width: 73px;">
-          <q-icon size="1.5rem" color="white" :name="modeModel ? 'playlist_play' : 'history'"/>
-          <div style="font-size: .7rem; line-height: .7rem">{{modeModel ? 'Real-time' : 'History'}}</div>
-          <q-tooltip>Mode (Real-time/History)</q-tooltip>
-        </q-btn>
-        <q-btn-toggle
-          v-if="!selectedItem.deleted"
-          dense
-          color="grey-8"
-          toggle-color="white"
-          toggle-text-color="grey-9"
-          class="q-ml-sm gt-xs" size="sm"
-          v-model="ratio"
-          :options="[{label: 'logs', value: 100},{label: 'both', value: 50},{label: 'messages', value: 0}]"
-        />
-        <q-btn class="lt-sm" dense size="sm">
-          {{ratio === 50 ? 'both' : (ratio === 0 ? 'messages' : 'logs')}}
-          <q-menu style="background-color: transparent">
-            <q-btn-toggle
-              v-close-popup
-              v-if="!selectedItem.deleted"
-              dense
-              color="grey-8"
-              toggle-color="white"
-              toggle-text-color="grey-9"
-              size="sm"
-              v-model="ratio"
-              :options="[{label: 'logs', value: 100},{label: 'both', value: 50},{label: 'messages', value: 0}]"
-            />
-          </q-menu>
-        </q-btn>
-      </div>
-      <div v-if="active && $q.platform.is.desktop" class="flex justify-end" style="width: 206px;">
-        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
-          <q-btn title="Intervals" class="on-left cursor-pointer pull-right text-center rounded-borders q-px-xs q-py-none text-white" @click="moveToIntervals(active, null)" v-if="tasksByDevice.length" flat dense style="width: 60px">
-            <q-icon size="1.5rem" name="mdi-set-center"/>
-            <div style="font-size: .7rem; line-height: .7rem">Intervals</div>
-          </q-btn>
-        </transition>
-        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
-          <q-btn title="Map" v-if="messagesWithPosition.length" class="on-left cursor-pointer pull-right text-center rounded-borders q-px-xs q-py-none text-white" @click="isVisibleMap = !isVisibleMap" flat dense style="width: 50px">
-            <q-icon size="1.5rem" name="mdi-map"/>
-            <div style="font-size: .7rem; line-height: .7rem">Map</div>
-          </q-btn>
-        </transition>
-        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
-          <q-btn title="Clear all panes" class="on-left pull-right text-center q-py-none text-white" v-if="modeModel && !isEmptyMessages" @click="clearHandler" flat dense style="width: 60px">
-            <q-icon size="1.5rem" color="white" name="mdi-playlist-remove"/>
-            <div style="font-size: .7rem; line-height: .7rem">Clear</div>
-          </q-btn>
-        </transition>
-      </div>
-      <div v-else-if="active && !$q.platform.is.desktop">
-        <q-btn flat icon="mdi-dots-vertical" color="white">
-          <q-menu>
-            <q-list>
-              <q-item v-close-popup v-if="tasksByDevice.length" @click.native="moveToIntervals(active, null)">
-                <q-item-section avatar>
-                  <q-icon name="mdi-set-center" />
-                </q-item-section>
-                <q-item-section>Intervals</q-item-section>
-              </q-item>
-              <q-item v-close-popup @click="clearHandler" clickable>
-                <q-item-section avatar>
-                  <q-icon name="mdi-playlist-remove" />
-                </q-item-section>
-                <q-item-section>Clear</q-item-section>
-              </q-item>
-            </q-list>
-          </q-menu>
-        </q-btn>
-      </div>
-    </q-toolbar>
+    </entities-toolbar>
     <div v-if="isInit && active">
       <logs
         ref="logs"
@@ -158,7 +89,7 @@
         originPattern="gw/devices/:id"
         :isEnabled="!!+size[0]"
         v-if="+size[0]"
-        :style="[{minHeight: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'logs' ? '66%' : ''}]"
+        :style="[{height: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'logs' ? '66%' : ''}]"
         @view-log-message="viewLogMessagesHandler"
         :config="config.logs"
       />
@@ -171,11 +102,11 @@
         :isEnabled="!!+size[1]"
         :limit="limit"
         v-if="+size[1]"
-        :style="[{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'messages' ? '66%' : ''}]"
+        :style="[{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'messages' ? '66%' : ''}]"
         :config="config.messages"
       />
     </div>
-    <div v-if="!items.length" class="text-center text-grey-3 q-mt-lg">
+    <div v-if="!items.length && isItemsInit" class="text-center text-grey-3 q-mt-lg">
       <div style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Devices not found'}}</div>
       <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
     </div>
@@ -195,9 +126,10 @@
 import logs from '../../components/logs/Index.vue'
 import messages from '../../components/messages/devices/Index.vue'
 import MapComponent from '../../components/MapComponent'
+import EntitiesToolbar from '../../components/EntitiesToolbar'
 import { mapState, mapActions } from 'vuex'
-// import VirtualList from 'vue-virtual-scroll-list'
 import init from '../../mixins/entitiesInit'
+import get from 'lodash/get'
 
 export default {
   props: [
@@ -205,7 +137,8 @@ export default {
     'isLoading',
     'isVisibleToolbar',
     'isNeedSelect',
-    'config'
+    'config',
+    'settings'
   ],
   mixins: [init],
   data () {
@@ -215,6 +148,7 @@ export default {
       active: null,
       ratio: 50,
       isInit: false,
+      isItemsInit: false,
       isVisibleMap: false,
       mapMinimizedOptions: {},
       siblingHeight: null,
@@ -230,22 +164,22 @@ export default {
       },
       tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
       itemsCollection (state) {
-        return state.items
-      },
-      items (state) {
-        return Object.values(state.items)
-      },
-      selectedItem (state) {
-        let item = state.items[this.active] || null
-        if (item && item.deleted) {
-          this.deletedHandler()
-        }
-        return item
+        return state.devices || {}
       },
       tasksByDevice (state) {
-        return Object.values(state['addition.tasks'] || {})
+        return Object.values(state.tasks || {})
       }
     }),
+    items () {
+      return Object.values(this.itemsCollection)
+    },
+    selectedItem () {
+      let item = (this.itemsCollection && this.itemsCollection[this.active]) || null
+      if (item && item.deleted) {
+        this.deletedHandler()
+      }
+      return item
+    },
     filteredItems () {
       let filter = this.filter.toLowerCase()
       let filteredItems = this.filter ? this.items.filter(item => {
@@ -300,12 +234,39 @@ export default {
         this.mode = Number(val)
         this.$emit('view-data-hide')
       }
+    },
+    actions () {
+      return [
+        {
+          label: 'Intervals',
+          icon: 'mdi-set-center',
+          handler: () => this.moveToIntervals(this.active, null),
+          condition: !!this.tasksByDevice.length
+        },
+        {
+          label: 'Map',
+          icon: 'mdi-map',
+          handler: () => this.setMapVisibility(!this.isVisibleMap),
+          condition: !!this.messagesWithPosition.length
+        },
+        {
+          label: 'Clear',
+          icon: 'mdi-playlist-remove',
+          handler: this.clearHandler,
+          condition: this.modeModel && !this.isEmptyMessages
+        }
+      ]
     }
   },
   methods: {
     ...mapActions(['getDeleted']),
     filterItems (filter, update) {
-      update()
+      if (this.isItemsInit) {
+        update()
+        return
+      }
+      let entity = 'devices'
+      this.itemsLoad(entity, update, this.active, () => { this.isItemsInit = true })
     },
     viewDataHandler (content) {
       this.$emit('view-data', content)
@@ -358,7 +319,7 @@ export default {
     },
     init () {
       let entity = 'devices',
-        activeFromLocaleStorage = this.$q.localStorage.getItem(entity),
+        activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined),
         idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null,
         calcId
       this.isInit = true
@@ -386,9 +347,13 @@ export default {
       if (this.selectedItem && this.selectedItem.deleted) {
         this.deletedHandler()
       }
+      this.$emit('inited')
     },
     moveToIntervals (deviceId, calcId) {
       this.$nextTick(() => { this.$router.push(`/devices/${deviceId}/calc/${calcId}/intervals`).catch(err => err) })
+    },
+    setMapVisibility (flag) {
+      this.isVisibleMap = flag
     }
   },
   watch: {
@@ -417,7 +382,7 @@ export default {
     active (val, old) {
       let currentItem = this.itemsCollection[val] || {}
       if (val) {
-        this.$q.localStorage.set('devices', val)
+        this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: 'devices' }, value: currentItem.id })
         this.$router.push(`/devices/${val}`).catch(err => err)
       } else {
         this.$router.push('/devices').catch(err => err)
@@ -429,7 +394,7 @@ export default {
       }
     }
   },
-  components: { logs, messages, MapComponent }
+  components: { logs, messages, MapComponent, EntitiesToolbar }
 }
 </script>
 <style lang="stylus">
@@ -470,6 +435,8 @@ export default {
     right 0px
     &--item
       top 5px
+    &--mobile
+      right 7px
   .deleted-action
     width 100%
     color #eee

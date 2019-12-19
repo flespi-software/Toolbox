@@ -1,7 +1,10 @@
 <template>
   <q-page>
-    <q-toolbar class="justify-between bg-grey-9">
-      <div style="max-width: 50%" :class="{'middle-modificator': !active}" v-if="items.length">
+    <entities-toolbar
+      :item="selectedItem" :ratio="ratio" :mode="modeModel" :actions="actions"
+      @change:mode="mode => modeModel = mode" @change:ratio="r => ratio = r"
+    >
+      <div style="max-width: 50%" :class="{'middle-modificator': !active}" slot="selects">
         <q-select
           ref="itemSelect"
           class="items__select"
@@ -39,6 +42,7 @@
           </template>
           <template v-slot:selected-item="scope">
             <q-item
+              v-if="selectedItem"
               v-bind="scope.itemProps"
               v-on="scope.itemEvents"
               class="q-pa-none"
@@ -66,27 +70,14 @@
                 <q-item-label header class="ellipsis overflow-hidden q-pa-xs">{{scope.opt.name || '&lt;noname&gt;'}}</q-item-label>
               </q-item-section>
               <q-item-section side>
-                <q-item-label v-if="scope.opt.deleted" class="q-pa-xs text-right"><small class="cheap-modifier cheap-modifier--item">DELETED</small></q-item-label>
-                <q-item-label class="q-pa-none q-mt-none text-right"><small>#{{scope.opt.id}}</small></q-item-label>
+                <q-item-label v-if="scope.opt.deleted" class="q-pa-xs text-right"><small class="cheap-modifier cheap-modifier--item" :class="{'cheap-modifier--mobile': $q.platform.is.mobile}">DELETED</small></q-item-label>
+                <q-item-label class="q-pa-none q-mt-none text-right" :class="{'q-pr-xs': $q.platform.is.mobile}"><small>#{{scope.opt.id}}</small></q-item-label>
               </q-item-section>
             </q-item>
           </template>
         </q-select>
       </div>
-      <q-btn v-if="active && !selectedItem.deleted" flat dense class="on-right pull-right text-center rounded-borders q-px-xs q-py-none text-white" color="white" @click="modeModel = !modeModel" style="min-width: 73px; max-width: 73px;">
-        <q-icon size="1.5rem" color="white" :name="modeModel ? 'playlist_play' : 'history'"/>
-        <div style="font-size: .7rem; line-height: .7rem;">{{modeModel ? 'Real-time' : 'History'}}</div>
-        <q-tooltip>Mode (Real-time/History)</q-tooltip>
-      </q-btn>
-      <div v-if="active" class="flex" style="width: 46px;">
-        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
-          <q-btn title="Clear all panes" class="on-left cursor-pointer pull-right text-center q-py-none text-white" v-if="modeModel && !isEmptyMessages" @click="clearHandler" flat dense style="width: 60px">
-            <q-icon size="1.5rem" color="white" name="mdi-playlist-remove"/>
-            <div style="font-size: .7rem; line-height: .7rem;">Clear</div>
-          </q-btn>
-        </transition>
-      </div>
-    </q-toolbar>
+    </entities-toolbar>
     <logs
       ref="logs"
       v-if="isInit && active"
@@ -96,10 +87,10 @@
       originPattern="storage/cdns/:id"
       :isEnabled="true"
       :config="config.logs"
-      :style="{minHeight: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
+      :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
       @view-log-message="viewLogMessagesHandler"
     />
-    <div v-if="!items.length" class="text-center text-grey-3 q-mt-lg">
+    <div v-if="!items.length && isItemsInit" class="text-center text-grey-3 q-mt-lg">
       <div style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'CDN`s not found'}}</div>
       <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
     </div>
@@ -110,6 +101,8 @@
 import logs from '../../components/logs/Index.vue'
 import { mapState, mapActions } from 'vuex'
 import init from '../../mixins/entitiesInit'
+import EntitiesToolbar from '../../components/EntitiesToolbar'
+import get from 'lodash/get'
 
 export default {
   props: [
@@ -117,7 +110,8 @@ export default {
     'isLoading',
     'isVisibleToolbar',
     'isNeedSelect',
-    'config'
+    'config',
+    'settings'
   ],
   mixins: [init],
   data () {
@@ -125,6 +119,7 @@ export default {
       mode: 1,
       active: null,
       isInit: false,
+      isItemsInit: false,
       needShowGetDeletedAction: true,
       filter: ''
     }
@@ -136,12 +131,12 @@ export default {
       },
       tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
       itemsCollection (state) {
-        return state.items
-      },
-      items (state) {
-        return Object.values(state.items)
+        return state.cdns || {}
       }
     }),
+    items () {
+      return Object.values(this.itemsCollection)
+    },
     filteredItems () {
       let filter = this.filter.toLowerCase()
       let filteredItems = this.filter ? this.items.filter(item => {
@@ -189,12 +184,27 @@ export default {
         this.mode = Number(val)
         this.$emit('view-data-hide')
       }
+    },
+    actions () {
+      return [
+        {
+          label: 'Clear',
+          icon: 'mdi-playlist-remove',
+          handler: this.clearHandler,
+          condition: !!this.modeModel && !this.isEmptyMessages
+        }
+      ]
     }
   },
   methods: {
     ...mapActions(['getDeleted']),
     filterItems (filter, update) {
-      update()
+      if (this.isItemsInit) {
+        update()
+        return
+      }
+      let entity = 'cdns'
+      this.itemsLoad(entity, update, this.active, () => { this.isItemsInit = true })
     },
     viewDataHandler (content) {
       this.$emit('view-data', content)
@@ -224,7 +234,7 @@ export default {
     },
     init () {
       let entity = 'cdns',
-        activeFromLocaleStorage = this.$q.localStorage.getItem(entity),
+        activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined),
         idFromRoute = this.$route.params && this.$route.params.id ? Number(this.$route.params.id) : null
       this.isInit = true
       if (idFromRoute) {
@@ -240,6 +250,7 @@ export default {
       if (this.selectedItem && this.selectedItem.deleted) {
         this.deletedHandler()
       }
+      this.$emit('inited')
     }
   },
   watch: {
@@ -258,7 +269,7 @@ export default {
     active (val) {
       let currentItem = this.itemsCollection[val] || {}
       if (val) {
-        this.$q.localStorage.set('cdns', val)
+        this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: 'cdns' }, value: currentItem.id })
         this.$router.push(`/cdns/${val}`).catch(err => err)
       } else {
         this.$router.push('/cdns').catch(err => err)
@@ -268,7 +279,7 @@ export default {
       }
     }
   },
-  components: { logs }
+  components: { logs, EntitiesToolbar }
 }
 </script>
 <style lang="stylus">
@@ -309,6 +320,8 @@ export default {
     right 0px
     &--item
       top 5px
+    &--mobile
+      right 7px
   .deleted-action
     width 100%
     color #eee

@@ -1,4 +1,4 @@
-import { SessionStorage, Notify } from 'quasar'
+import { SessionStorage, Notify, LocalStorage } from 'quasar'
 import Vue from 'vue'
 
 function reqStart (state) {
@@ -47,11 +47,11 @@ function deleteItem (state, { id, mode, source }) {
     Vue.set(source[id], 'deleted', true)
   }
 }
-function setItems (state, items) {
-  Vue.set(state, 'items', items)
+function setItems (state, { items, entity }) {
+  Vue.set(state, entity, items)
 }
-function clearItems (state) {
-  Vue.set(state, 'items', {})
+function clearItems (state, entity) {
+  Vue.set(state, entity, {})
 }
 function setOfflineFlag (state, flag) {
   Vue.set(state, 'offline', flag)
@@ -166,6 +166,38 @@ function setSocketOffline (state, flag) {
 
 function clearNotificationCounter (state) { state.newNotificationCounter = 0 }
 
+function getToolboxSettings (state) {
+  let settings = LocalStorage.getItem('flespi-toolbox-settings')
+  /* migration, remove later 13.12.19 */
+  if (!settings) {
+    settings = { entities: {} }
+    let entities = settings.entities
+    let entityNames = [ 'devices', 'channels', 'calcs', 'streams', 'modems', 'containers', 'cdns', 'tools/hex', 'platform', 'mqtt' ]
+    entityNames.forEach(name => {
+      let value = LocalStorage.getItem(name)
+      if (value) {
+        entities[name] = value
+        LocalStorage.remove(name)
+      }
+    })
+  }
+  /* end migration */
+  state.settings = settings || {}
+}
+
+function setToolboxSettings (state, { type, opt, value }) {
+  let settings = state.settings
+  switch (type) {
+    case 'ENTITY_CHANGE': {
+      let { entity } = opt
+      if (!settings.entities) { settings.entities = {} }
+      settings.entities[entity] = value
+      break
+    }
+  }
+  LocalStorage.set('flespi-toolbox-settings', settings)
+}
+
 export default {
   reqStart,
   setItems,
@@ -181,5 +213,7 @@ export default {
   setTokenInfo,
   clearTokenInfo,
   setSocketOffline,
-  clearNotificationCounter
+  clearNotificationCounter,
+  getToolboxSettings,
+  setToolboxSettings
 }
