@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import { Notify } from 'quasar'
+import get from 'lodash/get'
 
 const origins = {
     devices: '/gw/devices',
@@ -158,31 +159,31 @@ async function getDeleted ({ state, commit }, entity) {
     let deletedParams = { fields: 'item_data', count: 2000, reverse: true }
     switch (entity) {
       case 'devices': {
-        deletedParams = Object.assign(deletedParams, { filter: 'event_origin=gw/devices/*,event_code=3' })
+        deletedParams = Object.assign(deletedParams, { filter: 'origin_type=11,event_code=3' })
         break
       }
       case 'channels': {
-        deletedParams = Object.assign(deletedParams, { filter: 'event_origin=gw/channels/*,event_code=3' })
+        deletedParams = Object.assign(deletedParams, { filter: 'origin_type=9,event_code=3' })
         break
       }
       case 'streams': {
-        deletedParams = Object.assign(deletedParams, { filter: 'event_origin=gw/streams/*,event_code=3' })
+        deletedParams = Object.assign(deletedParams, { filter: 'origin_type=12,event_code=3' })
         break
       }
       case 'calcs': {
-        deletedParams = Object.assign(deletedParams, { filter: 'event_origin=gw/calcs/*,event_code=3' })
+        deletedParams = Object.assign(deletedParams, { filter: 'origin_type=13,event_code=3' })
         break
       }
       case 'modems': {
-        deletedParams = Object.assign(deletedParams, { filter: 'event_origin=gw/modems/*,event_code=3' })
+        deletedParams = Object.assign(deletedParams, { filter: 'origin_type=10,event_code=3' })
         break
       }
       case 'containers': {
-        deletedParams = Object.assign(deletedParams, { filter: 'event_origin=storage/containers/*,event_code=3' })
+        deletedParams = Object.assign(deletedParams, { filter: 'origin_type=6,event_code=3' })
         break
       }
       case 'cdns': {
-        deletedParams = Object.assign(deletedParams, { filter: 'event_origin=storage/cdns/*,event_code=3' })
+        deletedParams = Object.assign(deletedParams, { filter: 'origin_type=7,event_code=3' })
         break
       }
     }
@@ -193,14 +194,22 @@ async function getDeleted ({ state, commit }, entity) {
         }
         let deleted = []
         if (state.tokenInfo.access.type === 1) {
-          let deletedResp = await Vue.connector.platform.getCustomerLogs({ data: JSON.stringify(deletedParams) })
-          let deletedData = deletedResp.data
-          if (deletedData.errors) {
-            deletedData.errors.forEach((error) => {
+          let deletedResp = await Promise.all([
+            Vue.connector.platform.getSubaccountsLogs('all', { data: JSON.stringify(deletedParams) }),
+            Vue.connector.platform.getCustomerLogs({ data: JSON.stringify(deletedParams) })
+          ])
+          let mergedDeletedResp = deletedResp.reduce((res, resp) => {
+            let result = get(resp, 'data.result', [])
+            res.result = [...res.result, ...result]
+            res.errors = [...res.errors, ...(resp.errors || [])]
+            return res
+          }, { errors: [], result: [] })
+          if (mergedDeletedResp.errors) {
+            mergedDeletedResp.errors.forEach((error) => {
               commit('addError', error.reason)
             })
           }
-          deleted = deletedData.result && deletedData.result.length ? deletedData.result.reverse() : []
+          deleted = mergedDeletedResp.result.length ? mergedDeletedResp.result.reverse() : []
         }
         if (!deleted.length) {
           Notify.create({

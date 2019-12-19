@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.20.2] - 2019-12-19
+[feature] see deleted with subsccount entities
 ### [0.20.1] - 2019-12-19
 [update] deps
 ### [0.20.0] - 2019-12-19
