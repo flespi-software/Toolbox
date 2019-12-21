@@ -199,8 +199,8 @@ export default {
     dateChangeHandler (date) {
       let to = new Date(date).setHours(0, 0, 0, 0)
       to += 86400000
+      this.$store.commit(`${this.moduleName}/setTo`, to)
       this.$store.dispatch(`${this.moduleName}/get`, { name: 'setFrom', payload: date })
-      this.$store.dispatch(`${this.moduleName}/get`, { name: 'setTo', payload: to })
     },
     datePrevChangeHandler () {
       this.$store.dispatch(`${this.moduleName}/get`, { name: 'datePrev' })
