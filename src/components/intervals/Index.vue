@@ -38,8 +38,7 @@
 </template>
 
 <script>
-import { VirtualScrollList } from 'qvirtualscroll'
-import intervalsModule from 'qvirtualscroll/src/store/modules/intervals/index'
+import { VirtualScrollList, intervalsModule } from 'qvirtualscroll'
 import Vue from 'vue'
 import { date, copyToClipboard } from 'quasar'
 import filterMessages from '../../mixins/filterMessages'

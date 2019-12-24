@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.21.1] - 2019-12-24
+[fix] ui fixes
 ### [0.21.0] - 2019-12-24
 [feature] empty state for panes
 [fix] time picker(hours/minutes)

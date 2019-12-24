@@ -3,7 +3,7 @@
     <q-layout ref="layout" view="hHh LpR lFf" class="bg-grey-9">
       <q-header v-if="isVisibleToolbar">
         <q-toolbar class="header__main-toolbar bg-grey-9">
-          <q-btn flat icon="mdi-menu" @click="sides.left = !sides.left"/>
+          <q-btn flat icon="mdi-menu" @click="toggleMenu"/>
           <q-toolbar-title :style="{minWidth: $q.platform.is.mobile ? '60px' : '210px'}">
             <img class="gt-sm" src="statics/toolbox50.png" alt="Toolbox" style="height: 30px">
             <img class="lt-md" src="statics/toolbox_mobile.png" alt="Toolbox" style="height: 30px">
@@ -370,6 +370,9 @@ export default {
     hideRight () {
       this.sides.right = false
       this.currentMessage = {}
+    },
+    toggleMenu () {
+      this.sides.left = !this.sides.left
     },
     hideRightHandler () {
       this.hideRight()

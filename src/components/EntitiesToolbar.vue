@@ -1,5 +1,6 @@
 <template>
   <q-toolbar class="justify-between bg-grey-9">
+    <q-resize-observer @resize="resizeHandler"/>
     <slot name="selects"></slot>
     <div v-if="item">
       <q-btn v-if="!item.deleted && mode !== undefined" flat dense class="on-right pull-right text-center rounded-borders q-px-xs q-py-none" color="white" @click="$emit('change:mode', !mode)" style="min-width: 73px; max-width: 73px;">
@@ -8,7 +9,7 @@
         <q-tooltip>Mode (Real-time/History)</q-tooltip>
       </q-btn>
       <q-btn-toggle
-        v-if="!item.deleted && ratio !== undefined"
+        v-if="!item.deleted && ratio !== undefined && width >= 900"
         dense flat
         color="grey-4"
         toggle-color="white"
@@ -19,21 +20,21 @@
         :options="[{label: 'logs', value: 100},{label: 'both', value: 50},{label: 'messages', value: 0}]"
       />
     </div>
-    <div v-if="item && $q.platform.is.desktop" class="flex justify-end" style="width: 216px;">
+    <div v-if="item && ($q.platform.is.desktop && width >= 900)" class="flex justify-end" :style="{width: `${actions.length * 60}px`}">
       <template v-for="(action, index) in actions">
         <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp" :key="index" v-if="action.condition">
-          <q-btn title="Intervals" class="on-left cursor-pointer pull-right text-center rounded-borders q-px-xs q-py-none text-white" @click="action.handler" flat dense style="width: 60px">
+          <q-btn :title="action.label" class="on-left cursor-pointer pull-right text-center rounded-borders q-px-xs q-py-none text-white" @click="action.handler" flat dense style="width: 60px">
             <q-icon size="1.5rem" :name="action.icon"/>
             <div style="font-size: .7rem; line-height: .7rem">{{action.label}}</div>
           </q-btn>
         </transition>
       </template>
     </div>
-    <div v-else-if="item && !$q.platform.is.desktop">
+    <div v-else-if="item && (!$q.platform.is.desktop || width < 900)">
       <q-btn flat icon="mdi-dots-vertical" color="white">
         <q-menu>
           <q-list>
-            <q-item v-close-popup v-if="!item.deleted && ratio !== undefined" class="lt-sm">
+            <q-item v-close-popup v-if="!item.deleted && ratio !== undefined">
               <q-btn-toggle
                 dense
                 color="grey-8"
@@ -62,6 +63,16 @@
 
 <script>
 export default {
-  props: ['item', 'ratio', 'mode', 'actions']
+  props: ['item', 'ratio', 'mode', 'actions'],
+  data () {
+    return {
+      width: 0
+    }
+  },
+  methods: {
+    resizeHandler ({ width }) {
+      this.width = width
+    }
+  }
 }
 </script>

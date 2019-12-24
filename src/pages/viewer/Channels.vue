@@ -4,7 +4,7 @@
       :item="selectedItem" :ratio="ratio" :mode="modeModel" :actions="actions"
       @change:mode="mode => modeModel = mode" @change:ratio="r => ratio = r"
     >
-      <div style="max-width: 40%;" class="flex" :class="{'middle-modificator': !active}" slot="selects">
+      <div class="flex" :class="{'middle-modificator': !active}" slot="selects">
         <q-select
           ref="itemSelect"
           class="items__select"
@@ -49,7 +49,7 @@
               style="min-height: 20px; margin-top: 2px; max-width: 100%"
             >
               <q-item-section>
-                <q-item-label header class="ellipsis overflow-hidden q-pa-none text-white">{{selectedItem.name || '&lt;noname&gt;'}}</q-item-label>
+                <q-item-label header class="ellipsis overflow-hidden q-pa-none text-white" style="max-width: 170px;">{{selectedItem.name || '&lt;noname&gt;'}}</q-item-label>
                 <q-item-label class="q-pa-none q-mt-none text-white ellipsis" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{selectedItem.uri || '&lt;no uri&gt;'}}</small></q-item-label>
               </q-item-section>
               <q-item-section class="text-white" side>
