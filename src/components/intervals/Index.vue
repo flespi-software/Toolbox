@@ -32,16 +32,19 @@
          @action="actionHandler"
          @item-click="viewMessagesHandler"
       />
+      <empty-pane slot="empty" :config="config.emptyState"/>
     </virtual-scroll-list>
   </div>
 </template>
 
 <script>
-import { VirtualScrollList, intervalsModule } from 'qvirtualscroll'
+import { VirtualScrollList } from 'qvirtualscroll'
+import intervalsModule from 'qvirtualscroll/src/store/modules/intervals/index'
 import Vue from 'vue'
 import { date, copyToClipboard } from 'quasar'
 import filterMessages from '../../mixins/filterMessages'
 import MessagesListItem from './MessagesListItem.vue'
+import EmptyPane from '../EmptyPane'
 
 export default {
   props: [
@@ -310,11 +313,12 @@ export default {
     })
   },
   beforeDestroy () {
+    this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
     this.offlineHandler !== undefined && Vue.connector.socket.off('offline', this.offlineHandler)
     this.connectHandler !== undefined && Vue.connector.socket.off('connect', this.connectHandler)
     this.$store.commit(`${this.moduleName}/clear`)
   },
   mixins: [filterMessages],
-  components: { VirtualScrollList, MessagesListItem }
+  components: { VirtualScrollList, MessagesListItem, EmptyPane }
 }
 </script>

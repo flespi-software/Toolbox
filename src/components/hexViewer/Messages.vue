@@ -71,9 +71,7 @@
         </VirtualList>
         <q-btn v-if="!mode" color="grey-9" style="position: absolute; bottom: 0; width: 100%;" class="text-white" icon="mdi-download" @click="paginationNextChangeHandler">Get more</q-btn>
       </template>
-      <div v-else class="no-messages text-center" :class="{'text-grey-6': true}" style="font-size: 3rem; padding-top: 40px; ">
-        {{`${type === 'connections' ? 'No connections' : 'No events'}`}}
-      </div>
+      <empty-pane v-else :config="config.emptyState"/>
     </div>
   </div>
 </template>
@@ -87,6 +85,7 @@ import { date, copyToClipboard } from 'quasar'
 import filterMessages from '../../mixins/filterMessages'
 import MessagesListItem from './MessagesListItem.vue'
 import ConnectionsListItem from './ConnectionsListItem.vue'
+import EmptyPane from '../EmptyPane'
 import range from 'lodash/range'
 
 export default {
@@ -161,7 +160,7 @@ export default {
       async set (active) {
         await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active channel */
         this.$store.commit(`${this.moduleName}/setActive`, active)
-        let activeItem = this.$store.state.items[active] || {}
+        let activeItem = this.$store.state.channels[active] || {}
         Vue.set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
         await this.$store.dispatch(`${this.moduleName}/getCols`)
         this.$store.commit(`${this.moduleName}/clearMessages`)
@@ -493,7 +492,7 @@ export default {
     this.$store.unregisterModule(this.moduleName)
   },
   mixins: [filterMessages],
-  components: { MessagesListItem, VirtualList, ConnectionsListItem, VueFlatPickr }
+  components: { MessagesListItem, VirtualList, ConnectionsListItem, VueFlatPickr, EmptyPane }
 }
 </script>
 

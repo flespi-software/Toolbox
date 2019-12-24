@@ -282,6 +282,8 @@ export default {
     &.map-component--minimized
       .handle
         display none!important
+    .handle
+      position absolute
     .handle-mr, .handle-ml
       top 0
       height 100%
@@ -292,13 +294,15 @@ export default {
       display block!important
       z-index 998
     .handle-mr
+      cursor e-resize
       right 0
       border-left 1px solid #616161
     .handle-ml
       left 0
+      cursor w-resize
       border-right 1px solid #616161
     .handle-tm, .handle-bm
-      left 5px
+      left 0
       width 100%
       margin-top 0
       height 4px
@@ -308,9 +312,11 @@ export default {
       z-index 998
     .handle-tm
       top 0
+      cursor n-resize
       border-bottom 1px solid #616161
     .handle-bm
       bottom 0
+      cursor s-resize
       border-top 1px solid #616161
     .handle-tl, .handle-bl, .handle-br, .handle-tr
       width 4px
@@ -321,15 +327,19 @@ export default {
       display block!important
       z-index 999
     .handle-tl
+      cursor nw-resize
       left 0
       top 0
     .handle-bl
+      cursor sw-resize
       left 0
       bottom 0
     .handle-br
+      cursor nwse-resize
       right 0
       bottom 0
     .handle-tr
+      cursor nesw-resize
       right 0
       top 0
 </style>

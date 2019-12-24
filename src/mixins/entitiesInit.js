@@ -43,7 +43,7 @@ export default {
               break
             }
             case 'intervals': {
-              promises.push({ entity: 'calcs' })
+              promises.push({ entity: 'calcs', mode: 1 })
               entity = 'devices'
               if (entity !== fromEntity) {
                 if (idFromRoute) {

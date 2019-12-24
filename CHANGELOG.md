@@ -1,5 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.21.0] - 2019-12-24
+[feature] empty state for panes
+[fix] time picker(hours/minutes)
+[fix] switching devices/interval
+[fix] map location
+[fix] init calcs in intervals
 ### [0.20.3] - 2019-12-20
 [fix] history get data
 ### [0.20.2] - 2019-12-19

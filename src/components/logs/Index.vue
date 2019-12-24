@@ -36,6 +36,7 @@
           @action="actionHandler"
           @item-click="viewMessagesHandler"
       />
+      <empty-pane slot="empty" :config="config.emptyState"/>
     </virtual-scroll-list>
   </div>
 </template>
@@ -44,6 +45,7 @@
 import { VirtualScrollList, logsModule } from 'qvirtualscroll'
 import Vue from 'vue'
 import LogsListItem from './LogsListItem.vue'
+import EmptyPane from '../EmptyPane'
 import { date } from 'quasar'
 import filterMessages from '../../mixins/filterMessages'
 
@@ -294,9 +296,6 @@ export default {
     this.$store.commit(`${this.moduleName}/clear`)
   },
   mixins: [filterMessages],
-  components: { VirtualScrollList, LogsListItem }
+  components: { VirtualScrollList, LogsListItem, EmptyPane }
 }
 </script>
-
-<style>
-</style>

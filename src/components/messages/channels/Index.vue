@@ -37,6 +37,7 @@
         @action="actionHandler"
         @item-click="itemClickHandler"
       />
+      <empty-pane slot="empty" :config="config.emptyState"/>
     </virtual-scroll-list>
   </div>
 </template>
@@ -47,6 +48,7 @@ import Vue from 'vue'
 import { date, copyToClipboard } from 'quasar'
 import filterMessages from '../../../mixins/filterMessages'
 import MessagesListItem from './MessagesListItem.vue'
+import EmptyPane from '../../EmptyPane'
 import range from 'lodash/range'
 
 export default {
@@ -347,7 +349,7 @@ export default {
     this.$store.commit(`${this.moduleName}/clear`)
   },
   mixins: [filterMessages],
-  components: { VirtualScrollList, MessagesListItem }
+  components: { VirtualScrollList, MessagesListItem, EmptyPane }
 }
 </script>
 
