@@ -20,7 +20,7 @@
         :options="[{label: 'logs', value: 100},{label: 'both', value: 50},{label: 'messages', value: 0}]"
       />
     </div>
-    <div v-if="item && ($q.platform.is.desktop && width >= 900)" class="flex justify-end" :style="{width: `${actions.length * 60}px`}">
+    <div v-if="item && ($q.platform.is.desktop && width >= 900)" class="flex justify-end" :style="{width: `${actions && actions.length ? actions.length * 72 : ''}px`}">
       <template v-for="(action, index) in actions">
         <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp" :key="index" v-if="action.condition">
           <q-btn :title="action.label" class="on-left cursor-pointer pull-right text-center rounded-borders q-px-xs q-py-none text-white" @click="action.handler" flat dense style="width: 60px">
