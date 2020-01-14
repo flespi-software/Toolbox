@@ -18,19 +18,12 @@
         <q-btn flat :color="theme.color" style="max-width: 120px; font-size: .8rem; line-height: .8rem;" class="q-pa-sm" @click="$refs.datePickerModal.toggle()">
           <div>{{formatDate(from)}}</div>
         </q-btn>
-        <q-dialog ref="datePickerModal" :content-css="{maxWidth: '500px'}" class="modal-date" :maximized="$q.platform.is.mobile">
-          <q-card :style="{minWidth: $q.platform.is.mobile ? '100%' : '30vw'}" class="bg-grey-9">
+        <q-dialog ref="datePickerModal" content-class="modal-date">
+          <q-card class="bg-grey-9">
             <q-card-section class="q-pa-none">
-              <q-toolbar>
-                <div class="q-toolbar-title text-h6 text-white">
-                  Date/Time
-                </div>
-              </q-toolbar>
-            </q-card-section>
-            <q-separator />
-            <q-card-section :style="{height: $q.platform.is.mobile ? 'calc(100% - 104px)' : ''}" class="scroll">
               <div class="flex flex-center">
                 <vue-flat-pickr
+                  class="q-ma-sm"
                   v-model="fromModel"
                   :config="dateConfig"
                   :theme="theme"
@@ -80,6 +73,7 @@
 import { channelsMessagesModulePull } from 'qvirtualscroll'
 import VirtualList from 'vue-virtual-scroll-list'
 import { VueFlatPickr } from 'datetimerangepicker'
+import ScrollPlugin from 'flatpickr/dist/plugins/scrollPlugin'
 import Vue from 'vue'
 import { date, copyToClipboard } from 'quasar'
 import filterMessages from '../../mixins/filterMessages'
@@ -122,7 +116,8 @@ export default {
         inline: true,
         maxDate: (new Date()).setHours(23, 59, 59, 999),
         mode: 'single',
-        locale: { firstDayOfWeek: 1 }
+        locale: { firstDayOfWeek: 1 },
+        plugins: [ new ScrollPlugin() ]
       },
       fromModel: this.from
     }
@@ -507,4 +502,7 @@ export default {
     line-height 15px
   i
     display none
+.modal-date
+  .q-dialog__inner--minimized
+    padding 6px
 </style>

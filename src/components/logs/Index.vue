@@ -5,7 +5,7 @@
       :cols="cols"
       :actions="actions"
       :items="messages"
-      :date="from"
+      :dateRange="dateRange"
       :mode="mode"
       :viewConfig="viewConfig"
       :colsConfigurator="'toolbar'"
@@ -15,26 +15,26 @@
       :title="'Logs'"
       :loading="loadingFlag"
       @change:filter="filterChangeHandler"
-      @change:pagination-prev="paginationPrevChangeHandler"
-      @change:pagination-next="paginationNextChangeHandler"
-      @change:date="dateChangeHandler"
-      @change:date-prev="datePrevChangeHandler"
-      @change:date-next="dateNextChangeHandler"
+      @scroll:top="paginationPrevChangeHandler"
+      @scroll:bottom="paginationNextChangeHandler"
+      @change:date-range="dateRangeChangeHandler"
+      @change:date-range-prev="dateRangePrevHandler"
+      @change:date-range-next="dateRangeNextHandler"
       @change:mode="modeChange"
       @update:cols="updateColsHandler"
     >
       <logs-list-item slot="items" slot-scope="{item, index, actions, cols, etcVisible, actionsVisible, itemHeight, rowWidth}"
-          :item="item"
-          :key="index"
-          :index="index"
-          :actions="actions"
-          :cols="cols"
-          :itemHeight="itemHeight"
-          :rowWidth="rowWidth"
-          :etcVisible="etcVisible"
-          :actionsVisible="actionsVisible"
-          @action="actionHandler"
-          @item-click="viewMessagesHandler"
+        :item="item"
+        :key="index"
+        :index="index"
+        :actions="actions"
+        :cols="cols"
+        :itemHeight="itemHeight"
+        :rowWidth="rowWidth"
+        :etcVisible="etcVisible"
+        :actionsVisible="actionsVisible"
+        @action="actionHandler"
+        @item-click="viewMessagesHandler"
       />
       <empty-pane slot="empty" :config="config.emptyState"/>
     </virtual-scroll-list>
@@ -121,6 +121,9 @@ export default {
         val ? this.$store.commit(`${this.moduleName}/setFilter`, val) : this.$store.commit(`${this.moduleName}/setFilter`, '')
       }
     },
+    dateRange () {
+      return [this.$store.state[this.moduleName].from, this.$store.state[this.moduleName].to]
+    },
     from: {
       get () {
         return this.$store.state[this.moduleName].from
@@ -198,27 +201,42 @@ export default {
     updateColsHandler (cols) {
       this.cols = cols
     },
-    dateChangeHandler (date) {
-      let to = new Date(date).setHours(0, 0, 0, 0)
-      to += 86400000
-      this.$store.commit(`${this.moduleName}/setTo`, to)
-      this.$store.dispatch(`${this.moduleName}/get`, { name: 'setFrom', payload: date })
+    dateRangeChangeHandler (range) {
+      let from = range[0],
+        to = range[1]
+      if (this.from === from && this.to === to) { return false }
+      this.from = from
+      this.to = to
+      this.$store.commit(`${this.moduleName}/clearMessages`)
+      this.$store.dispatch(`${this.moduleName}/get`)
     },
-    datePrevChangeHandler () {
-      this.$store.dispatch(`${this.moduleName}/get`, { name: 'datePrev' })
+    dateRangePrevHandler () {
+      let delta = this.to - this.from,
+        newTo = this.from - 1,
+        newFrom = newTo - delta
+      this.dateRangeChangeHandler([newFrom, newTo])
     },
-    dateNextChangeHandler () {
-      this.$store.dispatch(`${this.moduleName}/get`, { name: 'dateNext' })
+    dateRangeNextHandler () {
+      let delta = this.to - this.from,
+        newFrom = this.to + 1,
+        newTo = newFrom + delta
+      this.dateRangeChangeHandler([newFrom, newTo])
     },
     paginationPrevChangeHandler () {
-      let timestamp = 0
-      timestamp = this.messages.length ? this.messages[0].timestamp * 1000 : 0
-      this.$store.dispatch(`${this.moduleName}/get`, { name: 'paginationPrev', payload: timestamp })
+      if (this.mode === 0) {
+        this.$store.dispatch(`${this.moduleName}/getPrevPage`)
+          .then((count) => {
+            this.$refs.scrollList.scrollTo(count)
+          })
+      }
     },
     paginationNextChangeHandler () {
-      let timestamp = 0
-      timestamp = this.messages.length ? this.messages[this.messages.length - 1].timestamp * 1000 : 0
-      this.$store.dispatch(`${this.moduleName}/get`, { name: 'paginationNext', payload: timestamp })
+      if (this.mode === 0) {
+        this.$store.dispatch(`${this.moduleName}/getNextPage`)
+          .then((count) => {
+            this.$refs.scrollList.scrollTo(this.messages.length - count)
+          })
+      }
     },
     actionHandler ({ index, type, content }) {
       switch (type) {

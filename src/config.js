@@ -43,8 +43,7 @@ export default {
       'viewConfig': {
         'needShowFilter': true,
         'needShowMode': false,
-        'needShowPageScroll': 'right left',
-        'needShowDate': true,
+        'needShowDateRange': true,
         'needShowEtc': true
       },
       'theme': {
@@ -138,8 +137,7 @@ export default {
       'viewConfig': {
         'needShowFilter': true,
         'needShowMode': false,
-        'needShowPageScroll': 'right left',
-        'needShowDate': true,
+        'needShowDateRange': true,
         'needShowEtc': true
       },
       'theme': {
@@ -170,8 +168,7 @@ export default {
       'viewConfig': {
         'needShowFilter': true,
         'needShowMode': false,
-        'needShowPageScroll': 'right left',
-        'needShowDate': true,
+        'needShowDateRange': true,
         'needShowEtc': true
       },
       'theme': {
@@ -226,8 +223,7 @@ export default {
       'viewConfig': {
         'needShowFilter': true,
         'needShowMode': false,
-        'needShowPageScroll': 'right left',
-        'needShowDate': true,
+        'needShowDateRange': true,
         'needShowEtc': true
       },
       'theme': {
@@ -335,8 +331,7 @@ export default {
       'viewConfig': {
         'needShowFilter': true,
         'needShowMode': false,
-        'needShowPageScroll': 'right left',
-        'needShowDate': true,
+        'needShowDateRange': true,
         'needShowEtc': true
       },
       'theme': {
@@ -371,8 +366,7 @@ export default {
       'viewConfig': {
         'needShowFilter': true,
         'needShowMode': false,
-        'needShowPageScroll': 'right left',
-        'needShowDate': true,
+        'needShowDateRange': true,
         'needShowEtc': true
       },
       'theme': {
@@ -469,8 +463,7 @@ export default {
       'viewConfig': {
         'needShowFilter': true,
         'needShowMode': false,
-        'needShowPageScroll': 'right left',
-        'needShowDate': true,
+        'needShowDateRange': true,
         'needShowEtc': true
       },
       'theme': {
@@ -543,8 +536,7 @@ export default {
       'viewConfig': {
         'needShowFilter': true,
         'needShowMode': false,
-        'needShowPageScroll': 'right left',
-        'needShowDate': true,
+        'needShowDateRange': true,
         'needShowEtc': true
       },
       'theme': {
@@ -598,8 +590,7 @@ export default {
       'viewConfig': {
         'needShowFilter': true,
         'needShowMode': false,
-        'needShowPageScroll': 'right left',
-        'needShowDate': true,
+        'needShowDateRange': true,
         'needShowEtc': true
       },
       'theme': {
@@ -666,8 +657,7 @@ export default {
       'viewConfig': {
         'needShowFilter': true,
         'needShowMode': false,
-        'needShowPageScroll': 'right left',
-        'needShowDate': true,
+        'needShowDateRange': true,
         'needShowEtc': true
       },
       'theme': {
@@ -739,8 +729,7 @@ export default {
       'viewConfig': {
         'needShowFilter': true,
         'needShowMode': false,
-        'needShowPageScroll': 'right left',
-        'needShowDate': true,
+        'needShowDateRange': true,
         'needShowEtc': true
       },
       'theme': {
@@ -764,8 +753,8 @@ export default {
         'label': 'Log entries not found',
         'sublabel': 'If you expect to see the raw messages here',
         'hints': [
-          { 'html': "Check your <a class='text-white' href='https://flespi.com/protocols/proxy' target='_blank'>proxy channel</a> configuration." },
-          { 'html': "Make sure your trackers are correctly pointed to this channel’s <span class='text-bold'>IP:port</span> and they are currently sending messages." },
+          { 'html': "Check your <a class='text-white' href='https://flespi.com/protocols/proxy' target='_blank'>proxy channel</a> configuration.", 'wclass': [ 'col-12' ] },
+          { 'html': "Make sure your trackers are correctly pointed to this channel’s <span class='text-bold'>IP:port</span> and they are currently sending messages.", 'wclass': [ 'col-12' ] },
           { 'html': "Switch to <span class='text-bold'>History mode</span> to check if you had logs for the previous periods.", 'wclass': [ 'col-12' ] },
           { 'html': "Pick a specific date and time using the <span class='text-bold'>date/time picker</span> on the top right.", 'wclass': [ 'col-12' ] },
           { 'html': "Narrow down the search by specifying the desired parameter values in the <span class='text-bold'>filter control</span>.", 'wclass': [ 'col-12' ] }

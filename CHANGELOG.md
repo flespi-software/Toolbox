@@ -1,5 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.22.0] - 2020-01-14
+[feature] new history date control view
+[feature] lazy loading for messages in history mode
+[fix] actions on entities pages
+[fix] empty state viewes
+[fix] reconnect event handler
 ### [0.21.2] - 2020-01-08
 [fix] entities toolbar action view
 ### [0.21.1] - 2019-12-24

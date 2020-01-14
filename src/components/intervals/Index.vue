@@ -16,6 +16,8 @@
       :loading="loadingFlag"
       @change:filter="filterChangeHandler"
       @change:date-range="dateRangeChangeHandler"
+      @change:date-range-prev="dateRangePrevHandler"
+      @change:date-range-next="dateRangeNextHandler"
       @update:cols="updateColsHandler"
     >
       <messages-list-item slot="items" slot-scope="{item, index, actions, cols, etcVisible, actionsVisible, itemHeight, rowWidth}"
@@ -212,6 +214,18 @@ export default {
       this.end = end
       this.$store.commit(`${this.moduleName}/clearMessages`)
       this.$store.dispatch(`${this.moduleName}/get`)
+    },
+    dateRangePrevHandler () {
+      let delta = this.end - this.begin,
+        newTo = this.begin - 1,
+        newFrom = newTo - delta
+      this.dateRangeChangeHandler([newFrom, newTo])
+    },
+    dateRangeNextHandler () {
+      let delta = this.end - this.begin,
+        newFrom = this.end + 1,
+        newTo = newFrom + delta
+      this.dateRangeChangeHandler([newFrom, newTo])
     },
     actionHandler ({ index, type, content }) {
       switch (type) {

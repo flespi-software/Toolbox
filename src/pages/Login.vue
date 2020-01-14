@@ -69,8 +69,8 @@ export default {
         let connectEventIndex, errorEventIndex,
           eventHandler = () => {
             this.$router.push(to).catch(err => err)
-            connectEventIndex && Vue.connector.socket.on('connect', connectEventIndex)
-            errorEventIndex && Vue.connector.socket.on('error', errorEventIndex)
+            connectEventIndex && Vue.connector.socket.off('connect', connectEventIndex)
+            errorEventIndex && Vue.connector.socket.off('error', errorEventIndex)
           }
         connectEventIndex = Vue.connector.socket.on('connect', eventHandler)
         errorEventIndex = Vue.connector.socket.on('error', eventHandler)

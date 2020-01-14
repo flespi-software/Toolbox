@@ -1,7 +1,7 @@
 <template>
   <div class="empty-state__back">
     <div class="text-center text-grey-4" :class="[`q-pb-${$q.platform.is.mobile ? 'sm' : 'lg'}`, $q.platform.is.mobile ? '' : 'q-pt-lg']" style="font-size: 1.5rem;">{{config.label}}</div>
-    <div class="row text-white q-px-md q-mb-md" v-if="$q.platform.is.desktop">
+    <div class="row text-white q-px-md q-mb-md justify-center" v-if="$q.platform.is.desktop">
       <div class="text-grey-4 col-12 q-px-sm" style="font-size: .9rem;">{{config.sublabel}}</div>
       <div class="q-pa-sm" :class="hint.wclass || [ 'col-6', 'col-sm-3' ]" v-for="(hint, i) in config.hints" :key="i">
         <div class="empty-state__card full-height" v-html="hint.html"></div>

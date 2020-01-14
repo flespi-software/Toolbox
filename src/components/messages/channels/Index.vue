@@ -5,7 +5,7 @@
       :cols="cols"
       :actions="actions"
       :items="messages"
-      :date="from"
+      :dateRange="dateRange"
       :mode="mode"
       :viewConfig="viewConfig"
       :colsConfigurator="'toolbar'"
@@ -15,11 +15,11 @@
       :title="'Messages'"
       :loading="loadingFlag"
       @change:filter="filterChangeHandler"
-      @change:pagination-prev="paginationPrevChangeHandler"
-      @change:pagination-next="paginationNextChangeHandler"
-      @change:date="dateChangeHandler"
-      @change:date-prev="datePrevChangeHandler"
-      @change:date-next="dateNextChangeHandler"
+      @scroll:top="paginationPrevChangeHandler"
+      @scroll:bottom="paginationNextChangeHandler"
+      @change:date-range="dateRangeChangeHandler"
+      @change:date-range-prev="dateRangePrevHandler"
+      @change:date-range-next="dateRangeNextHandler"
       @change:mode="modeChange"
       @update:cols="updateColsHandler"
     >
@@ -134,6 +134,9 @@ export default {
         val ? this.$store.commit(`${this.moduleName}/setTo`, val) : this.$store.commit(`${this.moduleName}/setTo`, 0)
       }
     },
+    dateRange () {
+      return [this.$store.state[this.moduleName].from, this.$store.state[this.moduleName].to]
+    },
     reverse: {
       get () {
         return this.$store.state[this.moduleName].reverse || false
@@ -198,27 +201,42 @@ export default {
     updateColsHandler (cols) {
       this.cols = cols
     },
-    dateChangeHandler (date) {
-      let to = new Date(date).setHours(0, 0, 0, 0)
-      to += 86400000
-      this.$store.commit(`${this.moduleName}/setTo`, to)
-      this.$store.dispatch(`${this.moduleName}/get`, { name: 'setFrom', payload: date })
+    dateRangeChangeHandler (range) {
+      let from = range[0],
+        to = range[1]
+      if (this.from === from && this.to === to) { return false }
+      this.from = from
+      this.to = to
+      this.$store.commit(`${this.moduleName}/clearMessages`)
+      this.$store.dispatch(`${this.moduleName}/get`)
     },
-    datePrevChangeHandler () {
-      this.$store.dispatch(`${this.moduleName}/get`, { name: 'datePrev' })
+    dateRangePrevHandler () {
+      let delta = this.to - this.from,
+        newTo = this.from - 1,
+        newFrom = newTo - delta
+      this.dateRangeChangeHandler([newFrom, newTo])
     },
-    dateNextChangeHandler () {
-      this.$store.dispatch(`${this.moduleName}/get`, { name: 'dateNext' })
+    dateRangeNextHandler () {
+      let delta = this.to - this.from,
+        newFrom = this.to + 1,
+        newTo = newFrom + delta
+      this.dateRangeChangeHandler([newFrom, newTo])
     },
-    paginationPrevChangeHandler () {
-      let timestamp = 0
-      timestamp = this.messages.length ? this.messages[0].timestamp * 1000 : 0
-      this.$store.dispatch(`${this.moduleName}/get`, { name: 'paginationPrev', payload: timestamp })
+    paginationPrevChangeHandler (done) {
+      if (this.mode === 0) {
+        this.$store.dispatch(`${this.moduleName}/getPrevPage`)
+          .then((count) => {
+            this.$refs.scrollList.scrollTo(count)
+          })
+      }
     },
-    paginationNextChangeHandler () {
-      let timestamp = 0
-      timestamp = this.messages.length ? this.messages[this.messages.length - 1].timestamp * 1000 : 0
-      this.$store.dispatch(`${this.moduleName}/get`, { name: 'paginationNext', payload: timestamp })
+    paginationNextChangeHandler (done) {
+      if (this.mode === 0) {
+        this.$store.dispatch(`${this.moduleName}/getNextPage`)
+          .then((count) => {
+            this.$refs.scrollList.scrollTo(this.messages.length - count)
+          })
+      }
     },
     actionHandler ({ index, type, content }) {
       switch (type) {

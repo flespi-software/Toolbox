@@ -31,7 +31,7 @@
       </template>
     </div>
     <div v-else-if="item && (!$q.platform.is.desktop || width < 900)">
-      <q-btn flat icon="mdi-dots-vertical" color="white">
+      <q-btn flat icon="mdi-dots-vertical" color="white" v-if="hasActiveActions">
         <q-menu>
           <q-list>
             <q-item v-close-popup v-if="!item.deleted && ratio !== undefined">
@@ -67,6 +67,11 @@ export default {
   data () {
     return {
       width: 0
+    }
+  },
+  computed: {
+    hasActiveActions () {
+      return (!this.item.deleted && this.ratio !== undefined) || this.actions.reduce((res, action) => res || (action && action.condition), false)
     }
   },
   methods: {
