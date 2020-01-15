@@ -43,6 +43,7 @@ export default [
     ]
   },
   { path: '/token/:token', component: () => import('pages/Login') },
+  { path: '/token/:token/flespi', component: () => import('pages/Login') },
   { path: '/token/:token/type/:type/id/:id', component: () => import('layouts/Index') },
   { path: '/token/:token/group/:group', component: () => import('layouts/Index') },
   { path: '/token/:token/type/:type/id/:id/fullscreen/:fullscreen', component: () => import('layouts/Index') },

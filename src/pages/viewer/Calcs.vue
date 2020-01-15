@@ -1,8 +1,8 @@
 <template>
   <q-page>
     <entities-toolbar
-      :item="selectedItem" :ratio="ratio" :mode="modeModel" :actions="actions"
-      @change:mode="mode => modeModel = mode" @change:ratio="r => ratio = r"
+      :item="selectedItem" :mode="modeModel" :actions="actions"
+      @change:mode="mode => modeModel = mode"
     >
       <div style="max-width: 50%" :class="{'middle-modificator': !active}" slot="selects">
         <q-select

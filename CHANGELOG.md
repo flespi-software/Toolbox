@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.22.2] - 2020-01-15
+[fix] ratio logic
+[fix] build
 ### [0.22.1] - 2020-01-15
 [feature] dev connect
 ### [0.22.0] - 2020-01-14
