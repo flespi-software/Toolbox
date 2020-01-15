@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.22.1] - 2020-01-15
+[feature] dev connect
 ### [0.22.0] - 2020-01-14
 [feature] new history date control view
 [feature] lazy loading for messages in history mode
