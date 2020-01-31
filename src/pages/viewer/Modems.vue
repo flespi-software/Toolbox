@@ -209,9 +209,6 @@ export default {
       let entity = 'modems'
       this.itemsLoad(entity, update, this.active, () => { this.isItemsInit = true })
     },
-    viewDataHandler (content) {
-      this.$emit('view-data', content)
-    },
     viewLogMessagesHandler (content) {
       this.$emit('view-log-message', content)
     },

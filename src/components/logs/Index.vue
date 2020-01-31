@@ -22,6 +22,7 @@
       @change:date-range-next="dateRangeNextHandler"
       @change:mode="modeChange"
       @update:cols="updateColsHandler"
+      @edit:cols="colsEditHandler"
     >
       <logs-list-item slot="items" slot-scope="{item, index, actions, cols, etcVisible, actionsVisible, itemHeight, rowWidth}"
         :item="item"
@@ -263,6 +264,9 @@ export default {
       if (this.$store.state[this.moduleName].mode === 1 && !this.item.deleted) {
         await this.$store.dispatch(`${this.moduleName}/getHistory`, 200)
       }
+    },
+    colsEditHandler () {
+      this.$eventBus.$emit('cols:edit', 'logs')
     }
   },
   watch: {

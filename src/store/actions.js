@@ -49,7 +49,13 @@ async function getItems ({ state, commit }, payload) {
   let writePath = entity
   if (!state[writePath]) { Vue.set(state, writePath, {}) }
   if (entity) {
-    let origin = `flespi/state${origins[entity]}/${id || '+'}${mode === GET_ITEMS_MODE_FIELDS ? `/${basicEntitiesFields[entity].join(',')}` : ''}`
+    let origin = ''
+    if (mode === GET_ITEMS_MODE_FIELDS) {
+      if (!basicEntitiesFields[entity]) { return false }
+      origin = `flespi/state${origins[entity]}/${id || '+'}/${basicEntitiesFields[entity].join(',')}`
+    } else {
+      origin = `flespi/state${origins[entity]}/${id || '+'}`
+    }
     if (state.token) {
       try {
         // init getting protocols name
@@ -125,7 +131,13 @@ async function getItems ({ state, commit }, payload) {
 async function unsubscribeItems ({ state, commit }, payload) {
   let { id, mode, entity } = getParams(payload)
   if (entity) {
-    let origin = `flespi/state${origins[entity]}/${id || '+'}${mode === GET_ITEMS_MODE_FIELDS ? `/${basicEntitiesFields[entity].join(',')}` : ''}`
+    let origin = ''
+    if (mode === GET_ITEMS_MODE_FIELDS) {
+      if (!basicEntitiesFields[entity]) { return false }
+      origin = `flespi/state${origins[entity]}/${id || '+'}/${basicEntitiesFields[entity].join(',')}`
+    } else {
+      origin = `flespi/state${origins[entity]}/${id || '+'}`
+    }
     try {
       return await Vue.connector.socket.unsubscribe(origin)
     } catch (e) {

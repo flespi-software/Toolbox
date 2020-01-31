@@ -200,9 +200,6 @@ export default {
     }
   },
   methods: {
-    viewDataHandler (content) {
-      this.$emit('view-data', content)
-    },
     ...mapActions(['getEntities']),
     filterItems (filter, update) {
       if (this.isItemsInit) {

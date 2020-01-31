@@ -22,6 +22,7 @@
       @change:date-range-next="dateRangeNextHandler"
       @change:mode="modeChange"
       @update:cols="updateColsHandler"
+      @edit:cols="colsEditHandler"
     >
       <messages-list-item slot="items" slot-scope="{item, index, actions, cols, etcVisible, actionsVisible, itemHeight, rowWidth}"
         :item="item"
@@ -90,7 +91,7 @@ export default {
         let activeItem = this.$store.state.channels[val] || {}
         this.$set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
         this.$store.commit(`${this.moduleName}/clearMessages`)
-        await this.$store.dispatch(`${this.moduleName}/getCols`)
+        await this.$store.dispatch(`${this.moduleName}/getCols`, { actions: true, etc: false })
         if (this.$store.state[this.moduleName].mode === 0) {
           await this.$store.dispatch(`${this.moduleName}/initTime`)
           await this.$store.dispatch(`${this.moduleName}/get`)
@@ -319,6 +320,9 @@ export default {
       if (this.selected.length) {
         this.selected = []
       }
+    },
+    colsEditHandler () {
+      this.$eventBus.$emit('cols:edit', 'messages')
     }
   },
   watch: {
@@ -343,7 +347,7 @@ export default {
       this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
       let activeItem = this.$store.state.channels[this.activeId] || {}
       Vue.set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
-      this.$store.dispatch(`${this.moduleName}/getCols`)
+      this.$store.dispatch(`${this.moduleName}/getCols`, { actions: true, etc: false })
     }
     if (this.$store.state[this.moduleName].mode === null) {
       this.modeChange(this.mode)

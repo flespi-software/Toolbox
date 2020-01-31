@@ -22,6 +22,7 @@
       @change:date-range-next="dateRangeNextHandler"
       @change:mode="modeChange"
       @update:cols="updateColsHandler"
+      @edit:cols="colsEditHandler"
     >
       <messages-list-item slot="items" slot-scope="{item, index, actions, cols, etcVisible, actionsVisible, itemHeight, rowWidth}"
         :item="item"
@@ -87,7 +88,7 @@ export default {
         this.$store.commit(`${this.moduleName}/setActive`, val)
         this.$store.commit(`${this.moduleName}/clearMessages`)
         if (this.$store.state[this.moduleName].mode !== null) {
-          await this.$store.dispatch(`${this.moduleName}/getCols`)
+          await this.$store.dispatch(`${this.moduleName}/getCols`, { actions: true, etc: true })
           if (this.$store.state[this.moduleName].mode === 0) {
             await this.$store.dispatch(`${this.moduleName}/initTime`)
             await this.$store.dispatch(`${this.moduleName}/get`)
@@ -273,6 +274,9 @@ export default {
       if (this.selected.length) {
         this.selected = []
       }
+    },
+    colsEditHandler () {
+      this.$eventBus.$emit('cols:edit', 'messages')
     }
   },
   watch: {
@@ -295,7 +299,7 @@ export default {
     this.currentLimit = this.limit
     if (this.activeId) {
       this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
-      this.$store.dispatch(`${this.moduleName}/getCols`)
+      this.$store.dispatch(`${this.moduleName}/getCols`, { actions: true, etc: true })
     }
     if (this.$store.state[this.moduleName].mode === null) {
       this.modeChange(this.mode)

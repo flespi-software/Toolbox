@@ -208,9 +208,6 @@ export default {
       let entity = 'streams'
       this.itemsLoad(entity, update, this.active, () => { this.isItemsInit = true })
     },
-    viewDataHandler (content) {
-      this.$emit('view-data', content)
-    },
     viewLogMessagesHandler (content) {
       this.$emit('view-log-message', content)
     },

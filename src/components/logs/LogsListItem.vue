@@ -5,35 +5,39 @@
       class="cursor-pointer"
       :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, borderBottom: item.delimiter ? 'solid 1px #f40' : '', boxSizing: 'border-box'}"
       :class="[color, item.__status ? 'missed-items' : '']"
-      @click="itemClickHandler(index, clearItem)">
-    <span class="list__item item_actions text-white" v-if="actionsVisible">
-      <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
-        <q-tooltip>{{action.label}}</q-tooltip>
-      </q-icon>
-    </span>
-    <span
-      v-for="(prop, k) in cols"
-      :key="prop.name + k"
-      class="list__item"
-      :class="{[`item_${k}`]: true}"
-      :style="{backgroundColor: item['x-flespi-filter-fields'] && item['x-flespi-filter-fields'].includes(prop.name) ? '#666' : ''}"
+      @click="itemClickHandler(index, clearItem)"
     >
-      <!--<q-tooltip>{{getValueOfProp(prop)}}</q-tooltip>-->
-      <!-- <a :class="[color]" @click.prevent.stop="linkMoreClickHandler" v-if="prop.name === 'event_code'"><q-icon name="mdi-open-in-new"/></a> -->
-      <template v-if="prop.name === 'event_code' && item.address">
-        <q-icon v-if="item.address === 'connection'" name="mdi-ethernet" title="address: connection"/>
-        <q-icon v-if="item.address === 'sms'" name="mdi-email-outline"  title="address: sms"/>
-        <q-icon v-if="item.address === 'local'" name="mdi-content-save-outline"  title="address: local"/>
+      <template v-for="(prop, k) in cols">
+        <span class="list__item item_actions" :class="{[`item_${k}`]: true}" v-if="prop.__dest === 'action'" :key="prop.name + k">
+          <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)"
+                  :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
+            <q-tooltip>{{action.label}}</q-tooltip>
+          </q-icon>
+        </span>
+        <span v-else-if="prop.__dest === 'etc'" class="list__item item_etc" :class="{[`item_${k}`]: true}" :key="prop.name + k">{{etc}}</span>
+        <span
+          v-else
+          :key="prop.name + k"
+          class="list__item"
+          :class="{[`item_${k}`]: true}"
+          :style="{backgroundColor: item['x-flespi-filter-fields'] && item['x-flespi-filter-fields'].includes(prop.name) ? '#666' : ''}"
+        >
+          <!--<q-tooltip>{{getValueOfProp(prop)}}</q-tooltip>-->
+          <!-- <a :class="[color]" @click.prevent.stop="linkMoreClickHandler" v-if="prop.name === 'event_code'"><q-icon name="mdi-open-in-new"/></a> -->
+          <template v-if="prop.name === 'event_code' && item.address">
+            <q-icon v-if="item.address === 'connection'" name="mdi-ethernet" title="address: connection"/>
+            <q-icon v-if="item.address === 'sms'" name="mdi-email-outline"  title="address: sms"/>
+            <q-icon v-if="item.address === 'local'" name="mdi-content-save-outline"  title="address: local"/>
+          </template>
+          <q-icon name="mdi-alert-outline" v-if="prop.name === 'event_code' && !!item['error_text']"><q-tooltip>{{item['error_text']}}</q-tooltip></q-icon>
+          <a @click.stop="" target="_blank" class="text-green" v-if="item.event_code === 901 && prop.name === 'name'" :href="`${SERVER ? ' https://cdn.flespi.io/' : `https://${window.location.hostname}:9019/`}file/${item.uuid}`">
+            {{getValueOfProp(prop)}}
+          </a>
+          <span v-else :title="JSON.stringify(getValueOfProp(prop))">
+            {{getValueOfProp(prop)}}
+          </span>
+        </span>
       </template>
-      <q-icon name="mdi-alert-outline" v-if="prop.name === 'event_code' && !!item['error_text']"><q-tooltip>{{item['error_text']}}</q-tooltip></q-icon>
-      <a @click.stop="" target="_blank" class="text-green" v-if="item.event_code === 901 && prop.name === 'name'" :href="`${SERVER ? ' https://cdn.flespi.io/' : `https://${window.location.hostname}:9019/`}file/${item.uuid}`">
-        {{getValueOfProp(prop)}}
-      </a>
-      <span v-else :title="JSON.stringify(getValueOfProp(prop))">
-        {{getValueOfProp(prop)}}
-      </span>
-    </span>
-      <span v-if="etcVisible" class="list__item item_etc">{{etc}}</span>
     </div>
     <div
       v-else-if="item['x-flespi-filter-prev'] || item['x-flespi-filter-next']"
@@ -78,8 +82,6 @@ export default {
     'index',
     'actions',
     'cols',
-    'etcVisible',
-    'actionsVisible',
     'itemHeight',
     'rowWidth'
   ],

@@ -320,7 +320,7 @@ export default {
     },
     viewMessagesHandler ({ index, content }) {
       this.selected = [index]
-      this.$emit('view-data', content)
+      this.$eventBus.$emit('view-data', content)
     },
     itemClickHandler ({ index, content, event }) {
       if (this.type === 'messages') {
@@ -345,7 +345,7 @@ export default {
         } else {
           this.selected = [index]
         }
-        this.$emit('view-data', this.connection.messages.filter((message, index) => this.selected.includes(index)))
+        this.$eventBus.$emit('view-data', this.connection.messages.filter((message, index) => this.selected.includes(index)))
       } else if (this.type === 'connections') {
         if (this.$refs.scroller && this.$refs.scroller.$el) {
           this.scrollerScrollTop = this.$refs.scroller.$el.scrollTop

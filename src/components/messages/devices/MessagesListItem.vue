@@ -5,25 +5,27 @@
       @click="itemClickHandler(index, clearItem)"
       class="cursor-pointer"
       :class="[item.__status ? 'missed-items' : '', selected ? 'bg-white-opasity' : highlightLevel ? `text-${highlightType}-${highlightLevel}` : '']"
-      :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, color: selected ? '#333' : '', borderBottom: item.delimiter ? 'solid 1px #f40' : ''}">
-    <span class="list__item item_actions" v-if="actionsVisible">
-      <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
-        <q-tooltip>{{action.label}}</q-tooltip>
-      </q-icon>
-    </span>
-    <span
-      v-for="(prop, k) in cols"
-      :key="prop.name + k"
-      class="list__item"
-      :class="{[`item_${k}`]: true}"
-      :title="values[prop.name].value"
-      :style="{color: item['x-flespi-filter-fields'] && item['x-flespi-filter-fields'].includes(prop.name) ? '#4caf50' : ''}"
+      :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, color: selected ? '#333' : '', borderBottom: item.delimiter ? 'solid 1px #f40' : ''}"
     >
-      {{values[prop.name].value}}
-    </span>
-    <span v-if="etcVisible" class="list__item item_etc">
-      {{values.etc.value || '*Empty*'}}
-    </span>
+      <template v-for="(prop, k) in cols">
+        <span class="list__item item_actions" :class="{[`item_${k}`]: true}" v-if="prop.__dest === 'action'" :key="prop.name + k">
+          <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)"
+                  :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
+            <q-tooltip>{{action.label}}</q-tooltip>
+          </q-icon>
+        </span>
+        <span v-else-if="prop.__dest === 'etc'" class="list__item item_etc" :class="{[`item_${k}`]: true}" :key="prop.name + k">{{values.etc.value || '*Empty*'}}</span>
+        <span
+          v-else
+          :key="prop.name + k"
+          class="list__item"
+          :class="{[`item_${k}`]: true}"
+          :title="values[prop.name].value"
+          :style="{color: item['x-flespi-filter-fields'] && item['x-flespi-filter-fields'].includes(prop.name) ? '#4caf50' : ''}"
+        >
+          {{values[prop.name].value}}
+        </span>
+      </template>
     </div>
     <div
       v-else-if="item['x-flespi-filter-prev'] || item['x-flespi-filter-next']"
@@ -70,9 +72,7 @@ export default {
     'actions',
     'cols',
     'itemHeight',
-    'etcVisible',
     'rowWidth',
-    'actionsVisible',
     'selected'
   ],
   data () {

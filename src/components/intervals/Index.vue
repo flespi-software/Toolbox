@@ -19,6 +19,7 @@
       @change:date-range-prev="dateRangePrevHandler"
       @change:date-range-next="dateRangeNextHandler"
       @update:cols="updateColsHandler"
+      @edit:cols="colsEditHandler"
     >
       <messages-list-item slot="items" slot-scope="{item, index, actions, cols, etcVisible, actionsVisible, itemHeight, rowWidth}"
          :item="item"
@@ -284,6 +285,9 @@ export default {
         let message = messages[selectedIndex]
         this.viewMessagesHandler({ index: selectedIndex, content: message })
       }
+    },
+    colsEditHandler () {
+      this.$eventBus.$emit('cols:edit', 'messages')
     }
   },
   watch: {
