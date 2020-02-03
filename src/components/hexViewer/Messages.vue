@@ -345,7 +345,7 @@ export default {
         } else {
           this.selected = [index]
         }
-        this.$eventBus.$emit('view-data', this.connection.messages.filter((message, index) => this.selected.includes(index)))
+        this.$emit('view-data', this.connection.messages.filter((message, index) => this.selected.includes(index)))
       } else if (this.type === 'connections') {
         if (this.$refs.scroller && this.$refs.scroller.$el) {
           this.scrollerScrollTop = this.$refs.scroller.$el.scrollTop

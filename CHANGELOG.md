@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.22.4] - 2020-02-03
+[fix] hex viewer message
 ### [0.22.3] - 2020-01-31
 [update] VS and rebased to new API
 ### [0.22.2] - 2020-01-15
