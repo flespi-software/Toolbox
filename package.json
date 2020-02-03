@@ -1,6 +1,6 @@
 {
   "name": "toolbox",
-  "version": "0.22.2",
+  "version": "0.22.3",
   "description": "Flespi ToolboX",
   "productName": "ToolboX",
   "cordovaId": "org.cordova.quasar.app",
@@ -25,7 +25,8 @@
     "shelljs": "^0.8.3",
     "vue-draggable-resizable": "^2.1.0",
     "vue-i18n": "^8.15.2",
-    "vue-virtual-scroll-list": "^1.4.4"
+    "vue-virtual-scroll-list": "^1.4.4",
+    "vuedraggable": "^2.23.2"
   },
   "devDependencies": {
     "@quasar/app": "^1.4.3",
