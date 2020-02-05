@@ -16,7 +16,7 @@
         <p class="text-center">Swiss knife to view and analyze flespi data</p>
         <div class="row full-width">
           <div class="col-12 text-center">
-            <q-btn @click="openWindow(`${$flespiServer}/login/#/providers`)" icon="mdi-account-circle" color="red-7" rounded label="login / register" size="lg"/>
+            <q-btn @click="openWindow(`${$authHost}/login/#/providers`)" icon="mdi-account-circle" color="red-7" rounded label="login / register" size="lg"/>
           </div>
         </div>
       </div>
@@ -31,7 +31,7 @@
 
 <script>
 import Vue from 'vue'
-import { mapMutations } from 'vuex'
+import { mapActions, mapMutations } from 'vuex'
 
 export default {
   data () {
@@ -61,7 +61,8 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['setToken']),
+    ...mapActions(['initConnection']),
+    ...mapMutations(['setRegions', 'setCurrentRegion', 'setToken']),
     goto (to) {
       if (this.tokenInfo) {
         this.$router.push(to).catch(err => err)
@@ -76,27 +77,32 @@ export default {
         errorEventIndex = Vue.connector.socket.on('error', eventHandler)
       }
     },
-    logIn () {
-      this.setToken(this.token)
-      this.$nextTick(() => {
-        if (this.$route.params && this.$route.params.goto) {
-          this.goto(this.$route.params.goto)
-        } else {
-          this.goto('/')
-        }
-      })
+    logIn (region) {
+      this.initConnection({ token: this.token, region })
+        .then(() => {
+          this.$nextTick(() => {
+            if (this.$route.params && this.$route.params.goto) {
+              this.goto(this.$route.params.goto)
+            } else {
+              this.goto('/')
+            }
+          })
+        })
     },
     autoLogin () {
-      this.setToken(this.$route.params.token)
-      this.goto('/')
+      this.initConnection({ token: this.$route.params.token })
+        .then(() => {
+          this.goto('/')
+        })
     },
     checkHasToken () {
-      let sessionStorageToken = this.$q.sessionStorage.getItem(`toolbox-token[${window.name || 'default'}]`)
+      let sessionStorageToken = this.$q.sessionStorage.getItem(`flespi-toolbox-token[${window.name || 'default'}]`)
+      let sessionStorageRegion = this.$q.sessionStorage.getItem(`flespi-toolbox-region`)
       if (this.$route.params && this.$route.params.token) {
         this.autoLogin()
       } else if (sessionStorageToken) {
         this.token = sessionStorageToken
-        this.logIn()
+        this.logIn(sessionStorageRegion)
       }
     },
     openWindow (url, title) {
@@ -116,6 +122,11 @@ export default {
       if (window.focus) {
         newWindow.focus()
       }
+    },
+    regionInitFromAuth (region) {
+      this.setRegions({ [region.name]: region })
+      this.setCurrentRegion(region)
+      this.$connector.setRegion(region)
     }
   },
   watch: {
@@ -131,9 +142,14 @@ export default {
       this.canLogin = sessionSettings.isVisibleToolbar
     }
     let tokenHandler = (event) => {
-      if (typeof event.data === 'string' && ~event.data.indexOf('FlespiToken')) {
-        this.token = event.data
-        this.logIn()
+      if (typeof event.data === 'string' && ~event.data.indexOf('FlespiLogin|token:')) {
+        let payload = event.data
+        payload = payload.replace('FlespiLogin|token:', '')
+        payload = JSON.parse(payload)
+        this.token = payload.token
+        this.regionInitFromAuth(payload.region)
+        this.setToken(payload.token)
+        this.goto('/')
         window.removeEventListener('message', tokenHandler)
       }
     }

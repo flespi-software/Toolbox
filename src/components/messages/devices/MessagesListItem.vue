@@ -9,7 +9,7 @@
     >
       <template v-for="(prop, k) in cols">
         <span class="list__item item_actions" :class="{[`item_${k}`]: true}" v-if="prop.__dest === 'action'" :key="prop.name + k">
-          <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)"
+          <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, clearItem)"
                   :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
             <q-tooltip>{{action.label}}</q-tooltip>
           </q-icon>

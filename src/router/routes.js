@@ -43,12 +43,10 @@ export default [
     ]
   },
   { path: '/token/:token', component: () => import('pages/Login') },
-  { path: '/token/:token/flespi', component: () => import('pages/Login') },
   { path: '/token/:token/type/:type/id/:id', component: () => import('layouts/Index') },
   { path: '/token/:token/group/:group', component: () => import('layouts/Index') },
   { path: '/token/:token/type/:type/id/:id/fullscreen/:fullscreen', component: () => import('layouts/Index') },
   { path: '/token/:token/type/:type/id/:id/fullscreen/:fullscreen/noselect/:noselect', component: () => import('layouts/Index') },
   { path: '/login', component: () => import('pages/Login'), name: 'simpleLogin' },
-  { path: '/login/:token', component: () => import('pages/Login') },
-  { path: '/login/:token/flespi', component: () => import('pages/Login') }
+  { path: '/login/:token', component: () => import('pages/Login') }
 ]

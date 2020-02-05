@@ -60,7 +60,7 @@ function setToken (state, val) {
   let token = val.replace('FlespiToken ', '')
   if (token === state.token) { return false }
   if (val && token.match(/^[a-z0-9]+$/i)) {
-    SessionStorage.set(`toolbox-token[${window.name || 'default'}]`, token)
+    SessionStorage.set(`flespi-toolbox-token[${window.name || 'default'}]`, token)
   } else {
     token = ''
     clearToken(state)
@@ -70,7 +70,7 @@ function setToken (state, val) {
   clearErrors(state)
 }
 function clearToken (state) {
-  SessionStorage.remove(`toolbox-token[${window.name || 'default'}]`)
+  SessionStorage.remove(`flespi-toolbox-token[${window.name || 'default'}]`)
   Vue.connector.token = ''
   Vue.set(state, 'token', '')
   clearTokenInfo(state)
@@ -85,7 +85,7 @@ function setConfig (state, config) {
 
 function addError (state, message) {
   if (!state.token) { return false }
-  console.trace()
+  DEV && console.trace()
   Notify.create({
     type: 'negative',
     icon: 'warning',
@@ -198,6 +198,20 @@ function setToolboxSettings (state, { type, opt, value }) {
   LocalStorage.set('flespi-toolbox-settings', settings)
 }
 
+function setRegions (state, regions) {
+  state.regions = regions
+}
+
+function setCurrentRegion (state, region) {
+  state.currentRegion = region
+  SessionStorage.set('flespi-toolbox-region', region.name)
+}
+
+function clearCurrentRegion (state) {
+  state.currentRegion = null
+  SessionStorage.remove('flespi-toolbox-region')
+}
+
 export default {
   reqStart,
   setItems,
@@ -215,5 +229,8 @@ export default {
   setSocketOffline,
   clearNotificationCounter,
   getToolboxSettings,
-  setToolboxSettings
+  setToolboxSettings,
+  setRegions,
+  setCurrentRegion,
+  clearCurrentRegion
 }

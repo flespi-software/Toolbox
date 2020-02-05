@@ -9,7 +9,7 @@
     >
       <template v-for="(prop, k) in cols">
         <span class="list__item item_actions" :class="{[`item_${k}`]: true}" v-if="prop.__dest === 'action'" :key="prop.name + k">
-          <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)"
+          <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, clearItem)"
                   :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
             <q-tooltip>{{action.label}}</q-tooltip>
           </q-icon>
@@ -30,7 +30,7 @@
             <q-icon v-if="item.address === 'local'" name="mdi-content-save-outline"  title="address: local"/>
           </template>
           <q-icon name="mdi-alert-outline" v-if="prop.name === 'event_code' && !!item['error_text']"><q-tooltip>{{item['error_text']}}</q-tooltip></q-icon>
-          <a @click.stop="" target="_blank" class="text-green" v-if="item.event_code === 901 && prop.name === 'name'" :href="`${SERVER ? ' https://cdn.flespi.io/' : `https://${window.location.hostname}:9019/`}file/${item.uuid}`">
+          <a @click.stop="" target="_blank" class="text-green" v-if="item.event_code === 901 && prop.name === 'name'" :href="`${$flespiCDN}/file/${item.uuid}`">
             {{getValueOfProp(prop)}}
           </a>
           <span v-else :title="JSON.stringify(getValueOfProp(prop))">
@@ -87,8 +87,7 @@ export default {
   ],
   data () {
     return {
-      date: date,
-      SERVER: SERVER
+      date: date
     }
   },
   computed: {
@@ -214,7 +213,7 @@ export default {
       }
     },
     eventLinkMore () {
-      let host = SERVER || `https://${window.location.hostname}:9005`
+      let host = this.$flespiServer
       switch (this.item.event_code) {
         case 1:
         case 2:

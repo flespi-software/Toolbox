@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.22.5] - 2020-02-04
+[feature] new login logic
 ### [0.22.4] - 2020-02-03
 [fix] hex viewer message
 ### [0.22.3] - 2020-01-31

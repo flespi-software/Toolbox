@@ -214,7 +214,7 @@
 <script>
 import Vue from 'vue'
 import { date } from 'quasar'
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapMutations, mapActions } from 'vuex'
 import dist from '../../package.json'
 import ObjectViewer from '../components/ObjectViewer.vue'
 import { ColsEditor } from 'qvirtualscroll'
@@ -428,13 +428,14 @@ export default {
   },
   methods: {
     ...mapMutations([
-      'setToken',
       'setCid',
       'clearToken',
+      'clearCurrentRegion',
       'reqFailed',
       'addError',
       'clearNotificationCounter'
     ]),
+    ...mapActions(['initConnection']),
     viewDataHandler (content) {
       if (this.colsEditing) { this.colsEditing = false }
       if (!content) { return }
@@ -463,6 +464,7 @@ export default {
       this.$q.dialog({
         title: 'Confirm',
         message: 'Do you really want to exit?',
+        color: 'grey-9',
         cancel: true,
         ok: true
       }).onOk(() => { this.reset() })
@@ -528,6 +530,7 @@ export default {
     },
     reset (errMessage) {
       this.clearToken()
+      this.clearCurrentRegion()
       this.$router.push(`/login`).catch(err => err)
       if (errMessage) {
         this.addError(errMessage)
@@ -571,18 +574,20 @@ export default {
       this.isNeedSelect = !this.$route.params.noselect || !this.$q.platform.within.iframe
       this.isVisibleToolbar = !route.params.fullscreen || !this.$q.platform.within.iframe
       this.$q.sessionStorage.set(`toolbox-session-settings[${window.name || 'default'}]`, { isNeedSelect: this.isNeedSelect, isVisibleToolbar: this.isVisibleToolbar })
-      this.setToken(route.params.token)
-      if (route.params.id && route.params.type) {
-        let routeProcessIndex = Vue.connector.socket.on('connect', () => {
-          if (this.renderEntities.includes(route.params.type)) {
-            this.setEntity(this.$route.params.type)
-            this.$router.push(`/${route.params.type}/${route.params.id}`).catch(err => err)
-          } else {
-            this.reset('Nothing to show by current token')
+      this.initConnection({ token: route.params.token })
+        .then(() => {
+          if (route.params.id && route.params.type) {
+            let routeProcessIndex = Vue.connector.socket.on('connect', () => {
+              if (this.renderEntities.includes(route.params.type)) {
+                this.setEntity(this.$route.params.type)
+                this.$router.push(`/${route.params.type}/${route.params.id}`).catch(err => err)
+              } else {
+                this.reset('Nothing to show by current token')
+              }
+              Vue.connector.socket.off('connect', routeProcessIndex)
+            })
           }
-          Vue.connector.socket.off('connect', routeProcessIndex)
         })
-      }
     },
     routeMainProcess (route) {
       if (route.path === '/') { // if main route
@@ -663,7 +668,7 @@ export default {
     if (window && window.name) {
       window.addEventListener('beforeunload', () => {
         this.$q.sessionStorage.remove(`toolbox-session-settings[${window.name}]`)
-        this.$q.sessionStorage.remove(`toolbox-token[${window.name}]`)
+        this.$q.sessionStorage.remove(`flespi-toolbox-token[${window.name}]`)
       })
     }
   },

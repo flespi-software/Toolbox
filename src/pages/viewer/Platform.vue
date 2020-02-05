@@ -76,7 +76,7 @@
     </entities-toolbar>
     <logs
       ref="logs"
-      v-if="isInit && active"
+      v-if="isInit && selectedItem"
       :mode="mode"
       :item="selectedItem"
       :cid="selectedItem.id"

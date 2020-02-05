@@ -15,6 +15,8 @@ let state = {
   config: JSON.parse(JSON.stringify(config)),
   errors: [],
   tokenInfo: null,
+  regions: null,
+  currentRegion: null,
   newNotificationCounter: 0
 }
 
