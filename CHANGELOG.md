@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.22.7] - 2020-02-11
+[fix] login to new locales
 ### [0.22.6] - 2020-02-06
 [fix] new login
 ### [0.22.5] - 2020-02-04
