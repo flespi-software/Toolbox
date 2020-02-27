@@ -45,8 +45,8 @@ function getParams (payload) {
   return { id, mode, entity }
 }
 async function getItems ({ state, commit }, payload) {
-  let { id, mode, entity } = getParams(payload)
-  let writePath = entity
+  const { id, mode, entity } = getParams(payload)
+  const writePath = entity
   if (!state[writePath]) { Vue.set(state, writePath, {}) }
   if (entity) {
     let origin = ''
@@ -60,17 +60,17 @@ async function getItems ({ state, commit }, payload) {
       try {
         // init getting protocols name
         if (entity === 'channels' && !state.protocols) {
-          let protocolsResp = await Vue.connector.gw.getProtocols('all', { fields: 'name,id' })
-          let protocols = protocolsResp.data.result.reduce((result, protocol) => {
+          const protocolsResp = await Vue.connector.gw.getProtocols('all', { fields: 'name,id' })
+          const protocols = protocolsResp.data.result.reduce((result, protocol) => {
             result[protocol.id] = protocol.name
             return result
           }, {})
           Vue.set(state, 'protocols', protocols)
         }
-        let items = {}
-        let partsOfTopicFilter = origin.split('/').reverse().slice(1)
-        let objectModeHandler = (value, topic, packet) => {
-          let partsOfTopic = topic.split('/').reverse(),
+        const items = {}
+        const partsOfTopicFilter = origin.split('/').reverse().slice(1)
+        const objectModeHandler = (value, topic, packet) => {
+          const partsOfTopic = topic.split('/').reverse(),
             idsParts = partsOfTopicFilter.reduce((ids, part, index) => {
               if (part === '+') {
                 ids.push(partsOfTopic[index])
@@ -86,8 +86,8 @@ async function getItems ({ state, commit }, payload) {
             commit('deleteItem', { id, mode: entity === 'tasks', source })
           }
         }
-        let fieldModeHandler = (value, topic, packet) => {
-          let partsOfTopic = topic.split('/').reverse(),
+        const fieldModeHandler = (value, topic, packet) => {
+          const partsOfTopic = topic.split('/').reverse(),
             name = partsOfTopic.shift(),
             idsParts = partsOfTopicFilter.reduce((ids, part, index) => {
               if (part === '+') {
@@ -112,7 +112,7 @@ async function getItems ({ state, commit }, payload) {
             Vue.set(source, id, { id: id, [name]: JSON.parse(value.toString()) })
           }
         }
-        let subsIds = await Vue.connector.socket.subscribe(
+        const subsIds = await Vue.connector.socket.subscribe(
           {
             name: origin,
             handler: mode === GET_ITEMS_MODE_OBJECT ? objectModeHandler : fieldModeHandler
@@ -129,7 +129,7 @@ async function getItems ({ state, commit }, payload) {
 }
 
 async function unsubscribeItems ({ state, commit }, payload) {
-  let { id, mode, entity } = getParams(payload)
+  const { id, mode, entity } = getParams(payload)
   if (entity) {
     let origin = ''
     if (mode === GET_ITEMS_MODE_FIELDS) {
@@ -147,18 +147,18 @@ async function unsubscribeItems ({ state, commit }, payload) {
 }
 
 async function getEntities (store, payload) {
-  let { state } = store
+  const { state } = store
   Vue.set(state, 'isLoading', true)
-  let res = await Promise.all(payload.map(config => getItems(store, config)))
+  const res = await Promise.all(payload.map(config => getItems(store, config)))
   Vue.set(state, 'isLoading', false)
   return res
 }
 
 async function removeEntities (store, payload) {
-  let { state } = store
+  const { state } = store
   Vue.set(state, 'isLoading', true)
-  let res = await Promise.all(payload.map(config => {
-    let { entity } = getParams(payload)
+  const res = await Promise.all(payload.map(config => {
+    const { entity } = getParams(payload)
     Vue.delete(state, entity)
     unsubscribeItems(store, config)
   }))
@@ -206,12 +206,12 @@ async function getDeleted ({ state, commit }, entity) {
         }
         let deleted = []
         if (state.tokenInfo.access.type === 1) {
-          let deletedResp = await Promise.all([
+          const deletedResp = await Promise.all([
             Vue.connector.platform.getSubaccountsLogs('all', { data: JSON.stringify(deletedParams) }),
             Vue.connector.platform.getCustomerLogs({ data: JSON.stringify(deletedParams) })
           ])
-          let mergedDeletedResp = deletedResp.reduce((res, resp) => {
-            let result = get(resp, 'data.result', [])
+          const mergedDeletedResp = deletedResp.reduce((res, resp) => {
+            const result = get(resp, 'data.result', [])
             res.result = [...res.result, ...result]
             res.errors = [...res.errors, ...(resp.errors || [])]
             return res
@@ -232,10 +232,10 @@ async function getDeleted ({ state, commit }, entity) {
             timeout: 1000
           })
         }
-        let result = {
+        const result = {
           ...state[entity],
           ...deleted.reduce((deleted, item) => {
-            let itemObj = item.item_data
+            const itemObj = item.item_data
             itemObj.deleted = true
             deleted[itemObj.id] = itemObj
             return deleted
@@ -261,7 +261,7 @@ async function checkConnection ({ state, commit }) {
     return false
   }
   try {
-    let resp = await Vue.connector.http.external.get(`./statics/icons/favicon-16x16.png?_=${(new Date()).getTime()}`)
+    const resp = await Vue.connector.http.external.get(`./statics/icons/favicon-16x16.png?_=${(new Date()).getTime()}`)
     if (resp.status === 200 && state.offline) {
       commit('setOfflineFlag', false)
     }
@@ -280,7 +280,7 @@ async function getRegions ({ state, commit }) {
     if (typeof state.isLoading !== 'undefined') {
       Vue.set(state, 'isLoading', true)
     }
-    let resp = await Vue.connector.http.get('/auth/regions')
+    const resp = await Vue.connector.http.get('/auth/regions')
     let regions = get(resp, 'data.result', [])
     let currentRegion = null
     regions = regions.reduce((regions, region) => {

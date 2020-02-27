@@ -8,33 +8,20 @@
       :dateRange="[begin, end]"
       :viewConfig="viewConfig"
       :colsConfigurator="'toolbar'"
-      :mode="0"
-      :i18n="i18n"
       :filter="filter"
       :theme="theme"
       :title="'Intervals'"
       :loading="loadingFlag"
+      :autoscroll="true"
+      scrollOffset="10%"
+      :item="listItem"
+      :itemprops="getItemsProps"
       @change:filter="filterChangeHandler"
       @change:date-range="dateRangeChangeHandler"
-      @change:date-range-prev="dateRangePrevHandler"
-      @change:date-range-next="dateRangeNextHandler"
       @update:cols="updateColsHandler"
+      @action:to-bottom="actionToBottomHandler"
       @edit:cols="colsEditHandler"
     >
-      <messages-list-item slot="items" slot-scope="{item, index, actions, cols, etcVisible, actionsVisible, itemHeight, rowWidth}"
-         :item="item"
-         :key="`${JSON.stringify(item)}${index}`"
-         :index="index"
-         :actions="actions"
-         :cols="cols"
-         :itemHeight="itemHeight"
-         :rowWidth="rowWidth"
-         :etcVisible="etcVisible"
-         :actionsVisible="actionsVisible"
-         :selected="selected.includes(index)"
-         @action="actionHandler"
-         @item-click="viewMessagesHandler"
-      />
       <empty-pane slot="empty" :config="config.emptyState"/>
     </virtual-scroll-list>
   </div>
@@ -43,7 +30,7 @@
 <script>
 import { VirtualScrollList, intervalsModule } from 'qvirtualscroll'
 import Vue from 'vue'
-import { date, copyToClipboard } from 'quasar'
+import { copyToClipboard } from 'quasar'
 import filterMessages from '../../mixins/filterMessages'
 import MessagesListItem from './MessagesListItem.vue'
 import EmptyPane from '../EmptyPane'
@@ -58,17 +45,17 @@ export default {
   ],
   data () {
     return {
+      listItem: MessagesListItem,
       theme: this.config.theme,
-      i18n: {},
       viewConfig: this.config.viewConfig,
       moduleName: this.config.vuexModuleName
     }
   },
   computed: {
     actions () {
-      let initActions = this.config.actions,
-        actions = [initActions[0]],
+      const initActions = this.config.actions,
         routeFields = this.getRouteFields()
+      let actions = [initActions[0]]
       if (routeFields && routeFields.length && this.$q.platform.is.desktop) {
         actions = initActions
       }
@@ -78,7 +65,6 @@ export default {
       get () {
         let messages = this.$store.state[this.moduleName].messages
         messages = Object.values(messages)
-        this.setTranslate(messages)
         messages.sort((a, b) => {
           return a.begin - b.begin
         })
@@ -166,7 +152,7 @@ export default {
     },
     selected: {
       get () {
-        let selected = this.$store.state[this.moduleName].selected
+        const selected = this.$store.state[this.moduleName].selected
         if (selected && !selected.length) {
           this.$emit('view-data', null)
         }
@@ -180,11 +166,21 @@ export default {
       return this.getRouteFields()
     },
     loadingFlag () {
-      let state = this.$store.state
+      const state = this.$store.state
       return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
     }
   },
   methods: {
+    getItemsProps (index, data) {
+      const item = this.messages[index]
+      data.key = item['x-flespi-message-key']
+      data.props.etcVisible = this.etcVisible
+      data.props.actionsVisible = this.actionsVisible
+      data.props.selected = this.selected.includes(index)
+      if (!data.on) { data.on = {} }
+      data.on.action = this.actionHandler
+      data.on['item-click'] = this.viewMessagesHandler
+    },
     resetParams () {
       this.$refs.scrollList.resetParams()
     },
@@ -200,33 +196,17 @@ export default {
         return counter.type === 'route'
       })
     },
-    setTranslate (messages) {
-      this.i18n.from = messages.length ? `Previous batch until ${date.formatDate(messages[0].timestamp * 1000, 'HH:mm:ss')}` : 'Prev'
-      this.i18n.to = messages.length ? `Next batch from ${date.formatDate(messages[messages.length - 1].timestamp * 1000, 'HH:mm:ss')}` : 'Next'
-    },
     updateColsHandler (cols) {
       this.cols = cols
     },
     dateRangeChangeHandler (range) {
-      let begin = range[0],
+      const begin = range[0],
         end = range[1]
       if (this.begin === begin && this.end === end) { return false }
       this.begin = begin
       this.end = end
       this.$store.commit(`${this.moduleName}/clearMessages`)
       this.$store.dispatch(`${this.moduleName}/get`)
-    },
-    dateRangePrevHandler () {
-      let delta = this.end - this.begin,
-        newTo = this.begin - 1,
-        newFrom = newTo - delta
-      this.dateRangeChangeHandler([newFrom, newTo])
-    },
-    dateRangeNextHandler () {
-      let delta = this.end - this.begin,
-        newFrom = this.end + 1,
-        newTo = newFrom + delta
-      this.dateRangeChangeHandler([newFrom, newTo])
     },
     actionHandler ({ index, type, content }) {
       switch (type) {
@@ -244,12 +224,15 @@ export default {
         }
       }
     },
+    actionToBottomHandler () {
+      this.$refs.scrollList.scrollTo(this.messages.length - 1)
+    },
     viewMessagesHandler ({ index, content }) {
       this.selected = [index]
       this.$emit('view-data', content)
     },
     onMapHandler ({ index, content }) {
-      let routes = Object.keys(content).reduce((routes, fieldName) => {
+      const routes = Object.keys(content).reduce((routes, fieldName) => {
         if (this.routesFileds.filter(field => field.name === fieldName).length) {
           routes.push(content[fieldName])
         }
@@ -262,14 +245,14 @@ export default {
         this.$q.notify({
           type: 'positive',
           icon: 'content_copy',
-          message: `Message copied`,
+          message: 'Message copied',
           timeout: 1000
         })
       }, (e) => {
         this.$q.notify({
           type: 'negative',
           icon: 'content_copy',
-          message: `Error coping messages`,
+          message: 'Error coping messages',
           timeout: 1000
         })
       })
@@ -281,8 +264,8 @@ export default {
     },
     normalizeSelected (messages) {
       if (this.selected && this.selected.length) {
-        let selectedIndex = this.selected[0]
-        let message = messages[selectedIndex]
+        const selectedIndex = this.selected[0]
+        const message = messages[selectedIndex]
         this.viewMessagesHandler({ index: selectedIndex, content: message })
       }
     },
@@ -321,11 +304,11 @@ export default {
         this.$store.dispatch(`${this.moduleName}/pollingGet`)
       })
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
-      this.$store.commit(`${this.moduleName}/setOffline`, this.mode === 1)
+      this.$store.commit(`${this.moduleName}/setOffline`, true)
     })
     this.connectHandler = Vue.connector.socket.on('connect', () => {
       if (this.$store.state[this.moduleName].offline) {
-        this.$store.commit(`${this.moduleName}/setReconnected`, this.mode === 1)
+        this.$store.commit(`${this.moduleName}/setReconnected`, true)
       }
     })
   },
@@ -336,6 +319,6 @@ export default {
     this.$store.commit(`${this.moduleName}/clear`)
   },
   mixins: [filterMessages],
-  components: { VirtualScrollList, MessagesListItem, EmptyPane }
+  components: { VirtualScrollList, EmptyPane }
 }
 </script>

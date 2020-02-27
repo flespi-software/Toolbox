@@ -132,7 +132,7 @@ export default {
     bytesArray () {
       let bytesArray
       if (this.view === 'hex') {
-        let bytes16Array = this.hex.match(/.{1,32}/g)
+        const bytes16Array = this.hex.match(/.{1,32}/g)
         bytesArray = bytes16Array.map(byte16 => byte16.match(/.{1,2}/g))
       } else if (this.view === 'text') {
         bytesArray = this.hex.match(/.{1,2}/g)
@@ -159,7 +159,7 @@ export default {
   },
   methods: {
     isEmptySymbol (byte) {
-      let number = parseInt(byte, 16),
+      const number = parseInt(byte, 16),
         string = String.fromCharCode(number)
       if (number < 0x20 || number >= 0x7f || string.match(/\s/g)) {
         return true
@@ -168,7 +168,7 @@ export default {
       }
     },
     replaceByteWithDot (byte) {
-      let number = parseInt(byte, 16),
+      const number = parseInt(byte, 16),
         string = String.fromCharCode(number)
       if (number < 0x20 || number >= 0x7f || string.match(/\s/g)) {
         return '.'
@@ -177,7 +177,7 @@ export default {
       }
     },
     replaceByteWithMnemo (byte) {
-      let number = parseInt(byte, 16),
+      const number = parseInt(byte, 16),
         string = String.fromCharCode(number)
       if (number < 0x20 || number >= 0x7f || (string.match(/\s/g) && string !== ' ')) {
         return `\\x${byte}`
@@ -236,7 +236,7 @@ export default {
       switch (type) {
         case 'hex': {
           if (onlyBySelection && this.selected.length) {
-            let byteArray = this.hex.match(/.{1,2}/g)
+            const byteArray = this.hex.match(/.{1,2}/g)
             content = this.selected.map(index => byteArray[index]).join('')
           } else {
             content = this.hex
@@ -244,14 +244,14 @@ export default {
           break
         }
         case 'text': {
-          let bytesHexArray = this.hex.match(/.{1,2}/g)
-          let byteArray = onlyBySelection && this.selected.length ? this.selected.map(index => bytesHexArray[index]) : bytesHexArray
+          const bytesHexArray = this.hex.match(/.{1,2}/g)
+          const byteArray = onlyBySelection && this.selected.length ? this.selected.map(index => bytesHexArray[index]) : bytesHexArray
           content = byteArray.map((byte) => String.fromCharCode(parseInt(byte, 16))).join('')
           break
         }
         case 'view': {
           if (this.view === 'text') {
-            let byteArray = onlyBySelection && this.selected.length ? this.selected.map(index => this.bytesArray[index]) : this.bytesArray
+            const byteArray = onlyBySelection && this.selected.length ? this.selected.map(index => this.bytesArray[index]) : this.bytesArray
             content = byteArray.map((byte) => {
               let str = this.replaceByteWithMnemo(byte)
               if (byte === '0A') {
@@ -260,30 +260,30 @@ export default {
               return str
             }).join('')
           } else {
-            let isSelectionMode = onlyBySelection && this.selected.length,
+            const isSelectionMode = onlyBySelection && this.selected.length,
               allIndexes = chunk(Object.keys(this.hex.match(/.{1,2}/g)), 16),
               indexes = isSelectionMode ? allIndexes.reduce((indexes, row) => {
-                let isRowEmpty = true,
-                  localRow = row.reduce((currentRow, byteIndex, index) => {
-                    if (byteIndex < this.selected[0] || byteIndex > this.selected[this.selected.length - 1]) {
-                      currentRow.push(null)
-                    } else {
-                      currentRow.push(byteIndex)
-                      isRowEmpty = false
-                    }
-                    if (index === row.length - 1) {
-                      currentRow = isRowEmpty ? null : currentRow
-                    }
-                    return currentRow
-                  }, [])
+                let isRowEmpty = true
+                const localRow = row.reduce((currentRow, byteIndex, index) => {
+                  if (byteIndex < this.selected[0] || byteIndex > this.selected[this.selected.length - 1]) {
+                    currentRow.push(null)
+                  } else {
+                    currentRow.push(byteIndex)
+                    isRowEmpty = false
+                  }
+                  if (index === row.length - 1) {
+                    currentRow = isRowEmpty ? null : currentRow
+                  }
+                  return currentRow
+                }, [])
                 indexes.push(localRow)
                 return indexes
               }, []) : allIndexes
             indexes.forEach((row, index) => {
               if (!row) { return false }
               content += `${this.addresses[index].toString(16).padStart(7, 0).toUpperCase()}   `
-              let currentBytesArray = this.bytesArray[index],
-                hexView = '',
+              const currentBytesArray = this.bytesArray[index]
+              let hexView = '',
                 textView = ''
               row.forEach((index, byteIndex) => {
                 if (!index) {
@@ -296,11 +296,11 @@ export default {
                 hexView += ' '
               })
               content += hexView
-              content += `   `
+              content += '   '
               content += ''.padEnd(32 - row.length * 2, ' ')
               content += ''.padEnd(16 - row.length, ' ')
               content += textView
-              content += `\n`
+              content += '\n'
             })
           }
           break
@@ -309,7 +309,7 @@ export default {
       return content
     },
     copy (type) {
-      let content = this.getContent(type, true)
+      const content = this.getContent(type, true)
 
       copyToClipboard(content).then((e) => {
         this.$q.notify({
@@ -328,7 +328,7 @@ export default {
       })
     },
     exportData (type) {
-      let typeOfFile = type === 'hex' ? 'application/octet-stream' : 'text/plain',
+      const typeOfFile = type === 'hex' ? 'application/octet-stream' : 'text/plain',
         link = document.createElement('a'),
         content = this.getContent(type, true),
         blob = new Blob([content], { type: typeOfFile }),

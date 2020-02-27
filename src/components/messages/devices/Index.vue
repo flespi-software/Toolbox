@@ -6,38 +6,24 @@
       :actions="actions"
       :items="messages"
       :dateRange="dateRange"
-      :mode="mode"
       :viewConfig="viewConfig"
       :colsConfigurator="'toolbar'"
-      :i18n="i18n"
       :filter="filter"
       :theme="theme"
       :title="'Messages'"
       :loading="loadingFlag"
+      :autoscroll="realtimeEnabled"
+      scrollOffset="10%"
+      :item="listItem"
+      :itemprops="getItemsProps"
       @change:filter="filterChangeHandler"
       @scroll:top="paginationPrevChangeHandler"
       @scroll:bottom="paginationNextChangeHandler"
       @change:date-range="dateRangeChangeHandler"
-      @change:date-range-prev="dateRangePrevHandler"
-      @change:date-range-next="dateRangeNextHandler"
-      @change:mode="modeChange"
+      @action:to-bottom="actionToBottomHandler"
       @update:cols="updateColsHandler"
       @edit:cols="colsEditHandler"
     >
-      <messages-list-item slot="items" slot-scope="{item, index, actions, cols, etcVisible, actionsVisible, itemHeight, rowWidth}"
-        :item="item"
-        :key="`${JSON.stringify(item)}${index}`"
-        :index="index"
-        :actions="actions"
-        :cols="cols"
-        :itemHeight="itemHeight"
-        :rowWidth="rowWidth"
-        :etcVisible="etcVisible"
-        :actionsVisible="actionsVisible"
-        :selected="selected.includes(index)"
-        @action="actionHandler"
-        @item-click="viewMessagesHandler"
-      />
       <empty-pane slot="empty" :config="config.emptyState"/>
     </virtual-scroll-list>
   </div>
@@ -46,14 +32,13 @@
 <script>
 import { VirtualScrollList, devicesMessagesModule } from 'qvirtualscroll'
 import Vue from 'vue'
-import { date, copyToClipboard } from 'quasar'
+import { copyToClipboard } from 'quasar'
 import filterMessages from '../../../mixins/filterMessages'
 import EmptyPane from '../../EmptyPane'
 import MessagesListItem from './MessagesListItem.vue'
 
 export default {
   props: [
-    'mode',
     'item',
     'activeId',
     'limit',
@@ -61,8 +46,8 @@ export default {
   ],
   data () {
     return {
+      listItem: MessagesListItem,
       theme: this.config.theme,
-      i18n: {},
       viewConfig: this.config.viewConfig,
       actions: this.config.actions,
       moduleName: this.config.vuexModuleName
@@ -71,9 +56,7 @@ export default {
   computed: {
     messages: {
       get () {
-        let messages = this.$store.state[this.moduleName].messages
-        this.setTranslate(messages)
-        return messages
+        return this.$store.state[this.moduleName].messages
       },
       set (val) {
         this.$store.commit(`${this.moduleName}/setMessages`, val)
@@ -87,18 +70,9 @@ export default {
         await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active device */
         this.$store.commit(`${this.moduleName}/setActive`, val)
         this.$store.commit(`${this.moduleName}/clearMessages`)
-        if (this.$store.state[this.moduleName].mode !== null) {
-          await this.$store.dispatch(`${this.moduleName}/getCols`, { actions: true, etc: true })
-          if (this.$store.state[this.moduleName].mode === 0) {
-            await this.$store.dispatch(`${this.moduleName}/initTime`)
-            await this.$store.dispatch(`${this.moduleName}/get`)
-          } else if (this.$store.state[this.moduleName].mode === 1) {
-            this.$store.dispatch(`${this.moduleName}/pollingGet`)
-          }
-          if (this.$store.state[this.moduleName].mode === 1 && !this.item.deleted) {
-            await this.$store.dispatch(`${this.moduleName}/getHistory`, 200)
-          }
-        }
+        await this.$store.dispatch(`${this.moduleName}/getCols`, { actions: true, etc: true })
+        await this.$store.dispatch(`${this.moduleName}/initTime`)
+        await this.$store.dispatch(`${this.moduleName}/get`)
       }
     },
     cols: {
@@ -136,6 +110,9 @@ export default {
     dateRange () {
       return [this.$store.state[this.moduleName].from, this.$store.state[this.moduleName].to]
     },
+    realtimeEnabled () {
+      return this.$store.state[this.moduleName].realtimeEnabled
+    },
     reverse: {
       get () {
         return this.$store.state[this.moduleName].reverse || false
@@ -161,47 +138,36 @@ export default {
       }
     },
     loadingFlag () {
-      let state = this.$store.state
+      const state = this.$store.state
       return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
     }
   },
   methods: {
+    getItemsProps (index, data) {
+      const item = this.messages[index]
+      data.key = item['x-flespi-message-key']
+      data.props.etcVisible = this.etcVisible
+      data.props.actionsVisible = this.actionsVisible
+      data.props.selected = this.selected.includes(index)
+      if (!data.on) { data.on = {} }
+      data.on.action = this.actionHandler
+      data.on['item-click'] = this.viewMessagesHandler
+    },
     resetParams () {
       this.$refs.scrollList.resetParams()
     },
     filterChangeHandler (val) {
       if (this.filter !== val) {
         this.filter = val
-        if (this.mode === 0) {
-          this.$store.commit(`${this.moduleName}/clearMessages`)
-          this.$store.dispatch(`${this.moduleName}/get`)
-        }
-      }
-    },
-    setTranslate (messages) {
-      this.i18n.from = messages.length ? `Previous batch until ${date.formatDate(messages[0].timestamp * 1000, 'HH:mm:ss')}` : 'Prev'
-      this.i18n.to = messages.length ? `Next batch from ${date.formatDate(messages[messages.length - 1].timestamp * 1000, 'HH:mm:ss')}` : 'Next'
-    },
-    async modeChange (val) {
-      let modeInitValueIsNull = this.$store.state[this.moduleName].mode === null
-      await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
-      val = +val
-      this.$store.commit(`${this.moduleName}/clearMessages`)
-      this.$store.commit(`${this.moduleName}/setMode`, val)
-      if (val === 1 && this.active && this.$store.state[this.moduleName].mode !== null) {
-        await this.$store.dispatch(`${this.moduleName}/getHistory`, 200)
-        await this.$store.dispatch(`${this.moduleName}/pollingGet`)
-      }
-      if (val === 0 && this.active && (!this.item.deleted || modeInitValueIsNull)) {
-        await this.$store.dispatch(`${this.moduleName}/initTime`) // if need init time by last messages
-        await this.$store.dispatch(`${this.moduleName}/get`)
+        this.$store.commit(`${this.moduleName}/clearMessages`)
+        this.$store.dispatch(`${this.moduleName}/get`)
       }
     },
     updateColsHandler (cols) {
       this.cols = cols
     },
     dateRangeChangeHandler (range) {
-      let from = range[0],
+      const from = range[0],
         to = range[1]
       if (this.from === from && this.to === to) { return false }
       this.from = from
@@ -209,33 +175,21 @@ export default {
       this.$store.commit(`${this.moduleName}/clearMessages`)
       this.$store.dispatch(`${this.moduleName}/get`)
     },
-    dateRangePrevHandler () {
-      let delta = this.to - this.from,
-        newTo = this.from - 1,
-        newFrom = newTo - delta
-      this.dateRangeChangeHandler([newFrom, newTo])
+    paginationPrevChangeHandler () {
+      this.$store.dispatch(`${this.moduleName}/getPrevPage`)
+        .then((count) => {
+          if (count && typeof count === 'number') {
+            this.$refs.scrollList.scrollToWithSavePadding(count)
+          }
+        })
     },
-    dateRangeNextHandler () {
-      let delta = this.to - this.from,
-        newFrom = this.to + 1,
-        newTo = newFrom + delta
-      this.dateRangeChangeHandler([newFrom, newTo])
-    },
-    paginationPrevChangeHandler (done) {
-      if (this.mode === 0) {
-        this.$store.dispatch(`${this.moduleName}/getPrevPage`)
-          .then((count) => {
-            this.$refs.scrollList.scrollTo(count)
-          })
-      }
-    },
-    paginationNextChangeHandler (done) {
-      if (this.mode === 0) {
-        this.$store.dispatch(`${this.moduleName}/getNextPage`)
-          .then((count) => {
+    paginationNextChangeHandler () {
+      this.$store.dispatch(`${this.moduleName}/getNextPage`)
+        .then((count) => {
+          if (count && typeof count === 'number') {
             this.$refs.scrollList.scrollTo(this.messages.length - count)
-          })
-      }
+          }
+        })
     },
     actionHandler ({ index, type, content }) {
       switch (type) {
@@ -258,17 +212,27 @@ export default {
         this.$q.notify({
           type: 'positive',
           icon: 'content_copy',
-          message: `Message copied`,
+          message: 'Message copied',
           timeout: 1000
         })
       }, (e) => {
         this.$q.notify({
           type: 'negative',
           icon: 'content_copy',
-          message: `Error coping messages`,
+          message: 'Error coping messages',
           timeout: 1000
         })
       })
+    },
+    actionToBottomHandler () {
+      if (this.realtimeEnabled) {
+        this.$refs.scrollList.scrollTo(this.messages.length - 1)
+      } else {
+        this.$store.dispatch(`${this.moduleName}/getHistory`, 1000)
+          .then(() => {
+            this.$refs.scrollList.scrollTo(this.messages.length - 1)
+          })
+      }
     },
     unselect () {
       if (this.selected.length) {
@@ -283,9 +247,6 @@ export default {
     activeId (val) {
       this.active = val
     },
-    mode (mode) {
-      this.modeChange(mode)
-    },
     limit (limit) {
       this.currentLimit = limit
     }
@@ -297,20 +258,14 @@ export default {
       this.$store.commit(`${this.moduleName}/clear`)
     }
     this.currentLimit = this.limit
-    if (this.activeId) {
-      this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
-      this.$store.dispatch(`${this.moduleName}/getCols`, { actions: true, etc: true })
-    }
-    if (this.$store.state[this.moduleName].mode === null) {
-      this.modeChange(this.mode)
-    }
+    if (this.activeId) { this.active = this.activeId }
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
-      this.$store.commit(`${this.moduleName}/setOffline`, this.mode === 1)
+      this.$store.commit(`${this.moduleName}/setOffline`, this.realtimeEnabled)
     })
     this.connectHandler = Vue.connector.socket.on('connect', () => {
       if (this.$store.state[this.moduleName].offline) {
-        this.$store.commit(`${this.moduleName}/setReconnected`, this.mode === 1)
-        if (this.mode === 1) {
+        this.$store.commit(`${this.moduleName}/setReconnected`, this.realtimeEnabled)
+        if (this.realtimeEnabled) {
           this.$store.dispatch(`${this.moduleName}/getMissedMessages`)
         }
       }
@@ -323,6 +278,6 @@ export default {
     this.$store.commit(`${this.moduleName}/clear`)
   },
   mixins: [filterMessages],
-  components: { VirtualScrollList, MessagesListItem, EmptyPane }
+  components: { VirtualScrollList, EmptyPane }
 }
 </script>

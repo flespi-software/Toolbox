@@ -6,7 +6,6 @@
       :actions="actions"
       :items="messages"
       :dateRange="dateRange"
-      :mode="mode"
       :viewConfig="viewConfig"
       :colsConfigurator="'toolbar'"
       :i18n="i18n"
@@ -14,29 +13,18 @@
       :theme="theme"
       :title="'Logs'"
       :loading="loadingFlag"
+      :autoscroll="realtimeEnabled"
+      scrollOffset="10%"
+      :item="listItem"
+      :itemprops="getItemsProps"
       @change:filter="filterChangeHandler"
       @scroll:top="paginationPrevChangeHandler"
       @scroll:bottom="paginationNextChangeHandler"
       @change:date-range="dateRangeChangeHandler"
-      @change:date-range-prev="dateRangePrevHandler"
-      @change:date-range-next="dateRangeNextHandler"
-      @change:mode="modeChange"
+      @action:to-bottom="actionToBottomHandler"
       @update:cols="updateColsHandler"
       @edit:cols="colsEditHandler"
     >
-      <logs-list-item slot="items" slot-scope="{item, index, actions, cols, etcVisible, actionsVisible, itemHeight, rowWidth}"
-        :item="item"
-        :key="index"
-        :index="index"
-        :actions="actions"
-        :cols="cols"
-        :itemHeight="itemHeight"
-        :rowWidth="rowWidth"
-        :etcVisible="etcVisible"
-        :actionsVisible="actionsVisible"
-        @action="actionHandler"
-        @item-click="viewMessagesHandler"
-      />
       <empty-pane slot="empty" :config="config.emptyState"/>
     </virtual-scroll-list>
   </div>
@@ -47,12 +35,10 @@ import { VirtualScrollList, logsModule } from 'qvirtualscroll'
 import Vue from 'vue'
 import LogsListItem from './LogsListItem.vue'
 import EmptyPane from '../EmptyPane'
-import { date } from 'quasar'
 import filterMessages from '../../mixins/filterMessages'
 
 export default {
   props: [
-    'mode',
     'item',
     'cid',
     'limit',
@@ -61,6 +47,7 @@ export default {
   ],
   data () {
     return {
+      listItem: LogsListItem,
       theme: this.config.theme,
       i18n: {
         'Messages not found': 'Log entries not found'
@@ -73,9 +60,7 @@ export default {
   computed: {
     messages: {
       get () {
-        let messages = this.$store.state[this.moduleName].messages
-        this.setTranslation(messages)
-        return messages
+        return this.$store.state[this.moduleName].messages
       },
       set (val) {
         this.$store.commit(`${this.moduleName}/setMessages`, val)
@@ -83,24 +68,13 @@ export default {
     },
     origin: {
       async set (val) {
-        if (this.origin === val) {
-          this.$store.commit(`${this.moduleName}/setItemDeletedStatus`, this.item.deleted)
-          return false
-        }
         await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active entity */
         this.$store.commit(`${this.moduleName}/setOrigin`, val)
         this.$store.commit(`${this.moduleName}/setItemDeletedStatus`, (this.item && this.item.deleted))
         this.$store.commit(`${this.moduleName}/clearMessages`)
         this.$store.dispatch(`${this.moduleName}/getCols`, this.config.cols)
-        if (this.$store.state[this.moduleName].mode === 0) {
-          await this.$store.dispatch(`${this.moduleName}/initTime`)
-          await this.$store.dispatch(`${this.moduleName}/get`)
-        } else if (this.$store.state[this.moduleName].mode === 1) {
-          await this.$store.dispatch(`${this.moduleName}/pollingGet`)
-        }
-        if (this.$store.state[this.moduleName].mode === 1 && !this.item.deleted) {
-          await this.$store.dispatch(`${this.moduleName}/getHistory`, 200)
-        }
+        await this.$store.dispatch(`${this.moduleName}/initTime`)
+        await this.$store.dispatch(`${this.moduleName}/get`)
       },
       get () {
         return this.$store.state[this.moduleName].origin
@@ -149,6 +123,9 @@ export default {
         this.$store.commit(`${this.moduleName}/setReverse`, val)
       }
     },
+    realtimeEnabled () {
+      return this.$store.state[this.moduleName].realtimeEnabled
+    },
     currentLimit: {
       get () {
         return this.$store.state[this.moduleName].limit
@@ -164,46 +141,35 @@ export default {
       })
     },
     loadingFlag () {
-      let state = this.$store.state
+      const state = this.$store.state
       return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
     }
   },
   methods: {
+    getItemsProps (index, data) {
+      const item = this.messages[index]
+      data.key = item['x-flespi-message-key']
+      data.props.etcVisible = this.etcVisible
+      data.props.actionsVisible = this.actionsVisible
+      if (!data.on) { data.on = {} }
+      data.on.action = this.actionHandler
+      data.on['item-click'] = this.viewMessagesHandler
+    },
     resetParams () {
       this.$refs.scrollList.resetParams()
     },
     filterChangeHandler (val) {
       if (this.filter !== val) {
         this.filter = val
-        if (this.mode === 0) {
-          this.$store.commit(`${this.moduleName}/clearMessages`)
-          this.$store.dispatch(`${this.moduleName}/get`)
-        }
-      }
-    },
-    setTranslation (messages) {
-      this.i18n.from = messages.length ? `Previous batch until ${date.formatDate(messages[0].timestamp * 1000, 'HH:mm:ss')}` : 'Prev'
-      this.i18n.to = messages.length ? `Next batch from ${date.formatDate(messages[messages.length - 1].timestamp * 1000, 'HH:mm:ss')}` : 'Next'
-    },
-    async modeChange (val) {
-      val = +val
-      await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active entity */
-      this.$store.commit(`${this.moduleName}/clearMessages`)
-      this.$store.commit(`${this.moduleName}/setMode`, val)
-      if (val === 1 && this.origin && this.$store.state[this.moduleName].mode !== null) {
-        await this.$store.dispatch(`${this.moduleName}/getHistory`, 200)
-        await this.$store.dispatch(`${this.moduleName}/pollingGet`)
-      }
-      if (val === 0 && this.origin) {
-        await this.$store.dispatch(`${this.moduleName}/initTime`) // if need init time by last messages
-        await this.$store.dispatch(`${this.moduleName}/get`)
+        this.$store.commit(`${this.moduleName}/clearMessages`)
+        this.$store.dispatch(`${this.moduleName}/get`)
       }
     },
     updateColsHandler (cols) {
       this.cols = cols
     },
     dateRangeChangeHandler (range) {
-      let from = range[0],
+      const from = range[0],
         to = range[1]
       if (this.from === from && this.to === to) { return false }
       this.from = from
@@ -211,33 +177,21 @@ export default {
       this.$store.commit(`${this.moduleName}/clearMessages`)
       this.$store.dispatch(`${this.moduleName}/get`)
     },
-    dateRangePrevHandler () {
-      let delta = this.to - this.from,
-        newTo = this.from - 1,
-        newFrom = newTo - delta
-      this.dateRangeChangeHandler([newFrom, newTo])
-    },
-    dateRangeNextHandler () {
-      let delta = this.to - this.from,
-        newFrom = this.to + 1,
-        newTo = newFrom + delta
-      this.dateRangeChangeHandler([newFrom, newTo])
-    },
     paginationPrevChangeHandler () {
-      if (this.mode === 0) {
-        this.$store.dispatch(`${this.moduleName}/getPrevPage`)
-          .then((count) => {
-            this.$refs.scrollList.scrollTo(count)
-          })
-      }
+      this.$store.dispatch(`${this.moduleName}/getPrevPage`)
+        .then((count) => {
+          if (count && typeof count === 'number') {
+            this.$refs.scrollList.scrollToWithSavePadding(count)
+          }
+        })
     },
     paginationNextChangeHandler () {
-      if (this.mode === 0) {
-        this.$store.dispatch(`${this.moduleName}/getNextPage`)
-          .then((count) => {
+      this.$store.dispatch(`${this.moduleName}/getNextPage`)
+        .then((count) => {
+          if (count && typeof count === 'number') {
             this.$refs.scrollList.scrollTo(this.messages.length - count)
-          })
-      }
+          }
+        })
     },
     actionHandler ({ index, type, content }) {
       switch (type) {
@@ -245,6 +199,16 @@ export default {
           this.viewMessagesHandler({ index, content })
           break
         }
+      }
+    },
+    actionToBottomHandler () {
+      if (this.realtimeEnabled) {
+        this.$refs.scrollList.scrollTo(this.messages.length - 1)
+      } else {
+        this.$store.dispatch(`${this.moduleName}/getHistory`, 1000)
+          .then(() => {
+            this.$refs.scrollList.scrollTo(this.messages.length - 1)
+          })
       }
     },
     viewMessagesHandler ({ index, content }) {
@@ -256,22 +220,18 @@ export default {
       this.$store.commit(`${this.moduleName}/setItemDeletedStatus`, this.item.deleted)
       this.$store.commit(`${this.moduleName}/clearMessages`)
       this.$store.dispatch(`${this.moduleName}/getCols`, this.config.cols)
-      if (this.$store.state[this.moduleName].mode === 0) {
-        await this.$store.dispatch(`${this.moduleName}/initTime`)
-        await this.$store.dispatch(`${this.moduleName}/get`)
-      }
-      await this.$store.dispatch(`${this.moduleName}/pollingGet`)
-      if (this.$store.state[this.moduleName].mode === 1 && !this.item.deleted) {
-        await this.$store.dispatch(`${this.moduleName}/getHistory`, 200)
-      }
+      await this.$store.dispatch(`${this.moduleName}/initTime`)
+      await this.$store.dispatch(`${this.moduleName}/get`)
     },
     colsEditHandler () {
       this.$eventBus.$emit('cols:edit', 'logs')
     }
   },
   watch: {
-    item (val) {
-      this.origin = this.originByPattern
+    item (item, prev) {
+      if (!prev || (prev && item.id !== prev.id)) {
+        this.origin = this.originByPattern
+      }
     },
     mode (mode) {
       this.modeChange(mode)
@@ -292,20 +252,15 @@ export default {
     this.currentLimit = this.limit
     if (this.cid) { this.$store.commit(`${this.moduleName}/setCid`, this.cid) }
     if (this.item) {
-      this.$store.commit(`${this.moduleName}/setOrigin`, this.originByPattern)
-      this.$store.commit(`${this.moduleName}/setItemDeletedStatus`, this.item.deleted)
-      this.$store.dispatch(`${this.moduleName}/getCols`, this.config.cols)
-    }
-    if (this.$store.state[this.moduleName].mode === null) {
-      this.modeChange(this.mode)
+      this.origin = this.originByPattern
     }
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
-      this.$store.commit(`${this.moduleName}/setOffline`, this.mode === 1)
+      this.$store.commit(`${this.moduleName}/setOffline`, this.realtimeEnabled)
     })
     this.connectHandler = Vue.connector.socket.on('connect', () => {
       if (this.$store.state[this.moduleName].offline) {
-        this.$store.commit(`${this.moduleName}/setReconnected`, this.mode === 1)
-        if (this.mode === 1) {
+        this.$store.commit(`${this.moduleName}/setReconnected`, this.realtimeEnabled)
+        if (this.realtimeEnabled) {
           this.$store.dispatch(`${this.moduleName}/getMissedMessages`)
         }
       }
@@ -318,6 +273,6 @@ export default {
     this.$store.commit(`${this.moduleName}/clear`)
   },
   mixins: [filterMessages],
-  components: { VirtualScrollList, LogsListItem, EmptyPane }
+  components: { VirtualScrollList, EmptyPane }
 }
 </script>

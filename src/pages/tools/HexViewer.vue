@@ -168,7 +168,7 @@ export default {
       },
       tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
       PROXY_PROTOCOL_ID (state) {
-        let protocols = state.protocols || {}
+        const protocols = state.protocols || {}
         return Object.keys(protocols).reduce((proxyId, protocolId) => {
           if (protocols[protocolId] === 'proxy') {
             proxyId = parseInt(protocolId)
@@ -179,8 +179,8 @@ export default {
       items (state) { return Object.values(state.channels || {}).filter(item => this.PROXY_PROTOCOL_ID && item.protocol_id === this.PROXY_PROTOCOL_ID) }
     }),
     filteredItems () {
-      let filter = this.filter.toLowerCase()
-      let filteredItems = this.filter ? this.items.filter(item => {
+      const filter = this.filter.toLowerCase()
+      const filteredItems = this.filter ? this.items.filter(item => {
         return (
           item &&
           typeof item.name !== 'undefined' &&
@@ -197,8 +197,8 @@ export default {
       filteredItems.sort((l, r) => {
         if (!l.name) { return -1 }
         if (!r.name) { return 1 }
-        let lName = l.name.toLowerCase()
-        let rName = r.name.toLowerCase()
+        const lName = l.name.toLowerCase()
+        const rName = r.name.toLowerCase()
         if (lName < rName) {
           return -1
         } else if (lName > rName) {
@@ -225,7 +225,7 @@ export default {
         return !!this.mode
       },
       set (val) {
-        let now = Date.now()
+        const now = Date.now()
         this.date = val ? 0 : now - (now % 86400000)
         this.mode = Number(val)
         this.activeConnection = null
@@ -241,7 +241,7 @@ export default {
         update()
         return
       }
-      let entity = 'channels'
+      const entity = 'channels'
       this.itemsLoad(entity, update, this.active, () => { this.isItemsInit = true })
     },
     unselect () {
@@ -256,8 +256,8 @@ export default {
       this.$router.push(`/channels/${this.active}`).catch(err => err)
     },
     init () {
-      let entity = 'tools/hex'
-      let activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined)
+      const entity = 'tools/hex'
+      const activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined)
       this.isInit = true
       if (this.$route.params && this.$route.params.id) {
         if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
@@ -290,7 +290,7 @@ export default {
     active (val) {
       this.activeConnection = null
       this.selectedMessages = ''
-      let currentItem = this.items.filter(item => item.id === val)[0] || {}
+      const currentItem = this.items.filter(item => item.id === val)[0] || {}
       if (val) {
         this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: 'tools/hex' }, value: currentItem.id })
         this.$router.push(`/tools/hex/${val}`).catch(err => err)

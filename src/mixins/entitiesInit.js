@@ -1,7 +1,7 @@
 import { mapActions } from 'vuex'
 import get from 'lodash/get'
 
-let loadedEntities = {}
+const loadedEntities = {}
 function getMainEntity (entity, routeId, lsId, flag, dest) {
   let res
   if (flag) {
@@ -20,17 +20,17 @@ function getMainEntity (entity, routeId, lsId, flag, dest) {
 
 export default {
   beforeRouteEnter (to, from, next) {
-    let toEntity = to.meta.moduleName,
-      fromEntity = from.meta.moduleName
+    const toEntity = to.meta.moduleName
+    let fromEntity = from.meta.moduleName
     next(vm => {
       if (toEntity !== fromEntity || !fromEntity) {
-        let entity = toEntity,
-          promises = []
+        let entity = toEntity
+        const promises = []
         if (entity) {
-          let idFromRoute = to.params && to.params.id ? to.params.id : null
+          const idFromRoute = to.params && to.params.id ? to.params.id : null
           let mainEntityIdFromRoute
           if (idFromRoute) { mainEntityIdFromRoute = Number(idFromRoute.split('-')[0]) }
-          let idFromLS = get(vm.settings, `entities[${entity}]`, undefined)
+          const idFromLS = get(vm.settings, `entities[${entity}]`, undefined)
           switch (entity) {
             case 'devices': {
               if (fromEntity === 'intervals') { fromEntity = 'devices' }
@@ -100,7 +100,7 @@ export default {
     })
   },
   beforeRouteUpdate (to, from, next) {
-    let toEntity = to.meta.moduleName,
+    const toEntity = to.meta.moduleName,
       fromEntity = from.meta.moduleName,
       toId = to.params && to.params.id ? Number(to.params.id) : null,
       fromId = from.params && from.params.id ? Number(from.params.id) : null,
@@ -148,10 +148,10 @@ export default {
   },
   beforeRouteLeave (to, from, next) {
     let fromEntity = from.meta.moduleName,
-      toEntity = to.meta.moduleName,
-      promises = []
+      toEntity = to.meta.moduleName
+    const promises = []
     if (fromEntity && toEntity !== fromEntity) {
-      let idFromRoute = from.params && from.params.id ? Number(from.params.id) : null
+      const idFromRoute = from.params && from.params.id ? Number(from.params.id) : null
       switch (fromEntity) {
         case 'devices': {
           if (toEntity === 'intervals') { toEntity = 'devices' }

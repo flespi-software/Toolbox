@@ -31,7 +31,7 @@ export default {
   },
   methods: {
     itemClickHandler (index, content, event) {
-      this.$emit(`item-click`, { index, content, event })
+      this.$emit('item-click', { index, content, event })
     }
   }
 }

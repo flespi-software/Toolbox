@@ -122,7 +122,7 @@ function setTokenInfo (state, tokenInfo) {
     // acl
     case 2: {
       Vue.set(state.config.platform, 'isDrawable', false)
-      let rights = tokenInfo.access.acl.reduce((result, acl) => {
+      const rights = tokenInfo.access.acl.reduce((result, acl) => {
         if (acl.uri === 'gw') {
           if (acl.methods.includes('GET')) {
             return [...result, 'channels', 'calcs', 'devices', 'streams', 'modems', 'protocols']
@@ -135,16 +135,16 @@ function setTokenInfo (state, tokenInfo) {
           }
           return result
         }
-        let entity = acl.uri.split('/')[1] || acl.uri.split('/')[0]
+        const entity = acl.uri.split('/')[1] || acl.uri.split('/')[0]
         if (!result.includes(entity) && (!acl.methods || (acl.methods && acl.methods.includes('GET')))) {
           result.push(entity)
         }
         return result
       }, [])
       Object.keys(state.config).forEach((entity) => {
-        let entityConfig = state.config[entity]
+        const entityConfig = state.config[entity]
         if (!entityConfig.acl) { return false }
-        let access = entityConfig.acl.reduce((result, req) => {
+        const access = entityConfig.acl.reduce((result, req) => {
           return result && rights.includes(req)
         }, true)
         if (access) {
@@ -171,10 +171,10 @@ function getToolboxSettings (state) {
   /* migration, remove later 13.12.19 */
   if (!settings) {
     settings = { entities: {} }
-    let entities = settings.entities
-    let entityNames = [ 'devices', 'channels', 'calcs', 'streams', 'modems', 'containers', 'cdns', 'tools/hex', 'platform', 'mqtt' ]
+    const entities = settings.entities
+    const entityNames = ['devices', 'channels', 'calcs', 'streams', 'modems', 'containers', 'cdns', 'tools/hex', 'platform', 'mqtt']
     entityNames.forEach(name => {
-      let value = LocalStorage.getItem(name)
+      const value = LocalStorage.getItem(name)
       if (value) {
         entities[name] = value
         LocalStorage.remove(name)
@@ -186,10 +186,10 @@ function getToolboxSettings (state) {
 }
 
 function setToolboxSettings (state, { type, opt, value }) {
-  let settings = state.settings
+  const settings = state.settings
   switch (type) {
     case 'ENTITY_CHANGE': {
-      let { entity } = opt
+      const { entity } = opt
       if (!settings.entities) { settings.entities = {} }
       settings.entities[entity] = value
       break

@@ -2,7 +2,7 @@
   <div style="height: 100%">
     <q-item class="q-pa-none">
       <q-item-section>
-        <q-item-label class="ellipsis text-bold text-white">Message</q-item-label>
+        <q-item-label class="ellipsis text-bold text-white q-ml-sm">Message</q-item-label>
       </q-item-section>
       <q-item-section side><q-icon color="white" class="pull-right cursor-pointer" name="mdi-close" @click.native="$emit('close')" size="1.8rem" /></q-item-section>
     </q-item>
@@ -30,7 +30,7 @@
               <q-item-label v-else caption><img class="image-bin" :src="`data:image/${key.split('.')[2]};base64, ${filteredObject[key]}`" :alt="key"></q-item-label>
             </q-item-section>
             <q-item-section avatar>
-              <q-btn :icon="cols[key] && cols[key].display ? 'mdi-table-column-remove' : 'mdi-table-column-plus-after'" @click="toggleColHandler(key)" flat dense>
+              <q-btn :icon="cols[key] && cols[key].display ? 'mdi-table-column-remove' : 'mdi-table-column-plus-after'" :color="cols[key] && cols[key].display ? 'red-5' : 'white'" @click="toggleColHandler(key)" flat dense>
                 <q-tooltip>{{cols[key] && cols[key].display ? 'Hide this column' : 'Show this column'}}</q-tooltip>
               </q-btn>
             </q-item-section>

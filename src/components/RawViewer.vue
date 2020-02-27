@@ -57,11 +57,11 @@ export default {
       this.$refs.modal.show()
     },
     openHandler () {
-      let index = 0,
-        hasData = Object.keys(this.config).some((element, elementIndex) => {
-          index = elementIndex
-          return !!this.config[element].data
-        })
+      let index = 0
+      const hasData = Object.keys(this.config).some((element, elementIndex) => {
+        index = elementIndex
+        return !!this.config[element].data
+      })
       this.tabModel = hasData ? Object.keys(this.config)[index] : Object.keys(this.config)[0] ? Object.keys(this.config)[index] : ''
     },
     getData (obj) {

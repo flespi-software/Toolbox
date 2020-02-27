@@ -29,7 +29,7 @@
                 <q-icon slot="prepend" name="mdi-magnify" color="white" />
               </q-input>
             </div>
-            <q-icon slot="prepend" name="mdi-developer-board" color="white"/>
+            <q-icon slot="prepend" name="mdi-developer-board" color="white" v-if="$q.platform.is.desktop"/>
             <template v-slot:no-option>
               <div style="min-height: 77px;">
                 <q-input v-model="deviceFilter" @input="filter => $refs.itemDeviceSelect.filter(filter)" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" class="q-ma-xs" autofocus>
@@ -101,7 +101,7 @@
                 <q-icon slot="prepend" name="mdi-magnify" color="white" />
               </q-input>
             </div>
-            <q-icon slot="prepend" name="mdi-calculator-variant" color="white"/>
+            <q-icon slot="prepend" name="mdi-calculator-variant" color="white" v-if="$q.platform.is.desktop"/>
             <template v-slot:no-option>
               <div style="min-height: 77px;">
                 <q-input v-model="calcFilter" @input="filter => $refs.itemCalcSelect.filter(filter)" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" class="q-ma-xs" autofocus>
@@ -154,7 +154,6 @@
         ref="intervals"
         @view-data="viewDataHandler"
         @on-map="onMapHandler"
-        :mode="mode"
         :activeId="activeCalcId"
         :item="selectedCalc"
         :activeDeviceId="active"
@@ -198,7 +197,6 @@ export default {
     return {
       calcFilter: '',
       deviceFilter: '',
-      mode: 1,
       active: null,
       activeCalcId: null,
       ratio: 0,
@@ -227,7 +225,7 @@ export default {
       return Object.values(this.devicesCollection)
     },
     tasks () {
-      let tasks = Object.values(this.tasksCollection)
+      const tasks = Object.values(this.tasksCollection)
       return tasks
     },
     calcs () {
@@ -240,7 +238,7 @@ export default {
       return this.calcsCollection[this.activeCalcId] ? this.calcsCollection[this.activeCalcId] : {}
     },
     filteredDevices () {
-      let devices = this.devices
+      const devices = this.devices
       // let devicesIdsByTasks = this.tasks.map(task => task.device_id)
       // devices = devices.filter(device => devicesIdsByTasks.includes(device.id))
       // if (this.active) {
@@ -263,7 +261,7 @@ export default {
   },
   methods: {
     filterItems (items, filter) {
-      let filteredItems = filter ? items.filter(item => {
+      const filteredItems = filter ? items.filter(item => {
         return (
           item &&
           typeof item.name !== 'undefined' &&
@@ -280,8 +278,8 @@ export default {
       filteredItems.sort((l, r) => {
         if (!l.name) { return -1 }
         if (!r.name) { return 1 }
-        let lName = l.name.toLowerCase()
-        let rName = r.name.toLowerCase()
+        const lName = l.name.toLowerCase()
+        const rName = r.name.toLowerCase()
         if (lName < rName) {
           return -1
         } else if (lName > rName) {
@@ -338,7 +336,7 @@ export default {
       this.$router.push(`/devices/${this.active}`).catch(err => err)
     },
     init () {
-      let deviceIdFromRoute = this.$route.params && this.$route.params.id ? Number(this.$route.params.id) : null,
+      const deviceIdFromRoute = this.$route.params && this.$route.params.id ? Number(this.$route.params.id) : null,
         calcIdFromRoute = this.$route.params && this.$route.params.calcId ? Number(this.$route.params.calcId) : null
       this.isInit = true
       if (deviceIdFromRoute) {
@@ -382,12 +380,12 @@ export default {
         route.params.calcId && this.activeCalcId === Number(route.params.calcId)
       ) { return false }
       if (route.params && route.params.id) {
-        let deviceId = Number(route.params.id)
+        const deviceId = Number(route.params.id)
         if (this.devicesCollection[deviceId]) {
           if (deviceId !== this.active) {
             this.setActive(deviceId)
           }
-          let calcId = Number(route.params.calcId)
+          const calcId = Number(route.params.calcId)
           if (route.params && route.params.calcId && this.calcsCollection[calcId]) {
             this.activeCalcId = calcId
           }

@@ -3,24 +3,24 @@ import upperFirst from 'lodash/upperFirst'
 
 function getIndexChildrenRoutes (config) {
   return Object.keys(config).reduce((result, moduleName) => {
-    let componentName = upperFirst(moduleName),
+    const componentName = upperFirst(moduleName),
       type = config[moduleName].type,
       path = config[moduleName].path || moduleName
-    let route = {
+    const route = {
       path: path,
-      component: () => import(`pages/${type}/${componentName}`),
+      component: () => import('pages/' + type + '/' + componentName),
       meta: { moduleName },
       children: [
         {
-          path: `:id`,
+          path: ':id',
           meta: { moduleName }
         }
       ]
     }
     if (moduleName === 'devices') {
       result.push({
-        path: `devices/:id/calc/:calcId/intervals`,
-        component: () => import(`pages/${type}/Intervals`),
+        path: 'devices/:id/calc/:calcId/intervals',
+        component: () => import('pages/' + type + '/Intervals'),
         meta: { moduleName: 'intervals' }
       })
     }

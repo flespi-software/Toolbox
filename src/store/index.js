@@ -6,7 +6,7 @@ import config from '../config.js'
 
 Vue.use(Vuex)
 
-let state = {
+const state = {
   token: '',
   settings: {},
   offline: false,

@@ -2,7 +2,7 @@ export default {
   methods: {
     filterMessages (filter, messages) { // live filter messages
       function getPartsOfFilter (filterString) {
-        let filtersStringArr = filterString.split(',')
+        const filtersStringArr = filterString.split(',')
 
         return filtersStringArr.reduce((acc, filter) => {
           let parts = [],
@@ -40,9 +40,9 @@ export default {
         }, [])
       }
       if (this.filter) {
-        let filters = getPartsOfFilter(filter)
+        const filters = getPartsOfFilter(filter)
         return messages.filter(message => {
-          let isMessageIncluded = filters.reduce((flag, filter) => {
+          const isMessageIncluded = filters.reduce((flag, filter) => {
             /* eslint-disable */
             switch (filter.operation) {
               case '!=': {

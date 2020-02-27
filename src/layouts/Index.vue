@@ -264,7 +264,7 @@ export default {
     },
     messagesColsByEntity: {
       get () {
-        let moduleName = this.messagesConfigByEntity.vuexModuleName
+        const moduleName = this.messagesConfigByEntity.vuexModuleName
         let cols = []
         if (this.$store.state[moduleName] && this.$store.state[moduleName].cols) {
           cols = this.$store.state[moduleName].cols
@@ -272,7 +272,7 @@ export default {
         return cols
       },
       set (cols) {
-        let moduleName = this.messagesConfigByEntity.vuexModuleName
+        const moduleName = this.messagesConfigByEntity.vuexModuleName
         this.$store.commit(`${moduleName}/updateCols`, cols)
       }
     },
@@ -293,7 +293,7 @@ export default {
     logsColsByEntity: {
       get () {
         if (!this.configByEntity.logs) { return [] }
-        let moduleName = this.configByEntity.logs.vuexModuleName
+        const moduleName = this.configByEntity.logs.vuexModuleName
         let cols = []
         if (this.$store.state[moduleName].cols) {
           cols = this.$store.state[moduleName].cols
@@ -301,7 +301,7 @@ export default {
         return cols
       },
       set (cols) {
-        let moduleName = this.configByEntity.logs.vuexModuleName
+        const moduleName = this.configByEntity.logs.vuexModuleName
         this.$store.commit(`${moduleName}/updateCols`, cols)
       }
     },
@@ -327,20 +327,20 @@ export default {
       return this.connectFlag || this.isLoading
     },
     hubGroupModel () {
-      let entity = this.entity
+      const entity = this.entity
       return entity === 'channels' || entity === 'calcs' || entity === 'devices' || entity === 'streams' || entity === 'modems' || entity === 'hexViewer' || entity === 'intervals'
     },
     storageGroupModel () {
-      let entity = this.entity
+      const entity = this.entity
       return entity === 'containers' || entity === 'cdns'
     },
     mqttGroupModel () {
-      let entity = this.entity
+      const entity = this.entity
       return entity === 'mqtt' || entity === 'mqttClient'
     },
     configByEntity () {
       if (this.entity === 'intervals') {
-        return this.config['devices']
+        return this.config.devices
       }
       return this.config[this.entity]
     },
@@ -366,7 +366,7 @@ export default {
             color: 'amber-9',
             icon: 'warning',
             timeout: 10000,
-            message: `You are setting the row count to more than 2000. This can affect your browser performance. Do you want to continue?`,
+            message: 'You are setting the row count to more than 2000. This can affect your browser performance. Do you want to continue?',
             position: 'top-right',
             actions: [
               {
@@ -387,34 +387,34 @@ export default {
       }
     },
     logMessageConfig () {
-      let config = {
+      const config = {
           'log object': {
             title: 'log object',
             description: this.currentData._description,
             wrapper: JsonTree,
             data: this.currentData
           },
-          'item_data': {
+          item_data: {
             title: 'item data',
             wrapper: JsonTree,
             data: this.currentData.item_data
           },
-          'http_data': {
+          http_data: {
             title: 'http data',
             wrapper: JsonTree,
             data: this.currentData.http_data
           },
-          'properties': {
+          properties: {
             title: 'properties',
             wrapper: JsonTree,
             data: this.currentData.properties
           },
-          'pending': {
+          pending: {
             title: 'pending',
             wrapper: JsonTree,
             data: this.currentData.pending
           },
-          'current': {
+          current: {
             title: `${this.currentData.name} [${date.formatDate(this.currentData.timestamp * 1000, 'HH:mm:ss')}]`,
             wrapper: JsonTree,
             data: this.currentData.current
@@ -473,15 +473,16 @@ export default {
     settingsHandler () {
       this.$q.dialog({
         title: 'Settings',
-        message: 'Page row count',
         color: 'grey-9',
         prompt: {
           model: this.limit,
-          type: 'number'
+          label: 'Page row count',
+          type: 'number',
+          outlined: true
         },
         ok: true,
         cancel: true
-      }).onOk((data) => { this.limit = data })
+      }).onOk((data) => { this.limit = +data })
         .onCancel(() => {})
     },
     viewLogMessagesHandler (content) {
@@ -531,7 +532,7 @@ export default {
     reset (errMessage) {
       this.clearToken()
       this.clearCurrentRegion()
-      this.$router.push(`/login`).catch(err => err)
+      this.$router.push('/login').catch(err => err)
       if (errMessage) {
         this.addError(errMessage)
       }
@@ -552,8 +553,8 @@ export default {
     },
     routeProcess (route) {
       if (route.params.group) {
-        let routeProcessIndex = Vue.connector.socket.on('connect', () => {
-          let groups = this.$route.params.group.split(','),
+        const routeProcessIndex = Vue.connector.socket.on('connect', () => {
+          const groups = this.$route.params.group.split(','),
             entityByGroups = this.getGroups(groups)
           if (entityByGroups.length) {
             this.entityByGroup = entityByGroups
@@ -577,7 +578,7 @@ export default {
       this.initConnection({ token: route.params.token })
         .then(() => {
           if (route.params.id && route.params.type) {
-            let routeProcessIndex = Vue.connector.socket.on('connect', () => {
+            const routeProcessIndex = Vue.connector.socket.on('connect', () => {
               if (this.renderEntities.includes(route.params.type)) {
                 this.setEntity(this.$route.params.type)
                 this.$router.push(`/${route.params.type}/${route.params.id}`).catch(err => err)
@@ -610,12 +611,17 @@ export default {
       this.$store.commit('setToolboxSettings', command)
     },
     updateColHandler (col) {
-      let actionType = col.index ? 'edit' : 'add'
+      const actionType = col.index ? 'edit' : 'add'
+      const cols = this.$store.state[this.messagesConfigByEntity.vuexModuleName].cols
       if (actionType === 'edit') {
-        let renderedCol = this.$store.state[this.messagesConfigByEntity.vuexModuleName].cols[col.index]
+        const renderedCol = cols[col.index]
         this.$set(renderedCol, 'display', !renderedCol.display)
       } else {
-        this.$store.state[this.messagesConfigByEntity.vuexModuleName].cols.push(col)
+        if (cols[cols.length - 1].__dest) {
+          cols.splice(-1, 0, col)
+        } else {
+          cols.push(col)
+        }
       }
     },
     updateColsHandler (cols) {
@@ -656,7 +662,7 @@ export default {
   },
   created () {
     this.routeProcess(this.$route)
-    let sessionSettings = this.$q.sessionStorage.getItem(`toolbox-session-settings[${window.name || 'default'}]`)
+    const sessionSettings = this.$q.sessionStorage.getItem(`toolbox-session-settings[${window.name || 'default'}]`)
     if (sessionSettings) {
       this.isNeedSelect = sessionSettings.isNeedSelect || !this.$q.platform.within.iframe
       this.isVisibleToolbar = sessionSettings.isVisibleToolbar || !this.$q.platform.within.iframe

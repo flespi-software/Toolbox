@@ -1,11 +1,11 @@
 <template>
   <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}">
     <div
-      v-if="!item['__connectionStatus'] && !item['x-flespi-filter-prev'] && !item['x-flespi-filter-next']"
+      v-if="!item['__connectionStatus']"
       @click="itemClickHandler(index, clearItem)"
       class="cursor-pointer"
-      :class="[item.__status ? 'missed-items' : '']"
-      :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, backgroundColor: selected ? 'rgba(255,255,255,0.7)': '', color: selected ? '#333' : '', borderBottom: item.delimiter ? 'solid 1px #f40' : ''}"
+      :class="[item['x-flespi-status'] ? 'missed-items' : '']"
+      :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, backgroundColor: selected ? 'rgba(255,255,255,0.7)': '', color: selected ? '#333' : ''}"
     >
       <template v-for="(prop, k) in cols">
         <span class="list__item item_actions" :class="{[`item_${k}`]: true}" v-if="prop.__dest === 'action'" :key="prop.name + k">
@@ -21,24 +21,10 @@
           class="list__item"
           :class="{[`item_${k}`]: true}"
           :title="values[prop.name].value"
-          :style="{color: item['x-flespi-filter-fields'] && item['x-flespi-filter-fields'].includes(prop.name) ? '#4caf50' : ''}"
         >
           {{values[prop.name].value}}
         </span>
       </template>
-    </div>
-    <div
-      v-else-if="item['x-flespi-filter-prev'] || item['x-flespi-filter-next']"
-      :style="{
-      height: `${itemHeight}px`,
-      width: `${rowWidth}px`,
-      color: '#000',
-      fontWeight: 'bold',
-      backgroundColor: item['x-flespi-filter-prev'] ? '#819002' : '#ccb300',
-      overflow: 'hidden'
-    }"
-    >
-      <span class="text-uppercase text-white" style="padding: 0 5px;" >{{item['x-flespi-filter-next'] ? `Next results will be filtered by: "${item['x-flespi-filter-next']}"` : `Filter removed: "${item['x-flespi-filter-prev']}"`}}</span>
     </div>
     <div
       v-else
@@ -101,14 +87,14 @@ export default {
       }
       Object.keys(this.item).forEach((propName) => {
         if (propName.indexOf('#') !== -1) {
-          let splitedName = propName.split('#'),
+          const splitedName = propName.split('#'),
             name = splitedName[0],
             index = splitedName[1]
           if (vals[name]) {
             if (!vals[name].value) {
               vals[name].value = {}
             } else if (typeof vals[name].value !== 'object') {
-              let value = vals[name].value
+              const value = vals[name].value
               vals[name].value = { [index - 1]: value }
             }
             vals[name].value[index] = JSON.stringify(this.item[propName])
@@ -139,7 +125,7 @@ export default {
       Object.keys(vals).forEach((key) => {
         if (typeof vals[key].value === 'object' && vals[key].value) {
           if (vals[key].value instanceof Array) {
-            let buff = vals[key].value.reduce((acc, item, index, arr) => {
+            const buff = vals[key].value.reduce((acc, item, index, arr) => {
               acc += item
               if (index !== arr.length - 1) {
                 acc += ', '
@@ -148,7 +134,7 @@ export default {
             }, '')
             vals[key].value = buff
           } else if (vals[key].value instanceof Object) {
-            let buff = Object.keys(vals[key].value).reduce((acc, name, index, arr) => {
+            const buff = Object.keys(vals[key].value).reduce((acc, name, index, arr) => {
               acc += `${name}: ${vals[key].value[name]}`
               if (index !== arr.length - 1) {
                 acc += ', '
@@ -170,10 +156,10 @@ export default {
   },
   methods: {
     clickHandler (index, type, content) {
-      this.$emit(`action`, { index, type, content })
+      this.$emit('action', { index, type, content })
     },
     itemClickHandler (index, content) {
-      this.$emit(`item-click`, { index, content })
+      this.$emit('item-click', { index, content })
     }
   }
 }

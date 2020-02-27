@@ -1,10 +1,10 @@
 <template>
   <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}">
     <div
-      v-if="!item['__connectionStatus'] && !item['x-flespi-filter-prev'] && !item['x-flespi-filter-next']"
+      v-if="!item['__connectionStatus']"
       class="cursor-pointer"
-      :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, borderBottom: item.delimiter ? 'solid 1px #f40' : '', boxSizing: 'border-box'}"
-      :class="[color, item.__status ? 'missed-items' : '']"
+      :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, boxSizing: 'border-box'}"
+      :class="[color, item['x-flespi-status'] ? 'missed-items' : '']"
       @click="itemClickHandler(index, clearItem)"
     >
       <template v-for="(prop, k) in cols">
@@ -20,7 +20,6 @@
           :key="prop.name + k"
           class="list__item"
           :class="{[`item_${k}`]: true}"
-          :style="{backgroundColor: item['x-flespi-filter-fields'] && item['x-flespi-filter-fields'].includes(prop.name) ? '#666' : ''}"
         >
           <!--<q-tooltip>{{getValueOfProp(prop)}}</q-tooltip>-->
           <!-- <a :class="[color]" @click.prevent.stop="linkMoreClickHandler" v-if="prop.name === 'event_code'"><q-icon name="mdi-open-in-new"/></a> -->
@@ -38,19 +37,6 @@
           </span>
         </span>
       </template>
-    </div>
-    <div
-      v-else-if="item['x-flespi-filter-prev'] || item['x-flespi-filter-next']"
-      :style="{
-      height: `${itemHeight}px`,
-      width: `${rowWidth}px`,
-      color: '#000',
-      fontWeight: 'bold',
-      backgroundColor: item['x-flespi-filter-prev'] ? '#819002' : '#ccb300',
-      overflow: 'hidden'
-    }"
-    >
-      <span class="text-uppercase text-white" style="padding: 0 5px;" >{{item['x-flespi-filter-next'] ? `Next results will be filtered by: "${item['x-flespi-filter-next']}"` : `Filter removed: "${item['x-flespi-filter-prev']}"`}}</span>
     </div>
     <div
       v-else
@@ -92,10 +78,9 @@ export default {
   },
   computed: {
     etc () {
-      let etcKeys = Object.keys(this.item).filter(key => !this.hasInCols(key))
+      const etcKeys = Object.keys(this.item).filter(key => !this.hasInCols(key))
       return etcKeys.reduce((acc, key) => {
         if (
-          key === 'delimiter' ||
           key === 'event_origin' ||
           key === 'event_text' ||
           key === 'item_data' ||
@@ -109,11 +94,8 @@ export default {
           key === 'error_code' ||
           key === 'send_code' ||
           key === 'address' ||
-          key === '__status' ||
-          key === 'uuid' ||
-          key === 'x-flespi-filter-fields' ||
-          key === 'x-flespi-filter-next' ||
-          key === 'x-flespi-filter-prev'
+          key.indexOf('x-flespi') !== -1 ||
+          key === 'uuid'
         ) { return acc }
         acc += `${key}: ${JSON.stringify(this.item[key])}; `
         return acc
@@ -162,6 +144,7 @@ export default {
         case 113:
         case 301:
         case 310:
+        case 320:
         case 404:
         case 422:
         case 432:
@@ -172,11 +155,14 @@ export default {
         case 800:
           return 'text-grey-6'
         case 20:
+        case 103:
         case 114:
         case 203:
         case 204:
+        case 304:
         case 315:
         case 316:
+        case 321:
         case 402:
         case 403:
         case 501:
@@ -213,7 +199,7 @@ export default {
       }
     },
     eventLinkMore () {
-      let host = this.$flespiServer
+      const host = this.$flespiServer
       switch (this.item.event_code) {
         case 1:
         case 2:
@@ -227,6 +213,7 @@ export default {
         case 111:
         case 112:
         case 113: { return `${host}/docs/#/gw/!/commands` }
+        case 103:
         case 114: { return `${host}/docs/#/gw/!/channels` }
         case 200:
         case 201:
@@ -237,13 +224,16 @@ export default {
         case 301:
         case 302:
         case 303:
+        case 304:
         case 310:
         case 311:
         case 312:
         case 313:
         case 314:
         case 315:
-        case 316: { return `${host}/docs/#/gw/!/devices` }
+        case 316:
+        case 320:
+        case 321: { return `${host}/docs/#/gw/!/devices` }
         case 401:
         case 402:
         case 403:
@@ -278,7 +268,7 @@ export default {
       }
     },
     description () {
-      let types = events.types,
+      const types = events.types,
         closeCodes = events.closeCodes,
         errorCodes = events.errorCodes,
         sendCodes = events.sendCodes,
@@ -308,13 +298,7 @@ export default {
     },
     clearItem () {
       return Object.keys(this.item).reduce((result, key) => {
-        if (
-          key === 'delimiter' ||
-          key === '__status' ||
-          key === 'x-flespi-filter-fields' ||
-          key === 'x-flespi-filter-next' ||
-          key === 'x-flespi-filter-prev'
-        ) {
+        if (key.indexOf('x-flespi') !== -1) {
           return result
         }
         result[key] = this.item[key]
@@ -327,7 +311,7 @@ export default {
       return !!this.cols.filter(col => prop === col.name).length
     },
     clickHandler (index, type, content) {
-      this.$emit(`action`, { index, type, content })
+      this.$emit('action', { index, type, content })
     },
     linkMoreClickHandler () {
       openURL(this.eventLinkMore)
@@ -341,14 +325,14 @@ export default {
         res = date.formatDate(this.item[prop.name] * 1000, 'DD/MM/YYYY HH:mm:ss')
       }
       if (prop.name === 'host') {
-        res = this.item['host'] || this.item['source'] || ''
+        res = this.item.host || this.item.source || ''
       }
       return res
     },
     itemClickHandler (index, content) {
       content._description = `[${date.formatDate(this.item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}] ${this.item.event_code}: ${this.description}`
       content._color = this.color
-      this.$emit(`item-click`, { index, content })
+      this.$emit('item-click', { index, content })
     }
   }
 }

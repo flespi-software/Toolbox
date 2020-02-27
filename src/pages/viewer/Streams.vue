@@ -1,9 +1,7 @@
 <template>
   <q-page>
     <entities-toolbar
-      :item="selectedItem" :mode="modeModel" :actions="actions"
-      @change:mode="mode => modeModel = mode"
-    >
+      :item="selectedItem" :actions="actions">
       <div style="max-width: 50%" :class="{'middle-modificator': !active}" slot="selects">
         <q-select
           ref="itemSelect"
@@ -83,7 +81,6 @@
     <logs
       ref="logs"
       v-if="isInit && active"
-      :mode="mode"
       :item="selectedItem"
       :limit="limit"
       originPattern="gw/streams/:id"
@@ -119,7 +116,6 @@ export default {
   data () {
     return {
       filter: '',
-      mode: 1,
       active: null,
       isInit: false,
       isItemsInit: false,
@@ -140,8 +136,8 @@ export default {
       return Object.values(this.itemsCollection)
     },
     filteredItems () {
-      let filter = this.filter.toLowerCase()
-      let filteredItems = this.filter ? this.items.filter(item => {
+      const filter = this.filter.toLowerCase()
+      const filteredItems = this.filter ? this.items.filter(item => {
         return (
           item &&
           typeof item.name !== 'undefined' &&
@@ -158,8 +154,8 @@ export default {
       filteredItems.sort((l, r) => {
         if (!l.name) { return -1 }
         if (!r.name) { return 1 }
-        let lName = l.name.toLowerCase()
-        let rName = r.name.toLowerCase()
+        const lName = l.name.toLowerCase()
+        const rName = r.name.toLowerCase()
         if (lName < rName) {
           return -1
         } else if (lName > rName) {
@@ -170,22 +166,8 @@ export default {
       return filteredItems
     },
     selectedItem () {
-      let item = this.itemsCollection[this.active] || null
-      if (item && item.deleted) {
-        this.deletedHandler()
-      }
+      const item = this.itemsCollection[this.active] || null
       return item
-    },
-    modeModel: {
-      get () {
-        return !!this.mode
-      },
-      set (val) {
-        let now = Date.now()
-        this.date = val ? 0 : now - (now % 86400000)
-        this.mode = Number(val)
-        this.$emit('view-data-hide')
-      }
     },
     actions () {
       return [
@@ -193,7 +175,7 @@ export default {
           label: 'Clear',
           icon: 'mdi-playlist-remove',
           handler: this.clearHandler,
-          condition: !!this.modeModel && !this.isEmptyMessages
+          condition: !this.isEmptyMessages
         }
       ]
     }
@@ -205,7 +187,7 @@ export default {
         update()
         return
       }
-      let entity = 'streams'
+      const entity = 'streams'
       this.itemsLoad(entity, update, this.active, () => { this.isItemsInit = true })
     },
     viewLogMessagesHandler (content) {
@@ -228,11 +210,8 @@ export default {
     clearActive () {
       this.active = null
     },
-    deletedHandler () {
-      this.mode = 0
-    },
     init () {
-      let entity = 'streams',
+      const entity = 'streams',
         activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined),
         idFromRoute = this.$route.params && this.$route.params.id ? Number(this.$route.params.id) : null
       this.isInit = true
@@ -245,17 +224,13 @@ export default {
       } else if (activeFromLocaleStorage && this.itemsCollection[activeFromLocaleStorage]) {
         this.active = activeFromLocaleStorage
       }
-      // deleted item logic
-      if (this.selectedItem && this.selectedItem.deleted) {
-        this.deletedHandler()
-      }
       this.$emit('inited')
     }
   },
   watch: {
     $route (route) {
       if (route.params && route.params.id) {
-        let id = Number(route.params.id)
+        const id = Number(route.params.id)
         if (this.itemsCollection[id]) {
           this.active = Number(route.params.id)
         } else if (this.isInit) {
@@ -266,15 +241,12 @@ export default {
       }
     },
     active (val) {
-      let currentItem = this.itemsCollection[val] || {}
+      const currentItem = this.itemsCollection[val] || {}
       if (val) {
         this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: 'streams' }, value: currentItem.id })
         this.$router.push(`/streams/${val}`).catch(err => err)
       } else {
         this.$router.push('/streams').catch(err => err)
-      }
-      if (currentItem.deleted) {
-        this.deletedHandler()
       }
     }
   },

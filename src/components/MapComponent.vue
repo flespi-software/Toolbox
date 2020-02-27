@@ -52,7 +52,7 @@ export default {
   },
   computed: {
     mapStyles () {
-      let size = {}
+      const size = {}
       if (this.device && this.messages && this.messages.length) {
         size.width = `${this.width}px`
         size.height = `${this.height - (this.isMapMinimized || this.isMapMaximized ? 0 : this.headerMapHeight)}px`
@@ -75,8 +75,8 @@ export default {
   methods: {
     initMap () {
       if (!this.map) {
-        let lastMessage = this.messages.length ? this.messages[this.messages.length - 1] : {}
-        let position = lastMessage['position.latitude'] && lastMessage['position.longitude'] ? [lastMessage['position.latitude'], lastMessage['position.longitude']] : [51.50853, -0.12574]
+        const lastMessage = this.messages.length ? this.messages[this.messages.length - 1] : {}
+        const position = lastMessage['position.latitude'] && lastMessage['position.longitude'] ? [lastMessage['position.latitude'], lastMessage['position.longitude']] : [51.50853, -0.12574]
         this.map = L.map('map', {
           center: position,
           zoom: this.zoom,
@@ -139,7 +139,7 @@ export default {
       this.$refs.dragResize.top = 50
     },
     minimize (minimizeTo) {
-      let parentW = parseInt(this.$el.parentNode.clientWidth, 10),
+      const parentW = parseInt(this.$el.parentNode.clientWidth, 10),
         parentH = parseInt(this.$el.parentNode.clientHeight, 10)
       this.width = parentW * 0.34
       this.height = ((parentH - 50) * (this.siblingHeight / 100)) - (this.siblingHeight === 100 ? 0 : (50 - this.siblingHeight))
@@ -160,7 +160,7 @@ export default {
       }
     },
     maximize () {
-      let parentW = parseInt(this.$el.parentNode.clientWidth, 10) - 1,
+      const parentW = parseInt(this.$el.parentNode.clientWidth, 10) - 1,
         parentH = parseInt(this.$el.parentNode.clientHeight, 10)
       this.width = parentW
       this.height = parentH
@@ -269,8 +269,8 @@ export default {
       }
     },
     initMarker () {
-      let lastMessage = this.messages[this.messages.length - 1]
-      let position = [lastMessage['position.latitude'], lastMessage['position.longitude']]
+      const lastMessage = this.messages[this.messages.length - 1]
+      const position = [lastMessage['position.latitude'], lastMessage['position.longitude']]
       this.marker = L.marker(position, {
         icon: this.generateIcon(),
         title: this.device.name
@@ -286,7 +286,7 @@ export default {
       this.track = L.polyline(this.getLatLngArr(), { color: this.color }).addTo(this.map)
     },
     updateDeviceOnMap () {
-      let currentArrPos = this.getLatLngArr(),
+      const currentArrPos = this.getLatLngArr(),
         markerWatchedPos = this.marker && this.marker instanceof L.Marker ? this.marker.getLatLng() : {},
         isWatchedPosChanged = this.messages && this.messages.length &&
           markerWatchedPos.lat && markerWatchedPos.lat !== this.messages[this.messages.length - 1]['position.latitude'] &&

@@ -1,8 +1,7 @@
 <template>
   <q-page>
     <entities-toolbar
-      :item="selectedItem" :ratio="ratio" :mode="modeModel" :actions="actions"
-      @change:mode="mode => modeModel = mode" @change:ratio="r => ratio = r"
+      :item="selectedItem" :ratio="ratio" :actions="actions" @change:ratio="r => ratio = r"
     >
       <div class="flex" :class="{'middle-modificator': !active}" slot="selects">
         <q-select
@@ -90,7 +89,6 @@
     <div v-if="isInit && active">
       <logs
         ref="logs"
-        :mode="mode"
         :item="selectedItem"
         :limit="limit"
         :isEnabled="!!+size[0]"
@@ -103,7 +101,6 @@
       <messages
         ref="messages"
         @view-data="viewDataHandler"
-        :mode="mode"
         :item="selectedItem"
         :activeId="active"
         :isEnabled="!!+size[1]"
@@ -141,7 +138,6 @@ export default {
   data () {
     return {
       filter: '',
-      mode: 1,
       active: null,
       ratio: 50,
       isInit: false,
@@ -152,7 +148,7 @@ export default {
   computed: {
     ...mapState({
       isEmptyMessages (state) {
-        let hasntMessages = this.config.messages && state[this.config.messages.vuexModuleName] && !state[this.config.messages.vuexModuleName].messages.length && this.ratio !== 100,
+        const hasntMessages = this.config.messages && state[this.config.messages.vuexModuleName] && !state[this.config.messages.vuexModuleName].messages.length && this.ratio !== 100,
           hasntLogs = this.config.logs && state[this.config.logs.vuexModuleName] && state[this.config.logs.vuexModuleName].messages && !state[this.config.logs.vuexModuleName].messages.length && this.ratio !== 0
         return hasntMessages && hasntLogs
       },
@@ -162,7 +158,7 @@ export default {
         return state.channels || {}
       },
       proxyProtocolId (state) {
-        let protocols = state.protocols
+        const protocols = state.protocols
         return Object.keys(protocols).reduce((res, id) => {
           if (protocols[id] === 'proxy') {
             res = parseInt(id)
@@ -175,8 +171,8 @@ export default {
       return Object.values(this.itemsCollection)
     },
     filteredItems () {
-      let filter = this.filter.toLowerCase()
-      let filteredItems = this.filter ? this.items.filter(item => {
+      const filter = this.filter.toLowerCase()
+      const filteredItems = this.filter ? this.items.filter(item => {
         return (
           item &&
           typeof item.name !== 'undefined' &&
@@ -193,8 +189,8 @@ export default {
       filteredItems.sort((l, r) => {
         if (!l.name) { return -1 }
         if (!r.name) { return 1 }
-        let lName = l.name.toLowerCase()
-        let rName = r.name.toLowerCase()
+        const lName = l.name.toLowerCase()
+        const rName = r.name.toLowerCase()
         if (lName < rName) {
           return -1
         } else if (lName > rName) {
@@ -208,22 +204,11 @@ export default {
       return [this.ratio, 100 - this.ratio]
     },
     selectedItem () {
-      let item = this.itemsCollection[this.active] || null
+      const item = this.itemsCollection[this.active] || null
       if (item && item.deleted) {
         this.deletedHandler()
       }
       return item
-    },
-    modeModel: {
-      get () {
-        return !!this.mode
-      },
-      set (val) {
-        let now = Date.now()
-        this.date = val ? 0 : now - (now % 86400000)
-        this.mode = Number(val)
-        this.$emit('view-data-hide')
-      }
     },
     actions () {
       return [
@@ -237,7 +222,7 @@ export default {
           label: 'Clear',
           icon: 'mdi-playlist-remove',
           handler: this.clearHandler,
-          condition: !!this.modeModel && !this.isEmptyMessages
+          condition: !this.isEmptyMessages
         }
       ]
     }
@@ -249,7 +234,7 @@ export default {
         update()
         return
       }
-      let entity = 'channels'
+      const entity = 'channels'
       this.itemsLoad(entity, update, this.active, () => { this.isItemsInit = true })
     },
     viewDataHandler (content) {
@@ -289,10 +274,9 @@ export default {
     },
     deletedHandler () {
       this.ratio = 100
-      this.mode = 0
     },
     init () {
-      let entity = 'channels',
+      const entity = 'channels',
         activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined),
         idFromRoute = this.$route.params && this.$route.params.id ? Number(this.$route.params.id) : null
       this.isInit = true
@@ -326,7 +310,7 @@ export default {
     },
     $route (route) {
       if (route.params && route.params.id) {
-        let id = Number(route.params.id)
+        const id = Number(route.params.id)
         if (this.itemsCollection[id]) {
           this.active = Number(route.params.id)
         } else if (this.isInit) {
@@ -337,7 +321,7 @@ export default {
       }
     },
     active (val) {
-      let currentItem = this.itemsCollection[val] || {}
+      const currentItem = this.itemsCollection[val] || {}
       if (val) {
         this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: 'channels' }, value: currentItem.id })
         this.$router.push(`/channels/${val}`).catch(err => err)

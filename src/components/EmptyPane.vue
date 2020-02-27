@@ -30,7 +30,7 @@
 <script>
 export default {
   name: 'EmptyPane',
-  props: [ 'config' ],
+  props: ['config'],
   data () {
     return {
       dialogModel: false

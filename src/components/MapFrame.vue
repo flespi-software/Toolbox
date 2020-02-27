@@ -46,7 +46,7 @@ export default {
   },
   computed: {
     mapStyles () {
-      let size = {}
+      const size = {}
       if (this.device) {
         size.width = `${this.width}px`
         size.height = `${this.height - (this.isMapMinimized || this.isMapMaximized ? 0 : this.headerMapHeight)}px`
@@ -107,7 +107,7 @@ export default {
       this.$refs.dragResize.top = 50
     },
     minimize (minimizeTo) {
-      let parentW = parseInt(this.$el.parentNode.clientWidth, 10),
+      const parentW = parseInt(this.$el.parentNode.clientWidth, 10),
         parentH = parseInt(this.$el.parentNode.clientHeight, 10)
       this.width = parentW * 0.34
       this.height = ((parentH - 50) * ((this.siblingHeight || 100) / 100))
@@ -128,7 +128,7 @@ export default {
       }
     },
     maximize () {
-      let parentW = parseInt(this.$el.parentNode.clientWidth, 10) - 1,
+      const parentW = parseInt(this.$el.parentNode.clientWidth, 10) - 1,
         parentH = parseInt(this.$el.parentNode.clientHeight, 10) - 4
       this.width = parentW
       this.height = parentH
@@ -223,7 +223,7 @@ export default {
     },
     clear () {
       this.lastCommand = null
-      this.sendCommand(`MapView|cmd:{"clear": "all"}`)
+      this.sendCommand('MapView|cmd:{"clear": "all"}')
     },
     sendCommand (command) {
       this.$refs.frame && command && this.$refs.frame.contentWindow.postMessage(command, '*')

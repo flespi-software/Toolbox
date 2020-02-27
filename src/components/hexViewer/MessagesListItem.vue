@@ -44,10 +44,10 @@ export default {
   },
   methods: {
     clickHandler (index, type, content) {
-      this.$emit(`action`, { index, type, content })
+      this.$emit('action', { index, type, content })
     },
     itemClickHandler (index, content, event) {
-      this.$emit(`item-click`, { index, content, event })
+      this.$emit('item-click', { index, content, event })
     }
   }
 }

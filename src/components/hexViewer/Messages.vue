@@ -46,7 +46,6 @@
           :class="{'bg-grey-9': true, 'text-white': true, 'cursor-pointer': true}"
           :size="itemHeight"
           :remain="itemsCount"
-          :debounce="10"
           wclass="q-w-list"
         >
           <component
@@ -117,14 +116,14 @@ export default {
         maxDate: (new Date()).setHours(23, 59, 59, 999),
         mode: 'single',
         locale: { firstDayOfWeek: 1 },
-        plugins: [ new ScrollPlugin() ]
+        plugins: [new ScrollPlugin()]
       },
       fromModel: this.from
     }
   },
   computed: {
     renderEntities () {
-      let entities = this.connection
+      const entities = this.connection
         ? this.currentMessages
         : this.currentConnections
       return entities
@@ -155,7 +154,7 @@ export default {
       async set (active) {
         await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active channel */
         this.$store.commit(`${this.moduleName}/setActive`, active)
-        let activeItem = this.$store.state.channels[active] || {}
+        const activeItem = this.$store.state.channels[active] || {}
         Vue.set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
         await this.$store.dispatch(`${this.moduleName}/getCols`)
         this.$store.commit(`${this.moduleName}/clearMessages`)
@@ -178,7 +177,7 @@ export default {
     },
     from: {
       get () {
-        let module = this.$store.state[this.moduleName],
+        const module = this.$store.state[this.moduleName],
           from = module.messages[0] && module.messages[0].timestamp ? Math.ceil(module.messages[0].timestamp * 1000) : Date.now()
         this.setFromModel(from)
         return from
@@ -199,7 +198,7 @@ export default {
       }
     },
     loadingFlag () {
-      let state = this.$store.state
+      const state = this.$store.state
       return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
     }
   },
@@ -212,7 +211,7 @@ export default {
       this.itemsCount = Math.ceil(this.wrapperHeight / this.itemHeight)
       this.$refs.scroller && this.$refs.scroller.forceRender()
       if (this.$refs.scroller && this.$refs.scroller.$el) {
-        let element = this.$refs.scroller.$el
+        const element = this.$refs.scroller.$el
         element.scrollTop += 1
       }
     },
@@ -240,7 +239,7 @@ export default {
       if ('incoming'.indexOf(this.filter) === 0 && message['proxy.source'] === 0) {
         return true
       } else if (/^target(\s){0,1}(\d){0,1}$/.test(this.filter) || 'target'.indexOf(this.filter) === 0) {
-        let target = parseInt(this.filter.split(' ')[1] || 0)
+        const target = parseInt(this.filter.split(' ')[1] || 0)
         return target ? message['proxy.source'] === target : !!message['proxy.source']
       } else { return false }
     },
@@ -252,20 +251,20 @@ export default {
         this.clearConnections()
         return false
       }
-      let cb = this.connection ? this.poolConnection : this.poolConnections
+      const cb = this.connection ? this.poolConnection : this.poolConnections
       messages.forEach(cb)
       if (this.connectionsByIndex.length > this.connectionsLimit) {
-        let ident = this.connectionsByIndex[0]
+        const ident = this.connectionsByIndex[0]
         delete this.connections[ident]
         this.connectionsByIndex.shift()
       }
     },
     poolConnections (message) {
-      let ident = message['ident']
+      const ident = message.ident
       if (!this.connections[ident]) {
         this.connections[ident] = {
           messages: [],
-          peer: message['peer'],
+          peer: message.peer,
           ident: ident
         }
         this.connectionsByIndex.push(ident)
@@ -273,7 +272,7 @@ export default {
       this.connections[ident].messages.push(message)
     },
     poolConnection (message) {
-      if (message['ident'] === this.connection['ident']) {
+      if (message.ident === this.connection.ident) {
         this.connection.messages.push(message)
       }
     },
@@ -336,7 +335,7 @@ export default {
           }
         } else if (event.ctrlKey) {
           if (this.selected.includes(index)) {
-            let selected = this.selected
+            const selected = this.selected
             selected.splice(this.selected.indexOf(index), 1)
             this.selected = selected
           } else {
@@ -358,14 +357,14 @@ export default {
         this.$q.notify({
           type: 'positive',
           icon: 'content_copy',
-          message: `Message copied`,
+          message: 'Message copied',
           timeout: 1000
         })
       }, (e) => {
         this.$q.notify({
           type: 'negative',
           icon: 'content_copy',
-          message: `Error coping messages`,
+          message: 'Error coping messages',
           timeout: 1000
         })
       })
