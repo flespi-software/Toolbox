@@ -2,11 +2,11 @@
   <div ref="wrapper">
     <q-resize-observer @resize="wrapperResizeHandler"/>
     <div>
-      <q-toolbar class="bg-grey-9" v-if="(Object.keys(connections).length && mode) || !mode || type === 'messages'">
+      <q-toolbar class="bg-grey-9" v-if="loadingFlag || (!loadingFlag && ((Object.keys(connections).length) || type === 'messages'))">
         <q-input v-model="filter" outlined hide-bottom-space rounded dense color="white" dark :placeholder="connection ? 'incoming or target *' : 'host:port'" :debounce="0" :style="{width: connection ? 'calc(100% - 50px)' : '100%'}">
           <q-icon slot="prepend" name="mdi-magnify" color="white" />
         </q-input>
-        <q-btn title="Clear all connections" class="on-left pull-right text-center text-white" flat dense v-if="mode && !connection" @click="clearHandler">
+        <q-btn title="Clear all connections" class="pull-right text-center text-white" flat dense v-if="!connection" @click="clearHandler">
           <q-icon size="1.5rem" color="white" name="mdi-playlist-remove"/>
           <div style="font-size: .7rem; line-height: .7rem;">Clear</div>
         </q-btn>
@@ -14,54 +14,55 @@
           <q-tooltip>Close current connection</q-tooltip>
         </q-btn>
       </q-toolbar>
-      <div class="flex flex-center" v-if="!mode && !connection" style="min-height: 50px;">
-        <q-btn flat :color="theme.color" style="max-width: 120px; font-size: .8rem; line-height: .8rem;" class="q-pa-sm" @click="$refs.datePickerModal.toggle()">
-          <div>{{formatDate(from)}}</div>
-        </q-btn>
-        <q-dialog ref="datePickerModal" content-class="modal-date">
-          <q-card class="bg-grey-9">
-            <q-card-section class="q-pa-none">
-              <div class="flex flex-center">
-                <vue-flat-pickr
-                  class="q-ma-sm"
-                  v-model="fromModel"
-                  :config="dateConfig"
-                  :theme="theme"
-                />
-              </div>
-            </q-card-section>
-            <q-separator />
-            <q-card-actions align="right">
-              <q-btn flat :color="theme.color" @click="datePickerModalClose">close</q-btn>
-              <q-btn flat :color="theme.color" @click="datePickerModalSave">save</q-btn>
-            </q-card-actions>
-          </q-card>
-        </q-dialog>
+      <date-range-modal
+        v-if="!connection"
+        class="flex flex-center"
+        :date="dateRange"
+        :theme="theme"
+        @save="dateRangeChangeHandler"
+      />
+      <div v-if="loadingFlag && !connection && itemsCount > 0" class="absolute-bottom-right absolute-top-left" style="overflow: hidden;">
+        <connection-skeleton v-for="(_, index) in new Array(itemsCount).fill('')" :key="index"/>
       </div>
-      <template v-if="messages.length && Object.keys(renderEntities).length">
+      <template v-else-if="!loadingFlag && messages.length">
         <VirtualList
           :onscroll="listScroll"
           ref="scroller"
-          :style="{position: 'absolute', top: mode || connection ? '50px' : '100px', bottom: mode ? 0 : '36px', right: 0, left: 0, height: 'auto'}"
+          :style="{position: 'absolute', top: connection ? '50px' : '100px', bottom: 0, right: 0, left: 0, height: 'auto'}"
           :class="{'bg-grey-9': true, 'text-white': true, 'cursor-pointer': true}"
           :size="itemHeight"
           :remain="itemsCount"
           wclass="q-w-list"
         >
-          <component
-            :is="`${type}-list-item`"
-            v-for="(item, index) in renderEntities"
-            :key="`${type}-${index}`"
-            :item="item"
-            :index="index"
-            :actions="actions"
-            :itemHeight="itemHeight"
-            :selected="selected.includes(index)"
-            @action="actionHandler"
-            @item-click="itemClickHandler"
-          />
+          <template v-if="type === 'connections'">
+            <connections-list-item
+              v-for="(item, index) in currentConnections"
+              :key="item.peer"
+              :class="{'connection--visited': visitedConnections.includes(item.peer), [`connection__${index}`]: true}"
+              :item="item"
+              :index="index"
+              :count="item.messages.length"
+              :itemHeight="itemHeight"
+              @item-click="connectionClickHandler"
+              @mouseenter.native="previewConnectionHandler(item)"
+              @mouseleave.native="previewConnectionCloseHandler(item)"
+            />
+          </template>
+          <template v-else>
+            <messages-list-item
+              v-for="(item, index) in currentMessages"
+              :key="index"
+              :item="item"
+              :index="index"
+              :actions="actions"
+              :itemHeight="itemHeight"
+              :selected="selected.includes(index)"
+              :view="view"
+              @action="actionHandler"
+              @item-click="messageClickHandler"
+            />
+          </template>
         </VirtualList>
-        <q-btn v-if="!mode" color="grey-9" style="position: absolute; bottom: 0; width: 100%;" class="text-white" icon="mdi-download" @click="paginationNextChangeHandler">Get more</q-btn>
       </template>
       <empty-pane v-else :config="config.emptyState"/>
     </div>
@@ -69,65 +70,47 @@
 </template>
 
 <script>
-import { channelsMessagesModulePull } from 'qvirtualscroll'
+import { DateRangeModal } from 'qvirtualscroll'
+import channelsMessagesModuleSerial from 'qvirtualscroll/src/store/modules/channelsMessagesSerial/index'
 import VirtualList from 'vue-virtual-scroll-list'
-import { VueFlatPickr } from 'datetimerangepicker'
-import ScrollPlugin from 'flatpickr/dist/plugins/scrollPlugin'
 import Vue from 'vue'
-import { date, copyToClipboard } from 'quasar'
+import { copyToClipboard } from 'quasar'
 import filterMessages from '../../mixins/filterMessages'
 import MessagesListItem from './MessagesListItem.vue'
 import ConnectionsListItem from './ConnectionsListItem.vue'
 import EmptyPane from '../EmptyPane'
+import ConnectionSkeleton from './ConnectionSkeleton'
 import range from 'lodash/range'
 
 export default {
   props: [
-    'mode',
     'activeId',
     'connection',
     'limit',
     'config',
-    'type'
+    'type',
+    'view'
   ],
   data () {
     return {
       theme: this.config.theme,
-      i18n: {},
       viewConfig: this.config.viewConfig,
       actions: this.config.actions,
       moduleName: this.config.vuexModuleName,
       itemHeight: 56,
       itemsCount: 0,
       wrapperHeight: 0,
-      needAutoScroll: !!this.mode,
+      needAutoScroll: true,
       connections: {},
       connectionsByIndex: [],
       selected: [],
       filter: '',
       connectionsFilter: '',
-      messagesPerConnectionLimit: 10000,
-      connectionsLimit: 100,
       scrollerScrollTop: 0,
-      dateConfig: {
-        enableTime: true,
-        time_24hr: true,
-        inline: true,
-        maxDate: (new Date()).setHours(23, 59, 59, 999),
-        mode: 'single',
-        locale: { firstDayOfWeek: 1 },
-        plugins: [new ScrollPlugin()]
-      },
-      fromModel: this.from
+      visitedConnections: []
     }
   },
   computed: {
-    renderEntities () {
-      const entities = this.connection
-        ? this.currentMessages
-        : this.currentConnections
-      return entities
-    },
     currentConnections () {
       return this.filter ? this.connectionsByIndex.reduce((res, connectionId) => {
         if (this.connections[connectionId].peer.indexOf(this.filter) !== -1) {
@@ -151,50 +134,51 @@ export default {
       get () {
         return this.$store.state[this.moduleName].active
       },
-      async set (active) {
-        await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active channel */
-        this.$store.commit(`${this.moduleName}/setActive`, active)
-        const activeItem = this.$store.state.channels[active] || {}
+      async set (id) {
+        if (this.realtimeEnabled) {
+          await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
+        }
+        this.$store.commit(`${this.moduleName}/setActive`, id)
+        const activeItem = this.$store.state.channels[id] || {}
         Vue.set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
-        await this.$store.dispatch(`${this.moduleName}/getCols`)
         this.$store.commit(`${this.moduleName}/clearMessages`)
+        await this.$store.dispatch(`${this.moduleName}/initTime`)
         this.clearSelected()
-        switch (this.mode) {
-          case 0: {
-            if (active) {
-              this.getMessages()
-            }
-            break
-          }
-          case 1: {
-            if (active) {
-              this.$store.dispatch(`${this.moduleName}/pollingGet`)
-            }
-            break
-          }
+        await this.$store.dispatch(`${this.moduleName}/get`)
+        if (this.to > Date.now()) {
+          const render = await this.$store.dispatch(`${this.moduleName}/pollingGet`)
+          render()
         }
       }
     },
+    dateRange () {
+      return [this.$store.state[this.moduleName].from, this.$store.state[this.moduleName].to]
+    },
     from: {
       get () {
-        const module = this.$store.state[this.moduleName],
-          from = module.messages[0] && module.messages[0].timestamp ? Math.ceil(module.messages[0].timestamp * 1000) : Date.now()
-        this.setFromModel(from)
-        return from
+        return this.$store.state[this.moduleName].from
       },
       set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setFrom`, Math.ceil(new Date(val).setSeconds(0) / 1000)) : this.$store.commit(`${this.moduleName}/setFrom`, 0)
-        this.$store.commit(`${this.moduleName}/clearMessages`)
-        this.clearConnections()
-        this.getMessages()
+        val ? this.$store.commit(`${this.moduleName}/setFrom`, val) : this.$store.commit(`${this.moduleName}/setFrom`, 0)
       }
+    },
+    to: {
+      get () {
+        return this.$store.state[this.moduleName].to
+      },
+      set (val) {
+        val ? this.$store.commit(`${this.moduleName}/setTo`, val) : this.$store.commit(`${this.moduleName}/setTo`, 0)
+      }
+    },
+    realtimeEnabled () {
+      return this.$store.state[this.moduleName].realtimeEnabled
     },
     currentLimit: {
       get () {
         return this.$store.state[this.moduleName].limit
       },
       set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setLimit`, val) : this.$store.commit(`${this.moduleName}/setLimit`, 1000)
+        val ? this.$store.commit(`${this.moduleName}/setLimit`, val) : this.$store.commit(`${this.moduleName}/setLimit`, 0)
       }
     },
     loadingFlag () {
@@ -229,7 +213,7 @@ export default {
       if (this.messages.length) {
         if (data.offset < this.currentScrollTop && this.needAutoScroll) {
           this.needAutoScroll = false
-        } else if (!this.needAutoScroll && this.mode === 1 && data.offset >= this.allScrollTop) {
+        } else if (!this.needAutoScroll && this.realtimeEnabled && data.offset >= this.allScrollTop) {
           this.needAutoScroll = true
         }
         this.currentScrollTop = data.offset
@@ -243,9 +227,6 @@ export default {
         return target ? message['proxy.source'] === target : !!message['proxy.source']
       } else { return false }
     },
-    setTranslation (messages) {
-      this.i18n.to = messages.length ? `Next batch from ${date.formatDate(this.from * 1000, 'HH:mm:ss')}` : 'Next'
-    },
     newMessagesInterseptor (messages) {
       if (!messages.length) {
         this.clearConnections()
@@ -253,11 +234,6 @@ export default {
       }
       const cb = this.connection ? this.poolConnection : this.poolConnections
       messages.forEach(cb)
-      if (this.connectionsByIndex.length > this.connectionsLimit) {
-        const ident = this.connectionsByIndex[0]
-        delete this.connections[ident]
-        this.connectionsByIndex.shift()
-      }
     },
     poolConnections (message) {
       const ident = message.ident
@@ -276,34 +252,25 @@ export default {
         this.connection.messages.push(message)
       }
     },
-    getMessages () {
-      return this.$store.dispatch(`${this.moduleName}/get`)
-    },
-    modeChange (val) {
-      val = +val
-      this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active channel */
-      this.$store.commit(`${this.moduleName}/clearMessages`)
-      this.$store.commit(`${this.moduleName}/setMode`, val)
-      this.needAutoScroll = !!val
-      this.clearSelected()
-      switch (val) {
-        case 0: {
-          if (this.active) {
-            this.getMessages()
-          }
-          break
-        }
-        case 1: {
-          if (this.active) {
-            this.$store.dispatch(`${this.moduleName}/pollingGet`)
-          }
-          break
-        }
+    // getMessages () {
+    //   return this.$store.dispatch(`${this.moduleName}/get`)
+    // },
+    dateRangeChangeHandler (range) {
+      const from = range[0],
+        to = range[1]
+      if (this.from === from && this.to === to) { return false }
+      this.from = from
+      this.to = to
+      if (this.realtimeEnabled) {
+        this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
       }
-    },
-    paginationNextChangeHandler () {
-      this.$store.commit(`${this.moduleName}/setFrom`, this.$store.state[this.moduleName].to)
-      this.getMessages()
+      this.$store.commit(`${this.moduleName}/clearMessages`)
+      this.$store.dispatch(`${this.moduleName}/get`)
+        .then(() => {
+          if (to > Date.now()) {
+            this.$store.dispatch(`${this.moduleName}/pollingGet`).then(r => r())
+          }
+        })
     },
     actionHandler ({ index, type, content }) {
       switch (type) {
@@ -321,36 +288,43 @@ export default {
       this.selected = [index]
       this.$eventBus.$emit('view-data', content)
     },
-    itemClickHandler ({ index, content, event }) {
-      if (this.type === 'messages') {
-        if (event.shiftKey) {
-          if (this.selected[0]) {
-            if (this.selected[0] > index) {
-              this.selected = range(index, this.selected[0] + 1)
-            } else {
-              this.selected = range(this.selected[0], index + 1)
-            }
+    connectionClickHandler ({ index, content, event }) {
+      if (this.$refs.scroller && this.$refs.scroller.$el) {
+        this.scrollerScrollTop = this.$refs.scroller.$el.scrollTop
+      }
+      this.visitedConnections.push(content.peer)
+      this.$emit('change:connection', content)
+    },
+    messageClickHandler ({ index, content, event }) {
+      if (event.shiftKey) {
+        if (this.selected[0]) {
+          if (this.selected[0] > index) {
+            this.selected = range(index, this.selected[0] + 1)
           } else {
-            this.selected = [index]
-          }
-        } else if (event.ctrlKey) {
-          if (this.selected.includes(index)) {
-            const selected = this.selected
-            selected.splice(this.selected.indexOf(index), 1)
-            this.selected = selected
-          } else {
-            this.selected = [...this.selected, index]
+            this.selected = range(this.selected[0], index + 1)
           }
         } else {
           this.selected = [index]
         }
-        this.$emit('view-data', this.connection.messages.filter((message, index) => this.selected.includes(index)))
-      } else if (this.type === 'connections') {
-        if (this.$refs.scroller && this.$refs.scroller.$el) {
-          this.scrollerScrollTop = this.$refs.scroller.$el.scrollTop
+      } else if (event.ctrlKey) {
+        if (this.selected.includes(index)) {
+          const selected = this.selected
+          selected.splice(this.selected.indexOf(index), 1)
+          this.selected = selected
+        } else {
+          this.selected = [...this.selected, index]
         }
-        this.$emit('change:connection', content)
+      } else {
+        this.selected = [index]
       }
+      if (this.needAutoScroll) { this.needAutoScroll = false }
+      this.$emit('view-data', this.connection.messages.filter((message, index) => this.selected.includes(index)))
+    },
+    previewConnectionHandler (connection) {
+      this.$emit('connection:preview', connection)
+    },
+    previewConnectionCloseHandler (connection) {
+      this.$emit('connection:preview-hide', connection)
     },
     copyMessageHandler ({ index, content }) {
       copyToClipboard(JSON.stringify(content)).then((e) => {
@@ -394,29 +368,11 @@ export default {
         cancel: true
       }).onOk(() => { this.$store.commit(`${this.moduleName}/clearMessages`) })
         .onCancel(() => {})
-    },
-    setFromModel (from) {
-      this.fromModel = from
-    },
-    formatDate (timestamp) {
-      return date.formatDate(timestamp, 'DD/MM/YYYY HH:mm:ss')
-    },
-    datePickerModalClose () {
-      this.fromModel = this.from
-      this.$refs.datePickerModal.hide()
-    },
-    datePickerModalSave () {
-      this.from = this.fromModel
-      this.$refs.datePickerModal.hide()
     }
   },
   watch: {
     activeId (val) {
       this.active = val
-    },
-    mode (mode) {
-      this.filter = ''
-      this.modeChange(mode)
     },
     limit (limit) {
       this.currentLimit = limit
@@ -438,7 +394,7 @@ export default {
     if (!this.$store.state[this.moduleName]) {
       this.$store.registerModule(
         this.moduleName,
-        channelsMessagesModulePull(
+        channelsMessagesModuleSerial(
           {
             Vue,
             LocalStorage: this.$q.localStorage,
@@ -452,19 +408,14 @@ export default {
     }
     this.currentLimit = this.limit
     if (this.activeId) {
-      this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
-    }
-    if (this.$store.state[this.moduleName].mode === null) {
-      this.modeChange(this.mode)
+      this.active = this.activeId
     }
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
-      if (this.mode === 1) {
-        this.$store.commit(`${this.moduleName}/setOffline`, this.mode === 1)
-      }
+      this.$store.commit(`${this.moduleName}/setOffline`, this.realtimeEnabled)
     })
     this.connectHandler = Vue.connector.socket.on('connect', () => {
       if (this.$store.state[this.moduleName].offline) {
-        this.$store.commit(`${this.moduleName}/setReconnected`, this.mode === 1)
+        this.$store.commit(`${this.moduleName}/setReconnected`, this.realtimeEnabled)
       }
     })
   },
@@ -486,22 +437,13 @@ export default {
     this.$store.unregisterModule(this.moduleName)
   },
   mixins: [filterMessages],
-  components: { MessagesListItem, VirtualList, ConnectionsListItem, VueFlatPickr, EmptyPane }
+  components: { MessagesListItem, VirtualList, ConnectionsListItem, EmptyPane, DateRangeModal, ConnectionSkeleton }
 }
 </script>
 
 <style lang="stylus">
-.vsl-date
-  display inline-flex
-  max-width 105px
-  .row .col
-    font-size 13px
-    white-space inherit
-    text-align center
-    line-height 15px
-  i
-    display none
-.modal-date
-  .q-dialog__inner--minimized
-    padding 6px
+  .connection--visited
+    .connection__peer
+      text-decoration underline
+      color $purple-5!important
 </style>

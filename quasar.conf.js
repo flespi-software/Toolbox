@@ -1,10 +1,6 @@
 // Configuration for your app
 // https://quasar.dev/quasar-cli/quasar-conf-js
-const webpack = require('webpack'),
-  serverAliases = {
-    'local': '',
-    'flespi': 'https://flespi.io'
-  }
+const webpack = require('webpack')
 module.exports = function (ctx) {
   return {
     // app boot file (/src/boot)
@@ -79,7 +75,10 @@ module.exports = function (ctx) {
         'QBtnToggle',
         'QCard',
         'QCardSection',
-        'QCardActions'
+        'QCardActions',
+        'QChatMessage',
+        'QTimeline',
+        'QTimelineEntry'
       ],
 
       directives: [
@@ -128,9 +127,8 @@ module.exports = function (ctx) {
         })
         cfg.plugins.push(
           new webpack.DefinePlugin({
-            'SERVER': JSON.stringify(serverAliases[process.env.FLESPI_SERVER]),
-            'DEV': process.env.NODE_ENV === 'development',
-            'PROD': process.env.NODE_ENV === 'production'
+            DEV: process.env.NODE_ENV === 'development',
+            PROD: process.env.NODE_ENV === 'production'
           })
         )
       }
@@ -177,34 +175,34 @@ module.exports = function (ctx) {
         theme_color: '#333333',
         icons: [
           {
-            'src': 'statics/icons/icon-128x128.png',
-            'sizes': '128x128',
-            'type': 'image/png'
+            src: 'statics/icons/icon-128x128.png',
+            sizes: '128x128',
+            type: 'image/png'
           },
           {
-            'src': 'statics/icons/ms-icon-144x144.png',
-            'sizes': '144x144',
-            'type': 'image/png'
+            src: 'statics/icons/ms-icon-144x144.png',
+            sizes: '144x144',
+            type: 'image/png'
           },
           {
-            'src': 'statics/icons/apple-icon-152x152.png',
-            'sizes': '152x152',
-            'type': 'image/png'
+            src: 'statics/icons/apple-icon-152x152.png',
+            sizes: '152x152',
+            type: 'image/png'
           },
           {
-            'src': 'statics/icons/icon-192x192.png',
-            'sizes': '192x192',
-            'type': 'image/png'
+            src: 'statics/icons/icon-192x192.png',
+            sizes: '192x192',
+            type: 'image/png'
           },
           {
-            'src': 'statics/icons/icon-384x384.png',
-            'sizes': '384x384',
-            'type': 'image/png'
+            src: 'statics/icons/icon-384x384.png',
+            sizes: '384x384',
+            type: 'image/png'
           },
           {
-            'src': 'statics/icons/icon-512x512.png',
-            'sizes': '512x512',
-            'type': 'image/png'
+            src: 'statics/icons/icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png'
           }
         ]
       }

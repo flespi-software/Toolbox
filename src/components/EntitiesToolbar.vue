@@ -71,7 +71,7 @@ export default {
   },
   computed: {
     hasActiveActions () {
-      return (!this.item.deleted && this.ratio !== undefined) || this.actions.reduce((res, action) => res || (action && action.condition), false)
+      return (!this.item.deleted && this.ratio !== undefined) || (this.actions && this.actions.reduce((res, action) => res || (action && action.condition), false))
     }
   },
   methods: {

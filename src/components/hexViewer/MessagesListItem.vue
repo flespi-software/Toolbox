@@ -1,17 +1,17 @@
 <template>
-  <q-item :class="[`${selected ? 'bg-grey-10' : ''}`]" clickable @click="(event) => { itemClickHandler(index, item, event) }">
+  <q-item :class="[`${selected ? 'bg-grey-8' : ''}`]" clickable @click="(event) => { itemClickHandler(index, item, event) }">
     <q-tooltip>{{eventsDesc[item['proxy.event']]}}</q-tooltip>
     <q-item-section v-if="actions" side class="q-pr-none">
-      <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
+      <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon" :color="selected ? 'grey-5' : ''">
         <q-tooltip>{{action.label}}</q-tooltip>
       </q-icon>
     </q-item-section>
     <q-item-section>
-      <q-item-label header class="ellipsis overflow-hidden q-pa-none" :class="[`text-${eventsColors[item['proxy.event']]}-4`]">{{date.formatDate(item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}}</q-item-label>
-      <q-item-label v-if="item['proxy.payload.size']" caption class="ellipsis overflow-hidden text-grey-5">{{`${item['proxy.payload.size']} B : `}}<small>{{item['proxy.payload.hex']}}</small></q-item-label>
+      <q-item-label header class="ellipsis overflow-hidden q-pa-none" :class="[`text-${eventsColors[item['proxy.event']]}-${selected ? 3 : 4}`]">{{date.formatDate(item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}}</q-item-label>
+      <q-item-label v-if="item['proxy.payload.size']" caption class="ellipsis overflow-hidden text-grey-5">{{`${item['proxy.payload.size']} B : `}}<small>{{dataPreview}}</small></q-item-label>
     </q-item-section>
     <q-item-section side class="">
-      <small>{{item['proxy.source'] === 0 ? 'incoming' : `target ${item['proxy.source']}`}}</small><q-icon class="q-ml-xs" :color="item['proxy.source'] === 0 ? 'green' : 'yellow'" :name="item['proxy.source'] === 0 ? 'mdi-arrow-right-thick' : item['proxy.event'] === 1 ? 'mdi-arrow-right-thick' : 'mdi-arrow-left-thick'"/>
+      <small :class="[`text-grey-${selected ? 5 : 7}`]">{{item['proxy.source'] === 0 ? 'incoming' : `target ${item['proxy.source']}`}}</small><q-icon class="q-ml-xs" :color="item['proxy.source'] === 0 ? 'green' : 'yellow'" :name="item['proxy.source'] === 0 ? 'mdi-arrow-right-thick' : item['proxy.event'] === 1 ? 'mdi-arrow-right-thick' : 'mdi-arrow-left-thick'"/>
     </q-item-section>
   </q-item>
 </template>
@@ -25,7 +25,8 @@ export default {
     'index',
     'actions',
     'itemHeight',
-    'selected'
+    'selected',
+    'view'
   ],
   data () {
     return {
@@ -40,6 +41,16 @@ export default {
         1: 'Connect',
         2: 'Disconnect'
       }
+    }
+  },
+  computed: {
+    dataPreview () {
+      let preview = this.item['proxy.payload.hex']
+      if (this.view === 'text') {
+        const bytesHexArray = preview.match(/.{1,2}/g)
+        preview = bytesHexArray.map((byte) => String.fromCharCode(parseInt(byte, 16))).join('')
+      }
+      return preview
     }
   },
   methods: {

@@ -1,9 +1,6 @@
 <template>
   <q-page>
-    <entities-toolbar
-      :item="selectedItem" :mode="modeModel"
-      @change:mode="mode => modeModel = mode"
-    >
+    <entities-toolbar :item="selectedItem">
       <div class="flex" :class="{'middle-modificator': !active}" slot="selects">
         <div style="display: inline-flex;max-width: calc(100% - 80px);">
           <q-select
@@ -17,12 +14,12 @@
             dark hide-bottom-space dense color="white"
             :disable="!isNeedSelect"
             :hide-dropdown-icon="!isNeedSelect"
-            :virtual-scroll-item-size="60"
+            :virtual-scroll-item-size="48"
             :virtual-scroll-slice-size="6"
             :virtual-scroll-sticky-size-start="48"
             :virtual-scroll-sticky-size-end="needShowGetDeletedAction && tokenType === 1 ? 29 : 0"
             popup-content-class="items__popup"
-            :popup-content-style="{height: `${((filteredItems.length > 6 ? 6 : filteredItems.length) * 60) + (needShowGetDeletedAction && tokenType === 1 ? 77 : 48)}px`}"
+            :popup-content-style="{height: `${((filteredItems.length > 6 ? 6 : filteredItems.length) * 48) + (needShowGetDeletedAction && tokenType === 1 ? 77 : 48)}px`}"
             @filter="filterItems"
           >
             <div slot="before-options" class="bg-dark q-pa-xs select__filter">
@@ -92,16 +89,18 @@
       <messages
         v-show="$q.platform.is.desktop || ($q.platform.is.mobile && !selectedMessages)"
         ref="messages"
-        :mode="mode"
         :activeId="active"
-        :limit="limit"
+        :limit="0"
         :config="config.messages"
         :connection="activeConnection"
         :type="activeConnection ? 'messages' : 'connections'"
-        :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', width: $q.platform.is.desktop ? '25%' : '100%'}"
+        :view="typeOfHexView"
+        :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', width: $q.platform.is.desktop ? '25%' : '100%', minWidth: '180px'}"
         @view-data="(content) => { selectedMessages = content }"
         @change:connection="content => { activeConnection = content }"
         @close="() => { activeConnection = null, selectedMessages = '' }"
+        @connection:preview="connection => connectionPreview = connection"
+        @connection:preview-hide="connection => connectionPreview = null"
       />
       <div v-show="$q.platform.is.desktop || ($q.platform.is.mobile && selectedMessages)" :style="{width: $q.platform.is.desktop ? '75%' : '100%'}">
         <q-toolbar class="bg-grey-9" v-if="activeConnection">
@@ -110,7 +109,7 @@
             <div class="text-white">{{activeConnection.peer}}</div>
             <div class="text-white" style="font-size: .7rem;">{{activeConnection.ident}}</div>
           </q-toolbar-title>
-          <q-btn color="white" flat style="margin-right: 10px" :icon="typeOfHexView === 'hex' ? 'mdi-matrix' : 'mdi-format-text'" @click="typeOfHexView = typeOfHexView === 'hex' ? 'text' : 'hex'">
+          <q-btn color="white" flat dense :icon="typeOfHexView === 'hex' ? 'mdi-matrix' : 'mdi-format-text'" @click="typeOfHexView = typeOfHexView === 'hex' ? 'text' : 'hex'">
             <q-tooltip>Change view mode (hex/text)</q-tooltip>
           </q-btn>
         </q-toolbar>
@@ -120,7 +119,18 @@
           :hex="hex"
           :view="typeOfHexView"
         />
-        <div style="text-align: center; color: #9e9e9e; font-size: 3rem; padding-top: 40px;" v-else>Select connection</div>
+        <div v-else-if="$q.platform.is.desktop && connectionPreview" class="q-pa-md" style="overflow: hidden; max-height: calc(100vh - 100px);">
+          <q-timeline layout="loose" color="white" dark>
+            <message-preview-item v-for="(message, index) in connectionPreview.messages.slice(0, 20)" :key="index" :message="message" :view="typeOfHexView"/>
+          </q-timeline>
+        </div>
+        <div style="text-align: center; color: #9e9e9e; font-size: 3rem; padding-top: 40px;" v-else>
+          <div>Select connection</div>
+          <q-icon name="mdi-arrow-down-bold-outline" size="3rem"/>
+          <div>Find message</div>
+          <q-icon name="mdi-arrow-down-bold-outline" size="3rem"/>
+          <div>Analyze data</div>
+        </div>
       </div>
     </div>
     <div v-if="!items.length && isItemsInit" class="text-center text-grey-3 q-mt-lg" style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Proxy channels not found'}}</div>
@@ -130,6 +140,7 @@
 
 <script>
 import messages from '../../components/hexViewer/Messages'
+import MessagePreviewItem from '../../components/hexViewer/MessagePreviewItem'
 import HexViewer from '../../components/hexViewer/HexViewer'
 import EntitiesToolbar from '../../components/EntitiesToolbar'
 import { mapState, mapActions } from 'vuex'
@@ -149,7 +160,6 @@ export default {
   mixins: [init],
   data () {
     return {
-      mode: 1,
       active: null,
       activeConnection: null,
       isInit: false,
@@ -158,7 +168,8 @@ export default {
       selectedMessages: '',
       typeOfHexView: 'hex',
       left: true,
-      filter: ''
+      filter: '',
+      connectionPreview: null
     }
   },
   computed: {
@@ -219,19 +230,6 @@ export default {
         }, '')
       }
       return false
-    },
-    modeModel: {
-      get () {
-        return !!this.mode
-      },
-      set (val) {
-        const now = Date.now()
-        this.date = val ? 0 : now - (now % 86400000)
-        this.mode = Number(val)
-        this.activeConnection = null
-        this.selectedMessages = ''
-        this.$emit('view-data-hide')
-      }
     }
   },
   methods: {
@@ -268,10 +266,6 @@ export default {
       } else if (activeFromLocaleStorage && this.items.filter(item => item.id === activeFromLocaleStorage).length) {
         this.active = activeFromLocaleStorage
       }
-      // deleted item logic
-      if (this.selectedItem && this.selectedItem.deleted) {
-        this.mode = 0
-      }
       this.$emit('inited')
     }
   },
@@ -297,12 +291,9 @@ export default {
       } else {
         this.$router.push('/tools/hex').catch(err => err)
       }
-      if (currentItem.deleted) {
-        this.mode = 0
-      }
     }
   },
-  components: { messages, HexViewer, EntitiesToolbar }
+  components: { messages, HexViewer, EntitiesToolbar, MessagePreviewItem }
 }
 </script>
 <style lang="stylus">

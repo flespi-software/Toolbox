@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.1.0] - 2020-03-05
+[rebased] hex-viewer
+### [1.0.0] - 2020-02-27
+[feature] modes removed
 ### [0.22.7] - 2020-02-11
 [fix] login to new locales
 ### [0.22.6] - 2020-02-06

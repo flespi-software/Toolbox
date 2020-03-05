@@ -75,7 +75,7 @@ export default {
         this.$store.commit(`${this.moduleName}/clearMessages`)
         await this.$store.dispatch(`${this.moduleName}/getCols`, { actions: true, etc: false })
         await this.$store.dispatch(`${this.moduleName}/initTime`)
-        await this.$store.dispatch(`${this.moduleName}/get`)
+        await this.getMessages()
       }
     },
     cols: {
@@ -156,6 +156,14 @@ export default {
       data.on.action = this.actionHandler
       data.on['item-click'] = this.itemClickHandler
     },
+    async getMessages () {
+      if (this.to <= Date.now()) {
+        await this.$store.dispatch(`${this.moduleName}/get`)
+      } else {
+        await this.$store.dispatch(`${this.moduleName}/getHistory`, 1000)
+        this.$refs.scrollList.scrollTo(this.messages.length - 1)
+      }
+    },
     resetParams () {
       this.$refs.scrollList.resetParams()
     },
@@ -163,7 +171,7 @@ export default {
       if (this.filter !== val) {
         this.filter = val
         this.$store.commit(`${this.moduleName}/clearMessages`)
-        this.$store.dispatch(`${this.moduleName}/get`)
+        this.getMessages()
       }
     },
     updateColsHandler (cols) {
@@ -176,7 +184,7 @@ export default {
       this.from = from
       this.to = to
       this.$store.commit(`${this.moduleName}/clearMessages`)
-      this.$store.dispatch(`${this.moduleName}/get`)
+      this.getMessages()
     },
     paginationPrevChangeHandler () {
       this.$store.dispatch(`${this.moduleName}/getPrevPage`)
