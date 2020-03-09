@@ -374,6 +374,7 @@ export default {
     border 1px solid white
     box-shadow 3px 3px 10px #999
   .map-component__wrapper
+    z-index: 1!important
     .map-component__custom-controls
       position absolute
       top 4px

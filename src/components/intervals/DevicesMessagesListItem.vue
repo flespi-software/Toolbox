@@ -4,8 +4,8 @@
       v-if="!item['__connectionStatus']"
       @click="itemClickHandler(index, clearItem)"
       class="cursor-pointer"
-      :class="[item['x-flespi-status'] ? 'missed-items' : '', highlighted ? 'bg-purple-9' : '']"
-      :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, backgroundColor: selected ? 'rgba(255,255,255,0.7)': '', color: selected && !highlighted ? '#333' : ''}"
+      :class="[item['x-flespi-status'] ? 'missed-items' : '', highlighted ? 'bg-purple-9' : '', selected ? 'bg-white-opasity' : highlightLevel ? `text-${highlightType}-${highlightLevel}` : '']"
+      :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, color: selected ? '#333' : ''}"
     >
       <template v-for="(prop, k) in cols">
         <span class="list__item item_actions" :class="{[`item_${k}`]: true}" v-if="prop.__dest === 'action'" :key="prop.name + k">
@@ -63,7 +63,30 @@ export default {
     'highlighted'
   ],
   data () {
+    let highlightLevel = 0,
+      highlightType = ''
+    if (this.item.timestamp < this.item['server.timestamp'] - 1800) { // >30min
+      highlightType = 'orange'
+      highlightLevel = 10
+    } else if (this.item.timestamp < this.item['server.timestamp'] - 600) { // 10-30min
+      highlightType = 'orange'
+      highlightLevel = 7
+    } else if (this.item.timestamp < this.item['server.timestamp'] - 120) { // 2-10min
+      highlightType = 'orange'
+      highlightLevel = 4
+    } else if (this.item.timestamp - 1 > this.item['server.timestamp']) { // < 1sec-1min
+      highlightType = 'grey'
+      highlightLevel = 6
+    } else if (this.item.timestamp - 60 > this.item['server.timestamp']) { // 1-30min
+      highlightType = 'grey'
+      highlightLevel = 8
+    } else if (this.item.timestamp - 1800 > this.item['server.timestamp']) { // >30min
+      highlightType = 'grey'
+      highlightLevel = 10
+    }
     return {
+      highlightType,
+      highlightLevel,
       date: date
     }
   },
@@ -73,9 +96,6 @@ export default {
       if (this.cols.length) {
         vals = this.cols.reduce((res, col, index, arr) => {
           res[col.name] = { value: null }
-          if (col.type) {
-            res[col.name].type = col.type
-          }
           if (index === arr.length - 1) {
             res.etc = { value: '' }
           }
@@ -104,7 +124,7 @@ export default {
           }
         } else if (vals[propName]) {
           let value = this.item[propName]
-          if (propName.match(/timestamp$/) || propName === 'begin' || propName === 'end') {
+          if (propName.match(/timestamp$/)) {
             value = date.formatDate(value * 1000, 'DD/MM/YYYY HH:mm:ss')
           }
           if (propName.indexOf('image.bin.') !== -1) {
@@ -116,6 +136,7 @@ export default {
             vals[propName].value = JSON.stringify(value)
           }
         } else {
+          if (propName.indexOf('x-flespi') !== -1) { return false }
           if (propName.indexOf('image.bin.') !== -1) {
             vals.etc.value += `${propName}: <binary image>`
           } else {
@@ -150,6 +171,9 @@ export default {
     },
     clearItem () {
       return Object.keys(this.item).reduce((result, key) => {
+        if (key.indexOf('x-flespi') !== -1) {
+          return result
+        }
         result[key] = this.item[key]
         return result
       }, {})
@@ -167,7 +191,8 @@ export default {
 </script>
 
 <style lang="stylus">
-  .list__item
+  .bg-white-opasity
+    background-color rgba(255, 255, 255, .7)!important
     display inline-block
     white-space nowrap
     margin 0 10px 0 5px

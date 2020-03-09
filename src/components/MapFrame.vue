@@ -274,6 +274,7 @@ export default {
 
 <style lang="stylus">
   .map-component__wrapper
+    z-index 1!important
     .map-component__custom-controls
       position absolute
       top 4px

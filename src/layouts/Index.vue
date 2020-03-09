@@ -285,13 +285,14 @@ export default {
           break
         }
         case 'intervals': {
-          config = this.configByEntity.intervals
+          config = this.configByEntity.intervals.devicesMessages
         }
       }
       return config
     },
     logsColsByEntity: {
       get () {
+        if (this.entity === 'intervals') { return this.$store.state[this.configByEntity.intervals.vuexModuleName].cols }
         if (!this.configByEntity.logs) { return [] }
         const moduleName = this.configByEntity.logs.vuexModuleName
         let cols = []
@@ -301,7 +302,8 @@ export default {
         return cols
       },
       set (cols) {
-        const moduleName = this.configByEntity.logs.vuexModuleName
+        let moduleName = this.configByEntity.logs.vuexModuleName
+        if (this.entity === 'intervals') { moduleName = this.configByEntity.intervals.vuexModuleName }
         this.$store.commit(`${moduleName}/updateCols`, cols)
       }
     },
@@ -633,6 +635,7 @@ export default {
         moduleName = this.messagesConfigByEntity.vuexModuleName
       } else if (this.colsEditing === 'logs') {
         moduleName = this.configByEntity.logs.vuexModuleName
+        if (this.entity === 'intervals') { moduleName = this.configByEntity.intervals.vuexModuleName }
       }
       this.$store.commit(`${moduleName}/setDefaultCols`)
     }

@@ -383,7 +383,7 @@ export default {
         },
         {
           icon: 'mdi-map',
-          label: 'on map',
+          label: 'show on map',
           classes: '',
           type: 'map'
         }
@@ -397,6 +397,38 @@ export default {
         bgColor: 'grey-9',
         contentInverted: true,
         controlsInverted: true
+      },
+      devicesMessages: {
+        actions: [
+          {
+            icon: 'mdi-content-copy',
+            label: 'copy',
+            classes: '',
+            type: 'copy'
+          }
+        ],
+        viewConfig: {
+          needShowFilter: true
+        },
+        theme: {
+          color: 'white',
+          bgColor: 'grey-9',
+          contentInverted: true,
+          controlsInverted: true
+        },
+        vuexModuleName: 'intervalsDevicesMessages',
+        emptyState: {
+          label: 'Messages not found',
+          sublabel: 'If you expect to see the device messages here',
+          hints: [
+            { html: "Make sure the respective physical tracker correctly points to the proper channel’s <span class='text-bold'>IP:port</span> and is currently sending messages." },
+            { html: "Make sure you specified the correct device <span class='text-bold'>ident</span> and picked the proper <span class='text-bold'>device type</span>." },
+            { html: "Check the <span class='text-bold'>messages TTL</span> in the device settings — if it’s set to 0, messages will not show." },
+            { html: "Switch to <span class='text-bold'>History mode</span> to check if you had logs for the previous periods." },
+            { html: "Pick a specific date and time using the <span class='text-bold'>date/time picker</span> on the top right." },
+            { html: "Narrow down the search by specifying the desired parameter values in the <span class='text-bold'>filter control</span>." }
+          ]
+        }
       }
     }
   },

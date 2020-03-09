@@ -5,7 +5,7 @@
       <div style="max-width: 75%;">
         <q-btn icon="mdi-arrow-left" @click="goBack" flat class="q-mr-sm" :class="{'q-px-none': $q.platform.is.mobile}" color="white"/>
         <!-- device selector -->
-        <div :style="{maxWidth: $q.platform.is.mobile ? '35%' : '50%'}" style="display: inline-flex" class="q-mr-sm">
+        <div :style="{maxWidth: $q.platform.is.mobile ? '35%' : '40%'}" style="display: inline-flex" class="q-mr-sm">
           <q-select
             ref="itemDeviceSelect"
             class="items__select"
@@ -77,7 +77,7 @@
           </q-select>
         </div>
         <!-- device selector -->
-        <div :style="{maxWidth: $q.platform.is.mobile ? '35%' : '50%'}" style="display: inline-flex">
+        <div :style="{maxWidth: $q.platform.is.mobile ? '35%' : '40%'}" style="display: inline-flex">
           <q-select
             ref="itemCalcSelect"
             class="items__select"
@@ -154,6 +154,8 @@
         ref="intervals"
         @view-data="viewDataHandler"
         @on-map="onMapHandler"
+        @in-messages="(interval) => viewedInterval = interval"
+        @change:date-range="range => { dateRange = range, viewedInterval = null }"
         :activeId="activeCalcId"
         :item="selectedCalc"
         :activeDeviceId="active"
@@ -166,6 +168,19 @@
       <div v-else-if="!activeCalcId" class="text-grey text-center q-pt-lg" style="font-size: 2.5rem;" :style="{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}">
         Select calc
       </div>
+      <messages
+        ref="messages"
+        @view-data="viewDataMessageHandler"
+        :item="selectedDevice"
+        :intervalModuleName="config.intervals.devicesMessages.vuexModuleName"
+        :interval="viewedInterval"
+        :dateRange="dateRange"
+        :activeId="active"
+        :limit="limit"
+        v-if="activeCalcId && isInit && +size[1]"
+        :style="[{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'messages' ? '66%' : ''}]"
+        :config="messagesConfig"
+      />
     </div>
     <map-frame
       ref="map"
@@ -180,6 +195,7 @@
 
 <script>
 import intervals from '../../components/intervals/Index.vue'
+import messages from '../../components/intervals/DevicesMessages.vue'
 import { mapState, mapActions } from 'vuex'
 import init from '../../mixins/entitiesInit'
 import MapFrame from '../../components/MapFrame'
@@ -199,13 +215,16 @@ export default {
       deviceFilter: '',
       active: null,
       activeCalcId: null,
-      ratio: 0,
+      ratio: 50,
       isInit: false,
       isItemsInit: false,
       isVisibleMap: false,
       siblingHeight: 0,
       mapMinimizedOptions: {},
-      activeViewedMessage: null
+      activeViewedMessage: null,
+      messagesConfig: this.config.intervals.devicesMessages,
+      viewedInterval: null,
+      dateRange: [0, 0]
     }
   },
   computed: {
@@ -302,6 +321,15 @@ export default {
     },
     viewDataHandler (content) {
       if (content) {
+        this.$refs.messages.unselect()
+        this.$emit('view-data', content)
+      }
+    },
+    viewDataMessageHandler (content) {
+      if (content) {
+        if (!this.viewedInterval) {
+          this.$refs.intervals.unselect()
+        }
         this.$emit('view-data', content)
       }
     },
@@ -319,6 +347,8 @@ export default {
     },
     unselect () {
       this.$refs.intervals.unselect()
+      this.$refs.messages.unselect()
+      this.viewedInterval = null
     },
     setActive (id) {
       this.active = id
@@ -409,7 +439,7 @@ export default {
       }
     }
   },
-  components: { intervals, MapFrame }
+  components: { intervals, messages, MapFrame }
 }
 </script>
 <style lang="stylus">

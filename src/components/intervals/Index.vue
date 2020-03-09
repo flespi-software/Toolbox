@@ -48,7 +48,8 @@ export default {
       listItem: MessagesListItem,
       theme: this.config.theme,
       viewConfig: this.config.viewConfig,
-      moduleName: this.config.vuexModuleName
+      moduleName: this.config.vuexModuleName,
+      viewedInterval: null
     }
   },
   computed: {
@@ -85,6 +86,7 @@ export default {
         this.$store.commit(`${this.moduleName}/clearMessages`)
         this.$store.dispatch(`${this.moduleName}/getCols`, this.item.counters)
         await this.$store.dispatch(`${this.moduleName}/initTime`)
+        this.$emit('change:date-range', [this.begin, this.end])
         await this.$store.dispatch(`${this.moduleName}/get`)
         this.$store.dispatch(`${this.moduleName}/pollingGet`)
       }
@@ -98,6 +100,7 @@ export default {
         this.$store.commit(`${this.moduleName}/setActiveDevice`, id)
         this.$store.commit(`${this.moduleName}/clearMessages`)
         await this.$store.dispatch(`${this.moduleName}/initTime`)
+        this.$emit('change:date-range', [this.begin, this.end])
         await this.$store.dispatch(`${this.moduleName}/get`)
         this.$store.dispatch(`${this.moduleName}/pollingGet`)
       }
@@ -177,9 +180,10 @@ export default {
       data.props.etcVisible = this.etcVisible
       data.props.actionsVisible = this.actionsVisible
       data.props.selected = this.selected.includes(index)
+      data.props.highlighted = this.viewedInterval && item.id === this.viewedInterval.id
       if (!data.on) { data.on = {} }
       data.on.action = this.actionHandler
-      data.on['item-click'] = this.viewMessagesHandler
+      data.on['item-click'] = this.viewMessagesAndShowInMessagesHandler
     },
     resetParams () {
       this.$refs.scrollList.resetParams()
@@ -205,6 +209,8 @@ export default {
       if (this.begin === begin && this.end === end) { return false }
       this.begin = begin
       this.end = end
+      this.$emit('change:date-range', range)
+      this.viewedInterval = null
       this.$store.commit(`${this.moduleName}/clearMessages`)
       this.$store.dispatch(`${this.moduleName}/get`)
     },
@@ -227,6 +233,10 @@ export default {
     actionToBottomHandler () {
       this.$refs.scrollList.scrollTo(this.messages.length - 1)
     },
+    viewMessagesAndShowInMessagesHandler ({ index, content }) {
+      this.viewMessagesHandler({ index, content })
+      this.inMessagesHandler({ index, content })
+    },
     viewMessagesHandler ({ index, content }) {
       this.selected = [index]
       this.$emit('view-data', content)
@@ -239,6 +249,10 @@ export default {
         return routes
       }, [])
       this.$emit('on-map', routes)
+    },
+    inMessagesHandler ({ index, content }) {
+      this.viewedInterval = content
+      this.$emit('in-messages', this.viewedInterval)
     },
     copyMessageHandler ({ index, content }) {
       copyToClipboard(JSON.stringify(content)).then((e) => {
@@ -259,18 +273,19 @@ export default {
     },
     unselect () {
       if (this.selected.length) {
+        this.viewedInterval = null
         this.selected = []
       }
     },
     normalizeSelected (messages) {
-      if (this.selected && this.selected.length) {
+      if (this.selected && this.selected.length && !this.viewedInterval) {
         const selectedIndex = this.selected[0]
         const message = messages[selectedIndex]
         this.viewMessagesHandler({ index: selectedIndex, content: message })
       }
     },
     colsEditHandler () {
-      this.$eventBus.$emit('cols:edit', 'messages')
+      this.$eventBus.$emit('cols:edit', 'logs')
     }
   },
   watch: {
@@ -300,6 +315,7 @@ export default {
     }
     this.$store.dispatch(`${this.moduleName}/initTime`)
       .then(() => {
+        this.$emit('change:date-range', [this.begin, this.end])
         this.$store.dispatch(`${this.moduleName}/get`)
         this.$store.dispatch(`${this.moduleName}/pollingGet`)
       })

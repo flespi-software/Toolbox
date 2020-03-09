@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.2.0] - 2020-03-09
+[feature] show messages by interval
+[fix] style
 ### [1.1.0] - 2020-03-05
 [rebased] hex-viewer
 ### [1.0.0] - 2020-02-27

@@ -11,7 +11,7 @@
         <q-input type="text" color="white" dark label="Search" v-model="search" class="q-py-none" outlined dense/>
       </q-item-section>
     </q-item>
-    <q-scroll-area style="height: calc(100% - 104px);" :thumb-style="{ background: '#757575', opacity: 1, borderRadius: '5px' }" :bar-style="{ background: 'white', opacity: 1 }">
+    <div style="height: calc(100% - 104px); overflow: auto;">
       <q-list separator dark>
         <q-item v-if="!Object.keys(object).length || !Object.keys(filteredObject).length">
           <q-item-section>
@@ -37,7 +37,7 @@
           </q-item>
         </template>
       </q-list>
-    </q-scroll-area>
+    </div>
   </div>
 </template>
 
