@@ -70,8 +70,7 @@
 </template>
 
 <script>
-import { DateRangeModal } from 'qvirtualscroll'
-import channelsMessagesModuleSerial from 'qvirtualscroll/src/store/modules/channelsMessagesSerial/index'
+import { DateRangeModal, channelsMessagesModuleSerial } from 'qvirtualscroll'
 import VirtualList from 'vue-virtual-scroll-list'
 import Vue from 'vue'
 import { copyToClipboard } from 'quasar'

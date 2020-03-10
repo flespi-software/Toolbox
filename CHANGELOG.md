@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.2.1] - 2020-03-10
+[fix] build script
 ### [1.2.0] - 2020-03-09
 [feature] show messages by interval
 [fix] style
