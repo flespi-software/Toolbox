@@ -1,6 +1,6 @@
 {
   "name": "toolbox",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Flespi ToolboX",
   "productName": "ToolboX",
   "cordovaId": "org.cordova.quasar.app",
@@ -14,15 +14,15 @@
     "deploy": "rm -rf dist && npm run build && rm -rf deploy && mkdir deploy && cp -R dist/spa/* misc CNAME LICENSE package.json deploy && cp README.md deploy/README.md && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rhttps://git.gurtam.net/flespi/frontend/toolbox.git && rm -rf deploy && git push github gh-pages"
   },
   "dependencies": {
-    "@quasar/extras": "^1.5.2",
+    "@quasar/extras": "^1.6.0",
     "flespi-io-js": "git+https://github.com/flespi-software/flespi-io-js.git",
     "leaflet": "^1.6.0",
     "lodash": "^4.17.15",
     "mqtt-board": "git+https://github.com/flespi-software/MQTT-Board.git",
-    "quasar": "^1.9.4",
+    "quasar": "^1.9.9",
     "qvirtualscroll": "git+https://github.com/flespi-software/QVirtualScroll.git",
     "vue-draggable-resizable": "^2.1.0",
-    "vue-i18n": "^8.15.4",
+    "vue-i18n": "^8.15.5",
     "vue-virtual-scroll-list": "^1.4.6",
     "vuedraggable": "^2.23.2"
   },
@@ -36,7 +36,7 @@
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
-    "eslint-plugin-vue": "^6.2.1",
+    "eslint-plugin-vue": "^6.2.2",
     "git-directory-deploy": "^1.5.1"
   },
   "engines": {
