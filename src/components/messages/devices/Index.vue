@@ -153,12 +153,18 @@ export default {
       data.on.action = this.actionHandler
       data.on['item-click'] = this.viewMessagesHandler
     },
+    scrollTo (index) {
+      this.$nextTick(() => this.$refs.scrollList.scrollTo(index))
+    },
+    scrollToWithSavePadding (index) {
+      this.$nextTick(() => this.$refs.scrollList.scrollToWithSavePadding(index))
+    },
     async getMessages () {
       if (this.to <= Date.now()) {
         await this.$store.dispatch(`${this.moduleName}/get`)
       } else {
         await this.$store.dispatch(`${this.moduleName}/getHistory`, 1000)
-        this.$refs.scrollList.scrollTo(this.messages.length - 1)
+        this.scrollTo(this.messages.length - 1)
       }
     },
     resetParams () {
@@ -187,7 +193,7 @@ export default {
       this.$store.dispatch(`${this.moduleName}/getPrevPage`)
         .then((count) => {
           if (count && typeof count === 'number') {
-            this.$refs.scrollList.scrollToWithSavePadding(count)
+            this.scrollToWithSavePadding(count)
           }
         })
     },
@@ -195,7 +201,7 @@ export default {
       this.$store.dispatch(`${this.moduleName}/getNextPage`)
         .then((count) => {
           if (count && typeof count === 'number') {
-            this.$refs.scrollList.scrollTo(this.messages.length - count)
+            this.scrollTo(this.messages.length - count)
           }
         })
     },
@@ -234,11 +240,11 @@ export default {
     },
     actionToBottomHandler () {
       if (this.realtimeEnabled) {
-        this.$refs.scrollList.scrollTo(this.messages.length - 1)
+        this.scrollTo(this.messages.length - 1)
       } else {
         this.$store.dispatch(`${this.moduleName}/getHistory`, 1000)
           .then(() => {
-            this.$refs.scrollList.scrollTo(this.messages.length - 1)
+            this.scrollTo(this.messages.length - 1)
           })
       }
     },
