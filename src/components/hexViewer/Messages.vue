@@ -397,7 +397,7 @@ export default {
           {
             Vue,
             LocalStorage: this.$q.localStorage,
-            name: this.moduleName,
+            name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' },
             errorHandler: (err) => { this.$store.commit('reqFailed', err) },
             filterHandler: this.filterMessage,
             newMessagesInterseptor: this.newMessagesInterseptor

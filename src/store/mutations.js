@@ -182,11 +182,12 @@ function getToolboxSettings (state) {
     })
   }
   /* end migration */
+  settings = { entities: settings.entities }
   state.settings = settings || {}
 }
 
 function setToolboxSettings (state, { type, opt, value }) {
-  const settings = state.settings
+  let settings = LocalStorage.getItem('flespi-toolbox-settings') || {}
   switch (type) {
     case 'ENTITY_CHANGE': {
       const { entity } = opt
@@ -196,6 +197,8 @@ function setToolboxSettings (state, { type, opt, value }) {
     }
   }
   LocalStorage.set('flespi-toolbox-settings', settings)
+  settings = { entities: settings.entities }
+  state.settings = settings
 }
 
 function setRegions (state, regions) {
