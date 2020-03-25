@@ -79,20 +79,20 @@
         </transition>
       </div>
     </entities-toolbar>
-    <hex-viewer v-if="active" :active="active" :isVisibleToolbar="isVisibleToolbar" :config="config" class="flex"/>
-    <div v-if="!items.length && isItemsInit" class="text-center text-grey-3 q-mt-lg" style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Proxy channels not found'}}</div>
+    <traffic-viewer v-if="active" :active="active" :isVisibleToolbar="isVisibleToolbar" :config="config" class="flex"/>
+    <div v-if="!items.length && isItemsInit" class="text-center text-grey-3 q-mt-lg" style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Compatible channels not found'}}</div>
   </q-page>
 </template>
 
 <script>
-import HexViewer from '../../components/hexViewer/Index'
+import TrafficViewer from '../../components/trafficViewer/Index'
 import EntitiesToolbar from '../../components/EntitiesToolbar'
 import { mapState } from 'vuex'
 import init from '../../mixins/entitiesInit'
 import get from 'lodash/get'
 
 export default {
-  name: 'PageHexViewer',
+  name: 'PageTrafficViewer',
   props: [
     'limit',
     'isLoading',
@@ -113,16 +113,28 @@ export default {
   computed: {
     ...mapState({
       tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
-      PROXY_PROTOCOL_ID (state) {
+      NOT_COMPATIBLE_PROTOCOL_IDS (state) {
         const protocols = state.protocols || {}
-        return Object.keys(protocols).reduce((proxyId, protocolId) => {
-          if (protocols[protocolId] === 'proxy') {
-            proxyId = parseInt(protocolId)
+        return Object.keys(protocols).reduce((ids, protocolId) => {
+          if (
+            protocols[protocolId] === 'proxy' ||
+            protocols[protocolId] === '1m2m-lora-kpn' ||
+            protocols[protocolId] === 'ble-beacons' ||
+            protocols[protocolId] === 'fleetboard' ||
+            protocols[protocolId] === 'http' ||
+            protocols[protocolId] === 'mqtt' ||
+            protocols[protocolId] === 'pipe-cache-params' ||
+            protocols[protocolId] === 'scania-fms' ||
+            protocols[protocolId] === 'spot' ||
+            protocols[protocolId] === 'telegram' ||
+            protocols[protocolId] === 'test'
+          ) {
+            ids.push(parseInt(protocolId))
           }
-          return proxyId
-        }, 0)
+          return ids
+        }, [])
       },
-      items (state) { return Object.values(state.channels || {}).filter(item => this.PROXY_PROTOCOL_ID && item.protocol_id === this.PROXY_PROTOCOL_ID) }
+      items (state) { return Object.values(state.channels || {}).filter(item => !this.NOT_COMPATIBLE_PROTOCOL_IDS.includes(item.protocol_id)) }
     }),
     filteredItems () {
       const filter = this.filter.toLowerCase()
@@ -174,7 +186,7 @@ export default {
       this.$router.push(`/channels/${this.active}`).catch(err => err)
     },
     init () {
-      const entity = 'tools/hex'
+      const entity = 'tools/traffic'
       const activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined)
       this.isInit = true
       if (this.$route.params && this.$route.params.id) {
@@ -204,14 +216,14 @@ export default {
     active (val) {
       const currentItem = this.items.filter(item => item.id === val)[0] || {}
       if (val) {
-        this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: 'tools/hex' }, value: currentItem.id })
-        this.$router.push(`/tools/hex/${val}`).catch(err => err)
+        this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: 'tools/traffic' }, value: currentItem.id })
+        this.$router.push(`/tools/traffic/${val}`).catch(err => err)
       } else {
-        this.$router.push('/tools/hex').catch(err => err)
+        this.$router.push('/tools/traffic').catch(err => err)
       }
     }
   },
-  components: { HexViewer, EntitiesToolbar }
+  components: { TrafficViewer, EntitiesToolbar }
 }
 </script>
 <style lang="stylus">

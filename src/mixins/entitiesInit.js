@@ -53,6 +53,7 @@ export default {
               }
               break
             }
+            case 'trafficViewer':
             case 'hexViewer': {
               entity = 'channels'
               if (entity !== fromEntity) {
@@ -61,7 +62,7 @@ export default {
               break
             }
             case 'channels': {
-              fromEntity = fromEntity === 'hexViewer' ? 'channels' : fromEntity
+              fromEntity = fromEntity === 'hexViewer' || fromEntity === 'trafficViewer' ? 'channels' : fromEntity
               if (entity !== fromEntity) {
                 getMainEntity(entity, mainEntityIdFromRoute, idFromLS, vm.isNeedSelect, promises)
               }
@@ -170,6 +171,7 @@ export default {
           }
           break
         }
+        case 'trafficViewer':
         case 'hexViewer': {
           fromEntity = 'channels'
           if (fromEntity !== toEntity) {

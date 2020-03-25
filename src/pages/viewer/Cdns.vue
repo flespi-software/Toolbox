@@ -28,7 +28,7 @@
             </q-input>
           </div>
           <div slot="after-options" class="select__get-deleted" v-if="needShowGetDeletedAction && tokenType === 1">
-            <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler">see deleted</q-btn>
+            <q-btn icon="mdi-download" class="deleted-action" @click.prevent.stop="getDeletedHandler">see deleted</q-btn>
           </div>
           <template v-slot:no-option>
             <div style="min-height: 77px;">

@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.3.0] - 2020-03-25
+[feature] traffic viewer
+[feature] new deleted logs api used
 ### [1.2.3] - 2020-03-13
 [feature] consalidate local storage
 ### [1.2.2] - 2020-03-11

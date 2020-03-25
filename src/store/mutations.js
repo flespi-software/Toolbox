@@ -172,7 +172,7 @@ function getToolboxSettings (state) {
   if (!settings) {
     settings = { entities: {} }
     const entities = settings.entities
-    const entityNames = ['devices', 'channels', 'calcs', 'streams', 'modems', 'containers', 'cdns', 'tools/hex', 'platform', 'mqtt']
+    const entityNames = ['devices', 'channels', 'calcs', 'streams', 'modems', 'containers', 'cdns', 'tools/hex', 'tools/traffic', 'platform', 'mqtt']
     entityNames.forEach(name => {
       const value = LocalStorage.getItem(name)
       if (value) {

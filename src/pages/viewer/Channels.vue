@@ -29,7 +29,7 @@
             </q-input>
           </div>
           <div slot="after-options" class="select__get-deleted" v-if="needShowGetDeletedAction && tokenType === 1">
-            <q-btn icon="mdi-download" class="deleted-action" @click="getDeletedHandler">see deleted</q-btn>
+            <q-btn icon="mdi-download" class="deleted-action" @click.prevent.stop="getDeletedHandler">see deleted</q-btn>
           </div>
           <template v-slot:no-option>
             <div>
@@ -78,10 +78,14 @@
             </q-item>
           </template>
         </q-select>
-        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp" v-if="$q.platform.is.desktop">
-          <q-btn title="View hex payload" class="on-right pull-right text-center rounded-borders q-px-xs q-py-none text-white" v-if="selectedItem && selectedItem.protocol_id === proxyProtocolId" @click="hexViewHandler" flat dense style="width: 50px;">
+        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp" v-if="$q.platform.is.desktop && selectedItem && !selectedItem.deleted">
+          <q-btn title="View hex payload" class="on-right pull-right text-center rounded-borders q-px-xs q-py-none text-white" v-if="selectedItem.protocol_id === proxyProtocolId" @click="hexViewHandler" flat dense style="width: 50px;">
             <q-icon size="1.5rem" color="white" name="mdi-matrix"/>
             <div style="font-size: .7rem; line-height: .7rem">HEX</div>
+          </q-btn>
+          <q-btn title="Traffic hex payload" class="on-right pull-right text-center rounded-borders q-px-xs q-py-none text-white" v-else @click="trafficViewHandler" flat dense style="width: 50px;">
+            <q-icon size="1.5rem" color="white" name="mdi-download-network-outline"/>
+            <div style="font-size: .7rem; line-height: .7rem">Traffic</div>
           </q-btn>
         </transition>
       </div>
@@ -245,6 +249,9 @@ export default {
     },
     hexViewHandler () {
       this.$router.push(`/tools/hex/${this.active}`).catch(err => err)
+    },
+    trafficViewHandler () {
+      this.$router.push(`/tools/traffic/${this.active}`).catch(err => err)
     },
     unselect () {
       this.$refs.messages.unselect()
