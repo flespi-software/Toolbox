@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.3.2] - 2020-03-26
+[rebase] get deleted on new api
 ### [1.3.1] - 2020-03-26
 [feature] new message indicator
 ### [1.3.0] - 2020-03-25

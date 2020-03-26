@@ -186,9 +186,9 @@ async function getDeleted ({ state, commit }, entity) {
         let deleted = []
         if (state.tokenInfo.access.type === 1) {
           try {
-            const deletedResp = await Vue.connector.platform.getDeletedLogs(
+            const deletedResp = await Vue.connector.platform.getDeleted(
               `type=${itemTypes[entity]}`,
-              { data: { fields: 'item_data', filter: 'event_code=3' } }
+              { fields: 'data' }
             )
             const deletedData = deletedResp.data
             if (deletedData.errors) {
@@ -213,7 +213,7 @@ async function getDeleted ({ state, commit }, entity) {
         const result = {
           ...state[entity],
           ...deleted.reduce((deleted, item) => {
-            const itemObj = item.item_data
+            const itemObj = item.data
             itemObj.deleted = true
             deleted[itemObj.id] = itemObj
             return deleted
