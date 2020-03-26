@@ -17,11 +17,14 @@
       scrollOffset="10%"
       :item="listItem"
       :itemprops="getItemsProps"
+      :has-new-messages="hasNewMessages"
       @change:filter="filterChangeHandler"
       @scroll:top="paginationPrevChangeHandler"
       @scroll:bottom="paginationNextChangeHandler"
       @change:date-range="dateRangeChangeHandler"
       @action:to-bottom="actionToBottomHandler"
+      @action:to-new-messages="actionToNewMessages"
+      @action:to-new-messages-hide="actionToNewMessagesHide"
       @update:cols="updateColsHandler"
       @edit:cols="colsEditHandler"
     >
@@ -134,6 +137,14 @@ export default {
         val ? this.$store.commit(`${this.moduleName}/setLimit`, val) : this.$store.commit(`${this.moduleName}/setLimit`, 1000)
       }
     },
+    hasNewMessages: {
+      get () {
+        return this.$store.state[this.moduleName].hasNewMessages
+      },
+      set (flag) {
+        this.$store.state[this.moduleName].hasNewMessages = flag
+      }
+    },
     originByPattern () {
       if (!this.item) { return '' }
       return this.originPattern.replace(/\/:(\w*)(\/)?/g, (match, p1, p2) => {
@@ -224,6 +235,19 @@ export default {
             this.scrollTo(this.messages.length - 1)
           })
       }
+    },
+    async actionToNewMessages () {
+      this.hasNewMessages = null
+      const now = Date.now(),
+        from = new Date(now).setHours(0, 0, 0, 0),
+        to = from + 86399999
+      this.from = from
+      this.to = to
+      this.$store.commit(`${this.moduleName}/clearMessages`)
+      this.getMessages()
+    },
+    actionToNewMessagesHide () {
+      this.hasNewMessages = null
     },
     viewMessagesHandler ({ index, content }) {
       this.$emit('view-log-message', content)

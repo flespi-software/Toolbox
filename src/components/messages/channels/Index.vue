@@ -16,6 +16,7 @@
       scrollOffset="10%"
       :item="listItem"
       :itemprops="getItemsProps"
+      :has-new-messages="hasNewMessages"
       @change:filter="filterChangeHandler"
       @scroll:top="paginationPrevChangeHandler"
       @scroll:bottom="paginationNextChangeHandler"
@@ -23,6 +24,8 @@
       @update:cols="updateColsHandler"
       @edit:cols="colsEditHandler"
       @action:to-bottom="actionToBottomHandler"
+      @action:to-new-messages="actionToNewMessages"
+      @action:to-new-messages-hide="actionToNewMessagesHide"
     >
       <empty-pane slot="empty" :config="config.emptyState"/>
     </virtual-scroll-list>
@@ -123,6 +126,14 @@ export default {
     },
     realtimeEnabled () {
       return this.$store.state[this.moduleName].realtimeEnabled
+    },
+    hasNewMessages: {
+      get () {
+        return this.$store.state[this.moduleName].hasNewMessages
+      },
+      set (flag) {
+        this.$store.state[this.moduleName].hasNewMessages = flag
+      }
     },
     currentLimit: {
       get () {
@@ -229,6 +240,19 @@ export default {
             this.scrollTo(this.messages.length - 1)
           })
       }
+    },
+    async actionToNewMessages () {
+      this.hasNewMessages = null
+      const now = Date.now(),
+        from = new Date(now).setHours(0, 0, 0, 0),
+        to = from + 86399999
+      this.from = from
+      this.to = to
+      this.$store.commit(`${this.moduleName}/clearMessages`)
+      this.getMessages()
+    },
+    actionToNewMessagesHide () {
+      this.hasNewMessages = null
     },
     viewMessagesHandler ({ index, content }) {
       this.selected = [index]

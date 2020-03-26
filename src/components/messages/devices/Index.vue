@@ -16,6 +16,7 @@
       scrollOffset="10%"
       :item="listItem"
       :itemprops="getItemsProps"
+      :has-new-messages="hasNewMessages"
       @change:filter="filterChangeHandler"
       @scroll:top="paginationPrevChangeHandler"
       @scroll:bottom="paginationNextChangeHandler"
@@ -23,6 +24,8 @@
       @action:to-bottom="actionToBottomHandler"
       @update:cols="updateColsHandler"
       @edit:cols="colsEditHandler"
+      @action:to-new-messages="actionToNewMessages"
+      @action:to-new-messages-hide="actionToNewMessagesHide"
     >
       <empty-pane slot="empty" :config="config.emptyState"/>
     </virtual-scroll-list>
@@ -137,6 +140,14 @@ export default {
         this.$store.commit(`${this.moduleName}/setSelected`, val)
       }
     },
+    hasNewMessages: {
+      get () {
+        return this.$store.state[this.moduleName].hasNewMessages
+      },
+      set (flag) {
+        this.$store.state[this.moduleName].hasNewMessages = flag
+      }
+    },
     loadingFlag () {
       const state = this.$store.state
       return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
@@ -247,6 +258,19 @@ export default {
             this.scrollTo(this.messages.length - 1)
           })
       }
+    },
+    async actionToNewMessages () {
+      this.hasNewMessages = null
+      const now = Date.now(),
+        from = new Date(now).setHours(0, 0, 0, 0),
+        to = from + 86399999
+      this.from = from
+      this.to = to
+      this.$store.commit(`${this.moduleName}/clearMessages`)
+      this.getMessages()
+    },
+    actionToNewMessagesHide () {
+      this.hasNewMessages = null
     },
     unselect () {
       if (this.selected.length) {

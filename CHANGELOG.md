@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.3.1] - 2020-03-26
+[feature] new message indicator
 ### [1.3.0] - 2020-03-25
 [feature] traffic viewer
 [feature] new deleted logs api used
