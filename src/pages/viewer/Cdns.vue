@@ -17,9 +17,9 @@
           :virtual-scroll-item-size="48"
           :virtual-scroll-slice-size="6"
           :virtual-scroll-sticky-size-start="48"
-          :virtual-scroll-sticky-size-end="needShowGetDeletedAction && tokenType === 1 ? 29 : 0"
+          :virtual-scroll-sticky-size-end="needShowGetDeletedAction && tokenType === 1 && false ? 29 : 0"
           popup-content-class="items__popup"
-          :popup-content-style="{height: `${((filteredItems.length > 6 ? 6 : filteredItems.length) * 48) + (needShowGetDeletedAction && tokenType === 1 ? 77 : 48) + (filteredItems.length ? 0 : 4)}px`}"
+          :popup-content-style="{height: `${((filteredItems.length > 6 ? 6 : filteredItems.length) * 48) + (needShowGetDeletedAction && tokenType === 1 && false ? 77 : 48) + (filteredItems.length ? 0 : 4)}px`}"
           @filter="filterItems"
         >
           <div slot="before-options" class="bg-dark q-pa-xs select__filter">
@@ -27,9 +27,9 @@
               <q-icon slot="prepend" name="mdi-magnify" color="white" />
             </q-input>
           </div>
-          <div slot="after-options" class="select__get-deleted" v-if="needShowGetDeletedAction && tokenType === 1">
+          <!-- <div slot="after-options" class="select__get-deleted" v-if="needShowGetDeletedAction && tokenType === 1">
             <q-btn icon="mdi-download" class="deleted-action" @click.prevent.stop="getDeletedHandler">see deleted</q-btn>
-          </div>
+          </div> -->
           <template v-slot:no-option>
             <div style="min-height: 77px;">
               <q-input v-model="filter" @input="filter => $refs.itemSelect.filter(filter)" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" class="q-ma-xs" autofocus>
@@ -89,7 +89,7 @@
     />
     <div v-if="!items.length && isItemsInit" class="text-center text-grey-3 q-mt-lg">
       <div style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'CDN`s not found'}}</div>
-      <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
+      <!-- <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/> -->
     </div>
   </q-page>
 </template>

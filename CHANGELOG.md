@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.3.3] - 2020-03-31
+[feature] export events to file for period in traffic viewer
+[rebased] traffic viewer to new api
+[removed] get deleted items in cdns and containers
 ### [1.3.2] - 2020-03-26
 [rebase] get deleted on new api
 ### [1.3.1] - 2020-03-26

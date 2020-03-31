@@ -43,6 +43,7 @@
       </template>
       <empty-pane v-else :config="config.emptyState"/>
     </div>
+    <export-modal ref="export" :format="view" :dateRange="dateRange" :config="config" :ident="device.ident"/>
   </div>
 </template>
 
@@ -55,6 +56,7 @@ import MessagesListItem from './MessagesListItem.vue'
 import EmptyPane from '../EmptyPane'
 import MessageSkeleton from './MessageSkeleton'
 import range from 'lodash/range'
+import ExportModal from './ExportModal'
 
 export default {
   props: [
@@ -70,7 +72,7 @@ export default {
       viewConfig: this.config.viewConfig,
       actions: this.config.actions,
       moduleName: this.config.vuexModuleName,
-      itemHeight: 56,
+      itemHeight: 53,
       itemsCount: 0,
       wrapperHeight: 0,
       needAutoScroll: true,
@@ -281,7 +283,8 @@ export default {
       }
       this.$store.commit(`${this.moduleName}/clearMessages`)
       this.closeDevice()
-    }
+    },
+    exportModalOpen () { this.$refs.export.show() }
   },
   watch: {
     activeId (val) {
@@ -319,6 +322,6 @@ export default {
     this.to = 0
     this.from = 0
   },
-  components: { MessagesListItem, VirtualList, EmptyPane, MessageSkeleton, DateRangeModal }
+  components: { MessagesListItem, VirtualList, EmptyPane, MessageSkeleton, DateRangeModal, ExportModal }
 }
 </script>

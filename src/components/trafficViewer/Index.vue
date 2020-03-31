@@ -13,7 +13,6 @@
       @change:device="content => { activeDevice = content }"
       @close="() => { activeDevice = null, selectedMessages = '' }"
       @device:preview="previewShow"
-      @device:preview-hide="previewHide"
     />
     <messages
       v-else
@@ -36,6 +35,9 @@
         </q-toolbar-title>
         <q-btn color="white" flat dense :icon="typeOfHexView === 'hex' ? 'mdi-matrix' : 'mdi-format-text'" @click="typeOfHexView = typeOfHexView === 'hex' ? 'text' : 'hex'">
           <q-tooltip>Change view mode (hex/text)</q-tooltip>
+        </q-btn>
+        <q-btn v-if="activeDevice" color="white" flat dense icon="mdi-export-variant" @click="$refs.messages && $refs.messages.exportModalOpen()">
+          <q-tooltip>Export as..</q-tooltip>
         </q-btn>
       </q-toolbar>
       <hex-viewer
@@ -66,6 +68,7 @@ import Devices from './Devices'
 import MessagePreviewItem from './MessagePreviewItem'
 import HexViewer from '../HexViewer'
 import trafficViewerVuexModule from '../../store/modules/trafficViewer'
+import convertMixin from '../../mixins/convert'
 export default {
   props: ['active', 'isVisibleToolbar', 'config'],
   data () {
@@ -83,7 +86,7 @@ export default {
     hex () {
       if (this.selectedMessages && this.activeDevice) {
         return this.selectedMessages.reduce((hex, message) => {
-          hex += message.hex || ''
+          hex += this.base64ToHex(message.data) || ''
           return hex
         }, '')
       }
@@ -119,6 +122,7 @@ export default {
       this.devicePreview = null
     }
   },
+  mixins: [convertMixin],
   components: { Devices, Messages, MessagePreviewItem, HexViewer }
 }
 </script>

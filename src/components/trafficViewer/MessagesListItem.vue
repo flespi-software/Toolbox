@@ -1,24 +1,25 @@
 <template>
   <q-item :class="[`${selected ? 'bg-grey-8' : ''}`]" clickable @click="(event) => { itemClickHandler(index, item, event) }">
-    <q-tooltip>{{eventsDesc[item.event]}}</q-tooltip>
+    <q-tooltip>{{eventsDesc[item.type]}}</q-tooltip>
     <q-item-section v-if="actions" side class="q-pr-none">
       <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon" :color="selected ? 'grey-5' : ''">
         <q-tooltip>{{action.label}}</q-tooltip>
       </q-icon>
     </q-item-section>
     <q-item-section>
-      <q-item-label header class="ellipsis overflow-hidden q-pa-none" :class="[`text-${eventsColors[item.event]}-${selected ? 3 : 4}`]">{{date.formatDate(item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}}</q-item-label>
+      <q-item-label header class="ellipsis overflow-hidden q-pa-none" :class="[`text-${eventsColors[item.type]}-${selected ? 3 : 4}`]">{{date.formatDate(item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}}</q-item-label>
       <q-item-label v-if="item.data_size" caption class="ellipsis overflow-hidden text-grey-5">{{`${item.data_size} B : `}}<small>{{dataPreview}}</small></q-item-label>
     </q-item-section>
     <q-item-section side class="">
-      <small :class="[`text-grey-${selected ? 5 : 7}`]">{{eventsDesc[item.event]}}</small><q-icon class="q-ml-xs" :color="eventsColors[item.event]" :name="eventIcons[item.event]"/>
+      <small :class="[`text-grey-${selected ? 5 : 7}`]">{{eventsDesc[item.type]}}</small>
+      <div><small class="rounded-borders q-mx-xs q-px-xs text-white" :class="{'bg-blue': transport === 'tcp', 'bg-purple-9': transport === 'udp'}">{{transport}}</small><q-icon class="q-ml-xs" size="1.2rem" :color="eventsColors[item.type]" :name="eventIcons[item.type]"/></div>
     </q-item-section>
   </q-item>
 </template>
 
 <script>
 import { date } from 'quasar'
-
+import convertMixin from '../../mixins/convert'
 export default {
   props: [
     'item',
@@ -31,29 +32,36 @@ export default {
   data () {
     return {
       date: date,
+      transport: (this.item.type === 0 || this.item.type === 1) ? '' : (this.item.type >= 128) ? 'udp' : 'tcp',
       eventsColors: {
-        in: 'purple',
-        out: 'yellow',
-        open: 'green',
-        close: 'red'
+        0: 'green',
+        1: 'red',
+        2: 'purple',
+        130: 'purple',
+        3: 'yellow',
+        131: 'yellow'
       },
       eventsDesc: {
-        in: 'Data recieved',
-        out: 'Data sent',
-        open: 'Connect',
-        close: 'Disconnect'
+        0: 'Connect',
+        1: 'Disconnect',
+        2: 'Data recieved',
+        130: 'Data recieved',
+        3: 'Data sent',
+        131: 'Data sent'
       },
       eventIcons: {
-        in: 'mdi-arrow-right-thick',
-        out: 'mdi-arrow-left-thick',
-        open: 'mdi-lan-connect',
-        close: 'mdi-lan-disconnect'
+        0: 'mdi-lan-connect',
+        1: 'mdi-lan-disconnect',
+        2: 'mdi-arrow-right-thick',
+        130: 'mdi-arrow-right-thick',
+        3: 'mdi-arrow-left-thick',
+        131: 'mdi-arrow-left-thick'
       }
     }
   },
   computed: {
     dataPreview () {
-      let preview = this.item.hex
+      let preview = this.base64ToHex(this.item.data)
       if (this.view === 'text') {
         const bytesHexArray = preview.match(/.{1,2}/g)
         preview = bytesHexArray.map((byte) => String.fromCharCode(parseInt(byte, 16))).join('')
@@ -68,7 +76,8 @@ export default {
     itemClickHandler (index, content, event) {
       this.$emit('item-click', { index, content, event })
     }
-  }
+  },
+  mixins: [convertMixin]
 }
 </script>
 
