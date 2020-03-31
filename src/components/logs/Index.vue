@@ -200,7 +200,7 @@ export default {
       this.from = from
       this.to = to
       this.$store.commit(`${this.moduleName}/clearMessages`)
-      this.getMessages()
+      this.$store.dispatch(`${this.moduleName}/get`).then(() => this.scrollTo(0))
     },
     paginationPrevChangeHandler () {
       this.$store.dispatch(`${this.moduleName}/getPrevPage`)

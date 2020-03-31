@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.3.4] - 2020-03-31
+[fix] behavior on change date range in modules
 ### [1.3.3] - 2020-03-31
 [feature] export events to file for period in traffic viewer
 [rebased] traffic viewer to new api
