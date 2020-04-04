@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.3.6] - 2020-04-04
+[fix] traffic viewer icon in channels
 ### [1.3.5] - 2020-04-04
 [update] deps
 [rebase] to new api

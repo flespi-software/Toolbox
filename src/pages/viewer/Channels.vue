@@ -83,7 +83,7 @@
             <q-icon size="1.5rem" color="white" name="mdi-matrix"/>
             <div style="font-size: .7rem; line-height: .7rem">HEX</div>
           </q-btn>
-          <q-btn title="Traffic hex payload" class="on-right pull-right text-center rounded-borders q-px-xs q-py-none text-white" v-else @click="trafficViewHandler" flat dense style="width: 50px;">
+          <q-btn title="Traffic hex payload" class="on-right pull-right text-center rounded-borders q-px-xs q-py-none text-white" v-else-if="isTrafficViewerSupported" @click="trafficViewHandler" flat dense style="width: 50px;">
             <q-icon size="1.5rem" color="white" name="mdi-download-network-outline"/>
             <div style="font-size: .7rem; line-height: .7rem">Traffic</div>
           </q-btn>
@@ -169,6 +169,25 @@ export default {
           }
           return res
         }, 0)
+      },
+      isTrafficViewerSupported () {
+        const protocols = this.protocols
+        if (!this.selectedItem) { return false }
+        const protocolId = this.selectedItem.protocol_id
+        if (
+          protocols[protocolId] === 'proxy' ||
+          protocols[protocolId] === '1m2m-lora-kpn' ||
+          protocols[protocolId] === 'ble-beacons' ||
+          protocols[protocolId] === 'fleetboard' ||
+          protocols[protocolId] === 'http' ||
+          protocols[protocolId] === 'mqtt' ||
+          protocols[protocolId] === 'pipe-cache-params' ||
+          protocols[protocolId] === 'scania-fms' ||
+          protocols[protocolId] === 'spot' ||
+          protocols[protocolId] === 'telegram' ||
+          protocols[protocolId] === 'test'
+        ) { return false }
+        return true
       }
     }),
     items () {
