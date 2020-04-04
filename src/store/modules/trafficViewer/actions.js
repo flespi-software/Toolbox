@@ -9,7 +9,7 @@ function getFromTo (val) {
 async function initTime ({ state, commit }) {
   let timestamp = Date.now()
   try {
-    const resp = await Vue.connector.gw.getChannelsTrafficEvents(state.active, state.ident, { data: { count: 1, reverse: true } })
+    const resp = await Vue.connector.gw.getChannelsIdentsPackets(state.active, state.ident, { data: { count: 1, reverse: true } })
     timestamp = get(resp, 'data.result[0].timestamp', Math.floor(Date.now() / 1000))
     timestamp = Math.round(timestamp * 1000)
   } catch (e) {}
@@ -22,7 +22,7 @@ async function getDevices ({ state, commit }) {
     Vue.set(state, 'isLoading', true)
   }
   try {
-    const resp = await Vue.connector.gw.getChannelsTraffic(state.active, `*${state.deviceFilter}*`)
+    const resp = await Vue.connector.gw.getChannelsIdents(state.active, `*${state.deviceFilter}*`)
     let idents = get(resp, 'data.result[0].idents', [])
     idents = idents.reduce((idents, ident) => {
       idents[ident] = { ident }
@@ -42,7 +42,7 @@ async function getMessages ({ state, commit }) {
   }
   try {
     const to = state.to > Date.now() ? Date.now() : state.to
-    const resp = await Vue.connector.gw.getChannelsTrafficEvents(state.active, state.ident, { data: { from: Math.floor(state.from / 1000), to: Math.floor(to / 1000), format: 'base64', count: state.limit } })
+    const resp = await Vue.connector.gw.getChannelsIdentsPackets(state.active, state.ident, { data: { from: Math.floor(state.from / 1000), to: Math.floor(to / 1000), format: 'base64', count: state.limit } })
     const messages = get(resp, 'data.result', [])
     commit('setMessages', messages)
   } catch (e) {
@@ -58,7 +58,7 @@ async function getMessagesTail ({ state, commit }) {
     Vue.set(state, 'isLoading', true)
   }
   try {
-    const resp = await Vue.connector.gw.getChannelsTrafficEvents(state.active, state.ident, { data: { count: state.limit, reverse: true, format: 'base64' } })
+    const resp = await Vue.connector.gw.getChannelsIdentsPackets(state.active, state.ident, { data: { count: state.limit, reverse: true, format: 'base64' } })
     const messages = get(resp, 'data.result', [])
     messages.reverse()
     commit('setMessages', messages)
@@ -75,7 +75,7 @@ async function getMessagesNext ({ state, commit }) {
   requestStatus = true
   try {
     const from = Math.ceil(state.messages[state.messages.length - 1].timestamp)
-    const resp = await Vue.connector.gw.getChannelsTrafficEvents(state.active, state.ident, { data: { count: state.limit, format: 'base64', from, to: Math.floor(state.to / 1000) } })
+    const resp = await Vue.connector.gw.getChannelsIdentsPackets(state.active, state.ident, { data: { count: state.limit, format: 'base64', from, to: Math.floor(state.to / 1000) } })
     const messages = get(resp, 'data.result', [])
     commit('setMessagesAppend', messages)
   } catch (e) {
@@ -89,7 +89,7 @@ async function getMessagesPrev ({ state, commit }) {
   requestStatus = true
   try {
     const to = Math.floor(state.messages[0].timestamp) - 1
-    const resp = await Vue.connector.gw.getChannelsTrafficEvents(state.active, state.ident, { data: { count: state.limit, format: 'base64', from: Math.floor(state.from / 1000), to, reverse: true } })
+    const resp = await Vue.connector.gw.getChannelsIdentsPackets(state.active, state.ident, { data: { count: state.limit, format: 'base64', from: Math.floor(state.from / 1000), to, reverse: true } })
     const messages = get(resp, 'data.result', [])
     messages.reverse()
     commit('setMessagesPrepend', messages)
@@ -122,7 +122,7 @@ function pollingGetMessages ({ state, commit }) {
     try {
       const from = Math.ceil(state.messages[state.messages.length - 1].timestamp)
       const to = Math.ceil(Date.now() / 1000)
-      const resp = await Vue.connector.gw.getChannelsTrafficEvents(state.active, state.ident, { data: { from, to, format: 'base64' } })
+      const resp = await Vue.connector.gw.getChannelsIdentsPackets(state.active, state.ident, { data: { from, to, format: 'base64' } })
       const messages = get(resp, 'data.result', [])
       commit('setMessagesAppend', messages)
     } catch (e) {
@@ -139,7 +139,7 @@ function removePollingGetMessages ({ state, commit }) {
 async function getDevicePreview ({ state }, device) {
   let messages = []
   try {
-    const resp = await Vue.connector.gw.getChannelsTrafficEvents(state.active, device.ident, { data: { count: 20, reverse: true, format: 'base64' } })
+    const resp = await Vue.connector.gw.getChannelsIdentsPackets(state.active, device.ident, { data: { count: 20, reverse: true, format: 'base64' } })
     messages = get(resp, 'data.result', [])
   } catch (e) {}
   return messages
@@ -147,7 +147,7 @@ async function getDevicePreview ({ state }, device) {
 async function getExportData ({ state }, { from, to }) {
   let messages = []
   try {
-    const resp = await Vue.connector.gw.getChannelsTrafficEvents(state.active, state.ident, { data: { from, to, format: 'base64' } })
+    const resp = await Vue.connector.gw.getChannelsIdentsPackets(state.active, state.ident, { data: { from, to, format: 'base64' } })
     messages = get(resp, 'data.result', [])
   } catch (e) {}
   return messages

@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.3.5] - 2020-04-04
+[update] deps
+[rebase] to new api
 ### [1.3.4] - 2020-03-31
 [fix] behavior on change date range in modules
 ### [1.3.3] - 2020-03-31
