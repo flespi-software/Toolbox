@@ -57,6 +57,7 @@ export default {
       const params = { from: Math.floor(this.currentDateRange[0].valueOf() / 1000), to: Math.floor(this.currentDateRange[1].valueOf() / 1000) }
       const events = await this.$store.dispatch(`${this.moduleName}/getExportData`, params)
       events.forEach((event, index) => {
+        events[index].timestamp = date.formatDate(events[index].timestamp * 1000, 'YYYY/MM/DD HH:mm:ss')
         if (!events[index].data) { return false }
         events[index].data = this.formatData(event.data)
       })
