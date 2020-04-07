@@ -43,7 +43,7 @@
       </template>
       <empty-pane v-else :config="config.emptyState"/>
     </div>
-    <export-modal ref="export" :format="view" :dateRange="dateRange" :config="config" :ident="device.ident"/>
+    <export-modal ref="export" :format="view" :dateRange="dateRange" :config="config" :ident="device.ident" :item-id="activeId"/>
   </div>
 </template>
 

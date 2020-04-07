@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.3.8] - 2020-04-07
+[feature] traffic viewer export format date optional with pick TZ
 ### [1.3.7] - 2020-04-06
 [feature] traffic viewer export format date
 ### [1.3.6] - 2020-04-04
