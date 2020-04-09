@@ -23,7 +23,7 @@ async function getDevices ({ state, commit }) {
   }
   try {
     const resp = await Vue.connector.gw.getChannelsIdents(state.active, state.deviceFilter ? `*${state.deviceFilter}*` : '*')
-    let idents = get(resp, 'data.result[0].idents', [])
+    let idents = get(resp, 'data.result', [])
     idents = idents.reduce((idents, { ident, size }) => {
       idents[ident] = { ident, size }
       return idents

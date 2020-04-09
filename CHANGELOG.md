@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.3.10] - 2020-04-09
+[fix] idents in traffic viewer
 ### [1.3.9] - 2020-04-09
 [feature] traffic viewer new api rebase
 ### [1.3.8] - 2020-04-07
