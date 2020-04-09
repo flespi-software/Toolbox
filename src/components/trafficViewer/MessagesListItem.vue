@@ -8,7 +8,7 @@
     </q-item-section>
     <q-item-section>
       <q-item-label header class="ellipsis overflow-hidden q-pa-none" :class="[`text-${eventsColors[item.type]}-${selected ? 3 : 4}`]">{{date.formatDate(item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}}</q-item-label>
-      <q-item-label v-if="item.data_size" caption class="ellipsis overflow-hidden text-grey-5">{{`${item.data_size} B : `}}<small>{{dataPreview}}</small></q-item-label>
+      <q-item-label caption class="ellipsis overflow-hidden text-grey-5"><small>{{dataPreview}}</small></q-item-label>
     </q-item-section>
     <q-item-section side class="">
       <small :class="[`text-grey-${selected ? 5 : 7}`]">{{eventsDesc[item.type]}}</small>
