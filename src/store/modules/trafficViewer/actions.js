@@ -128,7 +128,7 @@ function pollingGetMessages ({ state, commit }) {
     } catch (e) {
       commit('reqFailed', e)
     }
-  }, 5000)
+  }, 10000)
   state.messagePolling = true
 }
 function removePollingGetMessages ({ state, commit }) {
