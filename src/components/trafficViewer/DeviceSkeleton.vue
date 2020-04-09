@@ -2,6 +2,7 @@
   <q-item class="bg-grey-9">
     <q-item-section>
       <q-item-label header class="q-pa-none bg-white full-width skeleton--modificator" style="height: 16px;"></q-item-label>
+      <q-item-label class="bg-grey-6  full-width skeleton--modificator" style="height: 15px;" caption></q-item-label>
     </q-item-section>
   </q-item>
 </template>
