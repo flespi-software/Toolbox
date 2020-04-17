@@ -77,7 +77,9 @@ export default {
   },
   methods: {
     clickHandler (index, type, content) {
-      this.$emit('action', { index, type, content })
+      const data = { ...content }
+      data.data = this.dataPreview
+      this.$emit('action', { index, type, content: data })
     },
     itemClickHandler (index, content, event) {
       this.$emit('item-click', { index, content, event })
