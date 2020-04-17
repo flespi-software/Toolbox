@@ -317,7 +317,8 @@ export default {
         this.selected = [index]
       }
       if (this.needAutoScroll) { this.needAutoScroll = false }
-      this.$emit('view-data', this.connection.messages.filter((message, index) => this.selected.includes(index)))
+      this.selected.sort((a, b) => a - b)
+      this.$emit('view-data', this.selected.map(index => this.connection.messages[index]))
     },
     previewConnectionHandler (connection) {
       this.$emit('connection:preview', connection)

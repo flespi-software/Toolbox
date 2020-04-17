@@ -13,6 +13,7 @@
       @change:device="content => { activeDevice = content }"
       @close="() => { activeDevice = null, selectedMessages = '' }"
       @device:preview="previewShow"
+      @device:preview-hide="previewHide"
     />
     <messages
       v-else
@@ -27,9 +28,9 @@
       @view-data="(content) => { selectedMessages = content }"
       @close="() => { activeDevice = null, selectedMessages = '' }"
     />
-    <div v-show="$q.platform.is.desktop || ($q.platform.is.mobile && selectedMessages)" :style="{width: $q.platform.is.desktop ? '75%' : '100%', maxWidth: 'calc(100% - 250px)'}">
+    <div v-show="$q.platform.is.desktop || ($q.platform.is.mobile && selectedMessages)" :style="{width: $q.platform.is.desktop ? '75%' : '100%', maxWidth: $q.platform.is.desktop ? 'calc(100% - 250px)' : ''}">
       <q-toolbar class="bg-grey-9" v-if="activeDevice">
-        <q-icon size="1.5rem" class="cursor-pointer" name="mdi-close" v-if="$q.platform.is.mobile" @click.native="() => { selectedMessages = '' }"/>
+        <q-icon color="white" size="1.5rem" class="cursor-pointer" name="mdi-close" v-if="$q.platform.is.mobile" @click.native="() => { selectedMessages = '' }"/>
         <q-toolbar-title>
           <div class="text-white">{{activeDevice.ident}}</div>
         </q-toolbar-title>
@@ -37,13 +38,13 @@
           <q-tooltip>Change view mode (hex/text)</q-tooltip>
         </q-btn>
         <q-btn v-if="activeDevice" color="white" flat dense icon="mdi-export-variant" @click="$refs.messages && $refs.messages.exportModalOpen()">
-          <q-tooltip>Export as..</q-tooltip>
+          <q-tooltip>Export</q-tooltip>
         </q-btn>
       </q-toolbar>
-      <hex-viewer
+      <packet-view
         v-if="activeDevice"
         :style="{height: `calc(100vh - ${isVisibleToolbar ? activeDevice ? '150px' : '100px' : '100px'})`, position: 'relative', overflow: 'auto'}"
-        :hex="hex"
+        :packets="selectedMessages"
         :view="typeOfHexView"
       />
       <div v-else-if="$q.platform.is.desktop && devicePreview && devicePreviewMessages.length" class="q-pa-md" style="overflow: hidden; max-height: calc(100vh - 100px);">
@@ -66,7 +67,7 @@
 import Messages from './Messages'
 import Devices from './Devices'
 import MessagePreviewItem from './MessagePreviewItem'
-import HexViewer from '../HexViewer'
+import PacketView from './PacketView'
 import trafficViewerVuexModule from '../../store/modules/trafficViewer'
 import convertMixin from '../../mixins/convert'
 export default {
@@ -123,6 +124,6 @@ export default {
     }
   },
   mixins: [convertMixin],
-  components: { Devices, Messages, MessagePreviewItem, HexViewer }
+  components: { Devices, Messages, MessagePreviewItem, PacketView }
 }
 </script>

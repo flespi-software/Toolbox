@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.3.13] - 2020-04-17
+[feature] new traffic viewer packets view
+[fix] styles
 ### [1.3.12] - 2020-04-09
 [feature] traffic viewer message preview
 ### [1.3.11] - 2020-04-09

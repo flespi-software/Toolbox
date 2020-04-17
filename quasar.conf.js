@@ -127,7 +127,8 @@ module.exports = function (ctx) {
         cfg.plugins.push(
           new webpack.DefinePlugin({
             DEV: process.env.NODE_ENV === 'development',
-            PROD: process.env.NODE_ENV === 'production'
+            PROD: process.env.NODE_ENV === 'production',
+            LOCAL: process.env.NODE_LOCAL === 'local'
           })
         )
       }

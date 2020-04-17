@@ -1,5 +1,5 @@
 <template>
-  <q-item :class="[`${selected ? 'bg-grey-8' : ''}`]" clickable @click="(event) => { itemClickHandler(index, item, event) }">
+  <q-item :class="[`${selected ? 'bg-grey-8' : ''}`]" clickable @click="(event) => { itemClickHandler(index, item, event) }" style="user-select: none">
     <q-tooltip>{{eventsDesc[item.type]}}</q-tooltip>
     <q-item-section v-if="actions" side class="q-pr-none">
       <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon" :color="selected ? 'grey-5' : ''">
@@ -8,7 +8,7 @@
     </q-item-section>
     <q-item-section>
       <q-item-label header class="ellipsis overflow-hidden q-pa-none" :class="[`text-${eventsColors[item.type]}-${selected ? 3 : 4}`]">{{date.formatDate(item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}}</q-item-label>
-      <q-item-label caption class="ellipsis overflow-hidden text-grey-5"><small>{{dataPreview}}</small></q-item-label>
+      <q-item-label v-if="size" caption class="ellipsis overflow-hidden text-grey-5">{{`${size} B : `}}<small>{{dataPreview}}</small></q-item-label>
     </q-item-section>
     <q-item-section side class="">
       <small :class="[`text-grey-${selected ? 5 : 7}`]">{{eventsDesc[item.type]}}</small>
@@ -33,6 +33,7 @@ export default {
     return {
       date: date,
       transport: (this.item.type === 0 || this.item.type === 1) ? '' : (this.item.type >= 128) ? 'udp' : 'tcp',
+      hex: this.base64ToHex(this.item.data),
       eventsColors: {
         0: 'green',
         1: 'red',
@@ -61,12 +62,17 @@ export default {
   },
   computed: {
     dataPreview () {
-      let preview = this.base64ToHex(this.item.data)
+      if (!this.item.data) { return '' }
+      let preview = this.hex
       if (this.view === 'text') {
         const bytesHexArray = preview.match(/.{1,2}/g)
         preview = bytesHexArray.map((byte) => String.fromCharCode(parseInt(byte, 16))).join('')
       }
       return preview
+    },
+    size () {
+      if (!this.item.data) { return null }
+      return Math.floor(this.hex.length / 2)
     }
   },
   methods: {

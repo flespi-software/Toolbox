@@ -7,7 +7,7 @@
           <q-toolbar-title :style="{minWidth: $q.platform.is.mobile ? '60px' : '210px'}">
             <img class="gt-sm" src="statics/toolbox50.png" alt="Toolbox" style="height: 30px">
             <img class="lt-md" src="statics/toolbox_mobile.png" alt="Toolbox" style="height: 30px">
-            <sup class="version" :class="{'version--mobile': $q.platform.is.mobile}">{{version}}</sup>
+            <sup class="version" :class="{'version--mobile': $q.platform.is.mobile}">{{version}}({{localeName}})</sup>
             <span v-if="configByEntity" style="position: relative; top: -5px; margin-left: 10px;">{{configByEntity.label}}</span>
           </q-toolbar-title>
           <q-btn v-if="errors.length" @click="clearNotificationCounter" small flat round icon="notifications">
@@ -261,7 +261,8 @@ export default {
       config: state => state.config,
       errors: state => state.errors,
       newNotificationCounter: state => state.newNotificationCounter,
-      settings: state => state.settings
+      settings: state => state.settings,
+      localeName: state => state.currentRegion && state.currentRegion.name
     }),
     messagesColsCollectionByEntity () {
       return this.messagesColsByEntity.reduce((cols, col, index) => {
@@ -701,8 +702,8 @@ export default {
 <style lang="stylus">
   .version
     position absolute
-    left 175px
-    top 4px
+    left 160px
+    top 3px
     font-size 0.7rem
     &--mobile
       top 2px

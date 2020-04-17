@@ -250,7 +250,8 @@ export default {
         this.selected = [index]
       }
       if (this.needAutoScroll) { this.needAutoScroll = false }
-      this.$emit('view-data', this.messages.filter((message, index) => this.selected.includes(index)))
+      this.selected.sort((a, b) => a - b)
+      this.$emit('view-data', this.selected.map(index => ({ ...this.messages[index], index })))
     },
     copyMessageHandler ({ index, content }) {
       copyToClipboard(JSON.stringify(content)).then((e) => {
@@ -299,7 +300,7 @@ export default {
     this.$store.dispatch(`${this.moduleName}/initTime`)
       .then(() => {
         if (this.to > Date.now()) {
-          this.$store.dispatch(`${this.moduleName}/getMessagesTail`)
+          this.$store.dispatch(`${this.moduleName}/getMessages`)
           this.$store.dispatch(`${this.moduleName}/pollingGetMessages`)
         } else {
           this.$store.dispatch(`${this.moduleName}/getMessages`)
