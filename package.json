@@ -1,6 +1,6 @@
 {
   "name": "toolbox",
-  "version": "1.3.12",
+  "version": "1.3.13",
   "description": "Flespi ToolboX",
   "productName": "ToolboX",
   "cordovaId": "org.cordova.quasar.app",
@@ -10,6 +10,7 @@
   "scripts": {
     "lint": "eslint --ext .js,.vue src",
     "dev": "quasar dev -m spa",
+    "dev_local": "env NODE_LOCAL=local quasar dev -m spa",
     "build": "quasar build -m spa",
     "deploy": "rm -rf dist && npm run build && rm -rf deploy && mkdir deploy && cp -R dist/spa/* misc CNAME LICENSE package.json deploy && cp README.md deploy/README.md && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rhttps://git.gurtam.net/flespi/frontend/toolbox.git && rm -rf deploy && git push github gh-pages"
   },
