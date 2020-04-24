@@ -2,7 +2,7 @@
   <q-page>
     <entities-toolbar :item="selectedItem">
       <div class="flex" :class="{'middle-modificator': !active}" slot="selects">
-        <div style="display: inline-flex;max-width: calc(100% - 80px);">
+        <div style="display: inline-flex;" :style="{maxWidth:  needShowBackToChannel && needShowBackToDevice ? 'calc(100% - 150px)' : needShowBackToChannel || needShowBackToDevice ? 'calc(100% - 80px)' : '100%'}">
           <q-select
             ref="itemSelect"
             class="items__select"
@@ -71,15 +71,28 @@
             </template>
           </q-select>
         </div>
-        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
-          <q-btn title="View channels" class="on-right pull-right text-center rounded-borders q-px-xs q-py-none text-white" style="width: 60px;" v-if="active" @click="viewLogsHandler" flat dense>
+        <transition-group appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp">
+          <q-btn key="channel" v-if="needShowBackToChannel" title="View channels" class="on-right pull-right text-center rounded-borders q-px-xs q-py-none text-white" style="width: 60px;" @click="viewLogsHandler" flat dense>
             <q-icon size="1.5rem" color="white" name="merge_type"/>
-            <div style="font-size: .7rem; line-height: .7rem;">Channels</div>
+            <div style="font-size: .7rem; line-height: .7rem;">Channel</div>
           </q-btn>
-        </transition>
+          <q-btn key="device" v-if="needShowBackToDevice" title="View devices" class="on-right pull-right text-center rounded-borders q-px-xs q-py-none text-white" style="width: 60px;" @click="goToDevice" flat dense>
+            <q-icon size="1.5rem" color="white" name="mdi-developer-board"/>
+            <div style="font-size: .7rem; line-height: .7rem;">Device</div>
+          </q-btn>
+        </transition-group>
       </div>
     </entities-toolbar>
-    <traffic-viewer v-if="active" :active="active" :isVisibleToolbar="isVisibleToolbar" :config="config" class="flex"/>
+    <traffic-viewer
+      v-if="active"
+      :active="active"
+      :active-device="activeDevice"
+      :isVisibleToolbar="isVisibleToolbar"
+      :device-closeble="needShowBackToChannel"
+      :config="config"
+      class="flex"
+      @change:active-device="changeActiveDeviceHandler"
+    />
     <div v-if="!items.length && isItemsInit" class="text-center text-grey-3 q-mt-lg" style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Compatible channels not found'}}</div>
   </q-page>
 </template>
@@ -105,36 +118,21 @@ export default {
   data () {
     return {
       active: null,
+      activeDevice: null,
+      relatedDeviceId: null,
       isInit: false,
       isItemsInit: false,
-      filter: ''
+      filter: '',
+      prevEntity: null,
+      isIntegration: this.$q.platform.within.iframe
     }
   },
   computed: {
     ...mapState({
       tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
-      NOT_COMPATIBLE_PROTOCOL_IDS (state) {
-        const protocols = state.protocols || {}
-        return Object.keys(protocols).reduce((ids, protocolId) => {
-          if (
-            protocols[protocolId] === 'proxy' ||
-            protocols[protocolId] === '1m2m-lora-kpn' ||
-            protocols[protocolId] === 'ble-beacons' ||
-            protocols[protocolId] === 'fleetboard' ||
-            protocols[protocolId] === 'http' ||
-            protocols[protocolId] === 'mqtt' ||
-            protocols[protocolId] === 'pipe-cache-params' ||
-            protocols[protocolId] === 'scania-fms' ||
-            protocols[protocolId] === 'spot' ||
-            protocols[protocolId] === 'telegram' ||
-            protocols[protocolId] === 'test'
-          ) {
-            ids.push(parseInt(protocolId))
-          }
-          return ids
-        }, [])
-      },
-      items (state) { return Object.values(state.channels || {}).filter(item => !this.NOT_COMPATIBLE_PROTOCOL_IDS.includes(item.protocol_id)) }
+      items (state) {
+        return Object.values(state.channels || {}).filter(item => state.protocols[item.protocol_id].features.raw_packets)
+      }
     }),
     filteredItems () {
       const filter = this.filter.toLowerCase()
@@ -168,9 +166,27 @@ export default {
     },
     selectedItem () {
       return this.items.filter(item => item.id === this.active)[0] || null
+    },
+    needShowBackToChannel () {
+      return this.active && (!this.isIntegration || (this.isIntegration && ((this.prevEntity === 'channels' && !this.isNeedSelect && !this.activeDevice) || this.isNeedSelect)))
+    },
+    needShowBackToDevice () {
+      return (this.active && this.activeDevice && this.relatedDeviceId) && (!this.isIntegration || (this.isIntegration && ((this.prevEntity === 'devices' && !this.isNeedSelect) || this.isNeedSelect)))
     }
   },
   methods: {
+    changeActiveDeviceHandler (device) {
+      this.setActiveDevice(device)
+      if (this.active) {
+        if (this.activeDevice) {
+          this.$router.push(`/tools/traffic/${this.active}/ident/${device.ident}`).catch(err => err)
+        } else {
+          this.$router.push(`/tools/traffic/${this.active}`).catch(err => err)
+        }
+      } else {
+        this.$router.push('/tools/traffic').catch(err => err)
+      }
+    },
     filterItems (filter, update) {
       if (this.isItemsInit) {
         update()
@@ -185,6 +201,21 @@ export default {
     viewLogsHandler () {
       this.$router.push(`/channels/${this.active}`).catch(err => err)
     },
+    setActiveDevice (device) {
+      this.activeDevice = device
+      this.getRelatedDeviceId()
+    },
+    getRelatedDeviceId () {
+      if (!this.activeDevice) {
+        this.relatedDeviceId = null
+        return
+      }
+      this.$connector.gw.getDevices(`configuration.ident=${this.activeDevice.ident}`, { fields: 'id' })
+        .then((data) => { this.relatedDeviceId = get(data, 'data.result[0].id', null) })
+    },
+    goToDevice () {
+      this.$router.push(`/devices/${this.relatedDeviceId}`).catch(err => err)
+    },
     init () {
       const entity = 'tools/traffic'
       const activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined)
@@ -192,6 +223,9 @@ export default {
       if (this.$route.params && this.$route.params.id) {
         if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
           this.active = Number(this.$route.params.id)
+          if (this.$route.params.ident) {
+            this.setActiveDevice({ ident: this.$route.params.ident })
+          }
         } else {
           this.active = null
         }
@@ -201,11 +235,19 @@ export default {
       this.$emit('inited')
     }
   },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.prevEntity = from.meta.moduleName
+    })
+  },
   watch: {
     $route (route) {
       if (route.params && route.params.id) {
         if (this.items.filter(item => item.id === Number(route.params.id)).length) {
           this.active = Number(route.params.id)
+          if (this.$route.params.ident) {
+            this.setActiveDevice({ ident: this.$route.params.ident })
+          }
         } else if (this.isInit) {
           this.active = null
         }
@@ -217,7 +259,11 @@ export default {
       const currentItem = this.items.filter(item => item.id === val)[0] || {}
       if (val) {
         this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: 'tools/traffic' }, value: currentItem.id })
-        this.$router.push(`/tools/traffic/${val}`).catch(err => err)
+        if (this.activeDevice) {
+          this.$router.push(`/tools/traffic/${val}/ident/${this.activeDevice.ident}`).catch(err => err)
+        } else {
+          this.$router.push(`/tools/traffic/${val}`).catch(err => err)
+        }
       } else {
         this.$router.push('/tools/traffic').catch(err => err)
       }

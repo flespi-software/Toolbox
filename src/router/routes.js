@@ -24,6 +24,14 @@ function getIndexChildrenRoutes (config) {
         meta: { moduleName: 'intervals' }
       })
     }
+    if (moduleName === 'trafficViewer') {
+      route.children[0].children = [
+        {
+          path: 'ident/:ident',
+          meta: { moduleName }
+        }
+      ]
+    }
     result.push(route)
     return result
   }, [])

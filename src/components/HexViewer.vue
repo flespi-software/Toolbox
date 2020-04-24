@@ -115,6 +115,7 @@
 import range from 'lodash/range'
 import chunk from 'lodash/chunk'
 import { copyToClipboard } from 'quasar'
+import convert from '../mixins/convert'
 export default {
   name: 'HexViewer',
   props: ['hex', 'view'],
@@ -157,6 +158,7 @@ export default {
       this.end = -1
     }
   },
+  mixins: [convert],
   methods: {
     isEmptySymbol (byte) {
       const number = parseInt(byte, 16),
@@ -172,15 +174,6 @@ export default {
         string = String.fromCharCode(number)
       if (number < 0x20 || number >= 0x7f || string.match(/\s/g)) {
         return '.'
-      } else {
-        return string
-      }
-    },
-    replaceByteWithMnemo (byte) {
-      const number = parseInt(byte, 16),
-        string = String.fromCharCode(number)
-      if (number < 0x20 || number >= 0x7f || (string.match(/\s/g) && string !== ' ')) {
-        return `\\x${byte}`
       } else {
         return string
       }

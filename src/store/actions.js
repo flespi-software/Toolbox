@@ -60,9 +60,9 @@ async function getItems ({ state, commit }, payload) {
       try {
         // init getting protocols name
         if (entity === 'channels' && !state.protocols) {
-          const protocolsResp = await Vue.connector.gw.getProtocols('all', { fields: 'name,id' })
+          const protocolsResp = await Vue.connector.gw.getProtocols('all', { fields: 'name,id,features' })
           const protocols = protocolsResp.data.result.reduce((result, protocol) => {
-            result[protocol.id] = protocol.name
+            result[protocol.id] = protocol
             return result
           }, {})
           Vue.set(state, 'protocols', protocols)
@@ -302,6 +302,22 @@ async function initConnection ({ state, commit }, { region, token }) {
   }
 }
 
+async function getDeviceTrafficRoute ({ state }, { id, ident }) {
+  let route = ''
+  try {
+    const channelIdData = await Vue.connector.gw.getDevicesTelemetry(id)
+    const channelId = get(channelIdData, ['data', 'result', '0', 'telemetry', 'channel.id', 'value'], undefined)
+    if (!channelId) { return null }
+    const channelData = await Vue.connector.gw.getChannels(channelId, { fields: 'id,name,protocol_features' })
+    const channel = get(channelData, 'data.result[0]', undefined)
+    if (!channel) { return null }
+    return channel.protocol_features.raw_packets ? `/tools/traffic/${channelId}/ident/${ident}` : null
+  } catch (e) {
+    route = null
+  }
+  return route
+}
+
 export default {
   getItems,
   unsubscribeItems,
@@ -310,5 +326,6 @@ export default {
   getEntities,
   removeEntities,
   getRegions,
-  initConnection
+  initConnection,
+  getDeviceTrafficRoute
 }

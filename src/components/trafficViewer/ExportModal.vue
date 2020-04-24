@@ -92,7 +92,7 @@ export default {
       if (this.currentFormat === 'hex') {
         content = this.base64ToHex(base64)
       } else if (this.currentFormat === 'text') {
-        content = this.base64ToText(base64)
+        content = this.base64ToTextWithMnemoReplacing(base64)
       } else {
         content = base64
       }

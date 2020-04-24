@@ -2,7 +2,7 @@
   <q-page>
     <entities-toolbar
       :item="selectedItem" :ratio="ratio" :actions="actions" @change:ratio="r => ratio = r">
-      <div :class="{'middle-modificator': !active}" style="max-width: 50%" slot="selects">
+      <div class="flex" :class="{'middle-modificator': !active}" style="max-width: 50%" slot="selects">
         <q-select
           ref="itemSelect"
           class="items__select"
@@ -76,6 +76,12 @@
             </q-item>
           </template>
         </q-select>
+        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp" v-if="$q.platform.is.desktop && selectedItem && !selectedItem.deleted">
+          <q-btn title="Traffic hex payload" class="on-right pull-right text-center rounded-borders q-px-xs q-py-none text-white" v-if="trafficRoute" @click="trafficViewHandler" flat dense style="width: 50px;">
+            <q-icon size="1.5rem" color="white" name="mdi-download-network-outline"/>
+            <div style="font-size: .7rem; line-height: .7rem">Traffic</div>
+          </q-btn>
+        </transition>
       </div>
     </entities-toolbar>
     <div v-if="isInit && active">
@@ -147,7 +153,8 @@ export default {
       isVisibleMap: false,
       mapMinimizedOptions: {},
       siblingHeight: null,
-      needShowGetDeletedAction: true
+      needShowGetDeletedAction: true,
+      trafficRoute: null
     }
   },
   computed: {
@@ -170,8 +177,9 @@ export default {
     },
     selectedItem () {
       const item = (this.itemsCollection && this.itemsCollection[this.active]) || null
-      if (item && item.deleted) {
-        this.deletedHandler()
+      if (item) {
+        item.deleted && this.deletedHandler()
+        this.getTrafficRoute(item)
       }
       return item
     },
@@ -228,6 +236,12 @@ export default {
           condition: !!this.tasksByDevice.length
         },
         {
+          label: 'Traffic',
+          icon: 'mdi-download-network-outline',
+          handler: this.trafficViewHandler,
+          condition: this.trafficRoute && this.$q.platform.is.mobile
+        },
+        {
           label: 'Map',
           icon: 'mdi-map',
           handler: () => this.setMapVisibility(!this.isVisibleMap),
@@ -243,7 +257,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['getDeleted']),
+    ...mapActions(['getDeleted', 'getDeviceTrafficRoute']),
     filterItems (filter, update) {
       if (this.isItemsInit) {
         update()
@@ -299,6 +313,16 @@ export default {
     },
     deletedHandler () {
       this.ratio = 100
+    },
+    getTrafficRoute (device) {
+      this.trafficRoute = null
+      const ident = device.configuration ? device.configuration.ident : ''
+      if (!ident) { return false }
+      this.getDeviceTrafficRoute({ id: device.id, ident })
+        .then(route => { this.trafficRoute = route })
+    },
+    trafficViewHandler () {
+      this.$router.push(this.trafficRoute).catch(err => err)
     },
     init () {
       const entity = 'devices',

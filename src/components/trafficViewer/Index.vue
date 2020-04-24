@@ -10,8 +10,8 @@
       :view="typeOfHexView"
       :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', width: $q.platform.is.desktop ? '25%' : '100%', minWidth: '250px'}"
       @view-data="(content) => { selectedMessages = content }"
-      @change:device="content => { activeDevice = content }"
-      @close="() => { activeDevice = null, selectedMessages = '' }"
+      @change:device="content => { $emit('change:active-device', content) }"
+      @close="() => { $emit('change:active-device', null), selectedMessages = '' }"
       @device:preview="previewShow"
       @device:preview-hide="previewHide"
     />
@@ -22,11 +22,12 @@
       :activeId="active"
       :limit="limit"
       :config="config.messages"
+      :device-closeble="deviceCloseble"
       :device="activeDevice"
       :view="typeOfHexView"
       :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', width: $q.platform.is.desktop ? '25%' : '100%', minWidth: '250px'}"
       @view-data="(content) => { selectedMessages = content }"
-      @close="() => { activeDevice = null, selectedMessages = '' }"
+      @close="() => { $emit('change:active-device', null), selectedMessages = '' }"
     />
     <div v-show="$q.platform.is.desktop || ($q.platform.is.mobile && selectedMessages)" :style="{width: $q.platform.is.desktop ? '75%' : '100%', maxWidth: $q.platform.is.desktop ? 'calc(100% - 250px)' : ''}">
       <q-toolbar class="bg-grey-9" v-if="activeDevice">
@@ -71,14 +72,13 @@ import PacketView from './PacketView'
 import trafficViewerVuexModule from '../../store/modules/trafficViewer'
 import convertMixin from '../../mixins/convert'
 export default {
-  props: ['active', 'isVisibleToolbar', 'config'],
+  props: ['active', 'activeDevice', 'isVisibleToolbar', 'config', 'deviceCloseble'],
   data () {
     return {
       devicePreview: null,
       typeOfHexView: 'hex',
       limit: 1000,
       selectedMessages: '',
-      activeDevice: null,
       moduleName: this.config.messages.vuexModuleName,
       devicePreviewMessages: []
     }
@@ -118,7 +118,6 @@ export default {
   },
   watch: {
     active () {
-      this.activeDevice = null
       this.selectedMessages = ''
       this.devicePreview = null
     }

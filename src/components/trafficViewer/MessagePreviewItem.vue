@@ -57,7 +57,7 @@ export default {
       let preview = this.base64ToHex(this.message.data) || ''
       if (this.view === 'text' && preview) {
         const bytesHexArray = preview.match(/.{1,2}/g)
-        preview = bytesHexArray.map((byte) => String.fromCharCode(parseInt(byte, 16))).join('')
+        preview = bytesHexArray.map((byte) => this.replaceByteWithMnemo(byte)).join('')
       }
       return preview
     }

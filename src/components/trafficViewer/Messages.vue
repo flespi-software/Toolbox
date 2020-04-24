@@ -3,10 +3,10 @@
     <q-resize-observer @resize="wrapperResizeHandler"/>
     <div>
       <q-toolbar class="bg-grey-9">
-        <q-btn class="text-white" flat dense rounded icon="mdi-arrow-left" @click="closeDevice">
+        <q-btn class="text-white" flat dense rounded icon="mdi-arrow-left" @click="closeDevice" v-if="deviceCloseble">
           <q-tooltip>Close current device</q-tooltip>
         </q-btn>
-        <q-toolbar-title></q-toolbar-title>
+        <q-toolbar-title v-if="deviceCloseble"></q-toolbar-title>
         <date-range-modal
           class="flex flex-center"
           :date="dateRange"
@@ -64,7 +64,8 @@ export default {
     'device',
     'limit',
     'config',
-    'view'
+    'view',
+    'deviceCloseble'
   ],
   data () {
     return {
@@ -297,6 +298,12 @@ export default {
   },
   created () {
     this.currentLimit = this.limit
+    if (this.activeId && !this.$store.state[this.moduleName].active) {
+      this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
+    }
+    if (this.device && !this.$store.state[this.moduleName].ident) {
+      this.$store.commit(`${this.moduleName}/setIdent`, this.device.ident)
+    }
     this.$store.dispatch(`${this.moduleName}/initTime`)
       .then(() => {
         if (this.to > Date.now()) {

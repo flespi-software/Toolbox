@@ -68,7 +68,7 @@
             >
               <q-item-section>
                 <q-item-label header class="ellipsis overflow-hidden q-pa-xs">{{scope.opt.name || '&lt;noname&gt;'}}</q-item-label>
-                <q-item-label class="q-pa-none q-mt-none" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{(protocols && protocols[scope.opt.protocol_id]) || '&lt;no protocol&gt;'}}</small></q-item-label>
+                <q-item-label class="q-pa-none q-mt-none" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{(protocols && protocols[scope.opt.protocol_id]&& protocols[scope.opt.protocol_id].name) || '&lt;no protocol&gt;'}}</small></q-item-label>
                 <q-item-label class="q-pa-none q-mt-none" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{scope.opt.uri || '&lt;no uri&gt;'}}</small></q-item-label>
               </q-item-section>
               <q-item-section side>
@@ -164,7 +164,7 @@ export default {
       proxyProtocolId (state) {
         const protocols = state.protocols
         return Object.keys(protocols).reduce((res, id) => {
-          if (protocols[id] === 'proxy') {
+          if (protocols[id].name === 'proxy') {
             res = parseInt(id)
           }
           return res
@@ -174,20 +174,8 @@ export default {
         const protocols = this.protocols
         if (!this.selectedItem) { return false }
         const protocolId = this.selectedItem.protocol_id
-        if (
-          protocols[protocolId] === 'proxy' ||
-          protocols[protocolId] === '1m2m-lora-kpn' ||
-          protocols[protocolId] === 'ble-beacons' ||
-          protocols[protocolId] === 'fleetboard' ||
-          protocols[protocolId] === 'http' ||
-          protocols[protocolId] === 'mqtt' ||
-          protocols[protocolId] === 'pipe-cache-params' ||
-          protocols[protocolId] === 'scania-fms' ||
-          protocols[protocolId] === 'spot' ||
-          protocols[protocolId] === 'telegram' ||
-          protocols[protocolId] === 'test'
-        ) { return false }
-        return true
+        const protocol = protocols[protocolId]
+        return protocol.features.raw_packets
       }
     }),
     items () {
@@ -240,6 +228,12 @@ export default {
           icon: 'mdi-matrix',
           handler: this.hexViewHandler,
           condition: this.selectedItem && this.selectedItem.protocol_id === this.proxyProtocolId && this.$q.platform.is.mobile
+        },
+        {
+          label: 'Traffic',
+          icon: 'mdi-download-network-outline',
+          handler: this.trafficViewHandler,
+          condition: this.isTrafficViewerSupported && this.$q.platform.is.mobile
         },
         {
           label: 'Clear',

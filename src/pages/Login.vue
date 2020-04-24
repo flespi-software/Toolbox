@@ -150,7 +150,7 @@ export default {
         this.token = payload.token
         this.regionInitFromAuth(payload.region)
         this.setToken(payload.token)
-        this.goto('/')
+        this.logIn()
         window.removeEventListener('message', tokenHandler)
       }
     }

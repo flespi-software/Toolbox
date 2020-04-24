@@ -17,8 +17,10 @@
 
 <script>
 import { date } from 'quasar'
+import convert from '../../mixins/convert'
 export default {
   props: ['message', 'view'],
+  mixins: [convert],
   data () {
     return {
       date: date,
@@ -39,7 +41,7 @@ export default {
       let preview = this.message['proxy.payload.hex'] || ''
       if (this.view === 'text' && preview) {
         const bytesHexArray = preview.match(/.{1,2}/g)
-        preview = bytesHexArray.map((byte) => String.fromCharCode(parseInt(byte, 16))).join('')
+        preview = bytesHexArray.map((byte) => this.replaceByteWithMnemo(byte)).join('')
       }
       return preview
     }

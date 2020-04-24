@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.3.15] - 2020-04-24
+[feature] traffic viewer from device
+[feature] update convert hex to mnemo
+[fix] redirect from login
 ### [1.3.14] - 2020-04-17
 [feature] copy message in selected format in traffic viewer
 ### [1.3.13] - 2020-04-17
