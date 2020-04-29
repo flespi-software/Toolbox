@@ -157,10 +157,10 @@ export default {
       data.on['item-click'] = this.viewMessagesHandler
     },
     scrollTo (index) {
-      this.$nextTick(() => this.$refs.scrollList.scrollTo(index))
+      this.$nextTick(() => this.$refs.scrollList && this.$refs.scrollList.scrollTo(index))
     },
     scrollToWithSavePadding (index) {
-      this.$nextTick(() => this.$refs.scrollList.scrollToWithSavePadding(index))
+      this.$nextTick(() => this.$refs.scrollList && this.$refs.scrollList.scrollToWithSavePadding(index))
     },
     async getMessages () {
       if (this.to <= Date.now()) {

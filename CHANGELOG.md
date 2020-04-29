@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.3.16] - 2020-04-29
+[fix] hex-viewer channels filter
+[fix] scroll logic
 ### [1.3.15] - 2020-04-24
 [feature] traffic viewer from device
 [feature] update convert hex to mnemo

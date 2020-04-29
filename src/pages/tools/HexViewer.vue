@@ -116,7 +116,7 @@ export default {
       PROXY_PROTOCOL_ID (state) {
         const protocols = state.protocols || {}
         return Object.keys(protocols).reduce((proxyId, protocolId) => {
-          if (protocols[protocolId] === 'proxy') {
+          if (protocols[protocolId].name === 'proxy') {
             proxyId = parseInt(protocolId)
           }
           return proxyId

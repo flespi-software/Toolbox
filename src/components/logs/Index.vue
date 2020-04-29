@@ -175,10 +175,10 @@ export default {
       }
     },
     scrollTo (index) {
-      this.$nextTick(() => this.$refs.scrollList.scrollTo(index))
+      this.$nextTick(() => this.$refs.scrollList && this.$refs.scrollList.scrollTo(index))
     },
     scrollToWithSavePadding (index) {
-      this.$nextTick(() => this.$refs.scrollList.scrollToWithSavePadding(index))
+      this.$nextTick(() => this.$refs.scrollList && this.$refs.scrollList.scrollToWithSavePadding(index))
     },
     resetParams () {
       this.$refs.scrollList.resetParams()
