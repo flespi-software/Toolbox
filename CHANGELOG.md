@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.3.17] - 2020-04-29
+[fix] integration logic traffic viewer
 ### [1.3.16] - 2020-04-29
 [fix] hex-viewer channels filter
 [fix] scroll logic

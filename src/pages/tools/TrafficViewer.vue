@@ -168,7 +168,7 @@ export default {
       return this.items.filter(item => item.id === this.active)[0] || null
     },
     needShowBackToChannel () {
-      return this.active && (!this.isIntegration || (this.isIntegration && ((this.prevEntity === 'channels' && !this.isNeedSelect && !this.activeDevice) || this.isNeedSelect)))
+      return this.active && (!this.isIntegration || (this.isIntegration && ((this.prevEntity === 'channels' && !this.isNeedSelect) || this.isNeedSelect)))
     },
     needShowBackToDevice () {
       return (this.active && this.activeDevice && this.relatedDeviceId) && (!this.isIntegration || (this.isIntegration && ((this.prevEntity === 'devices' && !this.isNeedSelect) || this.isNeedSelect)))
