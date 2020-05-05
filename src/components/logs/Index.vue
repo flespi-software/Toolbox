@@ -52,6 +52,7 @@ export default {
     return {
       listItem: LogsListItem,
       theme: this.config.theme,
+      itemSettings: this.config.itemSettings,
       i18n: {
         'Messages not found': 'Log entries not found'
       },
@@ -162,6 +163,7 @@ export default {
       data.key = item['x-flespi-message-key']
       data.props.etcVisible = this.etcVisible
       data.props.actionsVisible = this.actionsVisible
+      data.props.itemSettings = this.itemSettings
       if (!data.on) { data.on = {} }
       data.on.action = this.actionHandler
       data.on['item-click'] = this.viewMessagesHandler
@@ -222,6 +224,10 @@ export default {
       switch (type) {
         case 'view': {
           this.viewMessagesHandler({ index, content })
+          break
+        }
+        case 'traffic': {
+          this.$emit('to-traffic', { index, content })
           break
         }
       }

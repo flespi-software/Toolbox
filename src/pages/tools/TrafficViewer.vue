@@ -210,8 +210,25 @@ export default {
         this.relatedDeviceId = null
         return
       }
-      this.$connector.gw.getDevices(`configuration.ident=${this.activeDevice.ident}`, { fields: 'id' })
-        .then((data) => { this.relatedDeviceId = get(data, 'data.result[0].id', null) })
+      this.$connector.gw.getProtocolsDeviceTypes(this.selectedItem.protocol_id, 'all', { fields: 'id' })
+        .then((data) => {
+          const types = get(data, 'data.result', [])
+          return types.map(type => type.id)
+        })
+        .then(typeIds => {
+          this.$connector.gw.getDevices(`configuration.ident=${this.activeDevice.ident}`, { fields: 'id,device_type_id' })
+            .then(devicesData => {
+              const devices = get(devicesData, 'data.result', [])
+              const relatedDeviceId = devices.reduce((result, device) => {
+                if (result) { return result }
+                if (typeIds.includes(device.device_type_id)) {
+                  return device.id
+                }
+                return result
+              }, 0)
+              this.relatedDeviceId = relatedDeviceId
+            })
+        })
     },
     goToDevice () {
       this.$router.push(`/devices/${this.relatedDeviceId}`).catch(err => err)

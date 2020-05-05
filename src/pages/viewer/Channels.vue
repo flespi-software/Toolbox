@@ -101,6 +101,7 @@
         v-if="+size[0]"
         :style="{height: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
         @view-log-message="viewLogMessagesHandler"
+        @to-traffic="toTrafficHandler"
       />
       <messages
         ref="messages"
@@ -265,6 +266,14 @@ export default {
     },
     trafficViewHandler () {
       this.$router.push(`/tools/traffic/${this.active}`).catch(err => err)
+    },
+    toTrafficHandler ({ content }) {
+      const ident = content.ident,
+        timeEnd = Math.floor(content.timestamp * 1000),
+        timeStart = timeEnd - 10000
+      if (ident) {
+        this.$router.push({ path: `/tools/traffic/${this.active}/ident/${ident}`, query: { from: timeStart, to: timeEnd } }).catch(err => err)
+      }
     },
     unselect () {
       this.$refs.messages.unselect()

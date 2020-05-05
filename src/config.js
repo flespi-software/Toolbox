@@ -316,6 +316,7 @@ export default {
         }
       ],
       actions: [],
+      itemSettings: {},
       viewConfig: {
         needShowFilter: true,
         needShowDateRange: true

@@ -94,7 +94,8 @@
         v-if="+size[0]"
         :style="[{height: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'logs' ? '66%' : ''}]"
         @view-log-message="viewLogMessagesHandler"
-        :config="config.logs"
+        @to-traffic="toTrafficHandler"
+        :config="logsConfig"
       />
       <messages
         ref="messages"
@@ -182,6 +183,15 @@ export default {
         this.getTrafficRoute(item)
       }
       return item
+    },
+    logsConfig () {
+      const config = this.config.logs
+      if (this.trafficRoute) {
+        config.itemSettings.needTrafficRoute = true
+      } else {
+        config.itemSettings.needTrafficRoute = false
+      }
+      return config
     },
     filteredItems () {
       const filter = this.filter.toLowerCase()
@@ -323,6 +333,14 @@ export default {
     },
     trafficViewHandler () {
       this.$router.push(this.trafficRoute).catch(err => err)
+    },
+    toTrafficHandler ({ content }) {
+      const ident = content.ident,
+        timeEnd = Math.floor(content.timestamp * 1000),
+        timeStart = timeEnd - 10000
+      if (ident) {
+        this.$router.push({ path: this.trafficRoute, query: { from: timeStart, to: timeEnd } }).catch(err => err)
+      }
     },
     init () {
       const entity = 'devices',

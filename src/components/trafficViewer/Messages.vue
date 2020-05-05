@@ -304,15 +304,24 @@ export default {
     if (this.device && !this.$store.state[this.moduleName].ident) {
       this.$store.commit(`${this.moduleName}/setIdent`, this.device.ident)
     }
-    this.$store.dispatch(`${this.moduleName}/initTime`)
-      .then(() => {
-        if (this.to > Date.now()) {
+    const from = this.$route.query.from,
+      to = this.$route.query.to
+    if (from && to) {
+      this.from = from
+      this.to = to
+      this.$store.dispatch(`${this.moduleName}/getMessages`)
+      if (this.to > Date.now()) {
+        this.$store.dispatch(`${this.moduleName}/pollingGetMessages`)
+      }
+    } else {
+      this.$store.dispatch(`${this.moduleName}/initTime`)
+        .then(() => {
           this.$store.dispatch(`${this.moduleName}/getMessages`)
-          this.$store.dispatch(`${this.moduleName}/pollingGetMessages`)
-        } else {
-          this.$store.dispatch(`${this.moduleName}/getMessages`)
-        }
-      })
+          if (this.to > Date.now()) {
+            this.$store.dispatch(`${this.moduleName}/pollingGetMessages`)
+          }
+        })
+    }
   },
   mounted () {
     this.resetParams()

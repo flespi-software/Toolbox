@@ -28,6 +28,7 @@
             <q-icon v-if="item.address === 'sms'" name="mdi-email-outline"  title="address: sms"/>
             <q-icon v-if="item.address === 'local'" name="mdi-content-save-outline"  title="address: local"/>
           </template>
+          <q-icon name="mdi-download-network-outline" v-if="prop.name === 'event_code' && !!item['error_text'] && needTrafficRoute && item.ident" color="white" style="float: right; margin-top: 3px;" @click.stop.native="clickHandler(index, 'traffic', clearItem)"><q-tooltip>Show in traffic viewer</q-tooltip></q-icon>
           <q-icon name="mdi-alert-outline" v-if="prop.name === 'event_code' && !!item['error_text']"><q-tooltip>{{item['error_text']}}</q-tooltip></q-icon>
           <a @click.stop="" target="_blank" class="text-green" v-if="item.event_code === 901 && prop.name === 'name'" :href="`${$flespiCDN}/file/${item.uuid}`">
             {{getValueOfProp(prop)}}
@@ -69,11 +70,13 @@ export default {
     'actions',
     'cols',
     'itemHeight',
-    'rowWidth'
+    'rowWidth',
+    'itemSettings'
   ],
   data () {
     return {
-      date: date
+      date: date,
+      needTrafficRoute: (this.itemSettings && this.itemSettings.needTrafficRoute) || !this.itemSettings
     }
   },
   computed: {
