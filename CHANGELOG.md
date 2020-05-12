@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.3.20] - 2020-05-12
+[fix] log highlight
 ### [1.3.19] - 2020-05-07
 [new] close code
 ### [1.3.18] - 2020-05-05

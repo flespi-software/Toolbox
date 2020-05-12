@@ -183,7 +183,8 @@ export default {
             case 3: { return 'text-green' }
             case 2:
             case 12:
-            case 15: { return 'text-grey-6' }
+            case 15:
+            case 16: { return 'text-grey-6' }
             case 4:
             case 5:
             case 6:
