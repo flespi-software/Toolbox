@@ -161,9 +161,8 @@ export default {
   mixins: [convert],
   methods: {
     isEmptySymbol (byte) {
-      const number = parseInt(byte, 16),
-        string = String.fromCharCode(number)
-      if (number < 0x20 || number >= 0x7f || string.match(/\s/g)) {
+      const number = parseInt(byte, 16)
+      if (number < 0x20 || number >= 0x7f) {
         return true
       } else {
         return false
@@ -172,7 +171,7 @@ export default {
     replaceByteWithDot (byte) {
       const number = parseInt(byte, 16),
         string = String.fromCharCode(number)
-      if (number < 0x20 || number >= 0x7f || string.match(/\s/g)) {
+      if (number < 0x20 || number >= 0x7f) {
         return '.'
       } else {
         return string

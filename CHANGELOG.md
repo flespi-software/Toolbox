@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.3.21] - 2020-05-28
+[fix] hex show whitespace
 ### [1.3.20] - 2020-05-12
 [fix] log highlight
 ### [1.3.19] - 2020-05-07
