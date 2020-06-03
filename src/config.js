@@ -460,10 +460,28 @@ export default {
           description: 'Log event code and description'
         },
         {
-          name: 'messages',
+          name: 'accepted',
           width: 100,
           display: true,
-          description: 'Number of messages has sent'
+          description: 'Messages count has accepted'
+        },
+        {
+          name: 'read',
+          width: 100,
+          display: true,
+          description: 'Messages count has read'
+        },
+        {
+          name: 'rejected',
+          width: 100,
+          display: true,
+          description: 'Messages count has rejected'
+        },
+        {
+          name: 'skipped',
+          width: 100,
+          display: true,
+          description: 'Messages count has skipped'
         },
         {
           name: 'host',

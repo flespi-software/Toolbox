@@ -201,6 +201,10 @@ function setToolboxSettings (state, { type, opt, value }) {
   state.settings = settings
 }
 
+function clearToolboxSettings (state) {
+  LocalStorage.remove('flespi-toolbox-settings')
+}
+
 function setRegions (state, regions) {
   state.regions = regions
 }
@@ -233,6 +237,7 @@ export default {
   clearNotificationCounter,
   getToolboxSettings,
   setToolboxSettings,
+  clearToolboxSettings,
   setRegions,
   setCurrentRegion,
   clearCurrentRegion

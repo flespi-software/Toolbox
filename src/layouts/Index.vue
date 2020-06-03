@@ -26,7 +26,9 @@
               </q-list>
             </q-menu>
           </q-btn>
-          <q-btn @click="settingsHandler" small flat round icon="mdi-settings"/>
+          <q-btn @click="settingsHandler" small flat round icon="mdi-settings">
+            <settings ref="settings" :limit="limit" @input="saveSettings" @clear="clearSettings" />
+          </q-btn>
           <q-btn class="within-iframe-hide" @click="confirmExitHandler" small  flat round icon="mdi-exit-to-app"/>
         </q-toolbar>
       </q-header>
@@ -228,6 +230,7 @@ import ObjectViewer from '../components/ObjectViewer.vue'
 import { ColsEditor } from 'qvirtualscroll'
 import RawViewer from '../components/RawViewer.vue'
 import JsonTree from '../components/JsonTree.vue'
+import Settings from '../components/Settings.vue'
 
 export default {
   data () {
@@ -444,7 +447,8 @@ export default {
       'clearCurrentRegion',
       'reqFailed',
       'addError',
-      'clearNotificationCounter'
+      'clearNotificationCounter',
+      'clearToolboxSettings'
     ]),
     ...mapActions(['initConnection']),
     viewDataHandler (content) {
@@ -482,19 +486,15 @@ export default {
         .onCancel(() => {})
     },
     settingsHandler () {
-      this.$q.dialog({
-        title: 'Settings',
-        color: 'grey-9',
-        prompt: {
-          model: this.limit,
-          label: 'Page row count',
-          type: 'number',
-          outlined: true
-        },
-        ok: true,
-        cancel: true
-      }).onOk((data) => { this.limit = +data })
-        .onCancel(() => {})
+      this.$refs.settings.show()
+    },
+    saveSettings ({ limit }) {
+      this.limit = limit
+    },
+    clearSettings () {
+      this.limit = 1000
+      this.clearToolboxSettings()
+      document.location.reload(true)
     },
     viewLogMessagesHandler (content) {
       this.currentData = JSON.parse(JSON.stringify(content))
@@ -695,7 +695,7 @@ export default {
     this.$eventBus.$off('cols:edit', this.colsEditHandler)
     this.connectionPreserveHandlerIndex !== undefined && Vue.connector.socket.off('connect', this.connectionPreserveHandlerIndex)
   },
-  components: { ObjectViewer, RawViewer, ColsEditor }
+  components: { ObjectViewer, RawViewer, ColsEditor, Settings }
 }
 </script>
 

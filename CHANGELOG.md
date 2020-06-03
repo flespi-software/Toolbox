@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.3.22] - 2020-06-03
+[feature] set to default Toolbox action in settings
+[update] default cols for streams
 ### [1.3.21] - 2020-05-28
 [fix] hex show whitespace
 ### [1.3.20] - 2020-05-12
