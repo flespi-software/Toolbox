@@ -308,7 +308,7 @@ export default {
         if (!this.configByEntity.logs) { return [] }
         const moduleName = this.configByEntity.logs.vuexModuleName
         let cols = []
-        if (this.$store.state[moduleName].cols) {
+        if (this.$store.state[moduleName] && this.$store.state[moduleName].cols) {
           cols = this.$store.state[moduleName].cols
         }
         return cols
@@ -643,11 +643,20 @@ export default {
       let moduleName = ''
       if (this.colsEditing === 'messages') {
         moduleName = this.messagesConfigByEntity.vuexModuleName
+        this.$store.commit(`${moduleName}/setDefaultCols`)
       } else if (this.colsEditing === 'logs') {
-        moduleName = this.configByEntity.logs.vuexModuleName
-        if (this.entity === 'intervals') { moduleName = this.configByEntity.intervals.vuexModuleName }
+        if (this.entity === 'intervals') {
+          moduleName = this.configByEntity.intervals.vuexModuleName
+          this.$store.commit(`${moduleName}/setDefaultCols`)
+        } else {
+          moduleName = this.configByEntity.logs.vuexModuleName
+          const cols = [...this.configByEntity.logs.cols]
+          if (cols[cols.length - 1].__dest !== 'etc') {
+            cols.push({ name: 'etc', width: 150, display: true, __dest: 'etc' })
+          }
+          this.$store.commit(`${moduleName}/setCols`, cols)
+        }
       }
-      this.$store.commit(`${moduleName}/setDefaultCols`)
     }
   },
   watch: {
