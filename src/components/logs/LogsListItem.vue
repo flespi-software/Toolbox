@@ -134,6 +134,7 @@ export default {
         case 303:
         case 311:
         case 314:
+        case 321:
         case 411:
         case 412:
         case 502:
@@ -165,7 +166,7 @@ export default {
         case 304:
         case 315:
         case 316:
-        case 321:
+        case 322:
         case 402:
         case 403:
         case 501:
@@ -237,7 +238,8 @@ export default {
         case 315:
         case 316:
         case 320:
-        case 321: { return `${host}/docs/#/gw/!/devices` }
+        case 321:
+        case 322: { return `${host}/docs/#/gw/!/devices` }
         case 401:
         case 402:
         case 403:
