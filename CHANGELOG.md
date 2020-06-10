@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.4.0] - 2020-06-10
+[feature] plugins logs
 ### [1.3.23] - 2020-06-03
 [fix] set default cols
 ### [1.3.22] - 2020-06-03

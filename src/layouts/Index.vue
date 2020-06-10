@@ -109,7 +109,15 @@
                     <div>{{config.calcs.label}}</div>
                   </q-item-section>
                 </q-item>
-                <q-separator style="width: 100%" v-if="renderEntities.includes('calcs')"/>
+                <q-item v-if="renderEntities.includes('plugins')" to='/plugins' class="col-6" active-class="bg-grey-6">
+                  <q-item-section class="text-center text-white">
+                    <div>
+                      <q-icon :name="config.plugins.icon" size="2.6em"/>
+                    </div>
+                    <div>{{config.plugins.label}}</div>
+                  </q-item-section>
+                </q-item>
+                <q-separator style="width: 100%" v-if="renderEntities.includes('calcs') || renderEntities.includes('plugins')"/>
                 <q-item-label header class="col-12 text-white" v-if="renderEntities.includes('hexViewer') || renderEntities.includes('trafficViewer')">Tools</q-item-label>
                 <q-item to='/tools/hex' class="col-6" v-if="renderEntities.includes('hexViewer')" active-class="bg-grey-6">
                   <q-item-section class="text-center text-white">
@@ -248,7 +256,7 @@ export default {
       isVisibleToolbar: true,
       connectFlag: false,
       isTabsVisible: true,
-      entityByGroup: ['platform', 'channels', 'calcs', 'devices', 'streams', 'modems', 'containers', 'cdns', 'mqtt', 'mqttClient', 'hexViewer', 'trafficViewer'],
+      entityByGroup: ['platform', 'channels', 'calcs', 'plugins', 'devices', 'streams', 'modems', 'containers', 'cdns', 'mqtt', 'mqttClient', 'hexViewer', 'trafficViewer'],
       isNeedSelect: true,
       entityInited: false,
       isInit: Vue.connector.socket.connected(),
@@ -342,7 +350,7 @@ export default {
     },
     hubGroupModel () {
       const entity = this.entity
-      return entity === 'channels' || entity === 'calcs' || entity === 'devices' || entity === 'streams' || entity === 'modems' || entity === 'hexViewer' || entity === 'trafficViewer' || entity === 'intervals'
+      return entity === 'channels' || entity === 'calcs' || entity === 'plugins' || entity === 'devices' || entity === 'streams' || entity === 'modems' || entity === 'hexViewer' || entity === 'trafficViewer' || entity === 'intervals'
     },
     storageGroupModel () {
       const entity = this.entity
@@ -515,6 +523,7 @@ export default {
             case 'hub': {
               result.push('channels')
               result.push('calcs')
+              result.push('plugins')
               result.push('devices')
               result.push('streams')
               result.push('modems')

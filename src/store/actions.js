@@ -6,6 +6,7 @@ const origins = {
     devices: '/gw/devices',
     channels: '/gw/channels',
     calcs: '/gw/calcs',
+    plugins: '/gw/plugins',
     streams: '/gw/streams',
     modems: '/gw/modems',
     containers: '/storage/containers',
@@ -17,6 +18,7 @@ const origins = {
     devices: ['id', 'name', 'deleted', 'configuration'],
     channels: ['id', 'name', 'deleted', 'protocol_id', 'uri'],
     calcs: ['id', 'name', 'deleted', 'counters'],
+    plugins: ['id', 'name', 'deleted'],
     streams: ['id', 'name', 'deleted', 'configuration'],
     modems: ['id', 'name', 'deleted', 'configuration'],
     containers: ['id', 'name', 'deleted'],
@@ -171,6 +173,7 @@ const itemTypes = {
   channels: 9,
   streams: 12,
   calcs: 13,
+  plugins: 25,
   modems: 10,
   containers: 6,
   cdns: 7
