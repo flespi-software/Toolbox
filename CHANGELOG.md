@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.4.2] - 2020-06-11
+[fix] save cols after editing from message
 ### [1.4.1] - 2020-06-10
 [new] log event
 ### [1.4.0] - 2020-06-10

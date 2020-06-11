@@ -644,6 +644,7 @@ export default {
           cols.push(col)
         }
       }
+      this.$store.commit(`${this.messagesConfigByEntity.vuexModuleName}/setCols`, cols)
     },
     updateColsHandler (cols) {
       this.colsForEditing = cols
