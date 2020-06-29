@@ -59,6 +59,7 @@ export default {
     isDrawable: false,
     logs: {
       vuexModuleName: 'channelsLogs',
+      itemSettings: {},
       emptyState: {
         label: 'Log entries not found',
         sublabel: 'If you expect to see the log records here',

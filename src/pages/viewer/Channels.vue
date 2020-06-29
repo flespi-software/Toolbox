@@ -97,7 +97,7 @@
         :limit="limit"
         :isEnabled="!!+size[0]"
         originPattern="gw/channels/:id"
-        :config="config.logs"
+        :config="logsConfig"
         v-if="+size[0]"
         :style="{height: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
         @view-log-message="viewLogMessagesHandler"
@@ -179,6 +179,15 @@ export default {
         return protocol.features.raw_packets
       }
     }),
+    logsConfig () {
+      const config = this.config.logs
+      if (this.isTrafficViewerSupported) {
+        config.itemSettings.needTrafficRoute = true
+      } else {
+        config.itemSettings.needTrafficRoute = false
+      }
+      return config
+    },
     items () {
       return Object.values(this.itemsCollection)
     },
