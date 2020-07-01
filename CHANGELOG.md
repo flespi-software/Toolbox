@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.4.4] - 2020-07-01
+[feature] pics by content pattern
 ### [1.4.3] - 2020-06-29
 [fix] to traffic from logs
 ### [1.4.2] - 2020-06-11
