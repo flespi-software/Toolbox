@@ -26,7 +26,7 @@
           >
             <q-item-section>
               <q-item-label header class="ellipsis text-bold q-pa-none text-white">{{key}}<q-tooltip>{{key}}</q-tooltip></q-item-label>
-              <q-item-label v-if="filteredObject[key].toString().match(/^data\:image\/\w*\;base64\,\s/)" caption><img class="image-bin" :src="filteredObject[key]" :alt="key"></q-item-label>
+              <q-item-label v-if="filteredObject[key] && filteredObject[key].toString().match(/^data\:image\/\w*\;base64\,\s/)" caption><img class="image-bin" :src="filteredObject[key]" :alt="key"></q-item-label>
               <q-item-label v-else-if="key.indexOf('image.bin.') === -1" caption class="ellipsis text-white">{{JSON.stringify(filteredObject[key])}}<q-tooltip>{{JSON.stringify(filteredObject[key])}}</q-tooltip></q-item-label>
               <q-item-label v-else-if="key.indexOf('image.bin.') === 0" caption><img class="image-bin" :src="`data:image/${key.split('.')[2]};base64, ${filteredObject[key].replace(/^data\:image\/\w*\;base64\,\s/, '')}`" :alt="key"></q-item-label>
             </q-item-section>
