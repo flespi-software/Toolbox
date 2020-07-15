@@ -18,7 +18,7 @@
     "@quasar/extras": "^1.6.0",
     "flespi-io-js": "git+https://github.com/flespi-software/flespi-io-js.git",
     "leaflet": "^1.6.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "mqtt-board": "git+https://github.com/flespi-software/MQTT-Board.git",
     "quasar": "^1.9.9",
     "qvirtualscroll": "git+https://github.com/flespi-software/QVirtualScroll.git",
