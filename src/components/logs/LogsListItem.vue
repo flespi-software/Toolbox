@@ -123,7 +123,6 @@ export default {
         case 510:
         case 601:
         case 605:
-        case 901:
           return 'text-green'
         case 2:
         case 3:
@@ -170,7 +169,6 @@ export default {
         case 402:
         case 403:
         case 501:
-        case 902:
           return 'text-red'
         case 201: {
           if (this.item.send_code < 0) {
@@ -267,9 +265,7 @@ export default {
         case 605: { return `${host}/docs/#/gw/!/calcs` }
         case 700: { return `${host}/docs/#/storage/!/containers` }
         case 800: { return `${host}/docs/#/storage/!/abques` }
-        case 900:
-        case 901:
-        case 902: { return `${host}/docs/#/storage/!/cdns` }
+        case 900: { return `${host}/docs/#/storage/!/cdns` }
         default: { return '' }
       }
     },

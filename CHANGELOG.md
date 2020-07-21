@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.4.6] - 2020-07-21
+[fix] intervals messages show when rt enabled
+[fix] clear calc in intervals
+[fix] remove old log codes
 ### [1.4.5] - 2020-07-08
 [fix] cols drawer
 ### [1.4.4] - 2020-07-01

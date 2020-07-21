@@ -218,21 +218,24 @@ export default {
         this.$store.state[this.moduleName].messages = []
         const intervalMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.begin, to: interval.end, count: this.limit })
         const count = Math.ceil((this.limit - intervalMessages.length) / 2)
+        let scrollToIndex = 0
         if (intervalMessages.length < this.limit) {
           const paddingMessages = await Promise.all([
-            this.$store.dispatch(`${this.moduleName}/getMessages`, { to: interval.begin - 1, count, reverse: true }),
-            this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.end + 1, count })
+            this.$store.dispatch(`${this.moduleName}/getMessages`, { from: Math.floor(this.from / 1000), to: interval.begin - 1, count, reverse: true }),
+            this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.end + 1, to: Math.floor(this.to / 1000), count })
           ])
           const prevMsgs = paddingMessages[0].reverse(),
             nextMsgs = paddingMessages[1]
           intervalMessages.splice(0, 0, ...prevMsgs)
+          scrollToIndex = prevMsgs.length
           intervalMessages.splice(intervalMessages.length, 0, ...nextMsgs)
+          await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
         } else {
           await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
         }
         this.$store.state[this.moduleName].pages = [intervalMessages.length]
         this.$store.commit(`${this.moduleName}/setHistoryMessages`, intervalMessages)
-        this.scrollTo(count)
+        this.scrollTo(scrollToIndex)
       }
     },
     actionHandler ({ index, type, content }) {

@@ -436,6 +436,8 @@ export default {
     activeCalcId (activeCalcId) {
       if (activeCalcId) {
         this.$router.push(`/devices/${this.active}/calc/${activeCalcId}/intervals`).catch(err => err)
+      } else {
+        this.$router.push(`/devices/${this.active}/calc/null/intervals`).catch(err => err)
       }
     }
   },
