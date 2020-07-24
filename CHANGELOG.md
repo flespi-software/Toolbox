@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.4.7] - 2020-07-24
+[fix] base64 check regex
 ### [1.4.6] - 2020-07-21
 [fix] intervals messages show when rt enabled
 [fix] clear calc in intervals
