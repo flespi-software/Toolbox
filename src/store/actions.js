@@ -3,16 +3,16 @@ import { Notify } from 'quasar'
 import get from 'lodash/get'
 
 const origins = {
-    devices: '/gw/devices',
-    channels: '/gw/channels',
-    calcs: '/gw/calcs',
-    plugins: '/gw/plugins',
-    streams: '/gw/streams',
-    modems: '/gw/modems',
-    containers: '/storage/containers',
-    cdns: '/storage/cdns',
-    tasks: '/gw/calcs/+/devices',
-    subaccounts: '/platform/subaccounts'
+    devices: '/gw/devices/:id',
+    channels: '/gw/channels/:id',
+    calcs: '/gw/calcs/:id',
+    plugins: '/gw/plugins/:id',
+    streams: '/gw/streams/:id',
+    modems: '/gw/modems/:id',
+    containers: '/storage/containers/:id',
+    cdns: '/storage/cdns/:id',
+    tasks: '/gw/calcs/:calc/devices/:device',
+    subaccounts: '/platform/subaccounts/:id'
   },
   basicEntitiesFields = {
     devices: ['id', 'name', 'deleted', 'configuration'],
@@ -46,18 +46,28 @@ function getParams (payload) {
   }
   return { id, mode, entity }
 }
+function getOriginBase (entity, id) {
+  let base = `flespi/state${origins[entity]}`
+  if ((id && typeof id !== 'object') || !id) { id = { id } }
+  base = base.replace(/:(\w+)/g, (_, name) => {
+    return id[name] || '+'
+  })
+  return base
+}
 async function getItems ({ state, commit }, payload) {
   const { id, mode, entity } = getParams(payload)
+  const originBase = getOriginBase(entity, id)
   const writePath = entity
   if (!state[writePath]) { Vue.set(state, writePath, {}) }
   if (entity) {
     let origin = ''
     if (mode === GET_ITEMS_MODE_FIELDS) {
       if (!basicEntitiesFields[entity]) { return false }
-      origin = `flespi/state${origins[entity]}/${id || '+'}/${basicEntitiesFields[entity].join(',')}`
+      origin = `${originBase}/${basicEntitiesFields[entity].join(',')}`
     } else {
-      origin = `flespi/state${origins[entity]}/${id || '+'}`
+      origin = `${originBase}/${id || '+'}`
     }
+    console.log(`Subscribe ${origin}`)
     if (state.token) {
       try {
         // init getting protocols name
@@ -132,14 +142,16 @@ async function getItems ({ state, commit }, payload) {
 
 async function unsubscribeItems ({ state, commit }, payload) {
   const { id, mode, entity } = getParams(payload)
+  const originBase = getOriginBase(entity, id)
   if (entity) {
     let origin = ''
     if (mode === GET_ITEMS_MODE_FIELDS) {
       if (!basicEntitiesFields[entity]) { return false }
-      origin = `flespi/state${origins[entity]}/${id || '+'}/${basicEntitiesFields[entity].join(',')}`
+      origin = `${originBase}/${basicEntitiesFields[entity].join(',')}`
     } else {
-      origin = `flespi/state${origins[entity]}/${id || '+'}`
+      origin = `${originBase}/${id || '+'}`
     }
+    console.log(`Unsubscribe ${origin}`)
     try {
       return await Vue.connector.socket.unsubscribe(origin)
     } catch (e) {
@@ -271,7 +283,7 @@ async function getRegions ({ state, commit }) {
       regions[region.name] = region
       return regions
     }, {})
-    currentRegion && commit('setCurrentRegion', currentRegion)
+    currentRegion && commit('setToolboxSessionSettings', { region: currentRegion })
     commit('setRegions', regions)
   } catch (e) {
     commit('reqFailed', e)
@@ -290,12 +302,14 @@ async function initConnection ({ state, commit }, { region, token }) {
       await getRegions({ state, commit })
     }
     if (region) {
-      commit('setCurrentRegion', state.regions[region])
+      commit('setToolboxSessionSettings', { region })
     }
-    Vue.prototype.$flespiServer = state.currentRegion.rest
-    Vue.prototype.$flespiSocketServer = `wss://${state.currentRegion['mqtt-ws']}`
-    Vue.prototype.$flespiCDN = state.currentRegion.cdn
-    Vue.connector.setRegion(state.currentRegion)
+    const currentRegion = state.sessionSettings.region
+    console.log(currentRegion)
+    Vue.prototype.$flespiServer = currentRegion.rest
+    Vue.prototype.$flespiSocketServer = `wss://${currentRegion['mqtt-ws']}`
+    Vue.prototype.$flespiCDN = currentRegion.cdn
+    Vue.connector.setRegion(currentRegion)
     commit('setToken', token)
   } catch (e) {
     commit('reqFailed', e)

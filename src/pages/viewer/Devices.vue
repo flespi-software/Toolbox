@@ -10,10 +10,10 @@
           :value="active"
           :options="filteredItems"
           filled
-          :hide-dropdown-icon="!isNeedSelect"
+          :hide-dropdown-icon="!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('devices') > -1)"
           :label="active ? 'Device' : 'SELECT DEVICE'"
           dark hide-bottom-space dense color="white"
-          :disable="!isNeedSelect"
+          :disable="!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('devices') > -1)"
           :virtual-scroll-item-size="48"
           :virtual-scroll-slice-size="6"
           :virtual-scroll-sticky-size-start="48"
@@ -345,21 +345,10 @@ export default {
     init () {
       const entity = 'devices',
         activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined)
-      let idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null,
-        calcId
+      let idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null
       this.isInit = true
       if (idFromRoute) {
-        idFromRoute = idFromRoute.split('-')
-        if (idFromRoute.length > 1) {
-          calcId = Number(idFromRoute[1])
-          idFromRoute = Number(idFromRoute[0])
-        } else if (idFromRoute.length === 1) {
-          idFromRoute = Number(idFromRoute[0])
-        }
-        if (calcId) {
-          this.moveToIntervals(idFromRoute, calcId)
-          return false
-        }
+        idFromRoute = Number(idFromRoute)
         if (this.itemsCollection[idFromRoute]) {
           this.active = idFromRoute
         } else {
@@ -375,7 +364,7 @@ export default {
       this.$emit('inited')
     },
     moveToIntervals (deviceId, calcId) {
-      this.$nextTick(() => { this.$router.push(`/devices/${deviceId}/calc/${calcId}/intervals`).catch(err => err) })
+      this.$nextTick(() => { this.$router.push(`/device/${deviceId}/calc/${calcId}/intervals?noselect=devices`).catch(err => err) })
     },
     setMapVisibility (flag) {
       this.isVisibleMap = flag

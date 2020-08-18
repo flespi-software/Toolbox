@@ -2,21 +2,22 @@
   <q-page>
     <q-resize-observer @resize="onResize" />
     <q-toolbar class="justify-between q-py-none bg-grey-9">
-      <div style="max-width: 75%;">
-        <q-btn icon="mdi-arrow-left" @click="goBack" flat class="q-mr-sm" :class="{'q-px-none': $q.platform.is.mobile}" color="white"/>
+      <div class="flex" style="width: 75%;">
         <!-- device selector -->
-        <div :style="{maxWidth: $q.platform.is.mobile ? '35%' : '40%'}" style="display: inline-flex" class="q-mr-sm">
+        <div :style="{maxWidth: $q.platform.is.mobile ? '48%' : '40%'}" style="display: inline-flex" class="q-mr-sm">
           <q-select
             ref="itemDeviceSelect"
             class="items__select"
             :class="{'items__select--no-selected': !active}"
             :value="active"
             :options="filteredDevices"
+            :clearable="$q.platform.is.desktop && !!activeCalcId"
+            @clear="clearDevice"
             filled
-            :label="active ? 'Device' : 'SELECT DEVICE'"
+            :label="active ? undefined : 'SELECT DEVICE'"
             dark hide-bottom-space dense color="white"
-            :disable="!isNeedSelect || true"
-            :hide-dropdown-icon="!isNeedSelect || true"
+            :disable="(!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('devices') > -1)) || deviceBlocked"
+            :hide-dropdown-icon="(!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('devices') > -1)) || deviceBlocked"
             :virtual-scroll-item-size="48"
             :virtual-scroll-slice-size="6"
             :virtual-scroll-sticky-size-start="48"
@@ -43,14 +44,13 @@
                 v-bind="scope.itemProps"
                 v-on="scope.itemEvents"
                 class="q-pa-none"
-                style="min-height: 20px; margin-top: 2px; max-width: 100%"
+                style="margin-top: 2px; max-width: 100%"
               >
                 <q-item-section>
                   <q-item-label header class="ellipsis overflow-hidden q-pa-none text-white">{{selectedDevice.name || '&lt;noname&gt;'}}</q-item-label>
                   <q-item-label class="q-pa-none q-mt-none text-white ellipsis" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{selectedDevice.configuration && selectedDevice.configuration.ident ? selectedDevice.configuration.ident : `&lt;no ident&gt;`}}</small></q-item-label>
                 </q-item-section>
-                <q-item-section class="text-white" side>
-                  <q-item-label v-if="selectedDevice.deleted" class="q-pa-none text-right"><small class="cheap-modifier">DELETED</small></q-item-label>
+                <q-item-section class="text-white" side v-if="$q.platform.is.desktop">
                   <q-item-label class="q-pa-none q-mt-none text-right"><small>#{{selectedDevice.id}}</small></q-item-label>
                 </q-item-section>
               </q-item>
@@ -68,8 +68,7 @@
                   <q-item-label header class="ellipsis overflow-hidden q-pa-xs">{{scope.opt.name || '&lt;noname&gt;'}}</q-item-label>
                   <q-item-label class="q-pa-none q-mt-none" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{scope.opt.configuration && scope.opt.configuration.ident ? scope.opt.configuration.ident : `&lt;no ident&gt;`}}</small></q-item-label>
                 </q-item-section>
-                <q-item-section side>
-                  <q-item-label v-if="scope.opt.deleted" class="q-pa-xs text-right"><small class="cheap-modifier cheap-modifier--item" :class="{'cheap-modifier--mobile': $q.platform.is.mobile}">DELETED</small></q-item-label>
+                <q-item-section side v-if="$q.platform.is.desktop">
                   <q-item-label class="q-pa-none q-mt-none text-right" :class="{'q-pr-xs': $q.platform.is.mobile}"><small>#{{scope.opt.id}}</small></q-item-label>
                 </q-item-section>
               </q-item>
@@ -77,7 +76,7 @@
           </q-select>
         </div>
         <!-- device selector -->
-        <div :style="{maxWidth: $q.platform.is.mobile ? '35%' : '40%'}" style="display: inline-flex">
+        <div :style="{maxWidth: $q.platform.is.mobile ? '48%' : '40%'}" style="display: inline-flex">
           <q-select
             ref="itemCalcSelect"
             class="items__select"
@@ -85,9 +84,11 @@
             :value="activeCalcId"
             :options="filteredCalcs"
             filled
-            clearable
-            @clear="clearActiveCalc(), $emit('view-data-hide')"
-            :label="activeCalcId ? 'Calc' : 'SELECT CALC'"
+            :clearable="$q.platform.is.desktop && !!active"
+            :disable="(!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('calcs') > -1)) || calcsBlocked"
+            :hide-dropdown-icon="(!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('calcs') > -1)) || calcsBlocked"
+            @clear="clearCalc"
+            :label="activeCalcId ? undefined : 'SELECT CALC'"
             dark hide-bottom-space dense color="white"
             :virtual-scroll-item-size="48"
             :virtual-scroll-slice-size="6"
@@ -121,8 +122,7 @@
                 <q-item-section>
                   <q-item-label header class="ellipsis overflow-hidden q-pa-none text-white">{{selectedCalc.name || '&lt;noname&gt;'}}</q-item-label>
                 </q-item-section>
-                <q-item-section class="text-white" side>
-                  <q-item-label v-if="selectedCalc.deleted" class="q-pa-none text-right"><small class="cheap-modifier">DELETED</small></q-item-label>
+                <q-item-section class="text-white" side v-if="$q.platform.is.desktop">
                   <q-item-label class="q-pa-none q-mt-none text-right"><small>#{{selectedCalc.id}}</small></q-item-label>
                 </q-item-section>
               </q-item>
@@ -139,8 +139,7 @@
                 <q-item-section>
                   <q-item-label header class="ellipsis overflow-hidden q-pa-xs">{{scope.opt.name || '&lt;noname&gt;'}}</q-item-label>
                 </q-item-section>
-                <q-item-section side>
-                  <q-item-label v-if="scope.opt.deleted" class="q-pa-xs text-right"><small class="cheap-modifier cheap-modifier--item" :class="{'cheap-modifier--mobile': $q.platform.is.mobile}">DELETED</small></q-item-label>
+                <q-item-section side v-if="$q.platform.is.desktop">
                   <q-item-label class="q-pa-none q-mt-none text-right" :class="{'q-pr-xs': $q.platform.is.mobile}"><small>#{{scope.opt.id}}</small></q-item-label>
                 </q-item-section>
               </q-item>
@@ -148,8 +147,34 @@
           </q-select>
         </div>
       </div>
+      <div v-if="$q.platform.is.desktop" class="flex justify-end" :style="{width: `${actions.length * 72}px`}">
+        <template v-for="(action, index) in actions">
+          <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp" :key="index" v-if="action.condition">
+            <q-btn :title="action.label" class="on-left cursor-pointer pull-right text-center rounded-borders q-px-xs q-py-none text-white" @click="action.handler" flat dense style="width: 60px">
+              <q-icon size="1.5rem" :name="action.icon"/>
+              <div style="font-size: .7rem; line-height: .7rem">{{action.label}}</div>
+            </q-btn>
+          </transition>
+        </template>
+      </div>
+      <div v-else>
+        <q-btn flat icon="mdi-dots-vertical" color="white" v-if="hasActiveActions">
+          <q-menu>
+            <q-list>
+              <template v-for="(action, index) in actions">
+                <q-item v-close-popup v-if="action.condition" clickable @click="action.handler" :key="index">
+                  <q-item-section avatar>
+                    <q-icon :name="action.icon" />
+                  </q-item-section>
+                  <q-item-section>{{action.label}}</q-item-section>
+                </q-item>
+              </template>
+            </q-list>
+          </q-menu>
+        </q-btn>
+      </div>
     </q-toolbar>
-    <div v-if="+size[1] && active">
+    <div>
       <intervals
         ref="intervals"
         @view-data="viewDataHandler"
@@ -161,25 +186,21 @@
         :activeDeviceId="active"
         :isEnabled="!!+size[1]"
         :limit="0"
-        :config="config.intervals"
-        v-if="activeCalcId && isInit"
+        :config="config.logs"
+        v-if="isInit"
         :style="{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'top' ? '66%' : ''}"
       />
-      <div v-else-if="!activeCalcId" class="text-grey text-center q-pt-lg" style="font-size: 2.5rem;" :style="{minHeight: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}">
-        Select calc
-      </div>
       <messages
         ref="messages"
         @view-data="viewDataMessageHandler"
         :item="selectedDevice"
-        :intervalModuleName="config.intervals.devicesMessages.vuexModuleName"
         :interval="viewedInterval"
         :dateRange="dateRange"
         :activeId="active"
         :limit="limit"
-        v-if="activeCalcId && isInit && +size[1]"
+        v-if="isInit && +size[1]"
         :style="[{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'messages' ? '66%' : ''}]"
-        :config="messagesConfig"
+        :config="config.messages"
       />
     </div>
     <map-frame
@@ -196,7 +217,7 @@
 <script>
 import intervals from '../../components/intervals/Index.vue'
 import messages from '../../components/intervals/DevicesMessages.vue'
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapActions, mapMutations } from 'vuex'
 import init from '../../mixins/entitiesInit'
 import MapFrame from '../../components/MapFrame'
 
@@ -218,13 +239,17 @@ export default {
       ratio: 50,
       isInit: false,
       isItemsInit: false,
+      isDevicesInit: false,
+      isCalcsInit: false,
       isVisibleMap: false,
+      deviceBlocked: false,
+      calcsBlocked: false,
       siblingHeight: 0,
       mapMinimizedOptions: {},
       activeViewedMessage: null,
-      messagesConfig: this.config.intervals.devicesMessages,
       viewedInterval: null,
-      dateRange: [0, 0]
+      dateRange: [0, 0],
+      blocked: ''
     }
   },
   computed: {
@@ -238,7 +263,8 @@ export default {
       },
       calcsCollection (state) {
         return state.calcs || {}
-      }
+      },
+      sessionSettings (state) { return state.sessionSettings }
     }),
     devices () {
       return Object.values(this.devicesCollection)
@@ -257,17 +283,19 @@ export default {
       return this.calcsCollection[this.activeCalcId] ? this.calcsCollection[this.activeCalcId] : {}
     },
     filteredDevices () {
-      const devices = this.devices
-      // let devicesIdsByTasks = this.tasks.map(task => task.device_id)
-      // devices = devices.filter(device => devicesIdsByTasks.includes(device.id))
-      // if (this.active) {
-      //   devices = devices.filter(item => this.tasks.some(task => this.active === task.calc_id && item.id === task.device_id))
+      let devices = this.devices
+      const devicesIdsByTasks = this.tasks.map(task => task.device_id)
+      devices = devices.filter(device => devicesIdsByTasks.includes(device.id))
+      // if (this.activeCalcId) {
+      //   devices = devices.filter(item => this.tasks.some(task => this.active === task.device_id && task.calc_id === this.activeCalcId))
       // }
-      return devices // this.filterItems(devices, this.deviceFilter.toLowerCase())
+      return this.filterItems(devices, this.deviceFilter.toLowerCase())
     },
     filteredCalcs () {
       let calcs = this.calcs
-      calcs = calcs.filter(item => this.tasks.some(task => this.active === task.device_id && item.id === task.calc_id))
+      calcs = this.active
+        ? calcs.filter(item => this.tasks.some(task => this.active === task.device_id && item.id === task.calc_id))
+        : calcs
       if (this.isInit && this.active && this.activeCalcId && !this.tasks.filter(task => task.device_id === this.active && task.calc_id === this.activeCalcId).length) {
         this.$nextTick(() => { this.clearActiveCalc() })
       }
@@ -276,7 +304,26 @@ export default {
     size () {
       return [this.ratio, 100 - this.ratio]
     },
-    hasRouteIntervals () { return true }
+    hasActiveActions () {
+      return this.actions.reduce((res, action) => res || (action && action.condition), false)
+    },
+    hasRouteIntervals () { return true },
+    actions () {
+      return [
+        {
+          label: 'Devices',
+          icon: 'mdi-developer-board',
+          handler: this.goBackDevice,
+          condition: !!this.active && (this.isNeedSelect || (typeof this.isNeedSelect === 'string' && this.isNeedSelect.indexOf('devices') > -1))
+        },
+        {
+          label: 'Calcs',
+          icon: 'mdi-calculator-variant',
+          handler: this.goBackCalc,
+          condition: !!this.activeCalcId && (this.isNeedSelect || (typeof this.isNeedSelect === 'string' && this.isNeedSelect.indexOf('calcs') > -1))
+        }
+      ]
+    }
   },
   methods: {
     filterItems (items, filter) {
@@ -309,15 +356,20 @@ export default {
       return filteredItems
     },
     ...mapActions(['getDeleted']),
+    ...mapMutations(['setToolboxSessionSettings']),
     filterDevicesSelectItems (filter, update) {
-      if (this.isItemsInit) {
+      if (this.isDevicesInit) {
         update()
         return
       }
-      this.itemsLoad('devices', update, this.active, () => { this.isItemsInit = true })
+      this.itemsLoad('devices', update, this.active, () => { this.isDevicesInit = true })
     },
     filterCalcsSelectItems (filter, update) {
-      update()
+      if (this.isCalcsInit) {
+        update()
+        return
+      }
+      this.itemsLoad('calcs', update, this.activeCalcId, () => { this.isCalcsInit = true })
     },
     viewDataHandler (content) {
       if (content) {
@@ -359,22 +411,34 @@ export default {
     clearActive () {
       this.setActive(null)
     },
+    clearDevice () {
+      this.clearActive()
+      this.$emit('view-data-hide')
+    },
     clearActiveCalc () {
       this.setActiveCalc(null)
     },
-    goBack () {
+    clearCalc () {
+      this.clearActiveCalc()
+      this.$emit('view-data-hide')
+    },
+    goBackDevice () {
       this.$router.push(`/devices/${this.active}`).catch(err => err)
     },
+    goBackCalc () {
+      this.$router.push(`/calcs/${this.activeCalcId}`).catch(err => err)
+    },
     init () {
-      const deviceIdFromRoute = this.$route.params && this.$route.params.id ? Number(this.$route.params.id) : null,
+      this.blocked = this.$route.query.noselect || ''
+      const deviceIdFromRoute = this.$route.params && this.$route.params.deviceId ? Number(this.$route.params.deviceId) : null,
         calcIdFromRoute = this.$route.params && this.$route.params.calcId ? Number(this.$route.params.calcId) : null
-      this.isInit = true
       if (deviceIdFromRoute) {
         this.setActive(deviceIdFromRoute)
-        if (calcIdFromRoute && this.calcsCollection[calcIdFromRoute]) {
-          this.activeCalcId = calcIdFromRoute
-        }
       }
+      if (calcIdFromRoute) {
+        this.setActiveCalc(calcIdFromRoute)
+      }
+      this.isInit = true
       this.$emit('inited')
     },
     mapMinimizeHandler (options) {
@@ -392,6 +456,20 @@ export default {
       this.$refs.map && this.$refs.map.onWindowResize({ width: window.innerWidth, height: window.innerHeight })
     }
   },
+  created () {
+    if (this.sessionSettings && this.sessionSettings.intervalDevicesBlocked) {
+      this.deviceBlocked = true
+    }
+    if (this.sessionSettings && this.sessionSettings.intervalCalcsBlocked) {
+      this.calcsBlocked = true
+    }
+  },
+  beforeDestroy () {
+    this.setToolboxSessionSettings({
+      intervalDevicesBlocked: undefined,
+      intervalCalcsBlocked: undefined
+    })
+  },
   watch: {
     ratio (val) {
       this.$nextTick(() => {
@@ -406,11 +484,11 @@ export default {
     },
     $route (route) {
       if (
-        route.params && route.params.id && Number(route.params.id) === this.active &&
+        route.params && route.params.deviceId && Number(route.params.deviceId) === this.active &&
         route.params.calcId && this.activeCalcId === Number(route.params.calcId)
       ) { return false }
-      if (route.params && route.params.id) {
-        const deviceId = Number(route.params.id)
+      if (route.params && route.params.deviceId) {
+        const deviceId = Number(route.params.deviceId)
         if (this.devicesCollection[deviceId]) {
           if (deviceId !== this.active) {
             this.setActive(deviceId)
@@ -422,23 +500,15 @@ export default {
         } else if (this.isInit) {
           this.clearActive()
         }
-      } else if (route.params && !route.params.id) {
+      } else if (route.params && !route.params.deviceId) {
         this.clearActive()
       }
     },
     active (id, old) {
-      if (id) {
-        this.$router.push(`/devices/${id}/calc/${this.activeCalcId || 'null'}/intervals`).catch(err => err)
-      } else {
-        this.$router.push('/devices').catch(err => err)
-      }
+      this.$router.push(`/device/${id}/calc/${this.activeCalcId || 'null'}/intervals`).catch(err => err)
     },
     activeCalcId (activeCalcId) {
-      if (activeCalcId) {
-        this.$router.push(`/devices/${this.active}/calc/${activeCalcId}/intervals`).catch(err => err)
-      } else {
-        this.$router.push(`/devices/${this.active}/calc/null/intervals`).catch(err => err)
-      }
+      this.$router.push(`/device/${this.active}/calc/${activeCalcId || 'null'}/intervals`).catch(err => err)
     }
   },
   components: { intervals, messages, MapFrame }

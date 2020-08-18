@@ -17,13 +17,6 @@ function getIndexChildrenRoutes (config) {
         }
       ]
     }
-    if (moduleName === 'devices') {
-      result.push({
-        path: 'devices/:id/calc/:calcId/intervals',
-        component: () => import('pages/' + type + '/Intervals'),
-        meta: { moduleName: 'intervals' }
-      })
-    }
     if (moduleName === 'trafficViewer') {
       route.children[0].children = [
         {

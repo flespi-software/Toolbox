@@ -84,7 +84,7 @@ export default {
         await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active device */
         this.$store.commit(`${this.moduleName}/setActive`, val)
         this.$store.commit(`${this.moduleName}/clearMessages`)
-        this.$store.dispatch(`${this.moduleName}/getCols`, this.item.counters)
+        val && this.$store.dispatch(`${this.moduleName}/getCols`, this.item.counters)
         await this.$store.dispatch(`${this.moduleName}/initTime`)
         this.$emit('change:date-range', [this.begin, this.end])
         await this.$store.dispatch(`${this.moduleName}/get`)
@@ -333,6 +333,8 @@ export default {
     this.offlineHandler !== undefined && Vue.connector.socket.off('offline', this.offlineHandler)
     this.connectHandler !== undefined && Vue.connector.socket.off('connect', this.connectHandler)
     this.$store.commit(`${this.moduleName}/clear`)
+    this.$store.commit(`${this.moduleName}/setActive`, null)
+    this.$store.commit(`${this.moduleName}/setActiveDevice`, null)
   },
   mixins: [filterMessages],
   components: { VirtualScrollList, EmptyPane }

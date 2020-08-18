@@ -101,6 +101,14 @@
                   </q-item-section>
                 </q-item>
                 <q-separator style="width: 100%" v-if="renderEntities.includes('channels') || renderEntities.includes('devices') || renderEntities.includes('streams') || renderEntities.includes('modems')"/>
+                <!-- <q-item v-if="renderEntities.includes('intervals')" to='/device/null/calc/null/intervals' class="col-6" active-class="bg-grey-6">
+                  <q-item-section class="text-center text-white">
+                    <div>
+                      <q-icon :name="config.intervals.icon" size="2.6em"/>
+                    </div>
+                    <div>{{config.intervals.label}}</div>
+                  </q-item-section>
+                </q-item> -->
                 <q-item v-if="renderEntities.includes('calcs')" to='/calcs' class="col-6" active-class="bg-grey-6">
                   <q-item-section class="text-center text-white">
                     <div>
@@ -117,7 +125,7 @@
                     <div>{{config.plugins.label}}</div>
                   </q-item-section>
                 </q-item>
-                <q-separator style="width: 100%" v-if="renderEntities.includes('calcs') || renderEntities.includes('plugins')"/>
+                <q-separator style="width: 100%" v-if="renderEntities.includes('intervals') || renderEntities.includes('calcs') || renderEntities.includes('plugins')"/>
                 <q-item-label header class="col-12 text-white" v-if="renderEntities.includes('hexViewer') || renderEntities.includes('trafficViewer')">Tools</q-item-label>
                 <q-item to='/tools/hex' class="col-6" v-if="renderEntities.includes('hexViewer')" active-class="bg-grey-6">
                   <q-item-section class="text-center text-white">
@@ -219,6 +227,7 @@
           :settings="settings"
           @update:settings="updateSettingsHandler"
           @inited="entityInited = true"
+          @uninited="entityInited = false"
         >
         </router-view>
       </q-page-container>
@@ -256,7 +265,7 @@ export default {
       isVisibleToolbar: true,
       connectFlag: false,
       isTabsVisible: true,
-      entityByGroup: ['platform', 'channels', 'calcs', 'plugins', 'devices', 'streams', 'modems', 'containers', 'cdns', 'mqtt', 'mqttClient', 'hexViewer', 'trafficViewer'],
+      entityByGroup: ['platform', 'channels', 'calcs', 'intervals', 'plugins', 'devices', 'streams', 'modems', 'containers', 'cdns', 'mqtt', 'mqttClient', 'hexViewer', 'trafficViewer'],
       isNeedSelect: true,
       entityInited: false,
       isInit: Vue.connector.socket.connected(),
@@ -273,7 +282,8 @@ export default {
       errors: state => state.errors,
       newNotificationCounter: state => state.newNotificationCounter,
       settings: state => state.settings,
-      localeName: state => state.currentRegion && state.currentRegion.name
+      localeName: state => state.sessionSettings && state.sessionSettingsregion && state.sessionSettingsregion.name,
+      sessionSettings: state => state.sessionSettings
     }),
     messagesColsCollectionByEntity () {
       return this.messagesColsByEntity.reduce((cols, col, index) => {
@@ -297,22 +307,10 @@ export default {
       }
     },
     messagesConfigByEntity () {
-      let config = {}
-      switch (this.entity) {
-        case 'devices':
-        case 'channels': {
-          config = this.configByEntity.messages
-          break
-        }
-        case 'intervals': {
-          config = this.configByEntity.intervals.devicesMessages
-        }
-      }
-      return config
+      return this.configByEntity.messages
     },
     logsColsByEntity: {
       get () {
-        if (this.entity === 'intervals') { return this.$store.state[this.configByEntity.intervals.vuexModuleName].cols }
         if (!this.configByEntity.logs) { return [] }
         const moduleName = this.configByEntity.logs.vuexModuleName
         let cols = []
@@ -322,8 +320,7 @@ export default {
         return cols
       },
       set (cols) {
-        let moduleName = this.configByEntity.logs.vuexModuleName
-        if (this.entity === 'intervals') { moduleName = this.configByEntity.intervals.vuexModuleName }
+        const moduleName = this.configByEntity.logs.vuexModuleName
         this.$store.commit(`${moduleName}/updateCols`, cols)
       }
     },
@@ -350,7 +347,7 @@ export default {
     },
     hubGroupModel () {
       const entity = this.entity
-      return entity === 'channels' || entity === 'calcs' || entity === 'plugins' || entity === 'devices' || entity === 'streams' || entity === 'modems' || entity === 'hexViewer' || entity === 'trafficViewer' || entity === 'intervals'
+      return entity === 'channels' || entity === 'calcs' || entity === 'intervals' || entity === 'plugins' || entity === 'devices' || entity === 'streams' || entity === 'modems' || entity === 'hexViewer' || entity === 'trafficViewer' || entity === 'intervals'
     },
     storageGroupModel () {
       const entity = this.entity
@@ -361,9 +358,6 @@ export default {
       return entity === 'mqtt' || entity === 'mqttClient'
     },
     configByEntity () {
-      if (this.entity === 'intervals') {
-        return this.config.devices
-      }
       return this.config[this.entity]
     },
     renderEntities () {
@@ -452,11 +446,11 @@ export default {
     ...mapMutations([
       'setCid',
       'clearToken',
-      'clearCurrentRegion',
       'reqFailed',
       'addError',
       'clearNotificationCounter',
-      'clearToolboxSettings'
+      'clearToolboxSettings',
+      'setToolboxSessionSettings'
     ]),
     ...mapActions(['initConnection']),
     viewDataHandler (content) {
@@ -522,6 +516,7 @@ export default {
           switch (group) {
             case 'hub': {
               result.push('channels')
+              result.push('intervals')
               result.push('calcs')
               result.push('plugins')
               result.push('devices')
@@ -552,7 +547,7 @@ export default {
     },
     reset (errMessage) {
       this.clearToken()
-      this.clearCurrentRegion()
+      this.setToolboxSessionSettings({ region: undefined })
       this.$router.push('/login').catch(err => err)
       if (errMessage) {
         this.addError(errMessage)
@@ -593,9 +588,13 @@ export default {
       }
     },
     routeParamsProcess (route) {
-      this.isNeedSelect = !this.$route.params.noselect || !this.$q.platform.within.iframe
+      if (this.$route.params.noselect !== 'all') {
+        this.isNeedSelect = this.$route.params.noselect
+      } else {
+        this.isNeedSelect = false
+      }
       this.isVisibleToolbar = !route.params.fullscreen || !this.$q.platform.within.iframe
-      this.$q.sessionStorage.set(`toolbox-session-settings[${window.name || 'default'}]`, { isNeedSelect: this.isNeedSelect, isVisibleToolbar: this.isVisibleToolbar })
+      this.setToolboxSessionSettings({ isNeedSelect: this.isNeedSelect, isVisibleToolbar: this.isVisibleToolbar })
       this.initConnection({ token: route.params.token })
         .then(() => {
           if (route.params.id && route.params.type) {
@@ -651,21 +650,16 @@ export default {
     },
     setDefaultColsHandler () {
       let moduleName = ''
-      if (this.colsEditing === 'messages') {
+      if (this.colsEditing === 'messages' || this.entity === 'intervals') {
         moduleName = this.messagesConfigByEntity.vuexModuleName
         this.$store.commit(`${moduleName}/setDefaultCols`)
       } else if (this.colsEditing === 'logs') {
-        if (this.entity === 'intervals') {
-          moduleName = this.configByEntity.intervals.vuexModuleName
-          this.$store.commit(`${moduleName}/setDefaultCols`)
-        } else {
-          moduleName = this.configByEntity.logs.vuexModuleName
-          const cols = [...this.configByEntity.logs.cols]
-          if (cols[cols.length - 1].__dest !== 'etc') {
-            cols.push({ name: 'etc', width: 150, display: true, __dest: 'etc' })
-          }
-          this.$store.commit(`${moduleName}/setCols`, cols)
+        moduleName = this.configByEntity.logs.vuexModuleName
+        const cols = [...this.configByEntity.logs.cols]
+        if (cols[cols.length - 1].__dest !== 'etc') {
+          cols.push({ name: 'etc', width: 150, display: true, __dest: 'etc' })
         }
+        this.$store.commit(`${moduleName}/setCols`, cols)
       }
     }
   },
@@ -694,7 +688,7 @@ export default {
   },
   created () {
     this.routeProcess(this.$route)
-    const sessionSettings = this.$q.sessionStorage.getItem(`toolbox-session-settings[${window.name || 'default'}]`)
+    const sessionSettings = this.sessionSettings
     if (sessionSettings) {
       this.isNeedSelect = sessionSettings.isNeedSelect || !this.$q.platform.within.iframe
       this.isVisibleToolbar = sessionSettings.isVisibleToolbar || !this.$q.platform.within.iframe
@@ -702,12 +696,6 @@ export default {
     if (!this.isInit) {
       this.connectFlag = true
       this.connectionPreserveHandlerIndex = Vue.connector.socket.on('connect', this.connectionPreserveHandler)
-    }
-    if (window && window.name) {
-      window.addEventListener('beforeunload', () => {
-        this.$q.sessionStorage.remove(`toolbox-session-settings[${window.name}]`)
-        this.$q.sessionStorage.remove(`flespi-toolbox-token[${window.name}]`)
-      })
     }
   },
   beforeDestroy () {

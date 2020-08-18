@@ -1,6 +1,6 @@
 {
   "name": "toolbox",
-  "version": "1.4.7",
+  "version": "1.5.0",
   "description": "Flespi ToolboX",
   "productName": "ToolboX",
   "cordovaId": "org.cordova.quasar.app",
@@ -15,12 +15,12 @@
     "deploy": "rm -rf dist && npm run build && rm -rf deploy && mkdir deploy && cp -R dist/spa/* misc CNAME LICENSE package.json deploy && cp README.md deploy/README.md && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rhttps://git.gurtam.net/flespi/frontend/toolbox.git && rm -rf deploy && git push github gh-pages"
   },
   "dependencies": {
-    "@quasar/extras": "^1.6.0",
+    "@quasar/extras": "^1.9.4",
     "flespi-io-js": "git+https://github.com/flespi-software/flespi-io-js.git",
     "leaflet": "^1.6.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "mqtt-board": "git+https://github.com/flespi-software/MQTT-Board.git",
-    "quasar": "^1.9.9",
+    "quasar": "^1.12.13",
     "qvirtualscroll": "git+https://github.com/flespi-software/QVirtualScroll.git",
     "vue-draggable-resizable": "^2.1.0",
     "vue-i18n": "^8.15.5",

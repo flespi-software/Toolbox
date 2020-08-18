@@ -1,5 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.5.0] - 2020-08-16
+[feature] traffic: multi types export
+[rebase] Intervals
+[rebase] token acl check
+[rebase] platform logs
+[rebase] noselect route param
+[rebase] session storage settings
 ### [1.4.7] - 2020-07-24
 [fix] base64 check regex
 ### [1.4.6] - 2020-07-21

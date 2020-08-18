@@ -12,8 +12,8 @@
           filled
           :label="active ? 'Calcs' : 'SELECT CALC'"
           dark hide-bottom-space dense color="white"
-          :disable="!isNeedSelect"
-          :hide-dropdown-icon="!isNeedSelect"
+          :disable="!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('calcs') > -1)"
+          :hide-dropdown-icon="!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('calcs') > -1)"
           :virtual-scroll-item-size="48"
           :virtual-scroll-slice-size="6"
           :virtual-scroll-sticky-size-start="48"
@@ -128,6 +128,9 @@ export default {
       tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
       itemsCollection (state) {
         return state.calcs || {}
+      },
+      tasksByCalc (state) {
+        return Object.values(state.tasks || {})
       }
     }),
     items () {
@@ -169,6 +172,12 @@ export default {
     },
     actions () {
       return [
+        {
+          label: 'Intervals',
+          icon: 'mdi-set-center',
+          handler: () => this.moveToIntervals(null, this.active),
+          condition: !!this.tasksByCalc.length
+        },
         {
           label: 'Clear',
           icon: 'mdi-playlist-remove',
@@ -221,6 +230,9 @@ export default {
         this.active = null
       }
       this.$emit('inited')
+    },
+    moveToIntervals (deviceId, calcId) {
+      this.$nextTick(() => { this.$router.push(`/device/${deviceId}/calc/${calcId}/intervals?noselect=calcs`).catch(err => err) })
     }
   },
   watch: {

@@ -55,7 +55,14 @@ export default {
     label: 'Channels',
     icon: 'merge_type',
     type: 'viewer',
-    acl: ['protocols', 'channels'],
+    acl: [{
+      name: 'channels',
+      methods: ['GET'],
+      submodules: [
+        { name: 'logs', methods: ['GET'] },
+        { name: 'messages', methods: ['GET'] }
+      ]
+    }],
     isDrawable: false,
     logs: {
       vuexModuleName: 'channelsLogs',
@@ -176,7 +183,13 @@ export default {
     label: 'Plugins',
     icon: 'mdi-puzzle',
     type: 'viewer',
-    acl: ['plugins'],
+    acl: [{
+      name: 'plugins',
+      methods: ['GET'],
+      submodules: [
+        { name: 'logs', methods: ['GET'] }
+      ]
+    }],
     isDrawable: false,
     logs: {
       vuexModuleName: 'pluginsLogs',
@@ -228,7 +241,13 @@ export default {
     label: 'Calcs',
     icon: 'mdi-calculator-variant',
     type: 'viewer',
-    acl: ['calcs'],
+    acl: [{
+      name: 'calcs',
+      methods: ['GET'],
+      submodules: [
+        { name: 'logs', methods: ['GET'] }
+      ]
+    }],
     isDrawable: false,
     logs: {
       vuexModuleName: 'calcsLogs',
@@ -280,7 +299,14 @@ export default {
     label: 'Devices',
     icon: 'mdi-developer-board',
     type: 'viewer',
-    acl: ['devices'],
+    acl: [{
+      name: 'devices',
+      methods: ['GET'],
+      submodules: [
+        { name: 'logs', methods: ['GET'] },
+        { name: 'messages', methods: ['GET'] }
+      ]
+    }],
     isDrawable: false,
     logs: {
       vuexModuleName: 'devicesLogs',
@@ -412,12 +438,35 @@ export default {
         contentInverted: true,
         controlsInverted: true
       }
-    },
-    intervals: {
+    }
+  },
+  intervals: {
+    label: 'Intervals',
+    icon: 'mdi-set-center',
+    path: 'device/:deviceId/calc/:calcId/intervals',
+    type: 'viewer',
+    acl: [
+      {
+        name: 'devices',
+        methods: ['GET'],
+        submodules: [
+          { name: 'messages', methods: ['GET'] }
+        ]
+      },
+      {
+        name: 'calcs',
+        methods: ['GET'],
+        submodules: [
+          { name: 'devices', methods: ['GET'] }
+        ]
+      }
+    ],
+    isDrawable: false,
+    logs: {
       vuexModuleName: 'intervals',
       emptyState: {
         label: 'Intervals not found',
-        sublabel: 'If you expect to see the log records here',
+        sublabel: 'If you expect to see the intervals here',
         hints: [
           { html: 'Make sure the selected device has messages to perform intervals calculations with.' },
           { html: "Pick a specific date and time using the <span class='text-bold'>date/time picker</span> on the top right." }
@@ -446,37 +495,37 @@ export default {
         bgColor: 'grey-9',
         contentInverted: true,
         controlsInverted: true
-      },
-      devicesMessages: {
-        actions: [
-          {
-            icon: 'mdi-content-copy',
-            label: 'copy',
-            classes: '',
-            type: 'copy'
-          }
-        ],
-        viewConfig: {
-          needShowFilter: true
-        },
-        theme: {
-          color: 'white',
-          bgColor: 'grey-9',
-          contentInverted: true,
-          controlsInverted: true
-        },
-        vuexModuleName: 'intervalsDevicesMessages',
-        emptyState: {
-          label: 'Messages not found',
-          sublabel: 'If you expect to see the device messages here',
-          hints: [
-            { html: "Make sure the respective physical tracker correctly points to the proper channel’s <span class='text-bold'>IP:port</span> and is currently sending messages." },
-            { html: "Make sure you specified the correct device <span class='text-bold'>ident</span> and picked the proper <span class='text-bold'>device type</span>." },
-            { html: "Check the <span class='text-bold'>messages TTL</span> in the device settings — if it’s set to 0, messages will not show." },
-            { html: "Pick a specific date and time using the <span class='text-bold'>date/time picker</span> on the top right." },
-            { html: "Narrow down the search by specifying the desired parameter values in the <span class='text-bold'>filter control</span>." }
-          ]
+      }
+    },
+    messages: {
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'copy',
+          classes: '',
+          type: 'copy'
         }
+      ],
+      viewConfig: {
+        needShowFilter: true
+      },
+      theme: {
+        color: 'white',
+        bgColor: 'grey-9',
+        contentInverted: true,
+        controlsInverted: true
+      },
+      vuexModuleName: 'intervalsDevicesMessages',
+      emptyState: {
+        label: 'Messages not found',
+        sublabel: 'If you expect to see the device messages here',
+        hints: [
+          { html: "Make sure the respective physical tracker correctly points to the proper channel’s <span class='text-bold'>IP:port</span> and is currently sending messages." },
+          { html: "Make sure you specified the correct device <span class='text-bold'>ident</span> and picked the proper <span class='text-bold'>device type</span>." },
+          { html: "Check the <span class='text-bold'>messages TTL</span> in the device settings — if it’s set to 0, messages will not show." },
+          { html: "Pick a specific date and time using the <span class='text-bold'>date/time picker</span> on the top right." },
+          { html: "Narrow down the search by specifying the desired parameter values in the <span class='text-bold'>filter control</span>." }
+        ]
       }
     }
   },
@@ -484,7 +533,13 @@ export default {
     label: 'Streams',
     icon: 'mdi-call-split',
     type: 'viewer',
-    acl: ['streams'],
+    acl: [{
+      name: 'streams',
+      methods: ['GET'],
+      submodules: [
+        { name: 'logs', methods: ['GET'] }
+      ]
+    }],
     isDrawable: false,
     logs: {
       vuexModuleName: 'streamsLogs',
@@ -554,7 +609,13 @@ export default {
     label: 'Modems',
     icon: 'router',
     type: 'viewer',
-    acl: ['modems'],
+    acl: [{
+      name: 'modems',
+      methods: ['GET'],
+      submodules: [
+        { name: 'logs', methods: ['GET'] }
+      ]
+    }],
     isDrawable: false,
     logs: {
       vuexModuleName: 'modemsLogs',
@@ -624,7 +685,13 @@ export default {
     label: 'Containers',
     icon: 'featured_play_list',
     type: 'viewer',
-    acl: ['containers'],
+    acl: [{
+      name: 'containers',
+      methods: ['GET'],
+      submodules: [
+        { name: 'logs', methods: ['GET'] }
+      ]
+    }],
     isDrawable: false,
     logs: {
       vuexModuleName: 'containersLogs',
@@ -674,7 +741,10 @@ export default {
   mqtt: {
     label: 'MQTT',
     icon: 'mdi-access-point-network',
-    acl: ['mqtt'],
+    acl: [{
+      name: 'mqtt',
+      methods: ['GET']
+    }],
     type: 'viewer',
     isDrawable: false,
     logs: {
@@ -739,7 +809,13 @@ export default {
     label: 'CDNS',
     icon: 'mdi-harddisk',
     type: 'viewer',
-    acl: ['cdns'],
+    acl: [{
+      name: 'cdns',
+      methods: ['GET'],
+      submodules: [
+        { name: 'logs', methods: ['GET'] }
+      ]
+    }],
     isDrawable: false,
     logs: {
       vuexModuleName: 'cdnsLogs',
@@ -809,7 +885,13 @@ export default {
     path: 'tools/hex',
     type: 'tools',
     icon: 'mdi-matrix',
-    acl: ['protocols', 'channels'],
+    acl: [{
+      name: 'channels',
+      methods: ['GET'],
+      submodules: [
+        { name: 'messages', methods: ['GET'] }
+      ]
+    }],
     isDrawable: false,
     messages: {
       vuexModuleName: 'hexMessages',
@@ -847,7 +929,13 @@ export default {
     path: 'tools/traffic',
     type: 'tools',
     icon: 'mdi-download-network-outline',
-    acl: ['protocols', 'channels'],
+    acl: [{
+      name: 'channels',
+      methods: ['GET'],
+      submodules: [
+        { name: 'messages', methods: ['GET'] }
+      ]
+    }],
     isDrawable: false,
     messages: {
       vuexModuleName: 'trafficMessages',

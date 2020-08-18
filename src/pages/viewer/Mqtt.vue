@@ -92,7 +92,7 @@
 
 <script>
 import logs from '../../components/logs/Index.vue'
-import { mapState, mapActions } from 'vuex'
+import { mapState } from 'vuex'
 import init from '../../mixins/entitiesInit'
 import EntitiesToolbar from '../../components/EntitiesToolbar'
 import get from 'lodash/get'
@@ -182,7 +182,6 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['getEntities']),
     filterItems (filter, update) {
       if (this.isItemsInit) {
         update()

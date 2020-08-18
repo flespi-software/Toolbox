@@ -31,7 +31,7 @@
 
 <script>
 import Vue from 'vue'
-import { mapActions, mapMutations } from 'vuex'
+import { mapActions, mapMutations, mapState } from 'vuex'
 
 export default {
   data () {
@@ -48,6 +48,9 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      sessionSettings: state => state.sessionSettings
+    }),
     model: {
       get () {
         return this.token
@@ -62,7 +65,7 @@ export default {
   },
   methods: {
     ...mapActions(['initConnection']),
-    ...mapMutations(['setRegions', 'setCurrentRegion', 'setToken']),
+    ...mapMutations(['setRegions', 'setToken', 'setToolboxSessionSettings']),
     goto (to) {
       if (this.tokenInfo) {
         this.$router.push(to).catch(err => err)
@@ -97,8 +100,9 @@ export default {
         })
     },
     checkHasToken () {
-      const sessionStorageToken = this.$q.sessionStorage.getItem(`flespi-toolbox-token[${window.name || 'default'}]`)
-      const sessionStorageRegion = this.$q.sessionStorage.getItem('flespi-toolbox-region')
+      const sessionSettings = this.sessionSettings || {}
+      const sessionStorageToken = sessionSettings.token
+      const sessionStorageRegion = sessionSettings.region
       if (this.$route.params && this.$route.params.token) {
         this.autoLogin()
       } else if (sessionStorageToken) {
@@ -126,7 +130,7 @@ export default {
     },
     regionInitFromAuth (region) {
       this.setRegions({ [region.name]: region })
-      this.setCurrentRegion(region)
+      this.setToolboxSessionSettings({ region })
       this.$connector.setRegion(region)
     }
   },
@@ -138,9 +142,8 @@ export default {
     }
   },
   created () {
-    const sessionSettings = this.$q.sessionStorage.getItem(`toolbox-session-settings[${window.name || 'default'}]`)
-    if (sessionSettings) {
-      this.canLogin = sessionSettings.isVisibleToolbar
+    if (this.sessionSettings && this.sessionSettings.isVisibleToolbar) {
+      this.canLogin = this.sessionSettings.isVisibleToolbar
     }
     const tokenHandler = (event) => {
       if (typeof event.data === 'string' && ~event.data.indexOf('FlespiLogin|token:')) {

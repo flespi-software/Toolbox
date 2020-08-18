@@ -6,7 +6,7 @@
           v-model="currentDateRange"
         />
         <q-select
-          :options="selectOpts" v-model="currentFormat"
+          :options="selectOpts" v-model="currentFormat" multiple
           filled label="Format" hide-bottom-space dense bg-color="grey-3"
         />
         <q-toggle v-model="needTimeConvert" label="Format timestamps"/>
@@ -21,7 +21,7 @@
       <q-separator color="white"/>
       <q-card-actions align="right" class="bg-grey-9 text-white">
         <q-btn flat @click="hide" :disable="loadingFlag">Close</q-btn>
-        <q-btn flat @click="importHandler" :disable="loadingFlag" :loading="loadingFlag">Export</q-btn>
+        <q-btn flat @click="importHandler" :disable="loadingFlag || currentFormat.length < 1" :loading="loadingFlag">Export</q-btn>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -35,7 +35,7 @@ export default {
   props: ['format', 'dateRange', 'config', 'ident', 'itemId'],
   data () {
     return {
-      currentFormat: this.format,
+      currentFormat: [this.format],
       currentDateRange: this.dateRange.map(date => new Date(date)),
       moduleName: this.config.vuexModuleName,
       loadingFlag: false,
@@ -87,11 +87,11 @@ export default {
     hide () {
       this.$refs.modal.hide()
     },
-    formatData (base64) {
+    formatData (base64, format) {
       let content = null
-      if (this.currentFormat === 'hex') {
+      if (format === 'hex') {
         content = this.base64ToHex(base64)
-      } else if (this.currentFormat === 'text') {
+      } else if (format === 'text') {
         content = this.base64ToTextWithMnemoReplacing(base64)
       } else {
         content = base64
@@ -121,7 +121,10 @@ export default {
           }
         }
         if (!events[index].data) { return false }
-        events[index].data = this.formatData(event.data)
+        this.currentFormat.forEach(currentFormat => {
+          events[index][currentFormat] = this.formatData(event.data, currentFormat)
+        })
+        events[index].data = undefined
       })
       const typeOfFile = 'application/json',
         link = document.createElement('a'),
@@ -145,7 +148,7 @@ export default {
     dateRange (range) {
       this.currentDateRange = range.map(date => new Date(date))
     },
-    format (format) { this.currentFormat = format }
+    format (format) { this.currentFormat = [format] }
   },
   components: { DateRangePicker },
   mixins: [convertMixin]

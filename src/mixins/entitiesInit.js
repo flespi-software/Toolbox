@@ -29,27 +29,59 @@ export default {
         if (entity) {
           const idFromRoute = to.params && to.params.id ? to.params.id : null
           let mainEntityIdFromRoute
-          if (idFromRoute) { mainEntityIdFromRoute = Number(idFromRoute.split('-')[0]) }
+          if (idFromRoute) { mainEntityIdFromRoute = JSON.parse(idFromRoute.split('-')[0]) }
           const idFromLS = get(vm.settings, `entities[${entity}]`, undefined)
           switch (entity) {
             case 'devices': {
               if (fromEntity === 'intervals') { fromEntity = 'devices' }
+              if (idFromRoute) {
+                promises.push({ entity: 'tasks', id: { device: JSON.parse(idFromRoute) }, mode: 1 })
+              }
               if (entity !== fromEntity) {
-                if (idFromRoute) {
-                  promises.push({ entity: 'tasks', id: Number(idFromRoute), mode: 1 })
-                }
+                getMainEntity(entity, mainEntityIdFromRoute, idFromLS, vm.isNeedSelect, promises)
+              }
+              break
+            }
+            case 'calcs': {
+              if (fromEntity === 'intervals') { fromEntity = 'calcs' }
+              if (idFromRoute) {
+                promises.push({ entity: 'tasks', id: { calc: JSON.parse(idFromRoute) }, mode: 1 })
+              }
+              if (entity !== fromEntity) {
                 getMainEntity(entity, mainEntityIdFromRoute, idFromLS, vm.isNeedSelect, promises)
               }
               break
             }
             case 'intervals': {
-              promises.push({ entity: 'calcs', mode: 1 })
-              entity = 'devices'
-              if (entity !== fromEntity) {
-                if (idFromRoute) {
-                  promises.push({ entity: 'tasks', id: Number(idFromRoute), mode: 1 })
+              const deviceTo = to.params && to.params.deviceId ? JSON.parse(to.params.deviceId) : null,
+                calcTo = to.params && to.params.calcId ? JSON.parse(to.params.calcId) : null,
+                fromId = from.params && from.params.id ? JSON.parse(from.params.id) : null
+              if (fromEntity === 'devices') {
+                vm.isCalcsInit = getMainEntity('calcs', calcTo, undefined, vm.isNeedSelect || (vm.isNeedSelect.indexOf && !vm.isNeedSelect.indexOf('calcs')), promises)
+                vm.isDevicesInit = loadedEntities.devices && !loadedEntities.devices.id
+                vm.deviceBlocked = true
+                vm.setToolboxSessionSettings({
+                  intervalDevicesBlocked: true
+                })
+                entity = 'devices'
+                if (fromId !== deviceTo) {
+                  promises.push({ entity: 'tasks', id: { device: deviceTo, calc: calcTo }, mode: 1 })
                 }
-                getMainEntity(entity, mainEntityIdFromRoute, idFromLS, vm.isNeedSelect, promises)
+              } else if (fromEntity === 'calcs') {
+                vm.isDevicesInit = getMainEntity('devices', deviceTo, undefined, vm.isNeedSelect || (vm.isNeedSelect.indexOf && !vm.isNeedSelect.indexOf('devices')), promises)
+                vm.isCalcsInit = loadedEntities.calcs && !loadedEntities.calcs.id
+                vm.calcsBlocked = true
+                vm.setToolboxSessionSettings({
+                  intervalCalcsBlocked: true
+                })
+                entity = 'calcs'
+                if (fromId !== calcTo) {
+                  promises.push({ entity: 'tasks', id: { device: deviceTo, calc: calcTo }, mode: 1 })
+                }
+              } else {
+                promises.push({ entity: 'tasks', id: { device: deviceTo, calc: calcTo }, mode: 1 })
+                getMainEntity('calcs', calcTo, undefined, vm.isNeedSelect || (vm.isNeedSelect.indexOf && !vm.isNeedSelect.indexOf('calcs')), promises)
+                getMainEntity('devices', deviceTo, undefined, vm.isNeedSelect || (vm.isNeedSelect.indexOf && !vm.isNeedSelect.indexOf('devices')), promises)
               }
               break
             }
@@ -103,37 +135,51 @@ export default {
   beforeRouteUpdate (to, from, next) {
     const toEntity = to.meta.moduleName,
       fromEntity = from.meta.moduleName,
-      toId = to.params && to.params.id ? Number(to.params.id) : null,
-      fromId = from.params && from.params.id ? Number(from.params.id) : null,
+      toId = to.params && to.params.id ? JSON.parse(to.params.id) : null,
+      fromId = from.params && from.params.id ? JSON.parse(from.params.id) : null,
       uninit = [],
       init = []
     if (toEntity === fromEntity) {
       if (toId) {
         switch (toEntity) {
           case 'devices': {
-            init.push({ entity: 'tasks', id: toId, mode: 1 })
+            init.push({ entity: 'tasks', id: { device: toId }, mode: 1 })
             break
           }
-          case 'intervals': {
-            if (toId !== fromId) {
-              init.push({ entity: 'tasks', id: toId, mode: 1 })
-            }
+          case 'calcs': {
+            init.push({ entity: 'tasks', id: { calc: toId }, mode: 1 })
             break
           }
+        }
+      }
+      if (toEntity === 'intervals') {
+        const deviceTo = to.params && to.params.deviceId ? JSON.parse(to.params.deviceId) : null,
+          deviceFrom = from.params && from.params.deviceId ? JSON.parse(from.params.deviceId) : null,
+          calcTo = to.params && to.params.calcId ? JSON.parse(to.params.calcId) : null,
+          calcFrom = from.params && from.params.calcId ? JSON.parse(from.params.calcId) : null
+        if (deviceTo !== deviceFrom || calcTo !== calcFrom) {
+          init.push({ entity: 'tasks', id: { device: deviceTo, calc: calcTo }, mode: 1 })
         }
       }
       if (fromId) {
         switch (toEntity) {
           case 'devices': {
-            uninit.push({ entity: 'tasks', id: fromId, mode: 1 })
+            uninit.push({ entity: 'tasks', id: { device: fromId }, mode: 1 })
             break
           }
-          case 'intervals': {
-            if (toId !== fromId) {
-              uninit.push({ entity: 'tasks', id: fromId, mode: 1 })
-            }
+          case 'calcs': {
+            uninit.push({ entity: 'tasks', id: { calc: fromId }, mode: 1 })
             break
           }
+        }
+      }
+      if (toEntity === 'intervals') {
+        const deviceTo = to.params && to.params.deviceId ? JSON.parse(to.params.deviceId) : null,
+          deviceFrom = from.params && from.params.deviceId ? JSON.parse(from.params.deviceId) : null,
+          calcTo = to.params && to.params.calcId ? JSON.parse(to.params.calcId) : null,
+          calcFrom = from.params && from.params.calcId ? JSON.parse(from.params.calcId) : null
+        if (deviceTo !== deviceFrom || calcTo !== calcFrom) {
+          uninit.push({ entity: 'tasks', id: { device: deviceFrom, calc: calcFrom }, mode: 1 })
         }
       }
     }
@@ -152,23 +198,36 @@ export default {
       toEntity = to.meta.moduleName
     const promises = []
     if (fromEntity && toEntity !== fromEntity) {
-      const idFromRoute = from.params && from.params.id ? Number(from.params.id) : null
+      const idFromRoute = from.params && from.params.id ? JSON.parse(from.params.id) : null
       switch (fromEntity) {
         case 'devices': {
           if (toEntity === 'intervals') { toEntity = 'devices' }
+          // promises.push({ entity: 'tasks', id: { device: idFromRoute }, mode: 1 })
           if (toEntity !== fromEntity) {
-            promises.push({ entity: 'tasks', id: idFromRoute, mode: 1 })
+            promises.push(this.isNeedSelect && this.isItemsInit ? { entity: fromEntity, mode: 1 } : { entity: fromEntity, id: idFromRoute, mode: 1 })
+          }
+          break
+        }
+        case 'calcs': {
+          if (toEntity === 'intervals') { toEntity = 'calcs' }
+          // promises.push({ entity: 'tasks', id: { calc: idFromRoute }, mode: 1 })
+          if (toEntity !== fromEntity) {
             promises.push(this.isNeedSelect && this.isItemsInit ? { entity: fromEntity, mode: 1 } : { entity: fromEntity, id: idFromRoute, mode: 1 })
           }
           break
         }
         case 'intervals': {
-          promises.push({ entity: 'calcs', mode: 1 })
-          fromEntity = 'devices'
-          if (toEntity !== fromEntity) {
-            promises.push({ entity: 'tasks', id: idFromRoute, mode: 1 })
-            promises.push(this.isNeedSelect && this.isItemsInit ? { entity: fromEntity, mode: 1 } : { entity: fromEntity, id: idFromRoute, mode: 1 })
+          const deviceFrom = from.params && from.params.deviceId ? JSON.parse(from.params.deviceId) : null,
+            calcFrom = from.params && from.params.calcId ? JSON.parse(from.params.calcId) : null
+          if (toEntity === 'devices') {
+            promises.push((this.isNeedSelect || (this.isNeedSelect.indexOf && !this.isNeedSelect.indexOf('calcs'))) && this.isCalcsInit ? { entity: 'calcs', mode: 1 } : { entity: 'calcs', id: calcFrom, mode: 1 })
+          } else if (toEntity === 'calcs') {
+            promises.push((this.isNeedSelect || (this.isNeedSelect.indexOf && !this.isNeedSelect.indexOf('devices'))) && this.isDevicesInit ? { entity: 'devices', mode: 1 } : { entity: 'devices', id: deviceFrom, mode: 1 })
+          } else {
+            promises.push((this.isNeedSelect || (this.isNeedSelect.indexOf && !this.isNeedSelect.indexOf('calcs'))) && this.isCalcsInit ? { entity: 'calcs', mode: 1 } : { entity: 'calcs', id: calcFrom, mode: 1 })
+            promises.push((this.isNeedSelect || (this.isNeedSelect.indexOf && !this.isNeedSelect.indexOf('devices'))) && this.isDevicesInit ? { entity: 'devices', mode: 1 } : { entity: 'devices', id: deviceFrom, mode: 1 })
           }
+          promises.push({ entity: 'tasks', id: { calc: calcFrom, device: deviceFrom }, mode: 1 })
           break
         }
         case 'trafficViewer':
@@ -215,7 +274,7 @@ export default {
       return this.getEntities([{ entity, mode: 1 }])
         .then((res) => {
           if (id) {
-            this.unsubscribeItems({ entity, id: id, mode: 1 })
+            this.unsubscribeItems({ entity, id, mode: 1 })
           }
           update(() => {
             loadedEntities[entity] = { entity, mode: 1 }

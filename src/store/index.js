@@ -3,6 +3,9 @@ import Vuex from 'vuex'
 import actions from './actions'
 import mutations from './mutations'
 import config from '../config.js'
+import { SessionStorage } from 'quasar'
+
+const sessionSettings = SessionStorage.getItem(`toolbox-session-settings[${window.name || 'default'}]`)
 
 Vue.use(Vuex)
 
@@ -16,8 +19,8 @@ const state = {
   errors: [],
   tokenInfo: null,
   regions: null,
-  currentRegion: null,
-  newNotificationCounter: 0
+  newNotificationCounter: 0,
+  sessionSettings
 }
 
 const store = new Vuex.Store(

@@ -40,7 +40,6 @@ export default {
   props: [
     'item',
     'activeId',
-    'intervalModuleName',
     'interval',
     'dateRange',
     'limit',

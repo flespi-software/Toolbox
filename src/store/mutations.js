@@ -1,5 +1,7 @@
 import { SessionStorage, Notify, LocalStorage } from 'quasar'
 import Vue from 'vue'
+import isEqual from 'lodash/isEqual'
+import sortBy from 'lodash/sortBy'
 
 function reqStart (state) {
   if (DEV) {
@@ -60,7 +62,7 @@ function setToken (state, val) {
   let token = val.replace('FlespiToken ', '')
   if (token === state.token) { return false }
   if (val && token.match(/^[a-z0-9]+$/i)) {
-    SessionStorage.set(`flespi-toolbox-token[${window.name || 'default'}]`, token)
+    setToolboxSessionSettings(state, { token })
   } else {
     token = ''
     clearToken(state)
@@ -70,7 +72,7 @@ function setToken (state, val) {
   clearErrors(state)
 }
 function clearToken (state) {
-  SessionStorage.remove(`flespi-toolbox-token[${window.name || 'default'}]`)
+  setToolboxSessionSettings(state, { token: undefined })
   Vue.connector.token = ''
   Vue.set(state, 'token', '')
   clearTokenInfo(state)
@@ -121,31 +123,46 @@ function setTokenInfo (state, tokenInfo) {
     }
     // acl
     case 2: {
+      const submodulesCompare = (accessModules, needModules) => {
+        let isEq = true
+        isEq = !needModules.some((needModule) => {
+          const accessModule = accessModules.find(module => module.name === needModule.name)
+          return !accessModule || !isEqual(sortBy(needModule.methods), sortBy(accessModule.methods))
+        })
+        return isEq
+      }
       Vue.set(state.config.platform, 'isDrawable', false)
       const rights = tokenInfo.access.acl.reduce((result, acl) => {
-        if (acl.uri === 'gw') {
+        if (acl.uri === 'gw' || acl.uri === 'storage') {
           if (acl.methods.includes('GET')) {
-            return [...result, 'channels', 'calcs', 'plugins', 'devices', 'streams', 'modems', 'protocols']
-          }
-          return result
-        }
-        if (acl.uri === 'storage') {
-          if (acl.methods.includes('GET')) {
-            return [...result, 'containers', 'cdns']
+            let entities = []
+            if (acl.uri === 'gw') entities = ['channels', 'calcs', 'intervals', 'plugins', 'devices', 'streams', 'modems', 'protocols']
+            if (acl.uri === 'storage') entities = ['containers', 'cdns']
+            entities.forEach((entity) => {
+              if (result[entity]) { return }
+              result[entity] = {
+                name: entity,
+                methods: ['GET']
+              }
+            })
+            return result
           }
           return result
         }
         const entity = acl.uri.split('/')[1] || acl.uri.split('/')[0]
-        if (!result.includes(entity) && (!acl.methods || (acl.methods && acl.methods.includes('GET')))) {
-          result.push(entity)
-        }
+        result[entity] = acl
         return result
-      }, [])
+      }, {})
       Object.keys(state.config).forEach((entity) => {
         const entityConfig = state.config[entity]
         if (!entityConfig.acl) { return false }
         const access = entityConfig.acl.reduce((result, req) => {
-          return result && rights.includes(req)
+          const access = rights[req.name]
+          if (!access) { return false }
+          let grants = result
+          if (!access.methods || !isEqual(sortBy(access.methods), sortBy(req.methods))) { grants = false }
+          if (access.submodules && !submodulesCompare(access.submodules, req.submodules)) { grants = false }
+          return result && grants
         }, true)
         if (access) {
           Vue.set(state.config[entity], 'isDrawable', true)
@@ -172,7 +189,7 @@ function getToolboxSettings (state) {
   if (!settings) {
     settings = { entities: {} }
     const entities = settings.entities
-    const entityNames = ['devices', 'channels', 'calcs', 'plugins', 'streams', 'modems', 'containers', 'cdns', 'tools/hex', 'tools/traffic', 'platform', 'mqtt']
+    const entityNames = ['devices', 'channels', 'calcs', 'intervals', 'plugins', 'streams', 'modems', 'containers', 'cdns', 'tools/hex', 'tools/traffic', 'platform', 'mqtt']
     entityNames.forEach(name => {
       const value = LocalStorage.getItem(name)
       if (value) {
@@ -209,14 +226,21 @@ function setRegions (state, regions) {
   state.regions = regions
 }
 
-function setCurrentRegion (state, region) {
-  state.currentRegion = region
-  SessionStorage.set('flespi-toolbox-region', region.name)
-}
-
-function clearCurrentRegion (state) {
-  state.currentRegion = null
-  SessionStorage.remove('flespi-toolbox-region')
+function setToolboxSessionSettings (state, data) {
+  let sessionSettings = state.sessionSettings
+  if (!sessionSettings) { sessionSettings = {} }
+  for (const field in data) {
+    const value = data[field]
+    if (value) {
+      Vue.set(sessionSettings, field, value)
+    } else {
+      Vue.delete(sessionSettings, field)
+    }
+  }
+  Vue.set(state, 'sessionSettings', sessionSettings)
+  SessionStorage.set(`toolbox-session-settings[${window.name || 'default'}]`, sessionSettings)
+  console.log(data)
+  console.trace()
 }
 
 export default {
@@ -239,6 +263,5 @@ export default {
   setToolboxSettings,
   clearToolboxSettings,
   setRegions,
-  setCurrentRegion,
-  clearCurrentRegion
+  setToolboxSessionSettings
 }

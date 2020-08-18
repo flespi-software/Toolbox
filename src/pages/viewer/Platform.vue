@@ -78,7 +78,7 @@
       :item="selectedItem"
       :cid="selectedItem.id"
       :limit="limit"
-      originPattern="*"
+      originPattern="platform/customer/*"
       :isEnabled="true"
       :config="config.logs"
       :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
@@ -92,7 +92,7 @@
 
 <script>
 import logs from '../../components/logs/Index.vue'
-import { mapState, mapActions } from 'vuex'
+import { mapState } from 'vuex'
 import EntitiesToolbar from '../../components/EntitiesToolbar'
 import init from '../../mixins/entitiesInit'
 import get from 'lodash/get'
@@ -182,7 +182,6 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['getEntities']),
     filterItems (filter, update) {
       if (this.isItemsInit) {
         update()
