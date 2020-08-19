@@ -239,8 +239,6 @@ function setToolboxSessionSettings (state, data) {
   }
   Vue.set(state, 'sessionSettings', sessionSettings)
   SessionStorage.set(`toolbox-session-settings[${window.name || 'default'}]`, sessionSettings)
-  console.log(data)
-  console.trace()
 }
 
 export default {

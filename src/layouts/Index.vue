@@ -282,7 +282,7 @@ export default {
       errors: state => state.errors,
       newNotificationCounter: state => state.newNotificationCounter,
       settings: state => state.settings,
-      localeName: state => state.sessionSettings && state.sessionSettingsregion && state.sessionSettingsregion.name,
+      localeName: state => state.sessionSettings && state.sessionSettings.region && state.sessionSettings.region.name,
       sessionSettings: state => state.sessionSettings
     }),
     messagesColsCollectionByEntity () {
@@ -588,12 +588,16 @@ export default {
       }
     },
     routeParamsProcess (route) {
-      if (this.$route.params.noselect !== 'all') {
-        this.isNeedSelect = this.$route.params.noselect
-      } else {
-        this.isNeedSelect = false
+      const noselect = this.$route.params.noselect
+      this.isNeedSelect = true
+      if (noselect) {
+        if (noselect !== 'all') {
+          this.isNeedSelect = noselect
+        } else {
+          this.isNeedSelect = false
+        }
       }
-      this.isVisibleToolbar = !route.params.fullscreen || !this.$q.platform.within.iframe
+      this.isVisibleToolbar = !route.params.fullscreen
       this.setToolboxSessionSettings({ isNeedSelect: this.isNeedSelect, isVisibleToolbar: this.isVisibleToolbar })
       this.initConnection({ token: route.params.token })
         .then(() => {
@@ -689,10 +693,8 @@ export default {
   created () {
     this.routeProcess(this.$route)
     const sessionSettings = this.sessionSettings
-    if (sessionSettings) {
-      this.isNeedSelect = sessionSettings.isNeedSelect || !this.$q.platform.within.iframe
-      this.isVisibleToolbar = sessionSettings.isVisibleToolbar || !this.$q.platform.within.iframe
-    }
+    if (sessionSettings.isNeedSelect !== undefined) this.isNeedSelect = sessionSettings.isNeedSelect
+    if (sessionSettings.isVisibleToolbar !== undefined) this.isVisibleToolbar = sessionSettings.isVisibleToolbar
     if (!this.isInit) {
       this.connectFlag = true
       this.connectionPreserveHandlerIndex = Vue.connector.socket.on('connect', this.connectionPreserveHandler)

@@ -67,7 +67,6 @@ async function getItems ({ state, commit }, payload) {
     } else {
       origin = `${originBase}/${id || '+'}`
     }
-    console.log(`Subscribe ${origin}`)
     if (state.token) {
       try {
         // init getting protocols name
@@ -151,7 +150,6 @@ async function unsubscribeItems ({ state, commit }, payload) {
     } else {
       origin = `${originBase}/${id || '+'}`
     }
-    console.log(`Unsubscribe ${origin}`)
     try {
       return await Vue.connector.socket.unsubscribe(origin)
     } catch (e) {
@@ -305,7 +303,6 @@ async function initConnection ({ state, commit }, { region, token }) {
       commit('setToolboxSessionSettings', { region })
     }
     const currentRegion = state.sessionSettings.region
-    console.log(currentRegion)
     Vue.prototype.$flespiServer = currentRegion.rest
     Vue.prototype.$flespiSocketServer = `wss://${currentRegion['mqtt-ws']}`
     Vue.prototype.$flespiCDN = currentRegion.cdn

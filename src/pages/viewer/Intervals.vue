@@ -44,7 +44,7 @@
                 v-bind="scope.itemProps"
                 v-on="scope.itemEvents"
                 class="q-pa-none"
-                style="margin-top: 2px; max-width: 100%"
+                style="margin-top: 2px; max-width: 100%; min-height: auto;"
               >
                 <q-item-section>
                   <q-item-label header class="ellipsis overflow-hidden q-pa-none text-white">{{selectedDevice.name || '&lt;noname&gt;'}}</q-item-label>
@@ -314,13 +314,13 @@ export default {
           label: 'Devices',
           icon: 'mdi-developer-board',
           handler: this.goBackDevice,
-          condition: !!this.active && (this.isNeedSelect || (typeof this.isNeedSelect === 'string' && this.isNeedSelect.indexOf('devices') > -1))
+          condition: !!this.active && (this.isNeedSelect === true || (typeof this.isNeedSelect === 'string' && this.isNeedSelect.indexOf('devices') > -1))
         },
         {
           label: 'Calcs',
           icon: 'mdi-calculator-variant',
           handler: this.goBackCalc,
-          condition: !!this.activeCalcId && (this.isNeedSelect || (typeof this.isNeedSelect === 'string' && this.isNeedSelect.indexOf('calcs') > -1))
+          condition: !!this.activeCalcId && (this.isNeedSelect === true || (typeof this.isNeedSelect === 'string' && this.isNeedSelect.indexOf('calcs') > -1))
         }
       ]
     }

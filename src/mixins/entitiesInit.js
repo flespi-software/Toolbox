@@ -57,7 +57,7 @@ export default {
                 calcTo = to.params && to.params.calcId ? JSON.parse(to.params.calcId) : null,
                 fromId = from.params && from.params.id ? JSON.parse(from.params.id) : null
               if (fromEntity === 'devices') {
-                vm.isCalcsInit = getMainEntity('calcs', calcTo, undefined, vm.isNeedSelect || (vm.isNeedSelect.indexOf && !vm.isNeedSelect.indexOf('calcs')), promises)
+                vm.isCalcsInit = getMainEntity('calcs', calcTo, undefined, vm.isNeedSelect || (typeof vm.isNeedSelect === 'string' && !vm.isNeedSelect.indexOf('calcs')), promises)
                 vm.isDevicesInit = loadedEntities.devices && !loadedEntities.devices.id
                 vm.deviceBlocked = true
                 vm.setToolboxSessionSettings({
@@ -68,7 +68,7 @@ export default {
                   promises.push({ entity: 'tasks', id: { device: deviceTo, calc: calcTo }, mode: 1 })
                 }
               } else if (fromEntity === 'calcs') {
-                vm.isDevicesInit = getMainEntity('devices', deviceTo, undefined, vm.isNeedSelect || (vm.isNeedSelect.indexOf && !vm.isNeedSelect.indexOf('devices')), promises)
+                vm.isDevicesInit = getMainEntity('devices', deviceTo, undefined, vm.isNeedSelect || (typeof vm.isNeedSelect === 'string' && !vm.isNeedSelect.indexOf('devices')), promises)
                 vm.isCalcsInit = loadedEntities.calcs && !loadedEntities.calcs.id
                 vm.calcsBlocked = true
                 vm.setToolboxSessionSettings({
@@ -80,8 +80,8 @@ export default {
                 }
               } else {
                 promises.push({ entity: 'tasks', id: { device: deviceTo, calc: calcTo }, mode: 1 })
-                getMainEntity('calcs', calcTo, undefined, vm.isNeedSelect || (vm.isNeedSelect.indexOf && !vm.isNeedSelect.indexOf('calcs')), promises)
-                getMainEntity('devices', deviceTo, undefined, vm.isNeedSelect || (vm.isNeedSelect.indexOf && !vm.isNeedSelect.indexOf('devices')), promises)
+                getMainEntity('calcs', calcTo, undefined, vm.isNeedSelect || (typeof vm.isNeedSelect === 'string' && !vm.isNeedSelect.indexOf('calcs')), promises)
+                getMainEntity('devices', deviceTo, undefined, vm.isNeedSelect || (typeof vm.isNeedSelect === 'string' && !vm.isNeedSelect.indexOf('devices')), promises)
               }
               break
             }
@@ -220,12 +220,12 @@ export default {
           const deviceFrom = from.params && from.params.deviceId ? JSON.parse(from.params.deviceId) : null,
             calcFrom = from.params && from.params.calcId ? JSON.parse(from.params.calcId) : null
           if (toEntity === 'devices') {
-            promises.push((this.isNeedSelect || (this.isNeedSelect.indexOf && !this.isNeedSelect.indexOf('calcs'))) && this.isCalcsInit ? { entity: 'calcs', mode: 1 } : { entity: 'calcs', id: calcFrom, mode: 1 })
+            promises.push((this.isNeedSelect || (typeof this.isNeedSelect === 'string' && !this.isNeedSelect.indexOf('calcs'))) && this.isCalcsInit ? { entity: 'calcs', mode: 1 } : { entity: 'calcs', id: calcFrom, mode: 1 })
           } else if (toEntity === 'calcs') {
-            promises.push((this.isNeedSelect || (this.isNeedSelect.indexOf && !this.isNeedSelect.indexOf('devices'))) && this.isDevicesInit ? { entity: 'devices', mode: 1 } : { entity: 'devices', id: deviceFrom, mode: 1 })
+            promises.push((this.isNeedSelect || (typeof this.isNeedSelect === 'string' && !this.isNeedSelect.indexOf('devices'))) && this.isDevicesInit ? { entity: 'devices', mode: 1 } : { entity: 'devices', id: deviceFrom, mode: 1 })
           } else {
-            promises.push((this.isNeedSelect || (this.isNeedSelect.indexOf && !this.isNeedSelect.indexOf('calcs'))) && this.isCalcsInit ? { entity: 'calcs', mode: 1 } : { entity: 'calcs', id: calcFrom, mode: 1 })
-            promises.push((this.isNeedSelect || (this.isNeedSelect.indexOf && !this.isNeedSelect.indexOf('devices'))) && this.isDevicesInit ? { entity: 'devices', mode: 1 } : { entity: 'devices', id: deviceFrom, mode: 1 })
+            promises.push((this.isNeedSelect || (typeof this.isNeedSelect === 'string' && !this.isNeedSelect.indexOf('calcs'))) && this.isCalcsInit ? { entity: 'calcs', mode: 1 } : { entity: 'calcs', id: calcFrom, mode: 1 })
+            promises.push((this.isNeedSelect || (typeof this.isNeedSelect === 'string' && !this.isNeedSelect.indexOf('devices'))) && this.isDevicesInit ? { entity: 'devices', mode: 1 } : { entity: 'devices', id: deviceFrom, mode: 1 })
           }
           promises.push({ entity: 'tasks', id: { calc: calcFrom, device: deviceFrom }, mode: 1 })
           break

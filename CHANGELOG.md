@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.5.1] - 2020-08-17
+[fix] route params logic
+[fix] styles
 ### [1.5.0] - 2020-08-16
 [feature] traffic: multi types export
 [rebase] Intervals
