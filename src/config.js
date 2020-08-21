@@ -443,7 +443,7 @@ export default {
   intervals: {
     label: 'Intervals',
     icon: 'mdi-set-center',
-    path: 'device/:deviceId/calc/:calcId/intervals',
+    path: ['device/:deviceId/calc/:calcId/intervals', 'intervals'],
     type: 'viewer',
     acl: [
       {

@@ -457,6 +457,14 @@ export default {
     }
   },
   created () {
+    const separatedId = this.$route.params.id
+    if (separatedId) {
+      const ids = separatedId.split('-')
+      const deviceId = ids[0]
+      const calcId = ids[1]
+      this.$router.push(`/device/${deviceId}/calc/${calcId}/intervals`).catch(err => err)
+      return false
+    }
     if (this.sessionSettings && this.sessionSettings.intervalDevicesBlocked) {
       this.deviceBlocked = true
     }

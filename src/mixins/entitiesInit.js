@@ -53,9 +53,14 @@ export default {
               break
             }
             case 'intervals': {
-              const deviceTo = to.params && to.params.deviceId ? JSON.parse(to.params.deviceId) : null,
-                calcTo = to.params && to.params.calcId ? JSON.parse(to.params.calcId) : null,
-                fromId = from.params && from.params.id ? JSON.parse(from.params.id) : null
+              let deviceTo = to.params && to.params.deviceId ? JSON.parse(to.params.deviceId) : null,
+                calcTo = to.params && to.params.calcId ? JSON.parse(to.params.calcId) : null
+              const fromId = from.params && from.params.id ? JSON.parse(from.params.id.split('-')[0]) : null
+              if (to.params.id) {
+                const ids = to.params.id.split('-')
+                deviceTo = ids[0]
+                calcTo = ids[1]
+              }
               if (fromEntity === 'devices') {
                 vm.isCalcsInit = getMainEntity('calcs', calcTo, undefined, vm.isNeedSelect || (typeof vm.isNeedSelect === 'string' && !vm.isNeedSelect.indexOf('calcs')), promises)
                 vm.isDevicesInit = loadedEntities.devices && !loadedEntities.devices.id
@@ -79,9 +84,13 @@ export default {
                   promises.push({ entity: 'tasks', id: { device: deviceTo, calc: calcTo }, mode: 1 })
                 }
               } else {
+                vm.deviceBlocked = true
+                vm.setToolboxSessionSettings({
+                  intervalDevicesBlocked: true
+                })
                 promises.push({ entity: 'tasks', id: { device: deviceTo, calc: calcTo }, mode: 1 })
-                getMainEntity('calcs', calcTo, undefined, vm.isNeedSelect || (typeof vm.isNeedSelect === 'string' && !vm.isNeedSelect.indexOf('calcs')), promises)
-                getMainEntity('devices', deviceTo, undefined, vm.isNeedSelect || (typeof vm.isNeedSelect === 'string' && !vm.isNeedSelect.indexOf('devices')), promises)
+                vm.isCalcsInit = getMainEntity('calcs', calcTo, undefined, vm.isNeedSelect || (typeof vm.isNeedSelect === 'string' && !vm.isNeedSelect.indexOf('calcs')), promises)
+                vm.isDevicesInit = getMainEntity('devices', deviceTo, undefined, vm.isNeedSelect || (typeof vm.isNeedSelect === 'string' && !vm.isNeedSelect.indexOf('devices')), promises)
               }
               break
             }

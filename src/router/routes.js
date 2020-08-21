@@ -6,26 +6,44 @@ function getIndexChildrenRoutes (config) {
     const componentName = upperFirst(moduleName),
       type = config[moduleName].type,
       path = config[moduleName].path || moduleName
-    const route = {
-      path: path,
-      component: () => import('pages/' + type + '/' + componentName),
-      meta: { moduleName },
-      children: [
-        {
-          path: ':id',
-          meta: { moduleName }
-        }
-      ]
+    if (Array.isArray(path)) {
+      path.forEach((path) => {
+        result.push(
+          {
+            path: path,
+            component: () => import('pages/' + type + '/' + componentName),
+            meta: { moduleName },
+            children: [
+              {
+                path: ':id',
+                meta: { moduleName }
+              }
+            ]
+          }
+        )
+      })
+    } else {
+      const route = {
+        path: path,
+        component: () => import('pages/' + type + '/' + componentName),
+        meta: { moduleName },
+        children: [
+          {
+            path: ':id',
+            meta: { moduleName }
+          }
+        ]
+      }
+      if (moduleName === 'trafficViewer') {
+        route.children[0].children = [
+          {
+            path: 'ident/:ident',
+            meta: { moduleName }
+          }
+        ]
+      }
+      result.push(route)
     }
-    if (moduleName === 'trafficViewer') {
-      route.children[0].children = [
-        {
-          path: 'ident/:ident',
-          meta: { moduleName }
-        }
-      ]
-    }
-    result.push(route)
     return result
   }, [])
 }
