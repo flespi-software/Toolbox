@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.5.3] - 2020-08-21
+[fix] acl submodules processing
 ### [1.5.2] - 2020-08-21
 [fix] intervals short route redirections
 ### [1.5.1] - 2020-08-17
