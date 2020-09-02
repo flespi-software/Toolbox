@@ -692,7 +692,7 @@ export default {
   },
   created () {
     this.routeProcess(this.$route)
-    const sessionSettings = this.sessionSettings
+    const sessionSettings = this.sessionSettings || {}
     if (sessionSettings.isNeedSelect !== undefined) this.isNeedSelect = sessionSettings.isNeedSelect
     if (sessionSettings.isVisibleToolbar !== undefined) this.isVisibleToolbar = sessionSettings.isVisibleToolbar
     if (!this.isInit) {

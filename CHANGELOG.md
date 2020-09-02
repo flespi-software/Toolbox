@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.5.4] - 2020-09-02
+[fix] init session settings
 ### [1.5.3] - 2020-08-21
 [fix] acl submodules processing
 ### [1.5.2] - 2020-08-21
