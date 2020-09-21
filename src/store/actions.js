@@ -71,7 +71,7 @@ async function getItems ({ state, commit }, payload) {
       try {
         // init getting protocols name
         if (entity === 'channels' && !state.protocols) {
-          const protocolsResp = await Vue.connector.gw.getProtocols('all', { fields: 'name,id,features' })
+          const protocolsResp = await Vue.connector.gw.getChannelProtocols('all', { fields: 'name,id,features' })
           const protocols = protocolsResp.data.result.reduce((result, protocol) => {
             result[protocol.id] = protocol
             return result
