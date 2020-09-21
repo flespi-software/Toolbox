@@ -226,11 +226,18 @@ export default {
           this.copyMessageHandler({ index, content })
           break
         }
+        case 'map': {
+          this.onMapHandler({ index, content })
+          break
+        }
       }
     },
     viewMessagesHandler ({ index, content }) {
       this.selected = [index]
       this.$emit('view-data', content)
+    },
+    onMapHandler ({ index, content }) {
+      this.$emit('on-map', { index, content })
     },
     copyMessageHandler ({ index, content }) {
       copyToClipboard(JSON.stringify(content)).then((e) => {

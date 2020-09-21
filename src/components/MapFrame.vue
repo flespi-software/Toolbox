@@ -41,7 +41,8 @@ export default {
       minimizeTo: '',
       winWidth: 0,
       winHeight: 0,
-      lastCommand: null
+      lastCommand: {},
+      mapInited: false
     }
   },
   computed: {
@@ -212,21 +213,28 @@ export default {
         this.isMapMaximized = false
       }
     },
-    addMarker (marker) {},
-    addRoute (route) {
-      this.lastCommand = `MapView|cmd:{"addgroutes": [${JSON.stringify(route)}], "clear": "all"}`
-      this.sendCommand(this.lastCommand)
+    addMarkers (markers) {
+      this.lastCommand.addmarkers = markers
+      return this
+    },
+    addPoints (points) {
+      this.lastCommand.appendpoints = points
+      return this
     },
     addRoutes (routes) {
-      this.lastCommand = `MapView|cmd:{"addgroutes": ${JSON.stringify(routes)}, "clear": "all"}`
-      this.sendCommand(this.lastCommand)
+      this.lastCommand.addgroutes = routes
+      return this
     },
-    clear () {
-      this.lastCommand = null
-      this.sendCommand('MapView|cmd:{"clear": "all"}')
+    clear (target = 'all') {
+      this.lastCommand.clear = target
+      return this
     },
-    sendCommand (command) {
-      this.$refs.frame && command && this.$refs.frame.contentWindow.postMessage(command, '*')
+    send () {
+      if (this.$refs.frame && this.mapInited) {
+        this.$refs.frame.contentWindow.postMessage(`MapView|cmd:${JSON.stringify(this.lastCommand)}`, '*')
+        this.lastCommand = {}
+      }
+      return this
     }
   },
   mounted () {
@@ -234,11 +242,14 @@ export default {
     this.winWidth = document.documentElement.clientWidth
   },
   created () {
-    window.addEventListener('message', (e) => {
+    const mapInitHandler = (e) => {
       if (e.data === 'MapView|state:{"ready": true}') {
-        this.sendCommand(this.lastCommand)
+        this.mapInited = true
+        this.send()
+        window.removeEventListener('message', mapInitHandler)
       }
-    })
+    }
+    window.addEventListener('message', mapInitHandler)
   },
   watch: {
     minimizeTo (minimizeTo) {

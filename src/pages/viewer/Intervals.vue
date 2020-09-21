@@ -389,12 +389,12 @@ export default {
       if (!this.isVisibleMap) {
         this.openMapHandler()
         this.$nextTick(() => {
-          this.$refs.map.addRoutes(routes)
+          this.$refs.map.clear().addRoutes(routes).send()
         })
         return false
       }
       if (this.$refs.map && this.isVisibleMap) {
-        this.$refs.map.addRoutes(routes)
+        this.$refs.map.clear().addRoutes(routes).send()
       }
     },
     unselect () {

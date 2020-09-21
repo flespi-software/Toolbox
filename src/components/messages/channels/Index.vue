@@ -229,6 +229,10 @@ export default {
           this.copyMessageHandler({ index, content })
           break
         }
+        case 'map': {
+          this.onMapHandler({ index, content })
+          break
+        }
       }
     },
     actionToBottomHandler () {
@@ -312,6 +316,9 @@ export default {
           timeout: 1000
         })
       })
+    },
+    onMapHandler ({ index, content }) {
+      this.$emit('on-map', { index, content })
     },
     unselect () {
       if (this.selected.length) {

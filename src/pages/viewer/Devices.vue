@@ -92,7 +92,7 @@
         originPattern="gw/devices/:id"
         :isEnabled="!!+size[0]"
         v-if="+size[0]"
-        :style="[{height: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'logs' ? '66%' : ''}]"
+        :style="[{height: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'top' ? '66%' : ''}]"
         @view-log-message="viewLogMessagesHandler"
         @to-traffic="toTrafficHandler"
         :config="logsConfig"
@@ -100,12 +100,13 @@
       <messages
         ref="messages"
         @view-data="viewDataHandler"
+        @on-map="onMapHandler"
         :item="selectedItem"
         :activeId="active"
         :isEnabled="!!+size[1]"
         :limit="limit"
         v-if="+size[1]"
-        :style="[{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'messages' ? '66%' : ''}]"
+        :style="[{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'bottom' ? '66%' : ''}]"
         :config="config.messages"
       />
     </div>
@@ -113,10 +114,9 @@
       <div style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Devices not found'}}</div>
       <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
     </div>
-    <map-component
+    <map-frame
       ref="map"
-      v-if="active && messagesWithPosition.length && $q.platform.is.desktop && isVisibleMap"
-      :messages="messagesWithPosition"
+      v-if="active && trackByMessages.length && $q.platform.is.desktop && isVisibleMap"
       :device="selectedItem"
       :siblingHeight="siblingHeight"
       @map:close="isVisibleMap = false"
@@ -128,11 +128,14 @@
 <script>
 import logs from '../../components/logs/Index.vue'
 import messages from '../../components/messages/devices/Index.vue'
-import MapComponent from '../../components/MapComponent'
+import MapFrame from '../../components/MapFrame'
 import EntitiesToolbar from '../../components/EntitiesToolbar'
 import { mapState, mapActions } from 'vuex'
 import init from '../../mixins/entitiesInit'
 import get from 'lodash/get'
+
+const MAP_MODE_TRACK = 0,
+  MAP_MODE_MARKER = 1
 
 export default {
   props: [
@@ -155,7 +158,8 @@ export default {
       mapMinimizedOptions: {},
       siblingHeight: null,
       needShowGetDeletedAction: true,
-      trafficRoute: null
+      trafficRoute: null,
+      mapMode: MAP_MODE_TRACK
     }
   },
   computed: {
@@ -171,6 +175,26 @@ export default {
       },
       tasksByDevice (state) {
         return Object.values(state.tasks || {})
+      },
+      trackByMessages (state) {
+        const messages = this.config && this.config.messages && state[this.config.messages.vuexModuleName]
+            ? state[this.config.messages.vuexModuleName].messages
+            : [],
+          track = []
+        for (let i = 0; i < messages.length; i++) {
+          const message = messages[i]
+          if (!!message['position.latitude'] && !!message['position.longitude']) {
+            track.push(
+              {
+                lat: message['position.latitude'],
+                lon: message['position.longitude'],
+                dir: message['position.direction']
+              }
+            )
+          }
+        }
+        if (this.isVisibleMap && this.$refs.map && this.mapMode === MAP_MODE_TRACK) { this.updateTrack(track) }
+        return track
       }
     }),
     items () {
@@ -232,11 +256,6 @@ export default {
     size () {
       return [this.ratio, 100 - this.ratio]
     },
-    messagesWithPosition () {
-      return this.config && this.config.messages && this.$store.state[this.config.messages.vuexModuleName]
-        ? this.$store.state[this.config.messages.vuexModuleName].messages.filter(message => !!message['position.latitude'] && !!message['position.longitude'])
-        : []
-    },
     actions () {
       return [
         {
@@ -254,8 +273,8 @@ export default {
         {
           label: 'Map',
           icon: 'mdi-map',
-          handler: () => this.setMapVisibility(!this.isVisibleMap),
-          condition: !!this.messagesWithPosition.length
+          handler: () => this.showTrack(this.trackByMessages),
+          condition: !!this.trackByMessages.length
         },
         {
           label: 'Clear',
@@ -279,7 +298,7 @@ export default {
     viewDataHandler (content) {
       this.$emit('view-data', content)
       if (this.isVisibleMap && content['position.latitude'] && content['position.longitude']) {
-        this.$refs.map.flyTo([content['position.latitude'], content['position.longitude']])
+        this.onMapHandler({ content })
       }
     },
     viewLogMessagesHandler (content) {
@@ -288,16 +307,11 @@ export default {
     unselect () {
       this.$refs.messages.unselect()
     },
-    showMap () {
-      if (this.messagesWithPosition.length) {
-        this.isVisibleMap = !this.isVisibleMap
-      }
-    },
     mapMinimizeHandler (options) {
       this.mapMinimizedOptions = options
-      if (options.type === 'messages') {
+      if (options.type === 'bottom') {
         this.siblingHeight = this.size[1]
-      } else if (options.type === 'logs') {
+      } else if (options.type === 'top') {
         this.siblingHeight = this.size[0]
       } else { this.siblingHeight = null }
     },
@@ -368,6 +382,32 @@ export default {
     },
     setMapVisibility (flag) {
       this.isVisibleMap = flag
+    },
+    showTrack (track) {
+      this.mapMode = MAP_MODE_TRACK
+      if (!this.isVisibleMap && track.length) {
+        this.setMapVisibility(true)
+      }
+      this.$nextTick(() => this.updateTrack(track))
+    },
+    updateTrack (track) {
+      const marker = [track[track.length - 1].lat, track[track.length - 1].lon]
+      track = track.map(marker => ([marker.lat, marker.lon]))
+      this.$refs.map.clear().addPoints(track).addMarkers([marker]).send()
+    },
+    onMapHandler ({ index, content }) {
+      const marker = [content['position.latitude'], content['position.longitude']]
+      this.mapMode = MAP_MODE_MARKER
+      if (!this.isVisibleMap) {
+        this.setMapVisibility(true)
+        this.$nextTick(() => {
+          this.$refs.map.clear().addMarkers([marker]).send()
+        })
+        return false
+      }
+      if (this.$refs.map && this.isVisibleMap) {
+        this.$refs.map.clear().addMarkers([marker]).send()
+      }
     }
   },
   watch: {
@@ -408,7 +448,7 @@ export default {
       }
     }
   },
-  components: { logs, messages, MapComponent, EntitiesToolbar }
+  components: { logs, messages, MapFrame, EntitiesToolbar }
 }
 </script>
 <style lang="stylus">

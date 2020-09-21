@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.5.5] - 2020-09-21
+[feature] map by message position in channels and devices
+[rebase] device track map (mapview)
 ### [1.5.4] - 2020-09-02
 [fix] init session settings
 ### [1.5.3] - 2020-08-21

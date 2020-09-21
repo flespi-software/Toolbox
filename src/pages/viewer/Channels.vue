@@ -1,5 +1,6 @@
 <template>
   <q-page>
+    <q-resize-observer @resize="onResize" />
     <entities-toolbar
       :item="selectedItem" :ratio="ratio" :actions="actions" @change:ratio="r => ratio = r"
     >
@@ -99,13 +100,14 @@
         originPattern="gw/channels/:id"
         :config="logsConfig"
         v-if="+size[0]"
-        :style="{height: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
+        :style="{height: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'top' ? '66%' : ''}"
         @view-log-message="viewLogMessagesHandler"
         @to-traffic="toTrafficHandler"
       />
       <messages
         ref="messages"
         @view-data="viewDataHandler"
+        @on-map="onMapHandler"
         :item="selectedItem"
         :activeId="active"
         :isEnabled="!!+size[1]"
@@ -119,6 +121,14 @@
       <div style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Channels not found'}}</div>
       <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
     </div>
+    <map-frame
+      ref="map"
+      v-if="$q.platform.is.desktop && isVisibleMap"
+      :device="mapDevice"
+      :siblingHeight="siblingHeight"
+      @map:close="mapCloseHandler"
+      @map:minimize="mapMinimizeHandler"
+    />
   </q-page>
 </template>
 
@@ -129,6 +139,7 @@ import { mapState, mapActions } from 'vuex'
 import EntitiesToolbar from '../../components/EntitiesToolbar'
 import get from 'lodash/get'
 import init from '../../mixins/entitiesInit'
+import MapFrame from '../../components/MapFrame'
 
 export default {
   props: [
@@ -145,6 +156,10 @@ export default {
       filter: '',
       active: null,
       ratio: 50,
+      siblingHeight: 0,
+      isVisibleMap: false,
+      mapDevice: null,
+      mapMinimizedOptions: {},
       isInit: false,
       isItemsInit: false,
       needShowGetDeletedAction: true
@@ -265,7 +280,11 @@ export default {
       this.itemsLoad(entity, update, this.active, () => { this.isItemsInit = true })
     },
     viewDataHandler (content) {
-      this.$emit('view-data', content[content.length - 1])
+      const message = content[content.length - 1]
+      this.$emit('view-data', message)
+      if (this.$refs.map && this.isVisibleMap && message['position.latitude'] && message['position.longitude']) {
+        this.onMapHandler({ content: message })
+      }
     },
     viewLogMessagesHandler (content) {
       this.$emit('view-log-message', content)
@@ -313,6 +332,20 @@ export default {
     deletedHandler () {
       this.ratio = 100
     },
+    onMapHandler ({ index, content }) {
+      this.mapDevice = { ident: content.ident || '*Empty*' }
+      const marker = [content['position.latitude'], content['position.longitude']]
+      if (!this.isVisibleMap) {
+        this.openMapHandler()
+        this.$nextTick(() => {
+          this.$refs.map.clear().addMarkers([marker]).send()
+        })
+        return false
+      }
+      if (this.$refs.map && this.isVisibleMap) {
+        this.$refs.map.clear().addMarkers([marker]).send()
+      }
+    },
     init () {
       const entity = 'channels',
         activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined),
@@ -332,6 +365,24 @@ export default {
         this.deletedHandler()
       }
       this.$emit('inited')
+    },
+    mapMinimizeHandler (options) {
+      this.mapMinimizedOptions = options
+      if (options.type === 'bottom') {
+        this.siblingHeight = this.size[1]
+      } else if (options.type === 'top') {
+        this.siblingHeight = this.size[0]
+      } else { this.siblingHeight = 0 }
+    },
+    mapCloseHandler () {
+      this.isVisibleMap = false
+      this.mapDevice = null
+    },
+    openMapHandler () {
+      this.isVisibleMap = !this.isVisibleMap
+    },
+    onResize () {
+      this.$refs.map && this.$refs.map.onWindowResize({ width: window.innerWidth, height: window.innerHeight })
     }
   },
   watch: {
@@ -373,7 +424,7 @@ export default {
       }
     }
   },
-  components: { logs, messages, EntitiesToolbar }
+  components: { logs, messages, EntitiesToolbar, MapFrame }
 }
 </script>
 <style lang="stylus">
