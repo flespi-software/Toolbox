@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.5.7] - 2020-09-22
+[feature] new date picker modes (manual formatted and timestamp)
+[fix] autobound and center on maps
 ### [1.5.6] - 2020-09-21
 [rebase] protocols new request
 ### [1.5.5] - 2020-09-21

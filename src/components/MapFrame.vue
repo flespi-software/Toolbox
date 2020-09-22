@@ -213,8 +213,21 @@ export default {
         this.isMapMaximized = false
       }
     },
+    centerMap (point) {
+      this.lastCommand.centermap = point
+      return this
+    },
+    autobounds (flag) {
+      this.lastCommand.autobounds = flag
+      return this
+    },
     addMarkers (markers) {
       this.lastCommand.addmarkers = markers
+      return this
+    },
+    /* markers = { 'name': { latlng, direction, title } } */
+    addNamedMarkers (markers) {
+      this.lastCommand.namedmarkers = markers
       return this
     },
     addPoints (points) {
@@ -231,6 +244,7 @@ export default {
     },
     send () {
       if (this.$refs.frame && this.mapInited) {
+        console.log(`MapView|cmd:${JSON.stringify(this.lastCommand)}`)
         this.$refs.frame.contentWindow.postMessage(`MapView|cmd:${JSON.stringify(this.lastCommand)}`, '*')
         this.lastCommand = {}
       }

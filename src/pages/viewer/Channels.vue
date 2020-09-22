@@ -338,12 +338,12 @@ export default {
       if (!this.isVisibleMap) {
         this.openMapHandler()
         this.$nextTick(() => {
-          this.$refs.map.clear().addMarkers([marker]).send()
+          this.$refs.map.clear().autobounds(true).addMarkers([marker]).send()
         })
         return false
       }
       if (this.$refs.map && this.isVisibleMap) {
-        this.$refs.map.clear().addMarkers([marker]).send()
+        this.$refs.map.clear().addMarkers([marker]).centerMap(marker).send()
       }
     },
     init () {

@@ -391,9 +391,9 @@ export default {
       this.$nextTick(() => this.updateTrack(track))
     },
     updateTrack (track) {
-      const marker = [track[track.length - 1].lat, track[track.length - 1].lon]
+      const marker = { latlng: [track[track.length - 1].lat, track[track.length - 1].lon], direction: track[track.length - 1].dir }
       track = track.map(marker => ([marker.lat, marker.lon]))
-      this.$refs.map.clear().addPoints(track).addMarkers([marker]).send()
+      this.$refs.map.clear().addPoints(track).addNamedMarkers([marker]).send()
     },
     onMapHandler ({ index, content }) {
       const marker = [content['position.latitude'], content['position.longitude']]
@@ -401,12 +401,12 @@ export default {
       if (!this.isVisibleMap) {
         this.setMapVisibility(true)
         this.$nextTick(() => {
-          this.$refs.map.clear().addMarkers([marker]).send()
+          this.$refs.map.clear().autobounds(true).addMarkers([marker]).send()
         })
         return false
       }
       if (this.$refs.map && this.isVisibleMap) {
-        this.$refs.map.clear().addMarkers([marker]).send()
+        this.$refs.map.clear().addMarkers([marker]).centerMap(marker).send()
       }
     }
   },
