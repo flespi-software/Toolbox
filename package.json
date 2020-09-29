@@ -1,6 +1,6 @@
 {
   "name": "toolbox",
-  "version": "1.5.7",
+  "version": "1.5.8",
   "description": "Flespi ToolboX",
   "productName": "ToolboX",
   "cordovaId": "org.cordova.quasar.app",
@@ -18,7 +18,6 @@
     "@quasar/extras": "^1.9.4",
     "flespi-io-js": "git+https://github.com/flespi-software/flespi-io-js.git",
     "lodash": "^4.17.19",
-    "mqtt-board": "git+https://github.com/flespi-software/MQTT-Board.git",
     "quasar": "^1.12.13",
     "qvirtualscroll": "git+https://github.com/flespi-software/QVirtualScroll.git",
     "vue-draggable-resizable": "^2.1.0",
