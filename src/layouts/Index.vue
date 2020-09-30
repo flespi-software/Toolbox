@@ -3,11 +3,11 @@
     <q-layout ref="layout" view="hHh LpR lFf" class="bg-grey-9">
       <q-header v-if="isVisibleToolbar">
         <q-toolbar class="header__main-toolbar bg-grey-9">
-          <q-btn flat icon="mdi-menu" @click="toggleMenu"/>
+          <q-btn flat icon="mdi-menu" @click="toggleMenu" v-if="!dashMode"/>
           <q-toolbar-title :style="{minWidth: $q.platform.is.mobile ? '60px' : '210px'}">
-            <img class="gt-sm" src="statics/toolbox50.png" alt="Toolbox" style="height: 30px">
-            <img class="lt-md" src="statics/toolbox_mobile.png" alt="Toolbox" style="height: 30px">
-            <sup class="version" :class="{'version--mobile': $q.platform.is.mobile}">{{version}}({{localeName}})</sup>
+            <img class="gt-sm cursor-pointer" src="statics/toolbox50.png" alt="Toolbox" style="height: 30px" @click="goToMain">
+            <img class="lt-md cursor-pointer" src="statics/toolbox_mobile.png" alt="Toolbox" style="height: 30px" @click="goToMain">
+            <sup class="version" :class="{'version--mobile': $q.platform.is.mobile, 'version--mobile-start': $q.platform.is.mobile && !entity}">{{version}}({{localeName}})</sup>
             <span v-if="configByEntity" style="position: relative; top: -5px; margin-left: 10px;">{{configByEntity.label}}</span>
           </q-toolbar-title>
           <q-btn v-if="errors.length" @click="clearNotificationCounter" small flat round icon="notifications">
@@ -26,7 +26,7 @@
               </q-list>
             </q-menu>
           </q-btn>
-          <q-btn @click="settingsHandler" small flat round icon="mdi-settings">
+          <q-btn @click="settingsHandler" small flat round icon="mdi-settings" v-if="!dashMode">
             <settings ref="settings" :limit="limit" @input="saveSettings" @clear="clearSettings" />
           </q-btn>
           <q-btn class="within-iframe-hide" @click="confirmExitHandler" small  flat round icon="mdi-exit-to-app"/>
@@ -48,164 +48,8 @@
           @cols:default="setDefaultColsHandler"
         />
       </q-drawer>
-      <q-drawer side="left" v-model="sides.left" :content-class="{'bg-grey-7':true}" v-if="isVisibleToolbar">
-        <q-list separator class="q-py-none">
-          <q-item v-if="renderEntities.includes('platform')" to='/platform' active-class="bg-grey-6 text-white">
-            <q-item-section avatar>
-              <q-icon :name="config.platform.icon" color="red"/>
-            </q-item-section>
-            <q-item-section class="text-white">
-              {{config.platform.label}}
-            </q-item-section>
-          </q-item>
-          <q-expansion-item
-            v-if="renderEntities.includes('channels') || renderEntities.includes('devices') || renderEntities.includes('streams') || renderEntities.includes('modems')"
-            group="menu"
-            label="Telematics Hub"
-            icon="mdi-sitemap"
-            :value="hubGroupModel"
-            dark
-          >
-            <div>
-              <q-list class="row q-py-none">
-                <q-item v-if="renderEntities.includes('channels')" to='/channels' class="col-6" active-class="bg-grey-6">
-                  <q-item-section class="text-center text-white">
-                    <div>
-                      <q-icon :name="config.channels.icon" size="2.6em"/>
-                    </div>
-                    <div>{{config.channels.label}}</div>
-                  </q-item-section>
-                </q-item>
-                <q-item v-if="renderEntities.includes('devices')" to='/devices' class="col-6" active-class="bg-grey-6">
-                  <q-item-section class="text-center text-white">
-                    <div>
-                      <q-icon :name="config.devices.icon" size="2.6em"/>
-                    </div>
-                    <div>{{config.devices.label}}</div>
-                  </q-item-section>
-                </q-item>
-                <q-item v-if="renderEntities.includes('streams')" to='/streams' class="col-6" active-class="bg-grey-6">
-                  <q-item-section class="text-center text-white">
-                    <div>
-                      <q-icon :name="config.streams.icon" size="2.6em"/>
-                    </div>
-                    <div>{{config.streams.label}}</div>
-                  </q-item-section>
-                </q-item>
-                <q-item v-if="renderEntities.includes('modems')" to='/modems' class="col-6" active-class="bg-grey-6">
-                  <q-item-section class="text-center text-white">
-                    <div>
-                      <q-icon :name="config.modems.icon" size="2.6em"/>
-                    </div>
-                    <div>{{config.modems.label}}</div>
-                  </q-item-section>
-                </q-item>
-                <q-separator style="width: 100%" v-if="renderEntities.includes('channels') || renderEntities.includes('devices') || renderEntities.includes('streams') || renderEntities.includes('modems')"/>
-                <!-- <q-item v-if="renderEntities.includes('intervals')" to='/device/null/calc/null/intervals' class="col-6" active-class="bg-grey-6">
-                  <q-item-section class="text-center text-white">
-                    <div>
-                      <q-icon :name="config.intervals.icon" size="2.6em"/>
-                    </div>
-                    <div>{{config.intervals.label}}</div>
-                  </q-item-section>
-                </q-item> -->
-                <q-item v-if="renderEntities.includes('calcs')" to='/calcs' class="col-6" active-class="bg-grey-6">
-                  <q-item-section class="text-center text-white">
-                    <div>
-                      <q-icon :name="config.calcs.icon" size="2.6em"/>
-                    </div>
-                    <div>{{config.calcs.label}}</div>
-                  </q-item-section>
-                </q-item>
-                <q-item v-if="renderEntities.includes('plugins')" to='/plugins' class="col-6" active-class="bg-grey-6">
-                  <q-item-section class="text-center text-white">
-                    <div>
-                      <q-icon :name="config.plugins.icon" size="2.6em"/>
-                    </div>
-                    <div>{{config.plugins.label}}</div>
-                  </q-item-section>
-                </q-item>
-                <q-separator style="width: 100%" v-if="renderEntities.includes('intervals') || renderEntities.includes('calcs') || renderEntities.includes('plugins')"/>
-                <q-item-label header class="col-12 text-white" v-if="renderEntities.includes('hexViewer') || renderEntities.includes('trafficViewer')">Tools</q-item-label>
-                <q-item to='/tools/hex' class="col-6" v-if="renderEntities.includes('hexViewer')" active-class="bg-grey-6">
-                  <q-item-section class="text-center text-white">
-                    <div>
-                      <q-icon :name="config.hexViewer.icon" size="2.6em"/>
-                    </div>
-                    <div>{{config.hexViewer.label}}</div>
-                  </q-item-section>
-                </q-item>
-                <q-item to='/tools/traffic' class="col-6" v-if="renderEntities.includes('trafficViewer')" active-class="bg-grey-6">
-                  <q-item-section class="text-center text-white">
-                    <div>
-                      <q-icon :name="config.trafficViewer.icon" size="2.6em"/>
-                    </div>
-                    <div>{{config.trafficViewer.label}}</div>
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </div>
-          </q-expansion-item>
-          <q-expansion-item
-            v-if="renderEntities.includes('containers') || renderEntities.includes('cdns')"
-            group="menu"
-            label="Storage"
-            icon="mdi-database"
-            :value="storageGroupModel"
-            dark
-          >
-            <div>
-              <q-list class="row q-py-none">
-                <q-item v-if="renderEntities.includes('containers')" to='/containers' class="col-6" active-class="bg-grey-6">
-                  <q-item-section class="text-center text-white">
-                    <div>
-                      <q-icon :name="config.containers.icon" size="2.6em"/>
-                    </div>
-                    <div>{{config.containers.label}}</div>
-                  </q-item-section>
-                </q-item>
-                <q-item v-if="renderEntities.includes('cdns')" to='/cdns' class="col-6" active-class="bg-grey-6">
-                  <q-item-section class="text-center text-white">
-                    <div>
-                      <q-icon :name="config.cdns.icon" size="2.6em"/>
-                    </div>
-                    <div>{{config.cdns.label}}</div>
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </div>
-          </q-expansion-item>
-          <q-expansion-item
-            group="menu"
-            label="MQTT"
-            icon="mdi-access-point-network"
-            :value="mqttGroupModel" dark
-            v-if="renderEntities.includes('mqtt') || renderEntities.includes('mqttClient')"
-          >
-            <div>
-              <q-list class="row q-py-none">
-                <q-item v-if="renderEntities.includes('mqtt')" to='/mqtt' class="col-6" active-class="bg-grey-6">
-                  <q-item-section class="text-center text-white">
-                    <div>
-                      <q-icon :name="config.mqtt.icon" size="2.6em"/>
-                    </div>
-                    <div>{{config.mqtt.label}}</div>
-                  </q-item-section>
-                </q-item>
-                <q-separator v-if="renderEntities.includes('mqtt')" style="width: 100%"/>
-                <q-item-label header class="col-12 text-white">Tools</q-item-label>
-                <q-item to='/tools/mqtt' class="col-6" active-class="bg-grey-6">
-                  <q-item-section class="text-center text-white">
-                    <div>
-                      <q-icon :name="config.mqttClient.icon" size="2.6em"/>
-                    </div>
-                    <div>{{config.mqttClient.label}}</div>
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </div>
-          </q-expansion-item>
-        </q-list>
+      <q-drawer side="left" v-model="sides.left" :content-class="{'bg-grey-7':true}" v-if="isVisibleToolbar && !dashMode">
+        <left-menu :config="config" :entities="renderEntities" :entity="entity"/>
       </q-drawer>
       <q-page-container class="bg-grey-9">
         <raw-viewer
@@ -230,6 +74,7 @@
           @uninited="entityInited = false"
         >
         </router-view>
+        <dash :config="config" :entities="renderEntities"/>
       </q-page-container>
     </q-layout>
     <q-inner-loading :showing="loadingFlag" style="z-index: 2001" dark>
@@ -243,6 +88,8 @@ import Vue from 'vue'
 import { date } from 'quasar'
 import { mapState, mapMutations, mapActions } from 'vuex'
 import dist from '../../package.json'
+import LeftMenu from '../components/Menu'
+import Dash from '../components/Dash'
 import ObjectViewer from '../components/ObjectViewer.vue'
 import { ColsEditor } from 'qvirtualscroll'
 import RawViewer from '../components/RawViewer.vue'
@@ -265,7 +112,7 @@ export default {
       isVisibleToolbar: true,
       connectFlag: false,
       isTabsVisible: true,
-      entityByGroup: ['platform', 'channels', 'calcs', 'intervals', 'plugins', 'devices', 'streams', 'modems', 'containers', 'cdns', 'mqtt', 'mqttClient', 'hexViewer', 'trafficViewer'],
+      entityByGroup: ['platform', 'channels', 'devices', 'streams', 'calcs', 'intervals', 'plugins', 'hexViewer', 'trafficViewer', 'modems', 'containers', 'cdns', 'mqtt', 'mqttClient'],
       isNeedSelect: true,
       entityInited: false,
       isInit: Vue.connector.socket.connected(),
@@ -344,18 +191,6 @@ export default {
     },
     loadingFlag () {
       return this.connectFlag || this.isLoading
-    },
-    hubGroupModel () {
-      const entity = this.entity
-      return entity === 'channels' || entity === 'calcs' || entity === 'intervals' || entity === 'plugins' || entity === 'devices' || entity === 'streams' || entity === 'modems' || entity === 'hexViewer' || entity === 'trafficViewer' || entity === 'intervals'
-    },
-    storageGroupModel () {
-      const entity = this.entity
-      return entity === 'containers' || entity === 'cdns'
-    },
-    mqttGroupModel () {
-      const entity = this.entity
-      return entity === 'mqtt' || entity === 'mqttClient'
     },
     configByEntity () {
       return this.config[this.entity]
@@ -440,7 +275,8 @@ export default {
           return result || !!config[key].data
         }, false)
       return hasData ? config : hasData
-    }
+    },
+    dashMode () { return !this.entity }
   },
   methods: {
     ...mapMutations([
@@ -512,15 +348,15 @@ export default {
     },
     getGroups (groups) {
       return groups.reduce((result, group) => {
-        if (['hub', 'storage', 'mqtt', 'platform'].includes(group)) {
+        if (['platform', 'hub', 'storage', 'mqtt'].includes(group)) {
           switch (group) {
             case 'hub': {
               result.push('channels')
+              result.push('devices')
+              result.push('streams')
               result.push('intervals')
               result.push('calcs')
               result.push('plugins')
-              result.push('devices')
-              result.push('streams')
               result.push('modems')
               result.push('hexViewer')
               result.push('trafficViewer')
@@ -561,8 +397,9 @@ export default {
     },
     setDefaultEntity () {
       if (this.renderEntities.length) {
-        this.$router.push(`/${this.config[this.renderEntities[0]].path || this.renderEntities[0]}`).catch(err => err)
-        this.setEntity(this.renderEntities[0])
+        this.$router.push('/').catch(err => err)
+        this.setEntity('')
+        this.entityInited = true
       } else {
         this.reset('Nothing to show by current token')
       }
@@ -665,7 +502,8 @@ export default {
         }
         this.$store.commit(`${moduleName}/setCols`, cols)
       }
-    }
+    },
+    goToMain () { this.$router.push('/').catch(err => err) }
   },
   watch: {
     token (val) {
@@ -704,7 +542,7 @@ export default {
     this.$eventBus.$off('cols:edit', this.colsEditHandler)
     this.connectionPreserveHandlerIndex !== undefined && Vue.connector.socket.off('connect', this.connectionPreserveHandlerIndex)
   },
-  components: { ObjectViewer, RawViewer, ColsEditor, Settings }
+  components: { LeftMenu, ObjectViewer, RawViewer, ColsEditor, Settings, Dash }
 }
 </script>
 
@@ -717,6 +555,9 @@ export default {
     &--mobile
       top 2px
       left 110px
+    &--mobile-start
+      top 2px
+      left 50px
   .header__main-toolbar
     padding 1px 12px
 </style>

@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.5.9] - 2020-09-30
+[feature] new main page
 ### [1.5.8] - 2020-09-29
 [feature] mqttboard rebased
 ### [1.5.7] - 2020-09-22
