@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.5.10] - 2020-10-01
+[fix] styles
 ### [1.5.9] - 2020-09-30
 [feature] new main page
 ### [1.5.8] - 2020-09-29

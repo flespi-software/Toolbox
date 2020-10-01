@@ -7,7 +7,7 @@
           <q-toolbar-title :style="{minWidth: $q.platform.is.mobile ? '60px' : '210px'}">
             <img class="gt-sm cursor-pointer" src="statics/toolbox50.png" alt="Toolbox" style="height: 30px" @click="goToMain">
             <img class="lt-md cursor-pointer" src="statics/toolbox_mobile.png" alt="Toolbox" style="height: 30px" @click="goToMain">
-            <sup class="version" :class="{'version--mobile': $q.platform.is.mobile, 'version--mobile-start': $q.platform.is.mobile && !entity}">{{version}}({{localeName}})</sup>
+            <sup class="version">{{version}}({{localeName}})</sup>
             <span v-if="configByEntity" style="position: relative; top: -5px; margin-left: 10px;">{{configByEntity.label}}</span>
           </q-toolbar-title>
           <q-btn v-if="errors.length" @click="clearNotificationCounter" small flat round icon="notifications">
@@ -74,7 +74,7 @@
           @uninited="entityInited = false"
         >
         </router-view>
-        <dash :config="config" :entities="renderEntities"/>
+        <dash v-if="!entity" :config="config" :entities="renderEntities"/>
       </q-page-container>
     </q-layout>
     <q-inner-loading :showing="loadingFlag" style="z-index: 2001" dark>
@@ -548,16 +548,8 @@ export default {
 
 <style lang="stylus">
   .version
-    position absolute
-    left 160px
-    top 3px
+    vertical-align top
     font-size 0.7rem
-    &--mobile
-      top 2px
-      left 110px
-    &--mobile-start
-      top 2px
-      left 50px
   .header__main-toolbar
     padding 1px 12px
 </style>
