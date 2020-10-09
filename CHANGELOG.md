@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.5.11] - 2020-10-09
+[feature] new login page
+[fix] acl processing
+[fix] route
 ### [1.5.10] - 2020-10-01
 [fix] styles
 ### [1.5.9] - 2020-09-30

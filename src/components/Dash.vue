@@ -1,7 +1,7 @@
 <template>
    <q-page padding class="dash">
      <q-list class="row absolute-top-left absolute-bottom-right">
-       <q-item v-for="(model, moduleName) in renderEntities" :key="moduleName" :to='model.route' class="dash__element col-1 col-xl-2 col-lg-2 col-md-3 col-sm-4 col-xs-6 bg-grey-8" :class="{'dash__element--mobile': $q.platform.is.mobile}" active-class="bg-grey-9">
+       <q-item v-for="(model, moduleName) in renderEntities" :key="moduleName" :to='model.route' class="dash__element col-1 col-xl-2 col-lg-2 col-md-3 col-sm-4 col-xs-12 bg-grey-8" :class="{'dash__element--mobile': $q.platform.is.mobile}" active-class="bg-grey-9">
         <q-item-section class="text-center text-white full-width q-ma-lg">
           <div>
             <q-icon :name="model.icon" :color="model.color" size="7em"/>
@@ -24,7 +24,7 @@ export default {
         devices: '/devices',
         streams: '/streams',
         modems: '/modems',
-        calcs: '/cacls',
+        calcs: '/calcs',
         plugins: '/plugins',
         hexViewer: '/tools/hex',
         trafficViewer: '/tools/traffic',
@@ -58,6 +58,7 @@ export default {
     background-size contain
     background-repeat no-repeat
     &__element
+      max-height 33%
       &--mobile
         opacity .9
       &:hover

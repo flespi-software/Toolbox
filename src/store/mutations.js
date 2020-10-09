@@ -1,6 +1,7 @@
 import { SessionStorage, Notify, LocalStorage } from 'quasar'
 import Vue from 'vue'
 import isEqual from 'lodash/isEqual'
+import intersection from 'lodash/intersection'
 import sortBy from 'lodash/sortBy'
 
 function reqStart (state) {
@@ -127,7 +128,7 @@ function setTokenInfo (state, tokenInfo) {
         let isEq = true
         isEq = needModules.every((needModule) => {
           const accessModule = accessModules.find(module => module.name === needModule.name)
-          return !accessModule || isEqual(sortBy(needModule.methods), sortBy(accessModule.methods))
+          return !accessModule || isEqual(sortBy(intersection(needModule.methods, accessModule.methods)), sortBy(accessModule.methods))
         })
         return isEq
       }
@@ -160,7 +161,7 @@ function setTokenInfo (state, tokenInfo) {
           const access = rights[req.name]
           if (!access) { return false }
           let grants = result
-          if (!access.methods || !isEqual(sortBy(access.methods), sortBy(req.methods))) { grants = false }
+          if (!access.methods || !isEqual(sortBy(intersection(access.methods, req.methods)), sortBy(req.methods))) { grants = false }
           if (access.submodules && !submodulesCompare(access.submodules, req.submodules)) { grants = false }
           return result && grants
         }, true)
