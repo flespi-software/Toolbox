@@ -48,7 +48,7 @@
             >
               <q-item-section>
                 <q-item-label header class="ellipsis overflow-hidden q-pa-none text-white">{{selectedItem.name || '&lt;noname&gt;'}}</q-item-label>
-                <q-item-label class="q-pa-none q-mt-none text-white ellipsis" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{selectedItem.configuration && selectedItem.configuration.uri ? selectedItem.configuration.uri : `&lt;no ident&gt;`}}</small></q-item-label>
+                <q-item-label class="q-pa-none q-mt-none text-white ellipsis" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{!selectedItem.protocol_id ? selectedItem.configuration.protocol : protocols[selectedItem.protocol_id].name}}</small></q-item-label>
               </q-item-section>
               <q-item-section class="text-white" side>
                 <q-item-label v-if="selectedItem.deleted" class="q-pa-none text-right"><small class="cheap-modifier">DELETED</small></q-item-label>
@@ -67,7 +67,7 @@
             >
               <q-item-section>
                 <q-item-label header class="ellipsis overflow-hidden q-pa-xs">{{scope.opt.name || '&lt;noname&gt;'}}</q-item-label>
-                <q-item-label class="q-pa-none q-mt-none" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{scope.opt.configuration && scope.opt.configuration.uri ? scope.opt.configuration.uri : `&lt;no ident&gt;`}}</small></q-item-label>
+                <q-item-label class="q-pa-none q-mt-none" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{!scope.opt.protocol_id ? scope.opt.configuration.protocol : protocols[scope.opt.protocol_id].name}}</small></q-item-label>
               </q-item-section>
               <q-item-section side>
                 <q-item-label v-if="scope.opt.deleted" class="q-pa-xs text-right"><small class="cheap-modifier cheap-modifier--item" :class="{'cheap-modifier--mobile': $q.platform.is.mobile}">DELETED</small></q-item-label>
@@ -130,7 +130,8 @@ export default {
       tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
       itemsCollection (state) {
         return state.streams || {}
-      }
+      },
+      protocols (state) { return state.streamsProtocols }
     }),
     items () {
       return Object.values(this.itemsCollection)

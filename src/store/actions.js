@@ -19,7 +19,7 @@ const origins = {
     channels: ['id', 'name', 'deleted', 'protocol_id', 'uri'],
     calcs: ['id', 'name', 'deleted', 'counters'],
     plugins: ['id', 'name', 'deleted'],
-    streams: ['id', 'name', 'deleted', 'configuration'],
+    streams: ['id', 'name', 'deleted', 'configuration', 'protocol_id'],
     modems: ['id', 'name', 'deleted', 'configuration'],
     containers: ['id', 'name', 'deleted'],
     cdns: ['id', 'name', 'deleted'],
@@ -69,14 +69,23 @@ async function getItems ({ state, commit }, payload) {
     }
     if (state.token) {
       try {
-        // init getting protocols name
-        if (entity === 'channels' && !state.protocols) {
+        // init getting channels-protocols name
+        if (entity === 'channels' && !state.channelsProtocols) {
           const protocolsResp = await Vue.connector.gw.getChannelProtocols('all', { fields: 'name,id,features' })
           const protocols = protocolsResp.data.result.reduce((result, protocol) => {
             result[protocol.id] = protocol
             return result
           }, {})
-          Vue.set(state, 'protocols', protocols)
+          Vue.set(state, 'channelsProtocols', protocols)
+        }
+        // init getting streams-protocols name
+        if (entity === 'streams' && !state.streamsProtocols) {
+          const protocolsResp = await Vue.connector.gw.getStreamProtocols('all', { fields: 'name,id' })
+          const protocols = protocolsResp.data.result.reduce((result, protocol) => {
+            result[protocol.id] = protocol
+            return result
+          }, {})
+          Vue.set(state, 'streamsProtocols', protocols)
         }
         const items = {}
         const partsOfTopicFilter = origin.split('/').reverse().slice(1)

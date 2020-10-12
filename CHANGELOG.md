@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.5.13] - 2020-10-12
+[update] stream protocols in logic
 ### [1.5.12] - 2020-10-12
 [rebase] new token logic
 ### [1.5.11] - 2020-10-09

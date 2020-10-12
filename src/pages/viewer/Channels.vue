@@ -173,12 +173,12 @@ export default {
         return hasntMessages && hasntLogs
       },
       tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
-      protocols (state) { return state.protocols },
+      protocols (state) { return state.channelsProtocols },
       itemsCollection (state) {
         return state.channels || {}
       },
       proxyProtocolId (state) {
-        const protocols = state.protocols
+        const protocols = state.channelsProtocols
         return Object.keys(protocols).reduce((res, id) => {
           if (protocols[id].name === 'proxy') {
             res = parseInt(id)
