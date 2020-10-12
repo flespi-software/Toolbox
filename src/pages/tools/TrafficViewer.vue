@@ -131,7 +131,7 @@ export default {
     ...mapState({
       tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
       items (state) {
-        return Object.values(state.channels || {}).filter(item => state.protocols[item.protocol_id].features.raw_packets)
+        return Object.values(state.channels || {}).filter(item => state.channelsProtocols[item.protocol_id].features.raw_packets)
       }
     }),
     filteredItems () {
@@ -210,7 +210,7 @@ export default {
         this.relatedDeviceId = null
         return
       }
-      this.$connector.gw.getProtocolsDeviceTypes(this.selectedItem.protocol_id, 'all', { fields: 'id' })
+      this.$connector.gw.getChannelProtocolsDeviceTypes(this.selectedItem.protocol_id, 'all', { fields: 'id' })
         .then((data) => {
           const types = get(data, 'data.result', [])
           return types.map(type => type.id)

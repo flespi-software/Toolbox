@@ -114,7 +114,7 @@ export default {
     ...mapState({
       tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
       PROXY_PROTOCOL_ID (state) {
-        const protocols = state.protocols || {}
+        const protocols = state.channelsProtocols || {}
         return Object.keys(protocols).reduce((proxyId, protocolId) => {
           if (protocols[protocolId].name === 'proxy') {
             proxyId = parseInt(protocolId)

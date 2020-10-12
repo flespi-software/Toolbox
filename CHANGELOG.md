@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.5.14] - 2020-10-12
+[fix] naming new meta entities
 ### [1.5.13] - 2020-10-12
 [update] stream protocols in logic
 ### [1.5.12] - 2020-10-12
