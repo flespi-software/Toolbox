@@ -126,9 +126,9 @@ function setTokenInfo (state, tokenInfo) {
     case 2: {
       const submodulesCompare = (accessModules, needModules) => {
         let isEq = true
-        isEq = needModules.every((needModule) => {
+        isEq = !needModules.some((needModule) => {
           const accessModule = accessModules.find(module => module.name === needModule.name)
-          return !accessModule || isEqual(sortBy(intersection(needModule.methods, accessModule.methods)), sortBy(accessModule.methods))
+          return !accessModule || !isEqual(sortBy(intersection(needModule.methods, accessModule.methods)), sortBy(accessModule.methods))
         })
         return isEq
       }

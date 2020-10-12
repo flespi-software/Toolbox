@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.5.12] - 2020-10-12
+[rebase] new token logic
 ### [1.5.11] - 2020-10-09
 [feature] new login page
 [fix] acl processing
