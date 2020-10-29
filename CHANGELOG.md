@@ -1,8 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.5.16] - 2020-10-29
+[fix] login page
 ### [1.5.15] - 2020-10-29
 [rebase] added actions
-[feature] map on mabile view
+[feature] map on mobile view
 [feature] map on interval messages
 ### [1.5.14] - 2020-10-12
 [fix] naming new meta entities
