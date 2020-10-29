@@ -1,7 +1,7 @@
 <template>
   <q-page>
     <entities-toolbar
-      :item="selectedItem" :ratio="ratio" :actions="actions" @change:ratio="r => ratio = r">
+      :item="selectedItem" :ratio="ratio" :actions="actions" @change-ratio="r => ratio = r">
       <div class="flex" :class="{'middle-modificator': !active}" style="max-width: 50%" slot="selects">
         <q-select
           ref="itemSelect"
@@ -116,7 +116,7 @@
     </div>
     <map-frame
       ref="map"
-      v-if="active && trackByMessages.length && $q.platform.is.desktop && isVisibleMap"
+      v-if="active && trackByMessages.length && isVisibleMap"
       :device="selectedItem"
       :siblingHeight="siblingHeight"
       @map:close="isVisibleMap = false"

@@ -2,7 +2,7 @@
   <q-page>
     <q-resize-observer @resize="onResize" />
     <entities-toolbar
-      :item="selectedItem" :ratio="ratio" :actions="actions" @change:ratio="r => ratio = r"
+      :item="selectedItem" :ratio="ratio" :actions="actions" @change-ratio="r => ratio = r"
     >
       <div class="flex" :class="{'middle-modificator': !active}" slot="selects">
         <q-select
@@ -123,7 +123,7 @@
     </div>
     <map-frame
       ref="map"
-      v-if="$q.platform.is.desktop && isVisibleMap"
+      v-if="isVisibleMap"
       :device="mapDevice"
       :siblingHeight="siblingHeight"
       @map:close="mapCloseHandler"

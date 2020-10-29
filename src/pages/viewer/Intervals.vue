@@ -192,6 +192,7 @@
       />
       <messages
         ref="messages"
+        @on-map="messageOnMapHandler"
         @view-data="viewDataMessageHandler"
         :item="selectedDevice"
         :interval="viewedInterval"
@@ -205,7 +206,7 @@
     </div>
     <map-frame
       ref="map"
-      v-if="active && activeCalcId && hasRouteIntervals && $q.platform.is.desktop && isVisibleMap"
+      v-if="active && activeCalcId && hasRouteIntervals && isVisibleMap"
       :device="selectedDevice"
       :siblingHeight="siblingHeight"
       @map:close="isVisibleMap = false"
@@ -395,6 +396,19 @@ export default {
       }
       if (this.$refs.map && this.isVisibleMap) {
         this.$refs.map.clear().addRoutes(routes).send()
+      }
+    },
+    messageOnMapHandler ({ content }) {
+      const position = [content['position.latitude'], content['position.longitude']]
+      if (!this.isVisibleMap) {
+        this.openMapHandler()
+        this.$nextTick(() => {
+          this.$refs.map.autobounds(true).addNamedMarkers({ msg: { latlng: position, label: position } }).send()
+        })
+        return false
+      }
+      if (this.$refs.map && this.isVisibleMap) {
+        this.$refs.map.addNamedMarkers({ msg: { latlng: position, label: position } }).centerMap(position).send()
       }
     },
     unselect () {

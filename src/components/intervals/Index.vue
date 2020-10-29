@@ -57,7 +57,7 @@ export default {
       const initActions = this.config.actions,
         routeFields = this.getRouteFields()
       let actions = [initActions[0]]
-      if (routeFields && routeFields.length && this.$q.platform.is.desktop) {
+      if (routeFields && routeFields.length) {
         actions = initActions
       }
       return actions

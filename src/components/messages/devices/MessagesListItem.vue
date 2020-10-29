@@ -9,7 +9,7 @@
     >
       <template v-for="(prop, k) in cols">
         <span class="list__item item_actions" :class="{[`item_${k}`]: true}" v-if="prop.__dest === 'action'" :key="prop.name + k">
-          <q-icon v-for="(action, i) in renderedActions" :key="i" @click.stop.native="clickHandler(index, action.type, clearItem)"
+          <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, clearItem)"
                   :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
             <q-tooltip>{{action.label}}</q-tooltip>
           </q-icon>
@@ -83,22 +83,10 @@ export default {
       highlightType = 'grey'
       highlightLevel = 10
     }
-    const renderedActions = [...this.actions]
-    if (this.item['position.latitude'] && this.item['position.longitude']) {
-      renderedActions.push(
-        {
-          icon: 'mdi-map',
-          label: 'show on map',
-          classes: '',
-          type: 'map'
-        }
-      )
-    }
     return {
       highlightType,
       highlightLevel,
-      date: date,
-      renderedActions
+      date: date
     }
   },
   computed: {

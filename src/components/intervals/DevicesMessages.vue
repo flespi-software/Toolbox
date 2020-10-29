@@ -151,6 +151,17 @@ export default {
       data.props.selected = this.selected.includes(index)
       const itemTimestamp = Math.floor(item.timestamp)
       data.props.highlighted = this.interval && itemTimestamp >= this.interval.begin && itemTimestamp <= this.interval.end
+      if (item['position.latitude'] && item['position.longitude']) {
+        data.props.actions = [
+          ...data.props.actions,
+          {
+            icon: 'mdi-map',
+            label: 'show on map',
+            classes: '',
+            type: 'map'
+          }
+        ]
+      }
       if (!data.on) { data.on = {} }
       data.on.action = this.actionHandler
       data.on['item-click'] = this.viewMessagesHandler
@@ -247,7 +258,14 @@ export default {
           this.copyMessageHandler({ index, content })
           break
         }
+        case 'map': {
+          this.onMapHandler({ index, content })
+          break
+        }
       }
+    },
+    onMapHandler ({ index, content }) {
+      this.$emit('on-map', { index, content })
     },
     viewMessagesHandler ({ index, content }) {
       this.selected = [index]

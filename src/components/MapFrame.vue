@@ -11,8 +11,8 @@
     </div>
     <div class="map-component__custom-controls" v-if="isMapMinimized || isMapMaximized">
       <q-icon @mousedown.stop.prevent.native="closeMapHandler" name="mdi-close" class="pull-right cursor-pointer" size="30px" color="grey-9"/>
-      <q-icon v-if="isMapMinimized" @mousedown.stop.prevent.native="restoreHandler" name="mdi-window-restore" size="30px" class="pull-right cursor-pointer" color="grey-9"/>
-      <q-icon v-if="isMapMaximized" @mousedown.stop.prevent.native="maximizeHandler" :name="isMapMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" size="30px" class="pull-right cursor-pointer" color="grey-9"/>
+      <q-icon v-if="isMapMinimized && $q.platform.is.desktop" @mousedown.stop.prevent.native="restoreHandler" name="mdi-window-restore" size="30px" class="pull-right cursor-pointer" color="grey-9"/>
+      <q-icon v-if="isMapMaximized && $q.platform.is.desktop" @mousedown.stop.prevent.native="maximizeHandler" :name="isMapMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" size="30px" class="pull-right cursor-pointer" color="grey-9"/>
     </div>
   </vue-draggable-resizable>
 </template>
@@ -244,7 +244,6 @@ export default {
     },
     send () {
       if (this.$refs.frame && this.mapInited) {
-        console.log(`MapView|cmd:${JSON.stringify(this.lastCommand)}`)
         this.$refs.frame.contentWindow.postMessage(`MapView|cmd:${JSON.stringify(this.lastCommand)}`, '*')
         this.lastCommand = {}
       }
@@ -254,6 +253,7 @@ export default {
   mounted () {
     this.winHeight = document.documentElement.clientHeight
     this.winWidth = document.documentElement.clientWidth
+    if (this.$q.platform.is.mobile) { this.maximizeHandler() }
   },
   created () {
     const mapInitHandler = (e) => {

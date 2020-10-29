@@ -163,6 +163,17 @@ export default {
       data.props.etcVisible = this.etcVisible
       data.props.actionsVisible = this.actionsVisible
       data.props.selected = this.selected.includes(index)
+      if (item['position.latitude'] && item['position.longitude']) {
+        data.props.actions = [
+          ...data.props.actions,
+          {
+            icon: 'mdi-map',
+            label: 'show on map',
+            classes: '',
+            type: 'map'
+          }
+        ]
+      }
       if (!data.on) { data.on = {} }
       data.on.action = this.actionHandler
       data.on['item-click'] = this.itemClickHandler
