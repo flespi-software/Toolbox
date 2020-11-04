@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.6.1] - 2020-11-04
+[fix] packages
 ### [1.6.0] - 2020-11-04
 [feature] table context menu
 [feature] new message view
