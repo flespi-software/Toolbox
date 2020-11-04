@@ -1,20 +1,22 @@
 <template>
-  <vue-draggable-resizable ref="dragResize" class="map-component__wrapper" :class="[isMapMinimized || isMapMaximized ? 'map-component--minimized' : '']" :active="true" :style="wrapperStyles" :x="startX" :y="startY" :w="width" :h="height" :minw="100" :minh="100" @resizing="mapResizeHandler" :parent="true" @dragging="draggingHandler">
-    <div class="map-container__header" :style="{height: `${headerMapHeight}px`}" v-show="!isMapMinimized && !isMapMaximized" style="padding-right: 1px; padding-top: 3px;">
-      <q-icon @mousedown.stop.prevent.native="closeMapHandler" name="mdi-close" class="float-right cursor-pointer" color="white"/>
-      <q-icon @mousedown.stop.prevent.native="maximizeHandler" :name="isMapMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" class="float-right cursor-pointer" color="white"/>
-      <q-icon v-if="siblingHeight !== 0" @mousedown.stop.prevent.native="minimizeHandler('bottom')" name="mdi-arrow-bottom-right" class="float-right cursor-pointer" color="white"/>
-      <q-icon v-if="siblingHeight !== 100" :class='{[`height${siblingHeight}`]: true}' @mousedown.stop.prevent.native="minimizeHandler('top')" name="mdi-arrow-top-right" class="float-right cursor-pointer" color="white"/>
-    </div>
-    <div id="map" :style="mapStyles" class="relative-position">
-      <iframe :src="link" frameborder="0" ref="frame" class="absolute-top-left absolute-bottom-right" style="width : 100%; height: 100%;"></iframe>
-    </div>
-    <div class="map-component__custom-controls" v-if="isMapMinimized || isMapMaximized">
-      <q-icon @mousedown.stop.prevent.native="closeMapHandler" name="mdi-close" class="pull-right cursor-pointer" size="30px" color="grey-9"/>
-      <q-icon v-if="isMapMinimized && $q.platform.is.desktop" @mousedown.stop.prevent.native="restoreHandler" name="mdi-window-restore" size="30px" class="pull-right cursor-pointer" color="grey-9"/>
-      <q-icon v-if="isMapMaximized && $q.platform.is.desktop" @mousedown.stop.prevent.native="maximizeHandler" :name="isMapMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" size="30px" class="pull-right cursor-pointer" color="grey-9"/>
-    </div>
-  </vue-draggable-resizable>
+  <div class="absolute-top-left absolute-bottom-right">
+    <vue-draggable-resizable ref="dragResize" class="map-component__wrapper" :class="[isMapMinimized || isMapMaximized ? 'map-component--minimizedc' : '']" :active="true" :style="wrapperStyles" :x="startX" :y="startY" :w="width" :h="height" :minw="100" :minh="100" @resizing="mapResizeHandler" :parent="true" @dragging="draggingHandler">
+      <div class="map-container__header" :style="{height: `${headerMapHeight}px`}" v-show="!isMapMinimized && !isMapMaximized" style="padding-right: 1px; padding-top: 3px;">
+        <q-icon @mousedown.stop.prevent.native="closeMapHandler" name="mdi-close" class="float-right cursor-pointer" color="white"/>
+        <q-icon @mousedown.stop.prevent.native="maximizeHandler" :name="isMapMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" class="float-right cursor-pointer" color="white"/>
+        <q-icon v-if="siblingHeight !== 0" @mousedown.stop.prevent.native="minimizeHandler('bottom')" name="mdi-arrow-bottom-right" class="float-right cursor-pointer" color="white"/>
+        <q-icon v-if="siblingHeight !== 100" :class='{[`height${siblingHeight}`]: true}' @mousedown.stop.prevent.native="minimizeHandler('top')" name="mdi-arrow-top-right" class="float-right cursor-pointer" color="white"/>
+      </div>
+      <div id="map" :style="mapStyles" class="relative-position">
+        <iframe :src="link" frameborder="0" ref="frame" class="absolute-top-left absolute-bottom-right" style="width : 100%; height: 100%;"></iframe>
+      </div>
+      <div class="map-component__custom-controls" v-if="isMapMinimized || isMapMaximized">
+        <q-icon @mousedown.stop.prevent.native="closeMapHandler" name="mdi-close" class="pull-right cursor-pointer" size="30px" color="grey-9"/>
+        <q-icon v-if="isMapMinimized && $q.platform.is.desktop" @mousedown.stop.prevent.native="restoreHandler" name="mdi-window-restore" size="30px" class="pull-right cursor-pointer" color="grey-9"/>
+        <q-icon v-if="isMapMaximized && $q.platform.is.desktop" @mousedown.stop.prevent.native="maximizeHandler" :name="isMapMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" size="30px" class="pull-right cursor-pointer" color="grey-9"/>
+      </div>
+    </vue-draggable-resizable>
+  </div>
 </template>
 
 <script>
