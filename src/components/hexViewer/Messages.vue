@@ -2,7 +2,7 @@
   <div ref="wrapper">
     <q-resize-observer @resize="wrapperResizeHandler"/>
     <div>
-      <q-toolbar class="bg-grey-9" v-if="loadingFlag || (!loadingFlag && ((Object.keys(connections).length) || type === 'messages'))">
+      <q-toolbar class="bg-grey-9" v-if="(!loadingFlag && ((Object.keys(connections).length) || type === 'messages'))">
         <q-input v-model="filter" outlined hide-bottom-space rounded dense color="white" dark :placeholder="connection ? 'incoming or target *' : 'host:port'" :debounce="0" :style="{width: connection ? 'calc(100% - 50px)' : '100%'}">
           <q-icon slot="prepend" name="mdi-magnify" color="white" />
         </q-input>
@@ -25,44 +25,34 @@
         <connection-skeleton v-for="(_, index) in new Array(itemsCount).fill('')" :key="index"/>
       </div>
       <template v-else-if="!loadingFlag && messages.length">
-        <VirtualList
-          :onscroll="listScroll"
-          ref="scroller"
-          :style="{position: 'absolute', top: connection ? '50px' : '100px', bottom: 0, right: 0, left: 0, height: 'auto'}"
-          :class="{'bg-grey-9': true, 'text-white': true, 'cursor-pointer': true}"
-          :size="itemHeight"
-          :remain="itemsCount"
-          wclass="q-w-list"
-        >
-          <template v-if="type === 'connections'">
-            <connections-list-item
-              v-for="(item, index) in currentConnections"
-              :key="item.peer"
-              :class="{'connection--visited': visitedConnections.includes(item.peer), [`connection__${index}`]: true}"
-              :item="item"
-              :index="index"
-              :count="item.messages.length"
-              :itemHeight="itemHeight"
-              @item-click="connectionClickHandler"
-              @mouseenter.native="previewConnectionHandler(item)"
-              @mouseleave.native="previewConnectionCloseHandler(item)"
-            />
-          </template>
-          <template v-else>
-            <messages-list-item
-              v-for="(item, index) in currentMessages"
-              :key="index"
-              :item="item"
-              :index="index"
-              :actions="actions"
-              :itemHeight="itemHeight"
-              :selected="selected.includes(index)"
-              :view="view"
-              @action="actionHandler"
-              @item-click="messageClickHandler"
-            />
-          </template>
-        </VirtualList>
+        <template v-if="type === 'connections'">
+          <virtual-list
+            ref="scroller"
+            class="absolute-top-left absolute-bottom-right bg-grey-9 text-white cursor-pointer"
+            wclass="q-w-list"
+            :style="{top: '100px', height: 'auto'}"
+            :onscroll="listScroll"
+            :size="itemHeight"
+            :remain="itemsCount"
+            :item="ConnectionsListItem"
+            :itemcount="connectionsByIndex.length"
+            :itemprops="getConnectionItem"
+          />
+        </template>
+        <template v-else>
+          <virtual-list
+            ref="scroller"
+            class="absolute-top-left absolute-bottom-right bg-grey-9 text-white cursor-pointer"
+            wclass="q-w-list"
+            :style="{top: '50px', height: 'auto'}"
+            :onscroll="listScroll"
+            :size="itemHeight"
+            :remain="itemsCount"
+            :item="MessagesListItem"
+            :itemcount="currentMessages.length"
+            :itemprops="getMessageItem"
+          />
+        </template>
       </template>
       <empty-pane v-else :config="config.emptyState"/>
     </div>
@@ -106,7 +96,9 @@ export default {
       filter: '',
       connectionsFilter: '',
       scrollerScrollTop: 0,
-      visitedConnections: []
+      visitedConnections: [],
+      MessagesListItem,
+      ConnectionsListItem
     }
   },
   computed: {
@@ -186,6 +178,49 @@ export default {
     }
   },
   methods: {
+    getConnectionItem (index) {
+      const item = this.currentConnections[this.connectionsByIndex[index]]
+      const props = {
+        key: item.peer,
+        props: {
+          item,
+          index,
+          count: item.messages.length,
+          itemHeight: this.itemHeight
+        },
+        class: {
+          'connection--visited': this.visitedConnections.includes(item.peer),
+          [`connection__${index}`]: true
+        },
+        on: {
+          'item-click': this.connectionClickHandler
+        },
+        nativeOn: {
+          mouseenter: () => this.previewConnectionHandler(item),
+          mouseleave: () => this.previewConnectionCloseHandler(item)
+        }
+      }
+      return props
+    },
+    getMessageItem (index) {
+      const item = this.currentMessages[index]
+      const props = {
+        key: index,
+        props: {
+          item,
+          index,
+          actions: this.actions,
+          itemHeight: this.itemHeight,
+          selected: this.selected.includes(index),
+          view: this.view
+        },
+        on: {
+          action: this.actionHandler,
+          'item-click': this.messageClickHandler
+        }
+      }
+      return props
+    },
     resetParams () {
       if (!this.$refs.wrapper) {
         return false
@@ -437,7 +472,7 @@ export default {
     this.$store.unregisterModule(this.moduleName)
   },
   mixins: [filterMessages],
-  components: { MessagesListItem, VirtualList, ConnectionsListItem, EmptyPane, DateRangeModal, ConnectionSkeleton }
+  components: { VirtualList, EmptyPane, DateRangeModal, ConnectionSkeleton }
 }
 </script>
 

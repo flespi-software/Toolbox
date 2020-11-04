@@ -36,16 +36,3 @@ export default {
   }
 }
 </script>
-
-<style lang="stylus">
-  .list__item
-    display inline-block
-    white-space nowrap
-    margin 0 10px 0 5px
-    text-overflow ellipsis
-    overflow hidden
-  .message-viewer .q-w-list>.missed-items
-    background-color rgba(255,255,255,.05)
-    &:nth-child(odd)
-      background-color rgba(255,255,255,.1)
-</style>

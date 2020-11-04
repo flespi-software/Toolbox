@@ -55,7 +55,7 @@
             <template v-slot:option="scope" v-if="filteredItems.length">
               <q-item
                 v-bind="scope.itemProps"
-                @click="active = scope.opt.id, $emit('view-data-hide')"
+                @click="active = scope.opt.id"
                 v-on="scope.itemEvents"
                 class="q-pa-xs"
                 clickable
@@ -91,7 +91,7 @@
       :device-closeble="needShowBackToChannel"
       :config="config"
       class="flex"
-      @change:active-device="changeActiveDeviceHandler"
+      @change-active-device="changeActiveDeviceHandler"
     />
     <div v-if="!items.length && isItemsInit" class="text-center text-grey-3 q-mt-lg" style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Compatible channels not found'}}</div>
   </q-page>

@@ -2,7 +2,7 @@
   <q-page>
     <entities-toolbar :item="selectedItem">
       <div class="flex" :class="{'middle-modificator': !active}" slot="selects">
-        <div style="display: inline-flex;max-width: calc(100% - 80px);">
+        <div style="display: inline-flex;">
           <q-select
             ref="itemSelect"
             class="items__select"
@@ -55,7 +55,7 @@
             <template v-slot:option="scope" v-if="filteredItems.length">
               <q-item
                 v-bind="scope.itemProps"
-                @click="active = scope.opt.id, $emit('view-data-hide')"
+                @click="active = scope.opt.id"
                 v-on="scope.itemEvents"
                 class="q-pa-xs"
                 clickable

@@ -32,22 +32,6 @@
           <q-btn class="within-iframe-hide" @click="confirmExitHandler" small  flat round icon="mdi-exit-to-app"/>
         </q-toolbar>
       </q-header>
-      <q-drawer side="right" no-swipe-open no-swipe-close v-model="sides.right" :content-class="{'bg-grey-9':true}">
-        <object-viewer
-          @close="hideRightHandler"
-          @update:col="updateColHandler"
-          :object="currentMessage"
-          :cols="messagesColsCollectionByEntity"
-          v-if="Object.keys(currentMessage).length"
-        />
-        <cols-editor
-          v-else-if="colsEditing"
-          :cols="colsForEditing"
-          @cols:close="sides.right = false"
-          @cols:update="updateColsHandler"
-          @cols:default="setDefaultColsHandler"
-        />
-      </q-drawer>
       <q-drawer side="left" v-model="sides.left" :content-class="{'bg-grey-7':true}" v-if="isVisibleToolbar && !dashMode">
         <left-menu :config="config" :entities="renderEntities" :entity="entity"/>
       </q-drawer>
@@ -56,12 +40,12 @@
           ref="rawViewer"
           :config="rawConfig"
           inverted
+          @close="closeRawViewer"
         />
         <router-view
           ref='main'
           v-if="configByEntity && isInit"
           @view-data="viewDataHandler"
-          @view-data-hide="sides.right = false, currentMessage = {}"
           @view-log-message="viewLogMessagesHandler"
           :limit="limit"
           :isLoading="loadingFlag"
@@ -90,10 +74,9 @@ import { mapState, mapMutations, mapActions } from 'vuex'
 import dist from '../../package.json'
 import LeftMenu from '../components/Menu'
 import Dash from '../components/Dash'
-import ObjectViewer from '../components/ObjectViewer.vue'
-import { ColsEditor } from 'qvirtualscroll'
 import RawViewer from '../components/RawViewer.vue'
 import JsonTree from '../components/JsonTree.vue'
+import ImageView from '../components/ImageView.vue'
 import Settings from '../components/Settings.vue'
 
 export default {
@@ -115,8 +98,7 @@ export default {
       entityByGroup: ['platform', 'channels', 'devices', 'streams', 'calcs', 'intervals', 'plugins', 'hexViewer', 'trafficViewer', 'modems', 'containers', 'cdns', 'mqtt', 'mqttClient'],
       isNeedSelect: true,
       entityInited: false,
-      isInit: Vue.connector.socket.connected(),
-      colsEditing: false
+      isInit: Vue.connector.socket.connected()
     }
   },
   computed: {
@@ -132,13 +114,6 @@ export default {
       localeName: state => state.sessionSettings && state.sessionSettings.region && state.sessionSettings.region.name,
       sessionSettings: state => state.sessionSettings
     }),
-    messagesColsCollectionByEntity () {
-      return this.messagesColsByEntity.reduce((cols, col, index) => {
-        cols[col.name] = col
-        cols[col.name].index = index
-        return cols
-      }, {})
-    },
     messagesColsByEntity: {
       get () {
         const moduleName = this.messagesConfigByEntity.vuexModuleName
@@ -155,39 +130,6 @@ export default {
     },
     messagesConfigByEntity () {
       return this.configByEntity.messages
-    },
-    logsColsByEntity: {
-      get () {
-        if (!this.configByEntity.logs) { return [] }
-        const moduleName = this.configByEntity.logs.vuexModuleName
-        let cols = []
-        if (this.$store.state[moduleName] && this.$store.state[moduleName].cols) {
-          cols = this.$store.state[moduleName].cols
-        }
-        return cols
-      },
-      set (cols) {
-        const moduleName = this.configByEntity.logs.vuexModuleName
-        this.$store.commit(`${moduleName}/updateCols`, cols)
-      }
-    },
-    colsForEditing: {
-      get () {
-        let cols = null
-        if (this.colsEditing === 'messages') {
-          cols = this.messagesColsByEntity
-        } else if (this.colsEditing === 'logs') {
-          cols = this.logsColsByEntity
-        }
-        return cols
-      },
-      set (cols) {
-        if (this.colsEditing === 'messages') {
-          this.messagesColsByEntity = cols
-        } else if (this.colsEditing === 'logs') {
-          this.logsColsByEntity = cols
-        }
-      }
     },
     loadingFlag () {
       return this.connectFlag || this.isLoading
@@ -290,28 +232,47 @@ export default {
     ]),
     ...mapActions(['initConnection']),
     viewDataHandler (content) {
-      if (this.colsEditing) { this.colsEditing = false }
       if (!content) { return }
-      /* remove system field */
+      const viewConfig = {
+        Message: {
+          title: 'Message',
+          wrapper: JsonTree,
+          data: content
+        }
+      }
       content = Object.keys(content).reduce((content, name) => {
+        /* remove system field */
         if (name.indexOf('x-flespi') === 0) {
           delete content[name]
+        }
+        if (
+          content[name].toString().match(/^data:image\/(?:gif|png|jpeg|bmp|webp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}/) ||
+          name.indexOf('image.bin.') === 0
+        ) {
+          let data = content[name]
+          if (name.indexOf('image.bin.') === 0) {
+            data = `data:image/${name.split('.')[2]};base64,${content[name].replace(/^data:image\/\w*;base64,\s/, '')}`
+          }
+          viewConfig[`Image{${name}}`] = {
+            title: `Image{${name}}`,
+            wrapper: ImageView,
+            data
+          }
         }
         return content
       }, content)
       this.currentMessage = JSON.parse(JSON.stringify(content))
-      setTimeout(() => { this.sides.right = true }, 20)
+      this.rawConfig = viewConfig
+      this.$refs.rawViewer.open()
     },
-    hideRight () {
-      this.sides.right = false
+    closeRawViewer () {
+      this.$refs.main.unselect()
       this.currentMessage = {}
+      this.currentData = {}
+      this.rawConfig = {}
     },
     toggleMenu () {
       this.sides.left = !this.sides.left
-    },
-    hideRightHandler () {
-      this.hideRight()
-      this.$refs.main.unselect()
     },
     confirmExitHandler () {
       this.$q.dialog({
@@ -471,38 +432,6 @@ export default {
     updateSettingsHandler (command) {
       this.$store.commit('setToolboxSettings', command)
     },
-    updateColHandler (col) {
-      const actionType = col.index ? 'edit' : 'add'
-      const cols = this.$store.state[this.messagesConfigByEntity.vuexModuleName].cols
-      if (actionType === 'edit') {
-        const renderedCol = cols[col.index]
-        this.$set(renderedCol, 'display', !renderedCol.display)
-      } else {
-        if (cols[cols.length - 1].__dest) {
-          cols.splice(-1, 0, col)
-        } else {
-          cols.push(col)
-        }
-      }
-      this.$store.commit(`${this.messagesConfigByEntity.vuexModuleName}/setCols`, cols)
-    },
-    updateColsHandler (cols) {
-      this.colsForEditing = cols
-    },
-    setDefaultColsHandler () {
-      let moduleName = ''
-      if (this.colsEditing === 'messages' || this.entity === 'intervals') {
-        moduleName = this.messagesConfigByEntity.vuexModuleName
-        this.$store.commit(`${moduleName}/setDefaultCols`)
-      } else if (this.colsEditing === 'logs') {
-        moduleName = this.configByEntity.logs.vuexModuleName
-        const cols = [...this.configByEntity.logs.cols]
-        if (cols[cols.length - 1].__dest !== 'etc') {
-          cols.push({ name: 'etc', width: 150, display: true, __dest: 'etc' })
-        }
-        this.$store.commit(`${moduleName}/setCols`, cols)
-      }
-    },
     goToMain () { this.$router.push('/').catch(err => err) }
   },
   watch: {
@@ -513,20 +442,10 @@ export default {
     },
     $route (route) {
       this.routeProcess(route)
-      if (this.$refs.layout) {
-        this.hideRight()
-      }
     }
   },
   beforeCreate () {
     this.$store.commit('getToolboxSettings')
-    /* init global events */
-    this.colsEditHandler = (type) => {
-      this.currentMessage = {}
-      this.colsEditing = type
-      this.sides.right = true
-    }
-    this.$eventBus.$on('cols:edit', this.colsEditHandler)
   },
   created () {
     this.routeProcess(this.$route)
@@ -542,7 +461,7 @@ export default {
     this.$eventBus.$off('cols:edit', this.colsEditHandler)
     this.connectionPreserveHandlerIndex !== undefined && Vue.connector.socket.off('connect', this.connectionPreserveHandlerIndex)
   },
-  components: { LeftMenu, ObjectViewer, RawViewer, ColsEditor, Settings, Dash }
+  components: { LeftMenu, RawViewer, Settings, Dash }
 }
 </script>
 

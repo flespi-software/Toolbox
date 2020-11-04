@@ -8,20 +8,20 @@
       @click="itemClickHandler(index, clearItem)"
     >
       <template v-for="(prop, k) in cols">
-        <span class="list__item item_actions" :class="{[`item_${k}`]: true}" v-if="prop.__dest === 'action'" :key="prop.name + k">
+        <span class="list__item item_actions" :class="{[`item_${k}`]: true, 'item--active': menuCellActive && menuCellActive.row === index && menuCellActive.col === k}" v-if="prop.__dest === 'action'" :key="prop.name + k">
           <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, clearItem)"
                   :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
             <q-tooltip>{{action.label}}</q-tooltip>
           </q-icon>
         </span>
-        <span v-else-if="prop.__dest === 'etc'" class="list__item item_etc" :class="{[`item_${k}`]: true}" :key="prop.name + k">{{etc}}</span>
+        <span v-else-if="prop.__dest === 'etc'" class="list__item item_etc" :class="{[`item_${k}`]: true, 'item--active': menuCellActive && menuCellActive.row === index && menuCellActive.col === k}" :key="prop.name + k">{{etc}}</span>
         <span
           v-else
           :key="prop.name + k"
           class="list__item"
-          :class="{[`item_${k}`]: true}"
+          :class="{[`item_${k}`]: true, 'item--active': menuCellActive && menuCellActive.row === index && menuCellActive.col === k}"
         >
-          <!--<q-tooltip>{{getValueOfProp(prop)}}</q-tooltip>-->
+          <!--<q-tooltip>{{getValueOfProp(prop, item)}}</q-tooltip>-->
           <!-- <a :class="[color]" @click.prevent.stop="linkMoreClickHandler" v-if="prop.name === 'event_code'"><q-icon name="mdi-open-in-new"/></a> -->
           <template v-if="prop.name === 'event_code' && item.address">
             <q-icon v-if="item.address === 'connection'" name="mdi-ethernet" title="address: connection"/>
@@ -31,10 +31,10 @@
           <q-icon name="mdi-download-network-outline" v-if="prop.name === 'event_code' && !!item['error_text'] && needTrafficRoute && item.ident" color="white" style="float: right; margin-top: 3px;" @click.stop.native="clickHandler(index, 'traffic', clearItem)"><q-tooltip>Show in traffic viewer</q-tooltip></q-icon>
           <q-icon name="mdi-alert-outline" v-if="prop.name === 'event_code' && !!item['error_text']"><q-tooltip>{{item['error_text']}}</q-tooltip></q-icon>
           <a @click.stop="" target="_blank" class="text-green" v-if="item.event_code === 901 && prop.name === 'name'" :href="`${$flespiCDN}/file/${item.uuid}`">
-            {{getValueOfProp(prop)}}
+            {{getValueOfProp(prop, item)}}
           </a>
-          <span v-else :title="JSON.stringify(getValueOfProp(prop))">
-            {{getValueOfProp(prop)}}
+          <span v-else :title="JSON.stringify(getValueOfProp(prop, item))">
+            {{getValueOfProp(prop, item)}}
           </span>
         </span>
       </template>
@@ -63,6 +63,36 @@
 import { date, openURL } from 'quasar'
 import events from './events.json'
 
+const getDescriptionByItem = (item) => {
+  const types = events.types,
+    closeCodes = events.closeCodes,
+    errorCodes = events.errorCodes,
+    sendCodes = events.sendCodes,
+    codesByEvent = events.codesByEventcode
+  let res = types[item.event_code] ? `${types[item.event_code]}` : item.event_code
+  res += item.close_code
+    ? ` (${closeCodes[item.close_code]})`
+    : (closeCodes[item.close_code]
+      ? `(${item.close_code})`
+      : '')
+  res += item.error_code
+    ? ` (${item.error_code}: ${errorCodes[item.event_code][item.error_code]})`
+    : (errorCodes[item.event_code] && errorCodes[item.event_code][item.error_code]
+      ? `(${item.error_code})`
+      : '')
+  res += item.send_code
+    ? ` (${item.send_code}: ${sendCodes[item.send_code]})`
+    : (errorCodes[item.event_code] && errorCodes[item.event_code][item.send_code]
+      ? `(${item.send_code})`
+      : '')
+  res += item.code && codesByEvent[item.event_code] && codesByEvent[item.event_code][item.code]
+    ? ` (${item.code}: ${codesByEvent[item.event_code][item.code]})`
+    : item.code && codesByEvent[item.event_code] && !codesByEvent[item.event_code][item.code]
+      ? `(code: ${item.code})`
+      : ''
+  return res
+}
+
 export default {
   props: [
     'item',
@@ -71,7 +101,8 @@ export default {
     'cols',
     'itemHeight',
     'rowWidth',
-    'itemSettings'
+    'itemSettings',
+    'menuCellActive'
   ],
   data () {
     return {
@@ -270,33 +301,7 @@ export default {
       }
     },
     description () {
-      const types = events.types,
-        closeCodes = events.closeCodes,
-        errorCodes = events.errorCodes,
-        sendCodes = events.sendCodes,
-        codesByEvent = events.codesByEventcode
-      let res = types[this.item.event_code] ? `${types[this.item.event_code]}` : this.item.event_code
-      res += this.item.close_code
-        ? ` (${closeCodes[this.item.close_code]})`
-        : (closeCodes[this.item.close_code]
-          ? `(${this.item.close_code})`
-          : '')
-      res += this.item.error_code
-        ? ` (${this.item.error_code}: ${errorCodes[this.item.event_code][this.item.error_code]})`
-        : (errorCodes[this.item.event_code] && errorCodes[this.item.event_code][this.item.error_code]
-          ? `(${this.item.error_code})`
-          : '')
-      res += this.item.send_code
-        ? ` (${this.item.send_code}: ${sendCodes[this.item.send_code]})`
-        : (errorCodes[this.item.event_code] && errorCodes[this.item.event_code][this.item.send_code]
-          ? `(${this.item.send_code})`
-          : '')
-      res += this.item.code && codesByEvent[this.item.event_code] && codesByEvent[this.item.event_code][this.item.code]
-        ? ` (${this.item.code}: ${codesByEvent[this.item.event_code][this.item.code]})`
-        : this.item.code && codesByEvent[this.item.event_code] && !codesByEvent[this.item.event_code][this.item.code]
-          ? `(code: ${this.item.code})`
-          : ''
-      return res
+      return getDescriptionByItem(this.item)
     },
     clearItem () {
       return Object.keys(this.item).reduce((result, key) => {
@@ -318,16 +323,14 @@ export default {
     linkMoreClickHandler () {
       openURL(this.eventLinkMore)
     },
-    getValueOfProp (prop) {
-      let res = prop.custom ? JSON.stringify(this.item[prop.name]) : this.item[prop.name]
+    getValueOfProp (prop, item) {
+      let res = prop.custom ? JSON.stringify(item[prop.name]) : item[prop.name]
       if (prop.name === 'event_code') {
-        res = this.description
-      }
-      if (prop.name === 'timestamp') {
-        res = date.formatDate(this.item[prop.name] * 1000, 'DD/MM/YYYY HH:mm:ss')
-      }
-      if (prop.name === 'host') {
-        res = this.item.host || this.item.source || ''
+        res = getDescriptionByItem(item)
+      } else if (prop.name === 'timestamp') {
+        res = date.formatDate(item[prop.name] * 1000, 'DD/MM/YYYY HH:mm:ss')
+      } else if (prop.name === 'host') {
+        res = item.host || item.source || ''
       }
       return res
     },
@@ -343,10 +346,14 @@ export default {
 <style lang="stylus">
   .list__item
     display inline-block
+    min-height 19px
     white-space nowrap
-    margin 0 10px 0 5px
+    padding-left 5px
     text-overflow ellipsis
     overflow hidden
+    border-right 2px solid $grey-8
+  .item--active
+    background-color $grey-1
   .message-viewer .q-w-list>.missed-items
     background-color rgba(255,255,255,.05)
     &:nth-child(odd)

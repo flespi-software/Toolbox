@@ -25,7 +25,7 @@
       </q-card-section>
       <q-separator color="white"/>
       <q-card-actions align="right" class="bg-grey-9 text-white">
-        <q-btn flat @click="$refs.modal.hide()">Close</q-btn>
+        <q-btn flat @click="$refs.modal.hide(), $emit('close')">Close</q-btn>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -64,12 +64,16 @@ export default {
       })
       this.tabModel = hasData ? Object.keys(this.config)[index] : Object.keys(this.config)[0] ? Object.keys(this.config)[index] : ''
     },
-    getData (obj) {
-      return Object.keys(obj).reduce((result, key) => {
-        if (key === '_description' || key === '_color') { return result }
-        result[key] = obj[key]
-        return result
-      }, {})
+    getData (data) {
+      if (typeof data === 'string') {
+        return data
+      } else {
+        return Object.keys(data).reduce((result, key) => {
+          if (key === '_description' || key === '_color') { return result }
+          result[key] = data[key]
+          return result
+        }, {})
+      }
     }
   }
 }

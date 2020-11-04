@@ -59,7 +59,7 @@
           <template v-slot:option="scope">
             <q-item
               v-bind="scope.itemProps"
-              @click="active = scope.opt.id, $emit('view-data-hide')"
+              @click="active = scope.opt.id"
               v-on="scope.itemEvents"
               :class="{'text-grey-8': scope.opt.deleted}"
               class="q-pa-xs"
@@ -415,7 +415,6 @@ export default {
       this.$nextTick(() => {
         if (+this.size[0] && this.active) {
           this.$refs.logs.resetParams()
-          this.$emit('view-data-hide')
         }
         if (+this.size[1] && this.active) {
           this.$refs.messages.resetParams()

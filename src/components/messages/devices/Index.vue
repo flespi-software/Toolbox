@@ -7,25 +7,24 @@
       :items="messages"
       :dateRange="dateRange"
       :viewConfig="viewConfig"
-      :colsConfigurator="'toolbar'"
       :filter="filter"
       :theme="theme"
       :title="'Messages'"
       :loading="loadingFlag"
-      :autoscroll="realtimeEnabled"
+      :autoscroll="needAutoscroll"
       scrollOffset="10%"
       :item="listItem"
       :itemprops="getItemsProps"
       :has-new-messages="hasNewMessages"
-      @change:filter="filterChangeHandler"
-      @scroll:top="paginationPrevChangeHandler"
-      @scroll:bottom="paginationNextChangeHandler"
-      @change:date-range="dateRangeChangeHandler"
-      @action:to-bottom="actionToBottomHandler"
-      @update:cols="updateColsHandler"
-      @edit:cols="colsEditHandler"
-      @action:to-new-messages="actionToNewMessages"
-      @action:to-new-messages-hide="actionToNewMessagesHide"
+      @change-filter="filterChangeHandler"
+      @scroll-top="paginationPrevChangeHandler"
+      @scroll-bottom="paginationNextChangeHandler"
+      @change-date-range="dateRangeChangeHandler"
+      @action-to-bottom="actionToBottomHandler"
+      @update-cols="updateColsHandler"
+      @action-to-new-messages="actionToNewMessages"
+      @action-to-new-messages-hide="actionToNewMessagesHide"
+      @to-default-cols="toDefaultColsHandler"
     >
       <empty-pane slot="empty" :config="config.emptyState"/>
     </virtual-scroll-list>
@@ -53,13 +52,16 @@ export default {
       theme: this.config.theme,
       viewConfig: this.config.viewConfig,
       actions: this.config.actions,
-      moduleName: this.config.vuexModuleName
+      moduleName: this.config.vuexModuleName,
+      autoscroll: true
     }
   },
   computed: {
     messages: {
       get () {
-        return this.$store.state[this.moduleName].messages
+        const messages = this.$store.state[this.moduleName].messages
+        this.scrollControlling(messages.length)
+        return messages
       },
       set (val) {
         this.$store.commit(`${this.moduleName}/setMessages`, val)
@@ -137,6 +139,7 @@ export default {
         return this.$store.state[this.moduleName].selected
       },
       set (val) {
+        if (val && val.length) { this.autoscroll = false }
         this.$store.commit(`${this.moduleName}/setSelected`, val)
       }
     },
@@ -151,6 +154,9 @@ export default {
     loadingFlag () {
       const state = this.$store.state
       return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
+    },
+    needAutoscroll () {
+      return this.realtimeEnabled && !this.selected.length && this.autoscroll
     }
   },
   methods: {
@@ -165,7 +171,7 @@ export default {
           ...data.props.actions,
           {
             icon: 'mdi-map',
-            label: 'show on map',
+            label: 'Show on map',
             classes: '',
             type: 'map'
           }
@@ -174,6 +180,10 @@ export default {
       if (!data.on) { data.on = {} }
       data.on.action = this.actionHandler
       data.on['item-click'] = this.viewMessagesHandler
+      data.dataHandler = (col, row, data) => {
+        this.autoscroll = false
+        return this.listItem.methods.getValueOfProp(col.data, row.data)
+      }
     },
     scrollTo (index) {
       this.$nextTick(() => this.$refs.scrollList && this.$refs.scrollList.scrollTo(index))
@@ -222,6 +232,7 @@ export default {
     paginationNextChangeHandler () {
       this.$store.dispatch(`${this.moduleName}/getNextPage`)
         .then((count) => {
+          this.autoscroll = true
           if (count && typeof count === 'number') {
             this.scrollTo(this.messages.length - count)
           }
@@ -269,6 +280,7 @@ export default {
     },
     actionToBottomHandler () {
       if (this.realtimeEnabled) {
+        this.autoscroll = true
         this.scrollTo(this.messages.length - 1)
       } else {
         this.$store.dispatch(`${this.moduleName}/getHistory`, 1000)
@@ -295,8 +307,13 @@ export default {
         this.selected = []
       }
     },
-    colsEditHandler () {
-      this.$eventBus.$emit('cols:edit', 'messages')
+    toDefaultColsHandler () {
+      this.$store.commit(`${this.moduleName}/setDefaultCols`)
+    },
+    scrollControlling (count) {
+      if (this.selected.length && this.selected[0] + 1000 <= count) {
+        this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
+      }
     }
   },
   watch: {

@@ -10,8 +10,8 @@
       :view="typeOfHexView"
       :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', width: $q.platform.is.desktop ? '25%' : '100%', minWidth: '250px'}"
       @view-data="(content) => { selectedMessages = content }"
-      @change:device="content => { $emit('change:active-device', content) }"
-      @close="() => { $emit('change:active-device', null), selectedMessages = '' }"
+      @change:device="content => { $emit('change-active-device', content) }"
+      @close="() => { $emit('change-active-device', null), selectedMessages = '' }"
       @device:preview="previewShow"
       @device:preview-hide="previewHide"
     />
@@ -27,7 +27,7 @@
       :view="typeOfHexView"
       :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', width: $q.platform.is.desktop ? '25%' : '100%', minWidth: '250px'}"
       @view-data="(content) => { selectedMessages = content }"
-      @close="() => { $emit('change:active-device', null), selectedMessages = '' }"
+      @close="() => { $emit('change-active-device', null), selectedMessages = '' }"
     />
     <div v-show="$q.platform.is.desktop || ($q.platform.is.mobile && selectedMessages)" :style="{width: $q.platform.is.desktop ? '75%' : '100%', maxWidth: $q.platform.is.desktop ? 'calc(100% - 250px)' : ''}">
       <q-toolbar class="bg-grey-9" v-if="activeDevice">

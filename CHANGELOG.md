@@ -1,5 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.6.0] - 2020-11-04
+[feature] table context menu
+[feature] new message view
+[rebase] autoscrolling logic
+[rebase] hex-viewer render
 ### [1.5.16] - 2020-10-29
 [fix] login page
 ### [1.5.15] - 2020-10-29

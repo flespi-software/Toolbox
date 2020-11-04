@@ -58,7 +58,7 @@
             <template v-slot:option="scope">
               <q-item
                 v-bind="scope.itemProps"
-                @click="active = scope.opt.id, $emit('view-data-hide')"
+                @click="active = scope.opt.id"
                 v-on="scope.itemEvents"
                 :class="{'text-grey-8': scope.opt.deleted}"
                 class="q-pa-xs"
@@ -130,7 +130,7 @@
             <template v-slot:option="scope">
               <q-item
                 v-bind="scope.itemProps"
-                @click="setActiveCalc(scope.opt.id), $emit('view-data-hide')"
+                @click="setActiveCalc(scope.opt.id)"
                 v-on="scope.itemEvents"
                 :class="{'text-grey-8': scope.opt.deleted}"
                 class="q-pa-xs"
@@ -427,14 +427,12 @@ export default {
     },
     clearDevice () {
       this.clearActive()
-      this.$emit('view-data-hide')
     },
     clearActiveCalc () {
       this.setActiveCalc(null)
     },
     clearCalc () {
       this.clearActiveCalc()
-      this.$emit('view-data-hide')
     },
     goBackDevice () {
       this.$router.push(`/devices/${this.active}`).catch(err => err)
@@ -495,10 +493,6 @@ export default {
   watch: {
     ratio (val) {
       this.$nextTick(() => {
-        if (+this.size[0] && this.active) {
-          // this.$refs.logs.resetParams()
-          this.$emit('view-data-hide')
-        }
         if (+this.size[1] && this.active && this.activeCalcId) {
           this.$refs.intervals.resetParams()
         }

@@ -7,20 +7,19 @@
       :items="messages"
       :dateRange="[begin, end]"
       :viewConfig="viewConfig"
-      :colsConfigurator="'toolbar'"
       :filter="filter"
       :theme="theme"
       :title="'Intervals'"
       :loading="loadingFlag"
-      :autoscroll="true"
+      :autoscroll="needAutoscroll"
       scrollOffset="10%"
       :item="listItem"
       :itemprops="getItemsProps"
-      @change:filter="filterChangeHandler"
-      @change:date-range="dateRangeChangeHandler"
-      @update:cols="updateColsHandler"
-      @action:to-bottom="actionToBottomHandler"
-      @edit:cols="colsEditHandler"
+      @change-filter="filterChangeHandler"
+      @change-date-range="dateRangeChangeHandler"
+      @update-cols="updateColsHandler"
+      @action-to-bottom="actionToBottomHandler"
+      @to-default-cols="toDefaultColsHandler"
     >
       <empty-pane slot="empty" :config="config.emptyState"/>
     </virtual-scroll-list>
@@ -49,6 +48,7 @@ export default {
       theme: this.config.theme,
       viewConfig: this.config.viewConfig,
       moduleName: this.config.vuexModuleName,
+      autoscroll: true,
       viewedInterval: null
     }
   },
@@ -171,6 +171,9 @@ export default {
     loadingFlag () {
       const state = this.$store.state
       return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
+    },
+    needAutoscroll () {
+      return !this.selected.length && this.autoscroll
     }
   },
   methods: {
@@ -184,6 +187,10 @@ export default {
       if (!data.on) { data.on = {} }
       data.on.action = this.actionHandler
       data.on['item-click'] = this.viewMessagesAndShowInMessagesHandler
+      data.dataHandler = (col, row, data) => {
+        this.autoscroll = false
+        return this.listItem.methods.getValueOfProp(col.data, row.data)
+      }
     },
     resetParams () {
       this.$refs.scrollList.resetParams()
@@ -231,6 +238,7 @@ export default {
       }
     },
     actionToBottomHandler () {
+      this.autoscroll = true
       this.$refs.scrollList.scrollTo(this.messages.length - 1)
     },
     viewMessagesAndShowInMessagesHandler ({ index, content }) {
@@ -284,8 +292,8 @@ export default {
         this.viewMessagesHandler({ index: selectedIndex, content: message })
       }
     },
-    colsEditHandler () {
-      this.$eventBus.$emit('cols:edit', 'logs')
+    toDefaultColsHandler () {
+      this.$store.commit(`${this.moduleName}/setDefaultCols`)
     }
   },
   watch: {

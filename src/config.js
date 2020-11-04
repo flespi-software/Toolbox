@@ -161,8 +161,8 @@ export default {
       },
       actions: [
         {
-          icon: 'mdi-content-copy',
-          label: 'copy',
+          icon: 'mdi-content-save',
+          label: 'Copy message',
           classes: '',
           type: 'copy'
         }
@@ -422,8 +422,8 @@ export default {
       },
       actions: [
         {
-          icon: 'mdi-content-copy',
-          label: 'copy',
+          icon: 'mdi-content-save',
+          label: 'Copy message',
           classes: '',
           type: 'copy'
         }
@@ -475,13 +475,13 @@ export default {
       actions: [
         {
           icon: 'mdi-content-copy',
-          label: 'copy',
+          label: 'Copy interval',
           classes: '',
           type: 'copy'
         },
         {
           icon: 'mdi-map',
-          label: 'show on map',
+          label: 'Show on map',
           classes: '',
           type: 'map'
         }
@@ -501,7 +501,7 @@ export default {
       actions: [
         {
           icon: 'mdi-content-copy',
-          label: 'copy',
+          label: 'Copy message',
           classes: '',
           type: 'copy'
         }

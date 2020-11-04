@@ -88,6 +88,3 @@ export default {
   mixins: [convertMixin]
 }
 </script>
-
-<style lang="stylus">
-</style>
