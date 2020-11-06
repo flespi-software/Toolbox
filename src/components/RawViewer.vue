@@ -1,6 +1,6 @@
 <template>
   <q-dialog class="modal-date" :maximized="$q.platform.is.mobile" @show="openHandler" @hide="tabModel = ''" ref="modal">
-    <q-card :style="{minWidth: $q.platform.is.mobile ? '100%' : '30vw', height: $q.platform.is.mobile ? '100%' : '60vh'}" :class="{'bg-grey-9': inverted !== undefined}">
+    <q-card :style="{minWidth: $q.platform.is.mobile ? '100%' : '30vw', maxHeight: $q.platform.is.mobile ? '100%' : '85vh'}" :class="{'bg-grey-9': inverted !== undefined}">
       <q-card-section :style="{height: 'calc(100% - 54px)'}" class="q-pa-none">
         <template v-if="hasData">
           <q-tabs v-model="tabModel" class="text-white">

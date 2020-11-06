@@ -236,6 +236,7 @@ export default {
       const viewConfig = {
         Message: {
           title: 'Message',
+          description: `${content.ident ? `[${content.ident}]` : ''}${content.timestamp ? ` (${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')})` : ''}`,
           wrapper: JsonTree,
           data: content
         }

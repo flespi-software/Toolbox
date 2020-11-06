@@ -10,17 +10,14 @@
           :value="active"
           :options="filteredItems"
           filled
+          :loading="isItemsInitStart && !isItemsInit"
           :hide-dropdown-icon="!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('devices') > -1)"
           :label="active ? 'Device' : 'SELECT DEVICE'"
           dark hide-bottom-space dense color="white"
           :disable="!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('devices') > -1)"
-          :virtual-scroll-item-size="48"
-          :virtual-scroll-slice-size="6"
-          :virtual-scroll-sticky-size-start="48"
-          :virtual-scroll-sticky-size-end="needShowGetDeletedAction && tokenType === 1 ? 29 : 0"
           popup-content-class="items__popup"
           :popup-content-style="{height: `${((filteredItems.length > 6 ? 6 : filteredItems.length) * 48) + (needShowGetDeletedAction && tokenType === 1 ? 77 : 48) + (filteredItems.length ? 0 : 4)}px`}"
-          @filter="filterItems"
+          @filter="(filter, update) => filterItems('devices', filter, update)"
         >
           <div slot="before-options" class="bg-dark q-pa-xs select__filter">
             <q-input v-model="filter" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" @input="filter => $refs.itemSelect.filter(filter)" autofocus>
@@ -154,6 +151,7 @@ export default {
       ratio: 50,
       isInit: false,
       isItemsInit: false,
+      isItemsInitStart: false,
       isVisibleMap: false,
       mapMinimizedOptions: {},
       siblingHeight: null,
@@ -287,14 +285,6 @@ export default {
   },
   methods: {
     ...mapActions(['getDeleted', 'getDeviceTrafficRoute']),
-    filterItems (filter, update) {
-      if (this.isItemsInit) {
-        update()
-        return
-      }
-      const entity = 'devices'
-      this.itemsLoad(entity, update, this.active, () => { this.isItemsInit = true })
-    },
     viewDataHandler (content) {
       this.$emit('view-data', content)
       if (this.isVisibleMap && content['position.latitude'] && content['position.longitude']) {

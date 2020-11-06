@@ -20,7 +20,7 @@ export default {
 <style lang="stylus">
   .image-view__image
     background-repeat no-repeat
-    height 100%
+    height 60vh
     background-size contain
     background-position center
 </style>

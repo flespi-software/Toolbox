@@ -14,13 +14,9 @@
             dark hide-bottom-space dense color="white"
             :disable="!isNeedSelect"
             :hide-dropdown-icon="!isNeedSelect"
-            :virtual-scroll-item-size="48"
-            :virtual-scroll-slice-size="6"
-            :virtual-scroll-sticky-size-start="48"
-            :virtual-scroll-sticky-size-end="0"
             popup-content-class="items__popup"
             :popup-content-style="{height: `${((filteredItems.length > 6 ? 6 : filteredItems.length) * 48) + 48}px`}"
-            @filter="filterItems"
+            @filter="(filter, update) => filterItems('channels', filter, update)"
           >
             <div slot="before-options" class="bg-dark q-pa-xs select__filter">
               <q-input v-model="filter" @input="filter => $refs.itemSelect.filter(filter)" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" autofocus>
@@ -186,14 +182,6 @@ export default {
       } else {
         this.$router.push('/tools/traffic').catch(err => err)
       }
-    },
-    filterItems (filter, update) {
-      if (this.isItemsInit) {
-        update()
-        return
-      }
-      const entity = 'channels'
-      this.itemsLoad(entity, update, this.active, () => { this.isItemsInit = true })
     },
     unselect () {
       this.$refs.messages.unselect()

@@ -14,12 +14,9 @@
           :label="active ? 'Account' : 'SELECT ACCOUNT'"
           hide-bottom-space dense color="white" dark
           :disable="!isNeedSelect"
-          :virtual-scroll-item-size="48"
-          :virtual-scroll-slice-size="6"
-          :virtual-scroll-sticky-start="48"
           popup-content-class="items__popup"
           :popup-content-style="{height: `${((filteredItems.length > 6 ? 6 : filteredItems.length) * 48) + 48 + (filteredItems.length ? 0 : 33)}px`}"
-          @filter="filterItems"
+          @filter="(filter, update) => filterItems('subaccounts', filter, update)"
         >
           <div slot="before-options" class="q-pa-xs select__filter bg-dark">
             <q-input v-model="filter" outlined hide-bottom-space rounded dense dark color="white" placeholder="Filter" @input="filter => $refs.itemSelect.filter(filter)" autofocus>
@@ -182,14 +179,6 @@ export default {
     }
   },
   methods: {
-    filterItems (filter, update) {
-      if (this.isItemsInit) {
-        update()
-        return
-      }
-      const entity = 'subaccounts'
-      this.itemsLoad(entity, update, this.active, () => { this.isItemsInit = true })
-    },
     viewLogMessagesHandler (content) {
       this.$emit('view-log-message', content)
     },

@@ -14,13 +14,9 @@
           dark hide-bottom-space dense color="white"
           :disable="!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('calcs') > -1)"
           :hide-dropdown-icon="!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('calcs') > -1)"
-          :virtual-scroll-item-size="48"
-          :virtual-scroll-slice-size="6"
-          :virtual-scroll-sticky-size-start="48"
-          :virtual-scroll-sticky-size-end="needShowGetDeletedAction && tokenType === 1 ? 29 : 0"
           popup-content-class="items__popup"
           :popup-content-style="{height: `${((filteredItems.length > 6 ? 6 : filteredItems.length) * 48) + (needShowGetDeletedAction && tokenType === 1 ? 77 : 48) + (filteredItems.length ? 0 : 4)}px`}"
-          @filter="filterItems"
+          @filter="(filter, update) => filterItems('calcs', filter, update)"
         >
           <div slot="before-options" class="bg-dark q-pa-xs select__filter">
             <q-input v-model="filter" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" @input="filter => $refs.itemSelect.filter(filter)" autofocus>
@@ -189,14 +185,6 @@ export default {
   },
   methods: {
     ...mapActions(['getDeleted']),
-    filterItems (filter, update) {
-      if (this.isItemsInit) {
-        update()
-        return
-      }
-      const entity = 'calcs'
-      this.itemsLoad(entity, update, this.active, () => { this.isItemsInit = true })
-    },
     viewLogMessagesHandler (content) {
       this.$emit('view-log-message', content)
     },

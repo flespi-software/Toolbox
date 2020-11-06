@@ -285,11 +285,19 @@ export default {
           if (id) {
             this.unsubscribeItems({ entity, id, mode: 1 })
           }
-          update(() => {
-            loadedEntities[entity] = { entity, mode: 1 }
-            cb && cb()
-          })
+          update()
+          loadedEntities[entity] = { entity, mode: 1 }
+          cb && cb()
         })
+    },
+    filterItems (entity, filter, update) {
+      if (this.isItemsInitStart && !this.isItemsInit) { return }
+      if (this.isItemsInit) {
+        update()
+        return
+      }
+      this.isItemsInitStart = true
+      this.itemsLoad(entity, update, this.active, () => { this.isItemsInit = true })
     }
   }
 }

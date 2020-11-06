@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.6.3] - 2020-11-06
+[fix] load entities control
+[fix] message view content
 ### [1.6.2] - 2020-11-04
 [fix] map styles
 ### [1.6.1] - 2020-11-04
