@@ -1,20 +1,13 @@
 <template>
-  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}">
+  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}" @click="event => itemClickHandler(index, clearItem, event)">
     <div
       v-if="!item['__connectionStatus']"
-      @click="event => itemClickHandler(index, clearItem, event)"
       class="cursor-pointer"
       :class="[item['x-flespi-status'] ? 'missed-items' : '', selected ? 'bg-white-opasity' : highlightLevel ? `text-${highlightType}-${highlightLevel}` : '']"
       :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, color: selected ? '#333' : ''}"
     >
       <template v-for="(prop, k) in cols">
-        <span class="list__item item_actions" :class="{[`item_${k}`]: true, 'item--active': menuCellActive && menuCellActive.row === index && menuCellActive.col === k}" v-if="prop.__dest === 'action'" :key="prop.name + k">
-          <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, clearItem)"
-                  :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
-            <q-tooltip>{{action.label}}</q-tooltip>
-          </q-icon>
-        </span>
-        <span v-else-if="prop.__dest === 'etc'" class="list__item item_etc" :class="{[`item_${k}`]: true, 'item--active': menuCellActive && menuCellActive.row === index && menuCellActive.col === k}" :key="prop.name + k">{{values.etc.value || '*Empty*'}}</span>
+        <span v-if="prop.__dest === 'etc'" class="list__item item_etc" :class="{[`item_${k}`]: true, 'item--active': menuCellActive && menuCellActive.row === index && menuCellActive.col === k}" :key="prop.name + k">{{values.etc.value || '*Empty*'}}</span>
         <span
           v-else
           :key="prop.name + k"

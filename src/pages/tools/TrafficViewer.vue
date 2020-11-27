@@ -10,6 +10,7 @@
             :value="active"
             :options="filteredItems"
             filled
+            :loading="isItemsInitStart && !isItemsInit"
             :label="active ? 'Channel' : 'SELECT CHANNEL'"
             dark hide-bottom-space dense color="white"
             :disable="!isNeedSelect"
@@ -118,6 +119,7 @@ export default {
       relatedDeviceId: null,
       isInit: false,
       isItemsInit: false,
+      isItemsInitStart: false,
       filter: '',
       prevEntity: null,
       isIntegration: this.$q.platform.within.iframe

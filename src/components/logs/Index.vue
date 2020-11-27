@@ -17,6 +17,8 @@
       :item="listItem"
       :itemprops="getItemsProps"
       :has-new-messages="hasNewMessages"
+      :toDefaultCols="toDefaultColsHandler"
+      @action="actionHandler"
       @change-filter="filterChangeHandler"
       @scroll-top="paginationPrevChangeHandler"
       @scroll-bottom="paginationNextChangeHandler"
@@ -25,7 +27,6 @@
       @action-to-new-messages="actionToNewMessages"
       @action-to-new-messages-hide="actionToNewMessagesHide"
       @update-cols="updateColsHandler"
-      @to-default-cols="toDefaultColsHandler"
     >
       <empty-pane slot="empty" :config="config.emptyState"/>
     </virtual-scroll-list>
@@ -33,7 +34,9 @@
 </template>
 
 <script>
+import { date } from 'quasar'
 import { VirtualScrollList, logsModule } from 'qvirtualscroll'
+import ItemMixin from './ItemMixin'
 import Vue from 'vue'
 import LogsListItem from './LogsListItem.vue'
 import EmptyPane from '../EmptyPane'
@@ -127,6 +130,15 @@ export default {
         this.$store.commit(`${this.moduleName}/setReverse`, val)
       }
     },
+    selected: {
+      get () {
+        return this.$store.state[this.moduleName].selected
+      },
+      set (val) {
+        if (val && val.length) { this.autoscroll = false }
+        this.$store.commit(`${this.moduleName}/setSelected`, val)
+      }
+    },
     realtimeEnabled () {
       return this.$store.state[this.moduleName].realtimeEnabled
     },
@@ -157,7 +169,7 @@ export default {
       return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
     },
     needAutoscroll () {
-      return this.realtimeEnabled && this.autoscroll
+      return this.realtimeEnabled && !this.selected.length && this.autoscroll
     }
   },
   methods: {
@@ -167,12 +179,13 @@ export default {
       data.props.etcVisible = this.etcVisible
       data.props.actionsVisible = this.actionsVisible
       data.props.itemSettings = this.itemSettings
+      data.props.selected = this.selected.includes(index)
       if (!data.on) { data.on = {} }
       data.on.action = this.actionHandler
       data.on['item-click'] = this.viewMessagesHandler
       data.dataHandler = (col, row, data) => {
         this.autoscroll = false
-        return this.listItem.methods.getValueOfProp(col.data, row.data)
+        return this.getLogValueOfProp(col.data, row.data)
       }
     },
     async getMessages () {
@@ -229,6 +242,7 @@ export default {
         })
     },
     actionHandler ({ index, type, content }) {
+      this.selected = [index]
       switch (type) {
         case 'view': {
           this.viewMessagesHandler({ index, content })
@@ -265,6 +279,7 @@ export default {
       this.hasNewMessages = null
     },
     viewMessagesHandler ({ index, content }) {
+      this.selected = [index]
       this.$emit('view-log-message', content)
     },
     async changeCid () {
@@ -282,6 +297,47 @@ export default {
         cols.push({ name: 'etc', width: 150, display: true, __dest: 'etc' })
       }
       this.$store.commit(`${this.moduleName}/setCols`, cols)
+    },
+    unselect () {
+      if (this.selected.length) {
+        this.selected = []
+      }
+    },
+    nextSelect () {
+      if (this.selected.length) {
+        const lastIndex = this.selected.slice(-1)[0]
+        const newIndex = lastIndex + 1
+        const message = this.messages[newIndex]
+        if (message) {
+          this.selected = [newIndex]
+          const content = { ...this.getLogClearItem(message) }
+          content._description = `[${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}] ${content.event_code}: ${this.getLogDescriptionByItem(content)}`
+          content._color = this.getLogItemColor(content.event_code)
+          this.$emit('action-select', {
+            index: newIndex,
+            content
+          })
+          this.scrollTo(newIndex)
+        }
+      }
+    },
+    prevSelect () {
+      if (this.selected.length) {
+        const firstIndex = this.selected[0]
+        const newIndex = firstIndex - 1
+        const message = this.messages[newIndex]
+        if (message) {
+          this.selected = [newIndex]
+          const content = { ...this.getLogClearItem(message) }
+          content._description = `[${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}] ${content.event_code}: ${this.getLogDescriptionByItem(content)}`
+          content._color = this.getLogItemColor(content.event_code)
+          this.$emit('action-select', {
+            index: newIndex,
+            content
+          })
+          this.scrollTo(newIndex)
+        }
+      }
     }
   },
   watch: {
@@ -326,7 +382,7 @@ export default {
     this.connectHandler !== undefined && Vue.connector.socket.off('connect', this.connectHandler)
     this.$store.commit(`${this.moduleName}/clear`)
   },
-  mixins: [filterMessages],
+  mixins: [filterMessages, ItemMixin],
   components: { VirtualScrollList, EmptyPane }
 }
 </script>

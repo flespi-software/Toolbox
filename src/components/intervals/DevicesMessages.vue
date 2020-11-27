@@ -12,15 +12,17 @@
       :title="'Messages'"
       :loading="loadingFlag"
       :autoscroll="needAutoscroll"
+      :i18n="i18n"
       scrollOffset="10%"
       :item="listItem"
       :itemprops="getItemsProps"
+      :toDefaultCols="toDefaultColsHandler"
+      @action="actionHandler"
       @change-filter="filterChangeHandler"
       @scroll-top="paginationPrevChangeHandler"
       @scroll-bottom="paginationNextChangeHandler"
       @action-to-bottom="actionToBottomHandler"
       @update-cols="updateColsHandler"
-      @to-default-cols="toDefaultColsHandler"
     >
       <empty-pane slot="empty" :config="config.emptyState"/>
     </virtual-scroll-list>
@@ -51,7 +53,10 @@ export default {
       viewConfig: this.config.viewConfig,
       actions: this.config.actions,
       autoscroll: true,
-      moduleName: this.config.vuexModuleName
+      moduleName: this.config.vuexModuleName,
+      i18n: {
+        'Columns by schema': 'Columns by protocol'
+      }
     }
   },
   computed: {
@@ -76,7 +81,7 @@ export default {
         await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active device */
         this.$store.commit(`${this.moduleName}/setActive`, val)
         this.$store.commit(`${this.moduleName}/clearMessages`)
-        await this.$store.dispatch(`${this.moduleName}/getCols`, { actions: true, etc: true })
+        await this.$store.dispatch(`${this.moduleName}/getCols`, { etc: true })
         await this.getMessages()
       }
     },
@@ -168,6 +173,22 @@ export default {
           }
         ]
       }
+      Object.keys(item).some(name => {
+        const hasImage = item[name].toString().match(/^data:image\/(?:gif|png|jpeg|bmp|webp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}/) ||
+          name.indexOf('image.bin.') === 0
+        if (hasImage) {
+          data.props.actions = [
+            ...data.props.actions,
+            {
+              icon: 'mdi-image-outline',
+              label: 'Show image',
+              classes: '',
+              type: 'image'
+            }
+          ]
+        }
+        return hasImage
+      })
       if (!data.on) { data.on = {} }
       data.on.action = this.actionHandler
       data.on['item-click'] = this.viewMessagesHandler
@@ -260,6 +281,7 @@ export default {
       }
     },
     actionHandler ({ index, type, content }) {
+      this.selected = [index]
       switch (type) {
         case 'view': {
           this.viewMessagesHandler({ index, content })
@@ -269,18 +291,15 @@ export default {
           this.copyMessageHandler({ index, content })
           break
         }
-        case 'map': {
-          this.onMapHandler({ index, content })
+        default: {
+          this.$emit(`action-${type}`, { index, content })
           break
         }
       }
     },
-    onMapHandler ({ index, content }) {
-      this.$emit('on-map', { index, content })
-    },
     viewMessagesHandler ({ index, content }) {
       this.selected = [index]
-      this.$emit('view-data', content)
+      this.$emit('action-view-data', { index, content })
     },
     copyMessageHandler ({ index, content }) {
       copyToClipboard(JSON.stringify(content)).then((e) => {
@@ -321,6 +340,45 @@ export default {
     scrollControlling (count) {
       if (this.selected.length && this.selected[0] + 1000 <= count) {
         this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
+      }
+    },
+    clearMessage (message) {
+      return Object.keys(message).reduce((result, key) => {
+        if (key.indexOf('x-flespi') !== -1) {
+          return result
+        }
+        result[key] = message[key]
+        return result
+      }, {})
+    },
+    nextSelect () {
+      if (this.selected.length) {
+        const lastIndex = this.selected.slice(-1)[0]
+        const newIndex = lastIndex + 1
+        const message = this.messages[newIndex]
+        if (message) {
+          this.selected = [newIndex]
+          this.$emit('action-select', {
+            index: newIndex,
+            content: this.clearMessage(message)
+          })
+          this.scrollTo(newIndex)
+        }
+      }
+    },
+    prevSelect () {
+      if (this.selected.length) {
+        const firstIndex = this.selected[0]
+        const newIndex = firstIndex - 1
+        const message = this.messages[newIndex]
+        if (message) {
+          this.selected = [newIndex]
+          this.$emit('action-select', {
+            index: newIndex,
+            content: this.clearMessage(message)
+          })
+          this.scrollTo(newIndex)
+        }
       }
     }
   },

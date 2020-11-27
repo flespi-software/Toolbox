@@ -422,10 +422,16 @@ export default {
       },
       actions: [
         {
-          icon: 'mdi-content-save',
+          icon: 'mdi-content-copy',
           label: 'Copy message',
           classes: '',
           type: 'copy'
+        },
+        {
+          icon: 'mdi-information-outline',
+          label: 'Show message',
+          classes: '',
+          type: 'show'
         }
       ],
       viewConfig: {
@@ -480,10 +486,10 @@ export default {
           type: 'copy'
         },
         {
-          icon: 'mdi-map',
-          label: 'Show on map',
+          icon: 'mdi-information-outline',
+          label: 'Show interval',
           classes: '',
-          type: 'map'
+          type: 'show'
         }
       ],
       viewConfig: {
@@ -504,6 +510,12 @@ export default {
           label: 'Copy message',
           classes: '',
           type: 'copy'
+        },
+        {
+          icon: 'mdi-information-outline',
+          label: 'Show message',
+          classes: '',
+          type: 'show'
         }
       ],
       viewConfig: {

@@ -1,7 +1,9 @@
 <template>
   <q-page>
+    <q-resize-observer @resize="onResizePage" />
     <entities-toolbar
-      :item="selectedItem" :actions="actions">
+      :item="selectedItem" :actions="actions"
+    >
       <div style="max-width: 50%" :class="{'middle-modificator': !active}" slot="selects">
         <q-select
           ref="itemSelect"
@@ -10,6 +12,7 @@
           :value="active"
           :options="filteredItems"
           filled
+          :loading="isItemsInitStart && !isItemsInit"
           :label="active ? 'Stream' : 'SELECT STREAM'"
           dark hide-bottom-space dense color="white"
           :disable="!isNeedSelect"
@@ -82,18 +85,36 @@
       originPattern="gw/streams/:id"
       :isEnabled="true"
       :config="config.logs"
-      :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
-      @view-log-message="viewLogMessagesHandler"
+      :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', maxWidth: widgetStyle.top ? '66%' : ''}"
+      @view-log-message="viewWidgetsLogHandler"
+      @action-select="data => widgetsViewedLog = data.content"
     />
     <div v-if="!items.length && isItemsInit" class="text-center text-grey-3 q-mt-lg">
       <div style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Streams not found'}}</div>
       <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
     </div>
+    <widgets
+      ref="logsView"
+      :active="activeWidgetWindow === 'logsView'"
+      v-model="isWidgetsLogsActive"
+      :siblingHeight="siblingHeight.logs"
+      :config="logsWidgetsViewConfig"
+      :actions="widgetsHandleActions"
+      :controls="widgetWindowControls"
+      @minimize="data => widgetsMinimizeHandler('logs', data)"
+      @active="activateWidgetWindow('logsView')"
+      @close="closeLogsWidgetsHandler"
+      @next="nextWidgetLog"
+      @prev="prevWidgetLog"
+    />
   </q-page>
 </template>
 
 <script>
 import logs from '../../components/logs/Index.vue'
+import MainWidgetsMixin from '../../components/widgets/MainWidgetsMixin'
+import LogsWidgetsMixin from '../../components/widgets/LogsWidgetsMixin'
+import Widgets from '../../components/widgets/Widgets'
 import { mapState, mapActions } from 'vuex'
 import init from '../../mixins/entitiesInit'
 import EntitiesToolbar from '../../components/EntitiesToolbar'
@@ -108,13 +129,14 @@ export default {
     'config',
     'settings'
   ],
-  mixins: [init],
+  mixins: [init, MainWidgetsMixin, LogsWidgetsMixin],
   data () {
     return {
       filter: '',
       active: null,
       isInit: false,
       isItemsInit: false,
+      isItemsInitStart: false,
       needShowGetDeletedAction: true
     }
   },
@@ -179,9 +201,6 @@ export default {
   },
   methods: {
     ...mapActions(['getDeleted']),
-    viewLogMessagesHandler (content) {
-      this.$emit('view-log-message', content)
-    },
     clearHandler () {
       this.$q.dialog({
         title: 'Confirm',
@@ -214,6 +233,15 @@ export default {
         this.active = activeFromLocaleStorage
       }
       this.$emit('inited')
+    },
+    clearWidgetsState () {
+      this.isWidgetsLogsActive = false
+      this.widgetsMinimizedOptions = {}
+      this.activeWidgetWindow = undefined
+      this.widgetsViewedLog = null
+    },
+    onResizePage (size) {
+      this.$refs.logsView.resize(size)
     }
   },
   watch: {
@@ -239,7 +267,7 @@ export default {
       }
     }
   },
-  components: { logs, EntitiesToolbar }
+  components: { logs, EntitiesToolbar, Widgets }
 }
 </script>
 <style lang="stylus">

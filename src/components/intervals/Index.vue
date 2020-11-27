@@ -13,13 +13,15 @@
       :loading="loadingFlag"
       :autoscroll="needAutoscroll"
       scrollOffset="10%"
+      :i18n="i18n"
       :item="listItem"
       :itemprops="getItemsProps"
+      :toDefaultCols="toDefaultColsHandler"
+      @action="actionHandler"
       @change-filter="filterChangeHandler"
       @change-date-range="dateRangeChangeHandler"
       @update-cols="updateColsHandler"
       @action-to-bottom="actionToBottomHandler"
-      @to-default-cols="toDefaultColsHandler"
     >
       <empty-pane slot="empty" :config="config.emptyState"/>
     </virtual-scroll-list>
@@ -49,19 +51,14 @@ export default {
       viewConfig: this.config.viewConfig,
       moduleName: this.config.vuexModuleName,
       autoscroll: true,
-      viewedInterval: null
+      viewedInterval: null,
+      actions: this.config.actions,
+      i18n: {
+        'Columns by schema': 'Columns by counters'
+      }
     }
   },
   computed: {
-    actions () {
-      const initActions = this.config.actions,
-        routeFields = this.getRouteFields()
-      let actions = [initActions[0]]
-      if (routeFields && routeFields.length) {
-        actions = initActions
-      }
-      return actions
-    },
     messages: {
       get () {
         let messages = this.$store.state[this.moduleName].messages
@@ -165,15 +162,18 @@ export default {
         this.$store.commit(`${this.moduleName}/setSelected`, val)
       }
     },
-    routesFileds () {
-      return this.getRouteFields()
-    },
     loadingFlag () {
       const state = this.$store.state
       return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
     },
     needAutoscroll () {
       return !this.selected.length && this.autoscroll
+    },
+    routesFields () {
+      const routesFields = this.item.counters && this.item.counters.filter((counter) => {
+        return counter.type === 'route'
+      })
+      return routesFields || []
     }
   },
   methods: {
@@ -184,6 +184,17 @@ export default {
       data.props.actionsVisible = this.actionsVisible
       data.props.selected = this.selected.includes(index)
       data.props.highlighted = this.viewedInterval && item.id === this.viewedInterval.id
+      if (this.routesFields.some(field => !!item[field.name])) {
+        data.props.actions = [
+          ...data.props.actions,
+          {
+            icon: 'mdi-map',
+            label: 'Show on map',
+            classes: '',
+            type: 'map'
+          }
+        ]
+      }
       if (!data.on) { data.on = {} }
       data.on.action = this.actionHandler
       data.on['item-click'] = this.viewMessagesAndShowInMessagesHandler
@@ -202,11 +213,6 @@ export default {
         this.$store.dispatch(`${this.moduleName}/get`)
       }
     },
-    getRouteFields () {
-      return this.item.counters && this.item.counters.filter((counter) => {
-        return counter.type === 'route'
-      })
-    },
     updateColsHandler (cols) {
       this.cols = cols
     },
@@ -222,17 +228,18 @@ export default {
       this.$store.dispatch(`${this.moduleName}/get`)
     },
     actionHandler ({ index, type, content }) {
+      this.selected = [index]
       switch (type) {
         case 'view': {
-          this.viewMessagesHandler({ index, content })
-          break
-        }
-        case 'map': {
-          this.onMapHandler({ index, content })
+          this.viewMessagesHandler({ index, content, entity: this.item })
           break
         }
         case 'copy': {
-          this.copyMessageHandler({ index, content })
+          this.copyMessageHandler({ index, content, entity: this.item })
+          break
+        }
+        default: {
+          this.$emit(`action-${type}`, { index, content, entity: this.item })
           break
         }
       }
@@ -242,21 +249,12 @@ export default {
       this.$refs.scrollList.scrollTo(this.messages.length - 1)
     },
     viewMessagesAndShowInMessagesHandler ({ index, content }) {
-      this.viewMessagesHandler({ index, content })
+      this.viewMessagesHandler({ index, content, entity: this.item })
       this.inMessagesHandler({ index, content })
     },
     viewMessagesHandler ({ index, content }) {
       this.selected = [index]
-      this.$emit('view-data', content)
-    },
-    onMapHandler ({ index, content }) {
-      const routes = Object.keys(content).reduce((routes, fieldName) => {
-        if (this.routesFileds.filter(field => field.name === fieldName).length) {
-          routes.push(content[fieldName])
-        }
-        return routes
-      }, [])
-      this.$emit('on-map', routes)
+      this.$emit('action-view-data', { index, content, entity: this.item })
     },
     inMessagesHandler ({ index, content }) {
       this.viewedInterval = content
@@ -289,11 +287,59 @@ export default {
       if (this.selected && this.selected.length && !this.viewedInterval) {
         const selectedIndex = this.selected[0]
         const message = messages[selectedIndex]
-        this.viewMessagesHandler({ index: selectedIndex, content: message })
+        this.viewMessagesHandler({ index: selectedIndex, content: message, entity: this.item })
       }
     },
     toDefaultColsHandler () {
       this.$store.commit(`${this.moduleName}/setDefaultCols`)
+    },
+    scrollTo (index) {
+      this.$nextTick(() => this.$refs.scrollList && this.$refs.scrollList.scrollTo(index))
+    },
+    clearMessage (message) {
+      return Object.keys(message).reduce((result, key) => {
+        if (key.indexOf('x-flespi') !== -1) {
+          return result
+        }
+        result[key] = message[key]
+        return result
+      }, {})
+    },
+    nextSelect () {
+      if (this.selected.length) {
+        const lastIndex = this.selected.slice(-1)[0]
+        const newIndex = lastIndex + 1
+        const message = this.messages[newIndex]
+        if (message) {
+          this.selected = [newIndex]
+          const content = this.clearMessage(message)
+          this.$emit('action-select', {
+            index: newIndex,
+            content,
+            entity: this.item
+          })
+          this.inMessagesHandler({ index: newIndex, content })
+          this.scrollTo(newIndex)
+        }
+      }
+    },
+    prevSelect () {
+      if (this.selected.length) {
+        const firstIndex = this.selected[0]
+        const newIndex = firstIndex - 1
+        const message = this.messages[newIndex]
+        if (message) {
+          this.selected = [newIndex]
+          const content = this.clearMessage(message)
+          this.$emit('action-select', {
+            index: newIndex,
+            content,
+            entity: this.item
+          })
+          this.inMessagesHandler({ index: newIndex, content })
+          this.scrollTo(newIndex)
+        }
+      }
     }
   },
   watch: {

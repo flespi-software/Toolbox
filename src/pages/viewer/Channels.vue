@@ -1,8 +1,8 @@
 <template>
   <q-page>
-    <q-resize-observer @resize="onResize" />
+    <q-resize-observer @resize="onResizePage" />
     <entities-toolbar
-      :item="selectedItem" :ratio="ratio" :actions="actions" @change-ratio="r => ratio = r"
+      :item="selectedItem" :ratio="ratio" :actions="actions" @change-ratio="changeRatioHandler"
     >
       <div class="flex" :class="{'middle-modificator': !active}" slot="selects">
         <q-select
@@ -13,6 +13,7 @@
           :options="filteredItems"
           :hide-dropdown-icon="!isNeedSelect"
           filled
+          :loading="isItemsInitStart && !isItemsInit"
           :label="active ? 'Channel' : 'SELECT CHANNEL'"
           dark hide-bottom-space dense color="white"
           :disable="!isNeedSelect"
@@ -96,34 +97,58 @@
         originPattern="gw/channels/:id"
         :config="logsConfig"
         v-if="+size[0]"
-        :style="{height: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'top' ? '66%' : ''}"
-        @view-log-message="viewLogMessagesHandler"
+        :style="{height: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', maxWidth: widgetStyle.top ? '66%' : ''}"
+        @view-log-message="viewWidgetsLogHandler"
+        @action-select="data => widgetsViewedLog = data.content"
         @to-traffic="toTrafficHandler"
       />
       <messages
         ref="messages"
-        @view-data="viewDataHandler"
-        @on-map="onMapHandler"
+        @action-view-data="data => messageWidgetsActions('object', data)"
+        @action-map="data => messageWidgetsActions('position', data)"
+        @action-show="data => messageWidgetsActions('show', data)"
+        @action-image="data => messageWidgetsActions('image', data)"
+        @action-select="data => messageWidgetsActions('select', data)"
         :item="selectedItem"
         :activeId="active"
         :isEnabled="!!+size[1]"
         :limit="limit"
         :config="config.messages"
         v-if="+size[1]"
-        :style="{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}"
+        :style="{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', maxWidth: widgetStyle.bottom ? '66%' : ''}"
       />
     </div>
     <div v-if="!items.length && isItemsInit" class="text-center text-grey-3 q-mt-lg">
       <div style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Channels not found'}}</div>
       <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
     </div>
-    <map-frame
-      ref="map"
-      v-if="isVisibleMap"
-      :device="mapDevice"
-      :siblingHeight="siblingHeight"
-      @map:close="mapCloseHandler"
-      @map:minimize="mapMinimizeHandler"
+    <widgets
+      ref="messageView"
+      :active="activeWidgetWindow === 'messageView'"
+      v-model="isWidgetsMessageActive"
+      :siblingHeight="siblingHeight.message"
+      :config="messageWidgetsViewConfig"
+      :actions="widgetsHandleActions"
+      :controls="widgetWindowControls"
+      @minimize="data => widgetsMinimizeHandler('message', data)"
+      @active="activateWidgetWindow('messageView')"
+      @close="closeMessageWidgetsHandler"
+      @next="nextWidgetsMessage"
+      @prev="prevWidgetsMessage"
+    />
+    <widgets
+      ref="logsView"
+      :active="activeWidgetWindow === 'logsView'"
+      v-model="isWidgetsLogsActive"
+      :siblingHeight="siblingHeight.logs"
+      :config="logsWidgetsViewConfig"
+      :actions="widgetsHandleActions"
+      :controls="widgetWindowControls"
+      @minimize="data => widgetsMinimizeHandler('logs', data)"
+      @active="activateWidgetWindow('logsView')"
+      @close="closeLogsWidgetsHandler"
+      @next="nextWidgetLog"
+      @prev="prevWidgetLog"
     />
   </q-page>
 </template>
@@ -131,11 +156,14 @@
 <script>
 import logs from '../../components/logs/Index.vue'
 import messages from '../../components/messages/channels/Index.vue'
+import MainWidgetsMixin from '../../components/widgets/MainWidgetsMixin'
+import LogsWidgetsMixin from '../../components/widgets/LogsWidgetsMixin'
+import MessageWidgetsMixin from '../../components/widgets/MessageWidgetsMixin'
+import Widgets from '../../components/widgets/Widgets'
 import { mapState, mapActions } from 'vuex'
 import EntitiesToolbar from '../../components/EntitiesToolbar'
 import get from 'lodash/get'
 import init from '../../mixins/entitiesInit'
-import MapFrame from '../../components/MapFrame'
 
 export default {
   props: [
@@ -146,18 +174,15 @@ export default {
     'config',
     'settings'
   ],
-  mixins: [init],
+  mixins: [init, MainWidgetsMixin, LogsWidgetsMixin, MessageWidgetsMixin],
   data () {
     return {
       filter: '',
       active: null,
       ratio: 50,
-      siblingHeight: 0,
-      isVisibleMap: false,
-      mapDevice: null,
-      mapMinimizedOptions: {},
       isInit: false,
       isItemsInit: false,
+      isItemsInitStart: false,
       needShowGetDeletedAction: true
     }
   },
@@ -267,16 +292,6 @@ export default {
   },
   methods: {
     ...mapActions(['getDeleted']),
-    viewDataHandler (content) {
-      const message = content[content.length - 1]
-      this.$emit('view-data', message)
-      if (this.$refs.map && this.isVisibleMap && message['position.latitude'] && message['position.longitude']) {
-        this.onMapHandler({ content: message })
-      }
-    },
-    viewLogMessagesHandler (content) {
-      this.$emit('view-log-message', content)
-    },
     hexViewHandler () {
       this.$router.push(`/tools/hex/${this.active}`).catch(err => err)
     },
@@ -290,9 +305,6 @@ export default {
       if (ident) {
         this.$router.push({ path: `/tools/traffic/${this.active}/ident/${ident}`, query: { from: timeStart, to: timeEnd } }).catch(err => err)
       }
-    },
-    unselect () {
-      this.$refs.messages.unselect()
     },
     clearHandler () {
       this.$q.dialog({
@@ -320,20 +332,6 @@ export default {
     deletedHandler () {
       this.ratio = 100
     },
-    onMapHandler ({ index, content }) {
-      this.mapDevice = { ident: content.ident || '*Empty*' }
-      const marker = [content['position.latitude'], content['position.longitude']]
-      if (!this.isVisibleMap) {
-        this.openMapHandler()
-        this.$nextTick(() => {
-          this.$refs.map.clear().autobounds(true).addMarkers([marker]).send()
-        })
-        return false
-      }
-      if (this.$refs.map && this.isVisibleMap) {
-        this.$refs.map.clear().addMarkers([marker]).centerMap(marker).send()
-      }
-    },
     init () {
       const entity = 'channels',
         activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined),
@@ -354,23 +352,21 @@ export default {
       }
       this.$emit('inited')
     },
-    mapMinimizeHandler (options) {
-      this.mapMinimizedOptions = options
-      if (options.type === 'bottom') {
-        this.siblingHeight = this.size[1]
-      } else if (options.type === 'top') {
-        this.siblingHeight = this.size[0]
-      } else { this.siblingHeight = 0 }
+    clearWidgetsState () {
+      this.isWidgetsMessageActive = false
+      this.isWidgetsLogsActive = false
+      this.widgetsMinimizedOptions = {}
+      this.activeWidgetWindow = undefined
+      this.widgetsViewedMessage = null
+      this.widgetsViewedLog = null
     },
-    mapCloseHandler () {
-      this.isVisibleMap = false
-      this.mapDevice = null
+    onResizePage (size) {
+      this.$refs.messageView.resize(size)
+      this.$refs.logsView.resize(size)
     },
-    openMapHandler () {
-      this.isVisibleMap = !this.isVisibleMap
-    },
-    onResize () {
-      this.$refs.map && this.$refs.map.onWindowResize({ width: window.innerWidth, height: window.innerHeight })
+    changeRatioHandler (r) {
+      this.ratioWidgetsModify(r)
+      this.ratio = r
     }
   },
   watch: {
@@ -395,6 +391,7 @@ export default {
       } else if (route.params && !route.params.id) {
         this.active = null
       }
+      this.clearWidgetsState()
     },
     active (val) {
       const currentItem = this.itemsCollection[val] || {}
@@ -411,7 +408,7 @@ export default {
       }
     }
   },
-  components: { logs, messages, EntitiesToolbar, MapFrame }
+  components: { logs, messages, EntitiesToolbar, Widgets }
 }
 </script>
 <style lang="stylus">

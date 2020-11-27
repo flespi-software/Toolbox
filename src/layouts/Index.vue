@@ -36,17 +36,9 @@
         <left-menu :config="config" :entities="renderEntities" :entity="entity"/>
       </q-drawer>
       <q-page-container class="bg-grey-9">
-        <raw-viewer
-          ref="rawViewer"
-          :config="rawConfig"
-          inverted
-          @close="closeRawViewer"
-        />
         <router-view
           ref='main'
           v-if="configByEntity && isInit"
-          @view-data="viewDataHandler"
-          @view-log-message="viewLogMessagesHandler"
           :limit="limit"
           :isLoading="loadingFlag"
           :isVisibleToolbar="isVisibleToolbar"
@@ -69,22 +61,16 @@
 
 <script>
 import Vue from 'vue'
-import { date } from 'quasar'
 import { mapState, mapMutations, mapActions } from 'vuex'
 import dist from '../../package.json'
 import LeftMenu from '../components/Menu'
 import Dash from '../components/Dash'
-import RawViewer from '../components/RawViewer.vue'
-import JsonTree from '../components/JsonTree.vue'
-import ImageView from '../components/ImageView.vue'
 import Settings from '../components/Settings.vue'
 
 export default {
   data () {
     return {
       version: dist.version,
-      currentMessage: {},
-      currentData: {},
       sides: {
         left: !this.$q.platform.within.iframe && !this.$q.platform.is.mobile,
         right: false
@@ -114,20 +100,6 @@ export default {
       localeName: state => state.sessionSettings && state.sessionSettings.region && state.sessionSettings.region.name,
       sessionSettings: state => state.sessionSettings
     }),
-    messagesColsByEntity: {
-      get () {
-        const moduleName = this.messagesConfigByEntity.vuexModuleName
-        let cols = []
-        if (this.$store.state[moduleName] && this.$store.state[moduleName].cols) {
-          cols = this.$store.state[moduleName].cols
-        }
-        return cols
-      },
-      set (cols) {
-        const moduleName = this.messagesConfigByEntity.vuexModuleName
-        this.$store.commit(`${moduleName}/updateCols`, cols)
-      }
-    },
     messagesConfigByEntity () {
       return this.configByEntity.messages
     },
@@ -179,45 +151,6 @@ export default {
         }
       }
     },
-    logMessageConfig () {
-      const config = {
-          'log object': {
-            title: 'log object',
-            description: this.currentData._description,
-            wrapper: JsonTree,
-            data: this.currentData
-          },
-          item_data: {
-            title: 'item data',
-            wrapper: JsonTree,
-            data: this.currentData.item_data
-          },
-          http_data: {
-            title: 'http data',
-            wrapper: JsonTree,
-            data: this.currentData.http_data
-          },
-          properties: {
-            title: 'properties',
-            wrapper: JsonTree,
-            data: this.currentData.properties
-          },
-          pending: {
-            title: 'pending',
-            wrapper: JsonTree,
-            data: this.currentData.pending
-          },
-          current: {
-            title: `${this.currentData.name} [${date.formatDate(this.currentData.timestamp * 1000, 'HH:mm:ss')}]`,
-            wrapper: JsonTree,
-            data: this.currentData.current
-          }
-        },
-        hasData = Object.keys(config).reduce((result, key) => {
-          return result || !!config[key].data
-        }, false)
-      return hasData ? config : hasData
-    },
     dashMode () { return !this.entity }
   },
   methods: {
@@ -231,47 +164,6 @@ export default {
       'setToolboxSessionSettings'
     ]),
     ...mapActions(['initConnection']),
-    viewDataHandler (content) {
-      if (!content) { return }
-      const viewConfig = {
-        Message: {
-          title: 'Message',
-          description: `${content.ident ? `[${content.ident}]` : ''}${content.timestamp ? ` (${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')})` : ''}`,
-          wrapper: JsonTree,
-          data: content
-        }
-      }
-      content = Object.keys(content).reduce((content, name) => {
-        /* remove system field */
-        if (name.indexOf('x-flespi') === 0) {
-          delete content[name]
-        }
-        if (
-          content[name].toString().match(/^data:image\/(?:gif|png|jpeg|bmp|webp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}/) ||
-          name.indexOf('image.bin.') === 0
-        ) {
-          let data = content[name]
-          if (name.indexOf('image.bin.') === 0) {
-            data = `data:image/${name.split('.')[2]};base64,${content[name].replace(/^data:image\/\w*;base64,\s/, '')}`
-          }
-          viewConfig[`Image{${name}}`] = {
-            title: `Image{${name}}`,
-            wrapper: ImageView,
-            data
-          }
-        }
-        return content
-      }, content)
-      this.currentMessage = JSON.parse(JSON.stringify(content))
-      this.rawConfig = viewConfig
-      this.$refs.rawViewer.open()
-    },
-    closeRawViewer () {
-      this.$refs.main.unselect()
-      this.currentMessage = {}
-      this.currentData = {}
-      this.rawConfig = {}
-    },
     toggleMenu () {
       this.sides.left = !this.sides.left
     },
@@ -295,18 +187,6 @@ export default {
       this.limit = 1000
       this.clearToolboxSettings()
       document.location.reload(true)
-    },
-    viewLogMessagesHandler (content) {
-      this.currentData = JSON.parse(JSON.stringify(content))
-      if (this.logMessageConfig) {
-        this.rawConfig = this.logMessageConfig
-        this.$refs.rawViewer.open()
-      } else {
-        this.$q.notify({
-          message: 'No additional data available',
-          timeout: 1500
-        })
-      }
     },
     getGroups (groups) {
       return groups.reduce((result, group) => {
@@ -462,7 +342,7 @@ export default {
     this.$eventBus.$off('cols:edit', this.colsEditHandler)
     this.connectionPreserveHandlerIndex !== undefined && Vue.connector.socket.off('connect', this.connectionPreserveHandlerIndex)
   },
-  components: { LeftMenu, RawViewer, Settings, Dash }
+  components: { LeftMenu, Settings, Dash }
 }
 </script>
 

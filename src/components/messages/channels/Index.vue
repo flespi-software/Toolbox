@@ -13,9 +13,12 @@
       :loading="loadingFlag"
       :autoscroll="needAutoscroll"
       scrollOffset="10%"
+      :i18n="i18n"
       :item="listItem"
       :itemprops="getItemsProps"
       :has-new-messages="hasNewMessages"
+      :toDefaultCols="toDefaultColsHandler"
+      @action="actionHandler"
       @change-filter="filterChangeHandler"
       @scroll-top="paginationPrevChangeHandler"
       @scroll-bottom="paginationNextChangeHandler"
@@ -24,7 +27,6 @@
       @action-to-bottom="actionToBottomHandler"
       @action-to-new-messages="actionToNewMessages"
       @action-to-new-messages-hide="actionToNewMessagesHide"
-      @to-default-cols="toDefaultColsHandler"
     >
       <empty-pane slot="empty" :config="config.emptyState"/>
     </virtual-scroll-list>
@@ -38,7 +40,7 @@ import { copyToClipboard } from 'quasar'
 import filterMessages from '../../../mixins/filterMessages'
 import MessagesListItem from './MessagesListItem.vue'
 import EmptyPane from '../../EmptyPane'
-import range from 'lodash/range'
+// import range from 'lodash/range'
 
 export default {
   props: [
@@ -54,7 +56,10 @@ export default {
       viewConfig: this.config.viewConfig,
       actions: this.config.actions,
       moduleName: this.config.vuexModuleName,
-      autoscroll: true
+      autoscroll: true,
+      i18n: {
+        'Columns by schema': 'Columns by protocol'
+      }
     }
   },
   computed: {
@@ -78,7 +83,7 @@ export default {
         const activeItem = this.$store.state.channels[val] || {}
         this.$set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
         this.$store.commit(`${this.moduleName}/clearMessages`)
-        await this.$store.dispatch(`${this.moduleName}/getCols`, { actions: true, etc: false })
+        await this.$store.dispatch(`${this.moduleName}/getCols`, { etc: false })
         await this.$store.dispatch(`${this.moduleName}/initTime`)
         await this.getMessages()
       }
@@ -180,9 +185,25 @@ export default {
           }
         ]
       }
+      Object.keys(item).some(name => {
+        const hasImage = item[name].toString().match(/^data:image\/(?:gif|png|jpeg|bmp|webp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}/) ||
+          name.indexOf('image.bin.') === 0
+        if (hasImage) {
+          data.props.actions = [
+            ...data.props.actions,
+            {
+              icon: 'mdi-image-outline',
+              label: 'Show image',
+              classes: '',
+              type: 'image'
+            }
+          ]
+        }
+        return hasImage
+      })
       if (!data.on) { data.on = {} }
       data.on.action = this.actionHandler
-      data.on['item-click'] = this.itemClickHandler
+      data.on['item-click'] = this.viewMessagesHandler
       data.dataHandler = (col, row, data) => {
         this.autoscroll = false
         return this.listItem.methods.getValueOfProp(col.data, row.data)
@@ -242,6 +263,7 @@ export default {
         })
     },
     actionHandler ({ index, type, content }) {
+      this.selected = [index]
       switch (type) {
         case 'view': {
           this.viewMessagesHandler({ index, content })
@@ -251,8 +273,8 @@ export default {
           this.copyMessageHandler({ index, content })
           break
         }
-        case 'map': {
-          this.onMapHandler({ index, content })
+        default: {
+          this.$emit(`action-${type}`, { index, content })
           break
         }
       }
@@ -283,46 +305,46 @@ export default {
     },
     viewMessagesHandler ({ index, content }) {
       this.selected = [index]
-      this.$emit('view-data', content)
+      this.$emit('action-view-data', { index, content })
     },
-    itemClickHandler ({ index, content, event }) {
-      if (event.shiftKey) {
-        if (this.selected[0]) {
-          if (this.selected[0] > index) {
-            this.selected = range(index, this.selected[0] + 1)
-          } else {
-            this.selected = range(this.selected[0], index + 1)
-          }
-        } else {
-          this.selected = [index]
-        }
-      } else if (event.ctrlKey) {
-        if (this.selected.includes(index)) {
-          const selected = this.selected
-          selected.splice(this.selected.indexOf(index), 1)
-          this.selected = selected
-        } else {
-          this.selected = [...this.selected, index]
-        }
-      } else {
-        this.selected = [index]
-      }
-      const messages = this.messages.reduce((messages, message, index) => {
-        const includes = this.selected.includes(index)
-        if (includes) {
-          const modifiedMessage = Object.keys(message).reduce((result, key) => {
-            if (key.indexOf('x-flespi') !== -1) {
-              return result
-            }
-            result[key] = message[key]
-            return result
-          }, {})
-          messages.push(modifiedMessage)
-        }
-        return messages
-      }, [])
-      this.$emit('view-data', messages)
-    },
+    // itemClickHandler ({ index, content, event }) {
+    //   if (event.shiftKey) {
+    //     if (this.selected[0]) {
+    //       if (this.selected[0] > index) {
+    //         this.selected = range(index, this.selected[0] + 1)
+    //       } else {
+    //         this.selected = range(this.selected[0], index + 1)
+    //       }
+    //     } else {
+    //       this.selected = [index]
+    //     }
+    //   } else if (event.ctrlKey) {
+    //     if (this.selected.includes(index)) {
+    //       const selected = this.selected
+    //       selected.splice(this.selected.indexOf(index), 1)
+    //       this.selected = selected
+    //     } else {
+    //       this.selected = [...this.selected, index]
+    //     }
+    //   } else {
+    //     this.selected = [index]
+    //   }
+    //   const messages = this.messages.reduce((messages, message, index) => {
+    //     const includes = this.selected.includes(index)
+    //     if (includes) {
+    //       const modifiedMessage = Object.keys(message).reduce((result, key) => {
+    //         if (key.indexOf('x-flespi') !== -1) {
+    //           return result
+    //         }
+    //         result[key] = message[key]
+    //         return result
+    //       }, {})
+    //       messages.push(modifiedMessage)
+    //     }
+    //     return messages
+    //   }, [])
+    //   this.$emit('action-view-data', { index, content: messages })
+    // },
     copyMessageHandler ({ index, content }) {
       copyToClipboard(JSON.stringify(content)).then((e) => {
         this.$q.notify({
@@ -340,12 +362,48 @@ export default {
         })
       })
     },
-    onMapHandler ({ index, content }) {
-      this.$emit('on-map', { index, content })
+    clearMessage (message) {
+      return Object.keys(message).reduce((result, key) => {
+        if (key.indexOf('x-flespi') !== -1) {
+          return result
+        }
+        result[key] = message[key]
+        return result
+      }, {})
     },
     unselect () {
       if (this.selected.length) {
         this.selected = []
+      }
+    },
+    nextSelect () {
+      if (this.selected.length) {
+        const lastIndex = this.selected.slice(-1)[0]
+        const newIndex = lastIndex + 1
+        const message = this.messages[newIndex]
+        if (message) {
+          this.selected = [newIndex]
+          this.$emit('action-select', {
+            index: newIndex,
+            content: this.clearMessage(message)
+          })
+          this.scrollTo(newIndex)
+        }
+      }
+    },
+    prevSelect () {
+      if (this.selected.length) {
+        const firstIndex = this.selected[0]
+        const newIndex = firstIndex - 1
+        const message = this.messages[newIndex]
+        if (message) {
+          this.selected = [newIndex]
+          this.$emit('action-select', {
+            index: newIndex,
+            content: this.clearMessage(message)
+          })
+          this.scrollTo(newIndex)
+        }
       }
     },
     toDefaultColsHandler () {

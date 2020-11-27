@@ -1,8 +1,10 @@
 <template>
   <q-page>
+    <q-resize-observer @resize="onResizePage" />
     <entities-toolbar
-      :item="selectedItem" :ratio="ratio" :actions="actions" @change-ratio="r => ratio = r">
-      <div class="flex" :class="{'middle-modificator': !active}" style="max-width: 50%" slot="selects">
+      :item="selectedItem" :ratio="ratio" :actions="actions" @change-ratio="changeRatioHandler"
+    >
+      <div class="flex" :class="{'middle-modificator': !active}" slot="selects">
         <q-select
           ref="itemSelect"
           class="items__select"
@@ -89,21 +91,25 @@
         originPattern="gw/devices/:id"
         :isEnabled="!!+size[0]"
         v-if="+size[0]"
-        :style="[{height: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'top' ? '66%' : ''}]"
-        @view-log-message="viewLogMessagesHandler"
+        :style="[{height: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: widgetStyle.top ? '66%' : ''}]"
+        @view-log-message="viewWidgetsLogHandler"
+        @action-select="data => widgetsViewedLog = data.content"
         @to-traffic="toTrafficHandler"
         :config="logsConfig"
       />
       <messages
         ref="messages"
-        @view-data="viewDataHandler"
-        @on-map="onMapHandler"
+        @action-view-data="data => messageWidgetsActions('object', data)"
+        @action-map="data => messageWidgetsActions('position', data)"
+        @action-show="data => messageWidgetsActions('show', data)"
+        @action-image="data => messageWidgetsActions('image', data)"
+        @action-select="data => messageWidgetsActions('select', data)"
         :item="selectedItem"
         :activeId="active"
         :isEnabled="!!+size[1]"
         :limit="limit"
         v-if="+size[1]"
-        :style="[{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'bottom' ? '66%' : ''}]"
+        :style="[{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: widgetStyle.bottom ? '66%' : ''}]"
         :config="config.messages"
       />
     </div>
@@ -111,13 +117,44 @@
       <div style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Devices not found'}}</div>
       <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
     </div>
-    <map-frame
-      ref="map"
-      v-if="active && trackByMessages.length && isVisibleMap"
-      :device="selectedItem"
-      :siblingHeight="siblingHeight"
-      @map:close="isVisibleMap = false"
-      @map:minimize="mapMinimizeHandler"
+    <widgets
+      ref="messageView"
+      :active="activeWidgetWindow === 'messageView'"
+      v-model="isWidgetsMessageActive"
+      :siblingHeight="siblingHeight.message"
+      :config="messageWidgetsViewConfig"
+      :actions="widgetsHandleActions"
+      :controls="widgetWindowControls"
+      @minimize="data => widgetsMinimizeHandler('message', data)"
+      @active="activateWidgetWindow('messageView')"
+      @close="closeMessageWidgetsHandler"
+      @next="nextWidgetsMessage"
+      @prev="prevWidgetsMessage"
+    />
+    <widgets
+      ref="logsView"
+      :active="activeWidgetWindow === 'logsView'"
+      v-model="isWidgetsLogsActive"
+      :siblingHeight="siblingHeight.logs"
+      :config="logsWidgetsViewConfig"
+      :actions="widgetsHandleActions"
+      :controls="widgetWindowControls"
+      @minimize="data => widgetsMinimizeHandler('logs', data)"
+      @active="activateWidgetWindow('logsView')"
+      @close="closeLogsWidgetsHandler"
+      @next="nextWidgetLog"
+      @prev="prevWidgetLog"
+    />
+    <widgets
+      ref="track"
+      :active="activeWidgetWindow === 'track'"
+      v-model="isWidgetsTrackActive"
+      :siblingHeight="siblingHeight.track"
+      :config="trackWidgetConfig"
+      :controls="widgetWindowControls"
+      @minimize="data => widgetsMinimizeHandler('track', data)"
+      @active="activateWidgetWindow('track')"
+      @close="closeWidgetsHandler"
     />
   </q-page>
 </template>
@@ -125,14 +162,15 @@
 <script>
 import logs from '../../components/logs/Index.vue'
 import messages from '../../components/messages/devices/Index.vue'
-import MapFrame from '../../components/MapFrame'
+import MainWidgetsMixin from '../../components/widgets/MainWidgetsMixin'
+import LogsWidgetsMixin from '../../components/widgets/LogsWidgetsMixin'
+import MessageWidgetsMixin from '../../components/widgets/MessageWidgetsMixin'
+import TrackWidgetMixin from '../../components/widgets/TrackWidgetMixin'
+import Widgets from '../../components/widgets/Widgets'
 import EntitiesToolbar from '../../components/EntitiesToolbar'
 import { mapState, mapActions } from 'vuex'
 import init from '../../mixins/entitiesInit'
 import get from 'lodash/get'
-
-const MAP_MODE_TRACK = 0,
-  MAP_MODE_MARKER = 1
 
 export default {
   props: [
@@ -143,7 +181,7 @@ export default {
     'config',
     'settings'
   ],
-  mixins: [init],
+  mixins: [init, MainWidgetsMixin, LogsWidgetsMixin, MessageWidgetsMixin, TrackWidgetMixin],
   data () {
     return {
       filter: '',
@@ -152,12 +190,8 @@ export default {
       isInit: false,
       isItemsInit: false,
       isItemsInitStart: false,
-      isVisibleMap: false,
-      mapMinimizedOptions: {},
-      siblingHeight: null,
       needShowGetDeletedAction: true,
-      trafficRoute: null,
-      mapMode: MAP_MODE_TRACK
+      trafficRoute: null
     }
   },
   computed: {
@@ -191,7 +225,7 @@ export default {
             )
           }
         }
-        if (this.isVisibleMap && this.$refs.map && this.mapMode === MAP_MODE_TRACK) { this.updateTrack(track) }
+        if (this.isWidgetsTrackActive) { this.setWidgetTrackView('track', track) }
         return track
       }
     }),
@@ -271,7 +305,7 @@ export default {
         {
           label: 'Map',
           icon: 'mdi-map',
-          handler: () => this.showTrack(this.trackByMessages),
+          handler: () => this.showWidgetTrack(this.trackByMessages),
           condition: !!this.trackByMessages.length
         },
         {
@@ -285,26 +319,6 @@ export default {
   },
   methods: {
     ...mapActions(['getDeleted', 'getDeviceTrafficRoute']),
-    viewDataHandler (content) {
-      this.$emit('view-data', content)
-      if (this.isVisibleMap && content['position.latitude'] && content['position.longitude']) {
-        this.onMapHandler({ content })
-      }
-    },
-    viewLogMessagesHandler (content) {
-      this.$emit('view-log-message', content)
-    },
-    unselect () {
-      this.$refs.messages.unselect()
-    },
-    mapMinimizeHandler (options) {
-      this.mapMinimizedOptions = options
-      if (options.type === 'bottom') {
-        this.siblingHeight = this.size[1]
-      } else if (options.type === 'top') {
-        this.siblingHeight = this.size[0]
-      } else { this.siblingHeight = null }
-    },
     clearHandler () {
       this.$q.dialog({
         title: 'Confirm',
@@ -370,34 +384,23 @@ export default {
     moveToIntervals (deviceId, calcId) {
       this.$nextTick(() => { this.$router.push(`/device/${deviceId}/calc/${calcId}/intervals?noselect=devices`).catch(err => err) })
     },
-    setMapVisibility (flag) {
-      this.isVisibleMap = flag
+    clearWidgetsState () {
+      this.isWidgetsMessageActive = false
+      this.isWidgetsLogsActive = false
+      this.isWidgetsTrackActive = false
+      this.widgetsMinimizedOptions = {}
+      this.activeWidgetWindow = undefined
+      this.widgetsViewedMessage = null
+      this.widgetsViewedLog = null
     },
-    showTrack (track) {
-      this.mapMode = MAP_MODE_TRACK
-      if (!this.isVisibleMap && track.length) {
-        this.setMapVisibility(true)
-      }
-      this.$nextTick(() => this.updateTrack(track))
+    onResizePage (size) {
+      this.$refs.track.resize(size)
+      this.$refs.messageView.resize(size)
+      this.$refs.logsView.resize(size)
     },
-    updateTrack (track) {
-      const marker = { latlng: [track[track.length - 1].lat, track[track.length - 1].lon], direction: track[track.length - 1].dir }
-      track = track.map(marker => ([marker.lat, marker.lon]))
-      this.$refs.map.clear().addPoints(track).addNamedMarkers([marker]).send()
-    },
-    onMapHandler ({ index, content }) {
-      const marker = [content['position.latitude'], content['position.longitude']]
-      this.mapMode = MAP_MODE_MARKER
-      if (!this.isVisibleMap) {
-        this.setMapVisibility(true)
-        this.$nextTick(() => {
-          this.$refs.map.clear().autobounds(true).addMarkers([marker]).send()
-        })
-        return false
-      }
-      if (this.$refs.map && this.isVisibleMap) {
-        this.$refs.map.clear().addMarkers([marker]).centerMap(marker).send()
-      }
+    changeRatioHandler (r) {
+      this.ratioWidgetsModify(r)
+      this.ratio = r
     }
   },
   watch: {
@@ -421,6 +424,7 @@ export default {
       } else if (route.params && !route.params.id) {
         this.active = null
       }
+      this.clearWidgetsState()
     },
     active (val, old) {
       const currentItem = this.itemsCollection[val] || {}
@@ -437,7 +441,7 @@ export default {
       }
     }
   },
-  components: { logs, messages, MapFrame, EntitiesToolbar }
+  components: { logs, messages, Widgets, EntitiesToolbar }
 }
 </script>
 <style lang="stylus">

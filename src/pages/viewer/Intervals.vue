@@ -1,6 +1,6 @@
 <template>
   <q-page>
-    <q-resize-observer @resize="onResize" />
+    <q-resize-observer @resize="onResizePage" />
     <q-toolbar class="justify-between q-py-none bg-grey-9">
       <div class="flex" style="width: 75%;">
         <!-- device selector -->
@@ -171,40 +171,64 @@
     <div>
       <intervals
         ref="intervals"
-        @view-data="viewDataHandler"
-        @on-map="onMapHandler"
+        @action-view-data="data => intervalWidgetsActions('object', data)"
+        @action-map="data => intervalWidgetsActions('track', data)"
+        @action-show="data => intervalWidgetsActions('show', data)"
+        @action-select="data => intervalWidgetsActions('select', data)"
         @in-messages="(interval) => viewedInterval = interval"
         @change:date-range="range => { dateRange = range, viewedInterval = null }"
         :activeId="activeCalcId"
         :item="selectedCalc"
         :activeDeviceId="active"
-        :isEnabled="!!+size[1]"
         :limit="0"
         :config="config.logs"
         v-if="isInit"
-        :style="{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'top' ? '66%' : ''}"
+        :style="{height: `calc(50vh - ${isVisibleToolbar ? '50px' : '25px'})`, position: 'relative', maxWidth: widgetStyle.top ? '66%' : ''}"
       />
       <messages
         ref="messages"
-        @on-map="messageOnMapHandler"
-        @view-data="viewDataMessageHandler"
+        @action-view-data="data => messageWidgetsActions('object', data)"
+        @action-map="data => messageWidgetsActions('position', data)"
+        @action-show="data => messageWidgetsActions('show', data)"
+        @action-image="data => messageWidgetsActions('image', data)"
+        @action-select="data => messageWidgetsActions('select', data)"
         :item="selectedDevice"
         :interval="viewedInterval"
         :dateRange="dateRange"
         :activeId="active"
         :limit="limit"
-        v-if="isInit && +size[1]"
-        :style="[{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: mapMinimizedOptions.value && mapMinimizedOptions.type && mapMinimizedOptions.type === 'messages' ? '66%' : ''}]"
+        v-if="isInit"
+        :style="[{height: `calc(50vh - ${isVisibleToolbar ? '50px' : '25px'})`, position: 'relative'}, {maxWidth: widgetStyle.bottom ? '66%' : ''}]"
         :config="config.messages"
       />
     </div>
-    <map-frame
-      ref="map"
-      v-if="active && activeCalcId && hasRouteIntervals && isVisibleMap"
-      :device="selectedDevice"
-      :siblingHeight="siblingHeight"
-      @map:close="isVisibleMap = false"
-      @map:minimize="mapMinimizeHandler"
+    <widgets
+      ref="messageView"
+      :active="activeWidgetWindow === 'messageView'"
+      v-model="isWidgetsMessageActive"
+      :siblingHeight="siblingHeight.message"
+      :config="messageWidgetsViewConfig"
+      :actions="widgetsHandleActions"
+      :controls="widgetWindowControls"
+      @minimize="data => widgetsMinimizeHandler('message', data)"
+      @active="activateWidgetWindow('messageView')"
+      @close="closeMessageWidgetsHandler"
+      @next="nextWidgetsMessage"
+      @prev="prevWidgetsMessage"
+    />
+    <widgets
+      ref="intervalsView"
+      :active="activeWidgetWindow === 'intervalsView'"
+      v-model="isWidgetsIntervalsActive"
+      :siblingHeight="siblingHeight.intervals"
+      :config="intervalsWidgetsViewConfig"
+      :actions="widgetsHandleActions"
+      :controls="widgetWindowControls"
+      @minimize="data => widgetsMinimizeHandler('intervals', data)"
+      @active="activateWidgetWindow('intervalsView')"
+      @close="closeIntervalsWidgetsHandler"
+      @next="nextWidgetsInterval"
+      @prev="prevWidgetsInterval"
     />
   </q-page>
 </template>
@@ -212,9 +236,12 @@
 <script>
 import intervals from '../../components/intervals/Index.vue'
 import messages from '../../components/intervals/DevicesMessages.vue'
+import MainWidgetsMixin from '../../components/widgets/MainWidgetsMixin'
+import MessageWidgetsMixin from '../../components/widgets/MessageWidgetsMixin'
+import IntervalsWidgetsMixin from '../../components/widgets/IntervalsWidgetsMixin'
+import Widgets from '../../components/widgets/Widgets'
 import { mapState, mapActions, mapMutations } from 'vuex'
 import init from '../../mixins/entitiesInit'
-import MapFrame from '../../components/MapFrame'
 
 export default {
   props: [
@@ -224,7 +251,7 @@ export default {
     'isNeedSelect',
     'config'
   ],
-  mixins: [init],
+  mixins: [init, MainWidgetsMixin, MessageWidgetsMixin, IntervalsWidgetsMixin],
   data () {
     return {
       calcFilter: '',
@@ -236,12 +263,8 @@ export default {
       isItemsInit: false,
       isDevicesInit: false,
       isCalcsInit: false,
-      isVisibleMap: false,
       deviceBlocked: false,
       calcsBlocked: false,
-      siblingHeight: 0,
-      mapMinimizedOptions: {},
-      activeViewedMessage: null,
       viewedInterval: null,
       dateRange: [0, 0],
       blocked: ''
@@ -302,7 +325,6 @@ export default {
     hasActiveActions () {
       return this.actions.reduce((res, action) => res || (action && action.condition), false)
     },
-    hasRouteIntervals () { return true },
     actions () {
       return [
         {
@@ -366,20 +388,14 @@ export default {
       }
       this.itemsLoad('calcs', update, this.activeCalcId, () => { this.isCalcsInit = true })
     },
-    viewDataHandler (content) {
-      if (content) {
-        this.$refs.messages.unselect()
-        this.$emit('view-data', content)
-      }
-    },
-    viewDataMessageHandler (content) {
-      if (content) {
-        if (!this.viewedInterval) {
-          this.$refs.intervals.unselect()
-        }
-        this.$emit('view-data', content)
-      }
-    },
+    // viewDataMessageHandler (content) {
+    //   if (content) {
+    //     if (!this.viewedInterval) {
+    //       this.$refs.intervals.unselect()
+    //     }
+    //     this.$emit('view-data', content)
+    //   }
+    // },
     onMapHandler (routes) {
       if (!this.isVisibleMap) {
         this.openMapHandler()
@@ -390,19 +406,6 @@ export default {
       }
       if (this.$refs.map && this.isVisibleMap) {
         this.$refs.map.clear().addRoutes(routes).send()
-      }
-    },
-    messageOnMapHandler ({ content }) {
-      const position = [content['position.latitude'], content['position.longitude']]
-      if (!this.isVisibleMap) {
-        this.openMapHandler()
-        this.$nextTick(() => {
-          this.$refs.map.autobounds(true).addNamedMarkers({ msg: { latlng: position, label: position } }).send()
-        })
-        return false
-      }
-      if (this.$refs.map && this.isVisibleMap) {
-        this.$refs.map.addNamedMarkers({ msg: { latlng: position, label: position } }).centerMap(position).send()
       }
     },
     unselect () {
@@ -447,19 +450,17 @@ export default {
       this.isInit = true
       this.$emit('inited')
     },
-    mapMinimizeHandler (options) {
-      this.mapMinimizedOptions = options
-      if (options.type === 'bottom') {
-        this.siblingHeight = this.size[1]
-      } else if (options.type === 'top') {
-        this.siblingHeight = this.size[0]
-      } else { this.siblingHeight = 0 }
+    clearWidgetsState () {
+      this.isWidgetsMessageActive = false
+      this.isWidgetsIntervalsActive = false
+      this.widgetsMinimizedOptions = {}
+      this.activeWidgetWindow = undefined
+      this.widgetsViewedMessage = null
+      this.widgetsVieweInterval = null
     },
-    openMapHandler () {
-      this.isVisibleMap = !this.isVisibleMap
-    },
-    onResize () {
-      this.$refs.map && this.$refs.map.onWindowResize({ width: window.innerWidth, height: window.innerHeight })
+    onResizePage (size) {
+      this.$refs.intervalsView.resize(size)
+      this.$refs.messageView.resize(size)
     }
   },
   created () {
@@ -485,13 +486,6 @@ export default {
     })
   },
   watch: {
-    ratio (val) {
-      this.$nextTick(() => {
-        if (+this.size[1] && this.active && this.activeCalcId) {
-          this.$refs.intervals.resetParams()
-        }
-      })
-    },
     $route (route) {
       if (
         route.params && route.params.deviceId && Number(route.params.deviceId) === this.active &&
@@ -513,6 +507,7 @@ export default {
       } else if (route.params && !route.params.deviceId) {
         this.clearActive()
       }
+      this.clearWidgetsState()
     },
     active (id, old) {
       this.$router.push(`/device/${id}/calc/${this.activeCalcId || 'null'}/intervals`).catch(err => err)
@@ -521,7 +516,7 @@ export default {
       this.$router.push(`/device/${this.active}/calc/${activeCalcId || 'null'}/intervals`).catch(err => err)
     }
   },
-  components: { intervals, messages, MapFrame }
+  components: { intervals, messages, Widgets }
 }
 </script>
 <style lang="stylus">

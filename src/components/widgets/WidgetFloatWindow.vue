@@ -1,0 +1,323 @@
+<template>
+  <vue-draggable-resizable
+    ref="dragResize"
+    class="widget__wrapper absolute-top-left absolute-bottom-right"
+    :class="[isMinimized || isMaximized ? 'widget--pinned' : '']"
+    :style="wrapperStyles" drag-cancel=".widget__content" :parent="true" :active="true"
+    :x="x" :y="y" :w="width" :h="height" :min-width="100" :min-height="100"
+    @resizing="resizeHandler" @dragging="draggingHandler"
+  >
+    <div class="widget__header" :style="{height: `${headerHeight}px`}" v-show="!isMinimized && !isMaximized" style="padding-right: 1px; padding-top: 3px;">
+      <q-icon @mousedown.stop.prevent.native="closeHandler" name="mdi-close" class="float-right cursor-pointer" color="white"/>
+      <q-icon @mousedown.stop.prevent.native="maximizeHandler" :name="isMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" class="float-right cursor-pointer" color="white"/>
+      <q-icon v-if="(siblingHeight !== undefined && siblingHeight !== 0) || controls.minimizeBottom" @mousedown.stop.prevent.native="minimizeHandler('bottom')" name="mdi-arrow-bottom-right" class="float-right cursor-pointer" color="white"/>
+      <q-icon v-if="(siblingHeight !== undefined && siblingHeight !== 100) || controls.minimizeTop" :class='{[`height${siblingHeight}`]: true}' @mousedown.stop.prevent.native="minimizeHandler('top')" name="mdi-arrow-top-right" class="float-right cursor-pointer" color="white"/>
+    </div>
+    <div :style="styles" class="widget__content relative-position">
+      <slot name="default"></slot>
+    </div>
+    <div class="widget__custom-controls" v-if="isMinimized || isMaximized" :style="{ top: isMaximized ? '3px' : '' }">
+      <q-icon v-if="isMinimized && $q.platform.is.desktop" @mousedown.stop.prevent.native="restoreHandler" name="mdi-window-restore" size="30px" class="pull-right cursor-pointer" color="white"/>
+      <q-icon v-if="isMaximized && $q.platform.is.desktop" @mousedown.stop.prevent.native="maximizeHandler" :name="isMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" size="30px" class="pull-right cursor-pointer" color="white"/>
+      <q-icon @mousedown.stop.prevent.native="closeHandler" name="mdi-close" class="pull-right cursor-pointer" size="30px" color="white"/>
+    </div>
+  </vue-draggable-resizable>
+</template>
+
+<script>
+import VueDraggableResizable from 'vue-draggable-resizable'
+
+export default {
+  name: 'widget-float-window',
+  props: [
+    'siblingHeight', 'controls', 'wrapperSize'
+  ],
+  data () {
+    return {
+      height: 520,
+      width: 500,
+      prevWidth: 0,
+      prevHeight: 0,
+      prevX: 0,
+      prevY: 0,
+      headerHeight: 20,
+      x: 50,
+      y: 50,
+      isMinimized: false,
+      isMaximized: false,
+      minimizeTo: ''
+    }
+  },
+  computed: {
+    styles () {
+      return {
+        width: `${this.width}px`,
+        height: `${this.height - (this.isMinimized || this.isMaximized ? 0 : this.headerHeight)}px`
+      }
+    },
+    wrapperStyles () {
+      return {
+        width: `${this.width}px`,
+        height: `${this.height}px`,
+        position: 'absolute',
+        backgroundColor: '#666'
+      }
+    }
+  },
+  methods: {
+    closeHandler () {
+      this.$emit('close')
+      if (this.isMinimized) {
+        this.$emit('minimize')
+        this.minimizeTo = ''
+        this.isMinimized = false
+      }
+      if (this.isMaximized) {
+        this.isMaximized = false
+        this.$emit('maximize', this.isMaximized)
+      }
+    },
+    maximizeHandler () {
+      if (this.isMaximized) {
+        this.width = this.prevWidth
+        this.height = this.prevHeight
+        this.x = this.prevX
+        this.y = this.prevY
+        this.prevWidth = 0
+        this.prevHeight = 0
+        this.prevX = 0
+        this.prevY = 0
+        this.isMaximized = false
+      } else {
+        this.prevWidth = this.width
+        this.prevHeight = this.height
+        this.prevX = this.x
+        this.prevY = this.y
+        this.maximize()
+      }
+      this.$emit('maximize', this.isMaximized)
+    },
+    minimizeHandler (type) {
+      this.$emit('minimize', { type, value: true })
+      this.prevWidth = this.width
+      this.prevHeight = this.height
+      this.isMinimized = true
+      this.minimizeTo = type
+      if (this.isMaximized) {
+        this.isMaximized = false
+      }
+    },
+    restoreHandler () {
+      this.$emit('minimize')
+      this.isMinimized = false
+      this.minimizeTo = ''
+      this.x = 50
+      this.y = 50
+    },
+    minimize (minimizeTo) {
+      const parentW = this.wrapperSize.width,
+        parentH = this.wrapperSize.height
+      this.width = parentW * 0.34
+      this.height = ((parentH - 50) * ((this.siblingHeight || 100) / 100))
+      switch (minimizeTo) {
+        case 'bottom': {
+          this.$nextTick(() => {
+            this.x = parentW * 0.66
+            this.y = parentH - this.height
+          })
+          break
+        }
+        case 'top': {
+          this.$nextTick(() => {
+            this.x = parentW * 0.66
+            this.y = 50
+          })
+          break
+        }
+      }
+    },
+    maximize () {
+      const parentW = this.wrapperSize.width,
+        parentH = this.wrapperSize.height
+      this.width = parentW
+      this.height = parentH
+      this.$nextTick(() => {
+        this.x = 0
+        this.y = 0
+      })
+      if (this.isMinimized) {
+        this.$emit('minimize')
+        this.minimizeTo = ''
+        this.isMinimized = false
+      }
+      this.isMaximized = true
+    },
+    resizeHandler (left, top, width, height) {
+      this.width = width
+      this.height = height
+    },
+    onWindowResize (size) {
+      this.$refs.dragResize.checkParentSize()
+      if (this.isMinimized) {
+        this.minimize(this.minimizeTo)
+      } else if (this.isMaximized) {
+        this.maximize()
+      } else {
+        if (this.wrapperSize.width > size.width) {
+          let left = this.x,
+            diffX = this.wrapperSize.width - size.width
+          if (left + this.width >= this.wrapperSize.width - 30) {
+            if (left) {
+              left -= diffX
+              if (left < 0) {
+                diffX = left * -1
+                left = 0
+              }
+              this.x = left
+            }
+            if (left === 0) {
+              this.width -= diffX
+              if (this.width < 100) {
+                this.width = 100
+              }
+            }
+          }
+        }
+        if (this.wrapperSize.height > size.height) {
+          let top = this.y,
+            diffY = this.wrapperSize.height - size.height
+          if (top + this.height >= this.wrapperSize.height - 30) {
+            if (top) {
+              top -= diffY
+              if (top < 0) {
+                diffY = top * -1
+                top = 0
+              }
+              this.x = top
+            }
+            if (top === 0) {
+              this.height -= diffY
+              if (this.height < 100) {
+                this.height = 100
+              }
+            }
+          }
+        }
+      }
+    },
+    draggingHandler (top, left) {
+      if (this.isMinimized) {
+        this.$emit('minimize')
+        this.minimizeTo = ''
+        this.isMinimized = false
+      }
+      if (this.isMaximized) {
+        this.isMaximized = false
+        this.$emit('maximize', this.isMaximized)
+      }
+      this.x = left
+      this.y = top
+      this.$emit('dragging')
+    }
+  },
+  mounted () {
+    if (this.$q.platform.is.mobile) { this.maximizeHandler() }
+  },
+  watch: {
+    minimizeTo (minimizeTo) {
+      if (minimizeTo) {
+        this.minimize(minimizeTo)
+      } else {
+        this.width = this.prevWidth
+        this.height = this.prevHeight
+      }
+    },
+    siblingHeight (height, prev) {
+      if (!height && prev && this.isMinimized) {
+        this.restoreHandler()
+      } else if (prev && height && prev !== height) {
+        this.minimize(this.minimizeTo)
+      }
+    },
+    wrapperSize (size) {
+      this.onWindowResize(size)
+    }
+  },
+  components: { VueDraggableResizable }
+}
+</script>
+
+<style lang="stylus">
+  .widget__wrapper
+    z-index 1
+    .widget__custom-controls
+      position absolute
+      top 10px
+      right 3px
+      z-index 999
+      background rgba(100,100,100,.4)
+      border-radius 5px
+    &.widget--pinned
+      .handle
+        display none!important
+    .handle
+      position absolute
+    .handle-mr, .handle-ml
+      top 0
+      height 100%
+      margin-top 0
+      border none
+      width 4px
+      background-color inherit
+      display block!important
+      z-index 998
+    .handle-mr
+      cursor e-resize
+      right 0
+      border-left 1px solid $grey-8
+    .handle-ml
+      left 0
+      cursor w-resize
+      border-right 1px solid $grey-8
+    .handle-tm, .handle-bm
+      left 0
+      width 100%
+      margin-top 0
+      height 4px
+      border none
+      background-color inherit
+      display block!important
+      z-index 998
+    .handle-tm
+      top 0
+      cursor n-resize
+      border-bottom 1px solid $grey-8
+    .handle-bm
+      bottom 0
+      cursor s-resize
+      border-top 1px solid $grey-8
+    .handle-tl, .handle-bl, .handle-br, .handle-tr
+      width 4px
+      height 4px
+      margin-top 0
+      border none
+      background-color inherit
+      display block!important
+      z-index 999
+    .handle-tl
+      cursor nw-resize
+      left 0
+      top 0
+    .handle-bl
+      cursor sw-resize
+      left 0
+      bottom 0
+    .handle-br
+      cursor nwse-resize
+      right 0
+      bottom 0
+    .handle-tr
+      cursor nesw-resize
+      right 0
+      top 0
+</style>

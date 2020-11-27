@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.7.0] - 2020-11-27
+[feature] widgets system
+[fix] init logic
 ### [1.6.3] - 2020-11-06
 [fix] load entities control
 [fix] message view content
