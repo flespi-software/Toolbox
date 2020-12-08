@@ -1,4 +1,5 @@
 import { date } from 'quasar'
+import get from 'lodash/get'
 import JsonTree from '../JsonTree'
 import ObjectView from '../ObjectView'
 import MapFrame from '../MapFrame'
@@ -7,11 +8,11 @@ import MapFrame from '../MapFrame'
   ref="intervalsView"
   :active="activeWidgetWindow === 'intervalsView'"
   v-model="isWidgetsIntervalsActive"
-  :siblingHeight="siblingHeight.intervals"
   :config="intervalsWidgetsViewConfig"
   :actions="widgetsHandleActions"
   :controls="widgetWindowControls"
-  @minimize="data => widgetsMinimizeHandler('intervals', data)"
+  :view-model="widgetsViewModel.intervals"
+  @change-view-model="data => widgetsChangeViewModelHandler('intervals', data)"
   @active="activateWidgetWindow('intervalsView')"
   @close="closeIntervalsWidgetsHandler"
   @next="nextWidgetsInterval"
@@ -26,6 +27,14 @@ export default {
     }
   },
   computed: {
+    filedsMetaData () {
+      return this.$store.state[this.config.logs.vuexModuleName].cols.reduce((res, col) => {
+        if (col.display) {
+          res.push(col.name)
+        }
+        return res
+      }, [])
+    },
     intervalsWidgetsViewConfig () {
       const config = {}
       if (this.widgetsViewedInterval) {
@@ -40,17 +49,20 @@ export default {
             wrapper: MapFrame
           }
         }
+        const description = `${content.ident ? `<div style="font-size: 1.1rem">${content.ident}</div>` : ''}${content.timestamp ? `<div style="font-size: .8rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}</div>` : ''}`
         config.message = {
           title: 'JSON',
-          description: `${content.ident ? `[${content.ident}]` : ''}${content.timestamp ? ` (${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')})` : ''}`,
+          description,
           wrapper: JsonTree,
           data: content
         }
         config.object = {
           title: 'Fields',
-          description: `${content.ident ? `[${content.ident}]` : ''}${content.timestamp ? ` (${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')})` : ''}`,
+          description,
           wrapper: ObjectView,
-          data: content
+          data: content,
+          meta: this.filedsMetaData,
+          action: this.intervalsWidgetActionHandler
         }
       }
       return config
@@ -71,10 +83,10 @@ export default {
       }, [])
 
       if (!this.isWidgetsIntervalsActive) {
-        this.isWidgetsIntervalsActive = true
-        if (!this.widgetStyle.top) {
-          this.$nextTick(() => this.$refs.intervalsView.minimize('top'))
+        if (this.beforeEnableWidgetByPane) {
+          this.beforeEnableWidgetByPane('intervals')
         }
+        this.isWidgetsIntervalsActive = true
       }
       this.$nextTick(() => {
         const map = this.$refs.intervalsView.ref('track')
@@ -108,13 +120,29 @@ export default {
       }
     },
     closeIntervalsWidgetsHandler () {
-      this.$refs.intervals.unselect()
+      if (this.$refs.intervals) {
+        this.$refs.intervals.unselect()
+      }
     },
     nextWidgetsInterval () {
       this.$refs.intervals.nextSelect()
     },
     prevWidgetsInterval () {
       this.$refs.intervals.prevSelect()
+    },
+    intervalsWidgetActionHandler ({ type, data }) {
+      const list = get(this.$refs.intervals.$refs, 'scrollList', undefined)
+      if (!list) { return }
+      switch (type) {
+        case 'col-add': {
+          list.addCustomColumnHandler(data)
+          break
+        }
+        case 'col-remove': {
+          list.removeCustomColumnHandler(data)
+          break
+        }
+      }
     }
   }
 }

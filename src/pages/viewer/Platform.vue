@@ -81,7 +81,7 @@
       originPattern="platform/customer/*"
       :isEnabled="true"
       :config="config.logs"
-      :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', maxWidth: widgetStyle.top ? '66%' : ''}"
+      :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', ...panelsWidgetsStyle}"
       @view-log-message="viewWidgetsLogHandler"
       @action-select="data => widgetsViewedLog = data.content"
     />
@@ -92,11 +92,11 @@
       ref="logsView"
       :active="activeWidgetWindow === 'logsView'"
       v-model="isWidgetsLogsActive"
-      :siblingHeight="siblingHeight.logs"
       :config="logsWidgetsViewConfig"
       :actions="widgetsHandleActions"
       :controls="widgetWindowControls"
-      @minimize="data => widgetsMinimizeHandler('logs', data)"
+      :view-model="widgetsViewModel.logs"
+      @change-view-model="data => widgetsChangeViewModelHandler(entityName, 'logs', data)"
       @active="activateWidgetWindow('logsView')"
       @close="closeLogsWidgetsHandler"
       @next="nextWidgetLog"
@@ -127,6 +127,7 @@ export default {
   mixins: [init, MainWidgetsMixin, LogsWidgetsMixin],
   data () {
     return {
+      entityName: 'platform',
       active: null,
       isInit: false,
       isItemsInit: false,
@@ -198,6 +199,16 @@ export default {
           condition: !this.isEmptyMessages
         }
       ]
+    },
+    panelsWidgetsStyle () {
+      const style = {}
+      const isLeftSide = this.widgetStyle.left && (this.isWidgetsMessageActive || this.isWidgetsLogsActive || this.isWidgetsTrackActive)
+      const isRightSide = this.widgetStyle.right && (this.isWidgetsMessageActive || this.isWidgetsLogsActive || this.isWidgetsTrackActive)
+      if (isLeftSide || isRightSide) {
+        style.maxWidth = 'calc(100% - 300px)'
+        if (isRightSide) { style.left = '300px' }
+      }
+      return style
     }
   },
   methods: {
@@ -233,12 +244,16 @@ export default {
     },
     clearWidgetsState () {
       this.isWidgetsLogsActive = false
-      this.widgetsMinimizedOptions = {}
       this.activeWidgetWindow = undefined
       this.widgetsViewedLog = null
     },
     onResizePage (size) {
       this.$refs.logsView.resize(size)
+    },
+    beforeEnableWidgetByPane (entity) {
+      if (!this.widgetStyle.left && !this.isWidgetsLogsActive && !this.widgetsViewModel.logs) {
+        this.$nextTick(() => this.widgetsChangeViewModelHandler(this.entityName, 'logs', { type: 'minimized', to: 'left' }))
+      }
     }
   },
   watch: {

@@ -1,19 +1,20 @@
 import { date } from 'quasar'
+import get from 'lodash/get'
 import ImageView from '../ImageView'
 import JsonTree from '../JsonTree'
 import ObjectView from '../ObjectView'
 import MapFrame from '../MapFrame'
 /*
 <widgets
-  ref="messageView"
-  :active="activeWidgetWindow === 'messageView'"
+  ref="messagesView"
+  :active="activeWidgetWindow === 'messagesView'"
   v-model="isWidgetsMessageActive"
-  :siblingHeight="siblingHeight.message"
   :config="messageWidgetsViewConfig"
   :actions="widgetsHandleActions"
   :controls="widgetWindowControls"
-  @minimize="data => widgetsMinimizeHandler('message', data)"
-  @active="activateWidgetWindow('messageView')"
+  :view-model="widgetsViewModel.messages"
+  @change-view-model="data => widgetsChangeViewModelHandler('messages', data)"
+  @active="activateWidgetWindow('messagesView')"
   @close="closeMessageWidgetsHandler"
   @next="nextWidgetsMessage"
   @prev="prevWidgetsMessage"
@@ -27,26 +28,37 @@ export default {
     }
   },
   computed: {
+    filedsMetaData () {
+      return this.$store.state[this.config.messages.vuexModuleName].cols.reduce((res, col) => {
+        if (col.display) {
+          res.push(col.name)
+        }
+        return res
+      }, [])
+    },
     messageWidgetsViewConfig () {
       const content = this.widgetsViewedMessage
       const config = {}
       if (content) {
+        const description = `${content.ident ? `<div style="font-size: 1.1rem">${content.ident}</div>` : ''}${content.timestamp ? `<div style="font-size: .8rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}</div>` : ''}`
         if (content['position.latitude'] && content['position.longitude']) {
           config.position = {
-            title: 'Position',
+            titleIcon: 'mdi-map-marker-radius',
             wrapper: MapFrame
           }
         }
         config.message = {
           title: 'JSON',
-          description: `${content.ident ? `[${content.ident}]` : ''}${content.timestamp ? ` (${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')})` : ''}`,
+          description,
           wrapper: JsonTree,
           data: content
         }
         config.object = {
           title: 'Fields',
-          description: `${content.ident ? `[${content.ident}]` : ''}${content.timestamp ? ` (${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')})` : ''}`,
+          description,
           wrapper: ObjectView,
+          meta: this.filedsMetaData,
+          action: this.messagesWidgetActionHandler,
           data: content
         }
         Object.keys(content).forEach(name => {
@@ -72,25 +84,29 @@ export default {
   methods: {
     setWidgetsMessageView (content) {
       this.widgetsViewedMessage = { ...content }
-      const marker = [content['position.latitude'], content['position.longitude']]
+      const marker = { latlng: [content['position.latitude'], content['position.longitude']], direction: content['position.direction'] }
       if (!this.isWidgetsMessageActive) {
-        this.isWidgetsMessageActive = true
-        if (!this.widgetStyle.bottom) {
-          this.$nextTick(() => this.$refs.messageView.minimize('bottom'))
+        if (this.beforeEnableWidgetByPane) {
+          this.beforeEnableWidgetByPane('messages')
         }
+        this.isWidgetsMessageActive = true
       }
       this.$nextTick(() => {
-        const map = this.$refs.messageView.ref('position')
+        const map = this.$refs.messagesView.ref('position')
         if (map) {
-          map.clear().autobounds(true).addMarkers([marker]).send()
+          map.clear()
+          if (marker) {
+            map.autobounds(true).addNamedMarkers([marker])
+          }
+          map.send()
         }
       })
-      this.activateWidgetWindow('messageView')
+      this.activateWidgetWindow('messagesView')
     },
     messageWidgetsActions (type, data) {
       const isActive = this.isWidgetsMessageActive
       this.setWidgetsMessageView(data.content)
-      const view = this.$refs.messageView
+      const view = this.$refs.messagesView
       switch (type) {
         case 'position': {
           view.setTab(type)
@@ -122,13 +138,29 @@ export default {
       }
     },
     closeMessageWidgetsHandler () {
-      this.$refs.messages.unselect()
+      if (this.$refs.messages) {
+        this.$refs.messages.unselect()
+      }
     },
     nextWidgetsMessage () {
       this.$refs.messages.nextSelect()
     },
     prevWidgetsMessage () {
       this.$refs.messages.prevSelect()
+    },
+    messagesWidgetActionHandler ({ type, data }) {
+      const list = get(this.$refs.messages.$refs, 'scrollList', undefined)
+      if (!list) { return }
+      switch (type) {
+        case 'col-add': {
+          list.addCustomColumnHandler(data)
+          break
+        }
+        case 'col-remove': {
+          list.removeCustomColumnHandler(data)
+          break
+        }
+      }
     }
   }
 }

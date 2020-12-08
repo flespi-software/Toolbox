@@ -61,6 +61,12 @@ export default {
     }
   },
   computed: {
+    selectedChannel () {
+      const channel = this.$store.state.channels[this.activeId]
+      const features = this.$store.state.channelsProtocols[channel.protocol_id].features
+      channel.features = features
+      return channel
+    },
     devices: {
       get () {
         return this.$store.state[this.moduleName].devices
@@ -95,7 +101,9 @@ export default {
         this.$store.commit(`${this.moduleName}/setActive`, id)
         this.$store.commit(`${this.moduleName}/clearDevices`)
         await this.$store.dispatch(`${this.moduleName}/getDevices`)
-        await this.$store.dispatch(`${this.moduleName}/pollingGetDevices`)
+        if (!this.selectedChannel.features.shared_connection) {
+          await this.$store.dispatch(`${this.moduleName}/pollingGetDevices`)
+        }
       }
     },
     realtimeEnabled () {

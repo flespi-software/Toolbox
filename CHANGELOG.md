@@ -1,5 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.7.1] - 2020-12-08
+[rebase] widget minimize function
+[feature] saving base view by entity
+[rebase] field view widgets
+[fix] traffic viewer
 ### [1.7.0] - 2020-11-27
 [feature] widgets system
 [fix] init logic

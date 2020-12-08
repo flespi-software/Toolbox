@@ -5,11 +5,11 @@ import JsonTree from '../JsonTree.vue'
   ref="logsView"
   :active="activeWidgetWindow === 'logsView'"
   v-model="isWidgetsLogsActive"
-  :siblingHeight="siblingHeight.logs"
   :config="logsWidgetsViewConfig"
   :actions="widgetsHandleActions"
   :controls="widgetWindowControls"
-  @minimize="data => widgetsMinimizeHandler('logs', data)"
+  :view-model="widgetsViewModel.logs"
+  @change-view-model="data => widgetsChangeViewModelHandler('logs', data)"
   @active="activateWidgetWindow('logsView')"
   @close="closeLogsWidgetsHandler"
   @next="nextWidgetLog"
@@ -78,14 +78,16 @@ export default {
   methods: {
     viewWidgetsLogHandler (content) {
       this.widgetsViewedLog = content
+      if (this.beforeEnableWidgetByPane) {
+        this.beforeEnableWidgetByPane('logs')
+      }
       this.isWidgetsLogsActive = true
       this.activateWidgetWindow('logsView')
-      if (!this.widgetStyle.top) {
-        this.$nextTick(() => this.$refs.logsView.minimize('top'))
-      }
     },
     closeLogsWidgetsHandler () {
-      this.$refs.logs.unselect()
+      if (this.$refs.logs) {
+        this.$refs.logs.unselect()
+      }
     },
     nextWidgetLog () {
       this.$refs.logs.nextSelect()

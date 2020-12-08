@@ -3,23 +3,22 @@
     ref="widgetWrapper"
     v-if="visible"
     :wrapper-size="wrapperSize"
-    :sibling-height="siblingHeight"
     :style="{ zIndex: isFullScreen ? 5 : active ? 3 : 2 }"
     :controls="controls"
+    :view-model="$q.platform.is.desktop && $q.screen.width > 500 ? viewModel : fullScreenModel"
     @close="$emit('input', false), $emit('close')"
     @dragging="$emit('active')"
-    @minimize="minimizeHandler"
-    @maximize="maximizeHandler"
+    @change-view-model="changeViewModelHandler"
   >
     <q-tabs v-model="tabModel" @input="prevTab = undefined" class="text-white" :dense="!isModified" :style="{ width: isModified ? 'calc(100% - 66px)' : $q.platform.is.mobile ? 'calc(100% - 33px)' : '', height: isModified ? '50px' : '' }" outside-arrows>
       <template v-for="(item, key) in config">
-        <q-tab :name="key" :label="item.title" :key="`tab-${key}`" color="grey-9"/>
+        <q-tab :name="key" :label="item.title" :key="`tab-${key}`" color="grey-9" :icon="item.titleIcon"/>
       </template>
     </q-tabs>
-    <div class="bg-grey-9 scroll relative-position" :style="{ height: isModified ? 'calc(100% - 50px)' : 'calc(100% - 36px)' }">
+    <div class="bg-grey-8 scroll relative-position" :style="{ height: isModified ? 'calc(100% - 50px)' : 'calc(100% - 40px)', width: 'calc(100% - 4px)' }">
       <q-tab-panel v-for="(item, key) in config" :name="key" :key="`tab-pane-${key}`" v-show="tabModel === key">
-        <div style="font-size: 1.1rem" class="text-center q-mb-sm text-white" :class="[item.data._color]" v-if="item.description">{{item.description}}</div>
-        <component v-if="item.wrapper && typeof item.wrapper === 'object'" :is="item.wrapper" :ref="key" :data="item.data && getData(item.data)" :inverted="inverted"/>
+        <div style="font-size: 1rem" class="text-center text-bold q-mb-sm text-white" :class="[item.data._color]" v-if="item.description" v-html="item.description"></div>
+        <component v-if="item.wrapper && typeof item.wrapper === 'object'" :is="item.wrapper" :ref="key" :data="item.data && getData(item.data)" :meta="item.meta" @action="data => { item.action && item.action(data) }" :inverted="inverted"/>
         <component v-else-if="item.wrapper && typeof item.wrapper === 'string'" :is="item.wrapper" :ref="key" :class="{'text-white': inverted !== undefined}">{{getData(item.data)}}</component>
         <div v-else :class="{'text-white': inverted !== undefined}" :ref="key">{{getData(item.data)}}</div>
       </q-tab-panel>
@@ -36,7 +35,7 @@
 import WidgetWindow from './WidgetFloatWindow'
 import get from 'lodash/get'
 export default {
-  props: ['siblingHeight', 'config', 'inverted', 'value', 'actions', 'active', 'controls'],
+  props: ['config', 'inverted', 'value', 'actions', 'active', 'controls', 'viewModel'],
   data () {
     return {
       prevTab: undefined,
@@ -44,7 +43,10 @@ export default {
       visible: false,
       isModified: false,
       isFullScreen: false,
-      wrapperSize: {}
+      wrapperSize: {},
+      fullScreenModel: {
+        type: 'maximized'
+      }
     }
   },
   methods: {
@@ -64,12 +66,10 @@ export default {
     hide () { this.visible = false },
     setTab (name) { this.tabModel = name },
     minimizeHandler (data) {
-      this.$emit('minimize', data)
       this.isModified = !!data
     },
     maximizeHandler (flag) {
       this.isFullScreen = flag
-      this.$emit('maximize', flag)
     },
     minimize (type) {
       if (this.$refs.widgetWrapper) {
@@ -84,6 +84,26 @@ export default {
     },
     resize (size) {
       this.wrapperSize = size
+    },
+    changeViewModelHandler (model) {
+      switch (model.type) {
+        case 'minimized': {
+          this.minimizeHandler({ type: model.to })
+          break
+        }
+        case 'maximized': {
+          this.maximizeHandler(true)
+          break
+        }
+        case 'windowed': {
+          this.minimizeHandler()
+          this.maximizeHandler(false)
+          break
+        }
+      }
+      if (this.$q.platform.is.desktop && this.$q.screen.width > 500) {
+        this.$emit('change-view-model', model)
+      }
     }
   },
   components: { WidgetWindow },
@@ -98,9 +118,13 @@ export default {
         this.prevTab = this.tabModel
         this.tabModel = Object.keys(config)[0]
       }
-    }
+    },
+    viewModel (model) { this.changeViewModelHandler(model) }
   },
   created () {
+    if (this.viewModel) {
+      this.changeViewModelHandler(this.viewModel)
+    }
     window.addEventListener('keyup', this.escHandler)
   },
   destroyed () {

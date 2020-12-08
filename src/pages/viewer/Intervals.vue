@@ -183,7 +183,7 @@
         :limit="0"
         :config="config.logs"
         v-if="isInit"
-        :style="{height: `calc(50vh - ${isVisibleToolbar ? '50px' : '25px'})`, position: 'relative', maxWidth: widgetStyle.top ? '66%' : ''}"
+        :style="{height: `calc(50vh - ${isVisibleToolbar ? '50px' : '25px'})`, position: 'relative', ...panelsWidgetsStyle}"
       />
       <messages
         ref="messages"
@@ -198,21 +198,21 @@
         :activeId="active"
         :limit="limit"
         v-if="isInit"
-        :style="[{height: `calc(50vh - ${isVisibleToolbar ? '50px' : '25px'})`, position: 'relative'}, {maxWidth: widgetStyle.bottom ? '66%' : ''}]"
+        :style="[{height: `calc(50vh - ${isVisibleToolbar ? '50px' : '25px'})`, position: 'relative'}, panelsWidgetsStyle]"
         :config="config.messages"
       />
     </div>
     <widgets
-      ref="messageView"
-      :active="activeWidgetWindow === 'messageView'"
+      ref="messagesView"
+      :active="activeWidgetWindow === 'messagesView'"
       v-model="isWidgetsMessageActive"
-      :siblingHeight="siblingHeight.message"
       :config="messageWidgetsViewConfig"
       :actions="widgetsHandleActions"
       :controls="widgetWindowControls"
-      @minimize="data => widgetsMinimizeHandler('message', data)"
-      @active="activateWidgetWindow('messageView')"
-      @close="closeMessageWidgetsHandler"
+      :view-model="widgetsViewModel.data"
+      @change-view-model="data => widgetsChangeViewModelHandler(entityName, 'data', data)"
+      @active="activateWidgetWindow('messagesView')"
+      @close="unselect"
       @next="nextWidgetsMessage"
       @prev="prevWidgetsMessage"
     />
@@ -220,13 +220,13 @@
       ref="intervalsView"
       :active="activeWidgetWindow === 'intervalsView'"
       v-model="isWidgetsIntervalsActive"
-      :siblingHeight="siblingHeight.intervals"
       :config="intervalsWidgetsViewConfig"
       :actions="widgetsHandleActions"
       :controls="widgetWindowControls"
-      @minimize="data => widgetsMinimizeHandler('intervals', data)"
+      :view-model="widgetsViewModel.data"
+      @change-view-model="data => widgetsChangeViewModelHandler(entityName, 'data', data)"
       @active="activateWidgetWindow('intervalsView')"
-      @close="closeIntervalsWidgetsHandler"
+      @close="unselect"
       @next="nextWidgetsInterval"
       @prev="prevWidgetsInterval"
     />
@@ -249,11 +249,13 @@ export default {
     'isLoading',
     'isVisibleToolbar',
     'isNeedSelect',
-    'config'
+    'config',
+    'settings'
   ],
   mixins: [init, MainWidgetsMixin, MessageWidgetsMixin, IntervalsWidgetsMixin],
   data () {
     return {
+      entityName: 'intervals',
       calcFilter: '',
       deviceFilter: '',
       active: null,
@@ -340,6 +342,21 @@ export default {
           condition: !!this.activeCalcId && (this.isNeedSelect === true || (typeof this.isNeedSelect === 'string' && this.isNeedSelect.indexOf('calcs') > -1))
         }
       ]
+    },
+    panelsWidgetsStyle () {
+      const style = {}
+      const isWidgetActive = (this.isWidgetsMessageActive || this.isWidgetsIntervalsActive)
+      const isTwoSide = (this.widgetStyle.left && this.widgetStyle.right) && isWidgetActive
+      const isLeftSide = this.widgetStyle.left && isWidgetActive
+      const isRightSide = this.widgetStyle.right && isWidgetActive
+      if (isTwoSide) {
+        style.maxWidth = 'calc(100% - 600px)'
+        style.left = '300px'
+      } else if (isLeftSide || isRightSide) {
+        style.maxWidth = 'calc(100% - 300px)'
+        if (isRightSide) { style.left = '300px' }
+      }
+      return style
     }
   },
   methods: {
@@ -453,14 +470,29 @@ export default {
     clearWidgetsState () {
       this.isWidgetsMessageActive = false
       this.isWidgetsIntervalsActive = false
-      this.widgetsMinimizedOptions = {}
       this.activeWidgetWindow = undefined
       this.widgetsViewedMessage = null
       this.widgetsVieweInterval = null
     },
+    beforeEnableWidgetByPane (entity) {
+      if (!this.widgetStyle.left && !this.isWidgetsMessageActive && !this.isWidgetsIntervalsActive && !this.widgetsViewModel.data) {
+        this.$nextTick(() => this.widgetsChangeViewModelHandler(this.entityName, 'data', { type: 'minimized', to: 'left' }))
+      }
+      switch (entity) {
+        case 'messages': {
+          this.isWidgetsIntervalsActive = false
+          break
+        }
+        case 'intervals': {
+          this.isWidgetsMessageActive = false
+          this.closeMessageWidgetsHandler()
+          break
+        }
+      }
+    },
     onResizePage (size) {
       this.$refs.intervalsView.resize(size)
-      this.$refs.messageView.resize(size)
+      this.$refs.messagesView.resize(size)
     }
   },
   created () {

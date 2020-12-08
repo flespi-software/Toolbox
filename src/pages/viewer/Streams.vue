@@ -19,7 +19,7 @@
           :hide-dropdown-icon="!isNeedSelect"
           popup-content-class="items__popup"
           :popup-content-style="{height: `${((filteredItems.length > 6 ? 6 : filteredItems.length) * 48) + (needShowGetDeletedAction && tokenType === 1 ? 77 : 48) + (filteredItems.length ? 0 : 4)}px`}"
-          @filter="(filter, update) => filterItems('streams', filter, update)"
+          @filter="(filter, update) => filterItems(entityName, filter, update)"
         >
           <div slot="before-options" class="bg-dark q-pa-xs select__filter">
             <q-input v-model="filter" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" @input="filter => $refs.itemSelect.filter(filter)" autofocus>
@@ -85,7 +85,7 @@
       originPattern="gw/streams/:id"
       :isEnabled="true"
       :config="config.logs"
-      :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', maxWidth: widgetStyle.top ? '66%' : ''}"
+      :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', ...panelsWidgetsStyle}"
       @view-log-message="viewWidgetsLogHandler"
       @action-select="data => widgetsViewedLog = data.content"
     />
@@ -97,11 +97,11 @@
       ref="logsView"
       :active="activeWidgetWindow === 'logsView'"
       v-model="isWidgetsLogsActive"
-      :siblingHeight="siblingHeight.logs"
       :config="logsWidgetsViewConfig"
       :actions="widgetsHandleActions"
       :controls="widgetWindowControls"
-      @minimize="data => widgetsMinimizeHandler('logs', data)"
+      :view-model="widgetsViewModel.logs"
+      @change-view-model="data => widgetsChangeViewModelHandler(entityName, 'logs', data)"
       @active="activateWidgetWindow('logsView')"
       @close="closeLogsWidgetsHandler"
       @next="nextWidgetLog"
@@ -132,6 +132,7 @@ export default {
   mixins: [init, MainWidgetsMixin, LogsWidgetsMixin],
   data () {
     return {
+      entityName: 'streams',
       filter: '',
       active: null,
       isInit: false,
@@ -197,6 +198,16 @@ export default {
           condition: !this.isEmptyMessages
         }
       ]
+    },
+    panelsWidgetsStyle () {
+      const style = {}
+      const isLeftSide = this.widgetStyle.left && (this.isWidgetsMessageActive || this.isWidgetsLogsActive || this.isWidgetsTrackActive)
+      const isRightSide = this.widgetStyle.right && (this.isWidgetsMessageActive || this.isWidgetsLogsActive || this.isWidgetsTrackActive)
+      if (isLeftSide || isRightSide) {
+        style.maxWidth = 'calc(100% - 300px)'
+        if (isRightSide) { style.left = '300px' }
+      }
+      return style
     }
   },
   methods: {
@@ -211,7 +222,7 @@ export default {
         .onCancel(() => {})
     },
     async getDeletedHandler () {
-      await this.getDeleted('streams')
+      await this.getDeleted(this.entityName)
       this.needShowGetDeletedAction = false
       this.$refs.itemSelect.reset()
     },
@@ -219,7 +230,7 @@ export default {
       this.active = null
     },
     init () {
-      const entity = 'streams',
+      const entity = this.entityName,
         activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined),
         idFromRoute = this.$route.params && this.$route.params.id ? Number(this.$route.params.id) : null
       this.isInit = true
@@ -236,12 +247,16 @@ export default {
     },
     clearWidgetsState () {
       this.isWidgetsLogsActive = false
-      this.widgetsMinimizedOptions = {}
       this.activeWidgetWindow = undefined
       this.widgetsViewedLog = null
     },
     onResizePage (size) {
       this.$refs.logsView.resize(size)
+    },
+    beforeEnableWidgetByPane (entity) {
+      if (!this.widgetStyle.left && !this.isWidgetsLogsActive && !this.widgetsViewModel.logs) {
+        this.$nextTick(() => this.widgetsChangeViewModelHandler(this.entityName, 'logs', { type: 'minimized', to: 'left' }))
+      }
     }
   },
   watch: {
@@ -260,7 +275,7 @@ export default {
     active (val) {
       const currentItem = this.itemsCollection[val] || {}
       if (val) {
-        this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: 'streams' }, value: currentItem.id })
+        this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: this.entityName }, value: currentItem.id })
         this.$router.push(`/streams/${val}`).catch(err => err)
       } else {
         this.$router.push('/streams').catch(err => err)

@@ -339,7 +339,7 @@ export default {
     }
   },
   beforeDestroy () {
-    this.$eventBus.$off('cols:edit', this.colsEditHandler)
+    this.$root.$off('cols:edit', this.colsEditHandler)
     this.connectionPreserveHandlerIndex !== undefined && Vue.connector.socket.off('connect', this.connectionPreserveHandlerIndex)
   },
   components: { LeftMenu, Settings, Dash }

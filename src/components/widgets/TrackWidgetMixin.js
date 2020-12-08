@@ -4,10 +4,10 @@ import MapFrame from '../MapFrame'
   ref="track"
   :active="activeWidgetWindow === 'track'"
   v-model="isWidgetsTrackActive"
-  :siblingHeight="siblingHeight.track"
   :config="trackWidgetConfig"
   :controls="widgetWindowControls"
-  @minimize="data => widgetsMinimizeHandler('track', data)"
+  :view-model="widgetsViewModel.track"
+  @change-view-model="data => widgetsChangeViewModelHandler('track', data)"
   @active="activateWidgetWindow('track')"
   @close="closeWidgetsHandler"
 />
@@ -33,11 +33,22 @@ export default {
     },
     setWidgetTrackView (type, data) {
       const map = this.$refs.track.ref(type)
-      if (!map) { return }
+      if (!map || !data) { return }
       let track = data
-      const marker = { latlng: [track[track.length - 1].lat, track[track.length - 1].lon], direction: track[track.length - 1].dir }
+      const markerData = track[track.length - 1]
+      let marker
+      if (markerData) {
+        marker = { latlng: [markerData.lat, markerData.lon], direction: markerData.dir }
+      }
       track = track.map(marker => ([marker.lat, marker.lon]))
-      map.clear().addPoints(track).addNamedMarkers([marker]).send()
+      map.clear()
+      if (track.length) {
+        map.addPoints(track)
+      }
+      if (marker) {
+        map.addNamedMarkers([marker])
+      }
+      map.send()
       this.activateWidgetWindow('track')
     },
     closeWidgetsHandler () {}

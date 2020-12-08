@@ -1,8 +1,8 @@
 <template>
   <div style="height: 100%">
-    <q-item  class="q-pa-none bg-grey-9" style="position: sticky; top: 0px; z-index: 1;">
+    <q-item  class="q-pa-none" style="position: sticky; top: 0px; z-index: 1;">
       <q-item-section class="q-px-sm">
-        <q-input type="text" color="white" dark label="Search" v-model="search" class="q-py-none bg-grey-9" outlined dense/>
+        <q-input type="text" color="white" dark label="Search" v-model="search" class="q-py-none bg-grey-8" outlined dense/>
       </q-item-section>
     </q-item>
     <q-list separator dark>
@@ -23,6 +23,10 @@
             <q-item-label v-else-if="key.indexOf('image.bin.') === -1" caption class="ellipsis text-white">{{JSON.stringify(filteredObject[key])}}<q-tooltip>{{JSON.stringify(filteredObject[key])}}</q-tooltip></q-item-label>
             <q-item-label v-else-if="key.indexOf('image.bin.') === 0" caption><img class="image-bin" :src="`data:image/${key.split('.')[2]};base64, ${filteredObject[key].replace(/^data\:image\/\w*\;base64\,\s/, '')}`" :alt="key"></q-item-label>
           </q-item-section>
+          <q-item-section side>
+            <q-btn v-if="meta.includes(key)" flat dense icon="mdi-table-column-remove" @click="action('col-remove', key)" color='red-3'></q-btn>
+            <q-btn v-else flat dense icon="mdi-table-column-plus-after" @click="action('col-add', key)" color="green-3"></q-btn>
+          </q-item-section>
         </q-item>
       </template>
     </q-list>
@@ -31,7 +35,7 @@
 
 <script>
 export default {
-  props: ['data'],
+  props: ['data', 'meta'],
   data () {
     return {
       search: ''
@@ -45,6 +49,14 @@ export default {
         }
         return acc
       }, {})
+    }
+  },
+  methods: {
+    action (type, data) {
+      this.$emit('action', {
+        type,
+        data
+      })
     }
   }
 }

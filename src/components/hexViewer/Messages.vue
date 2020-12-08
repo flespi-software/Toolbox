@@ -320,7 +320,7 @@ export default {
     },
     viewMessagesHandler ({ index, content }) {
       this.selected = [index]
-      this.$eventBus.$emit('view-data', content)
+      this.$root.$emit('view-data', content)
     },
     connectionClickHandler ({ index, content, event }) {
       if (this.$refs.scroller && this.$refs.scroller.$el) {

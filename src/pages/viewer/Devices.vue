@@ -19,7 +19,7 @@
           :disable="!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('devices') > -1)"
           popup-content-class="items__popup"
           :popup-content-style="{height: `${((filteredItems.length > 6 ? 6 : filteredItems.length) * 48) + (needShowGetDeletedAction && tokenType === 1 ? 77 : 48) + (filteredItems.length ? 0 : 4)}px`}"
-          @filter="(filter, update) => filterItems('devices', filter, update)"
+          @filter="(filter, update) => filterItems(entityName, filter, update)"
         >
           <div slot="before-options" class="bg-dark q-pa-xs select__filter">
             <q-input v-model="filter" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" @input="filter => $refs.itemSelect.filter(filter)" autofocus>
@@ -91,7 +91,7 @@
         originPattern="gw/devices/:id"
         :isEnabled="!!+size[0]"
         v-if="+size[0]"
-        :style="[{height: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: widgetStyle.top ? '66%' : ''}]"
+        :style="[{height: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, panelsWidgetsStyle]"
         @view-log-message="viewWidgetsLogHandler"
         @action-select="data => widgetsViewedLog = data.content"
         @to-traffic="toTrafficHandler"
@@ -109,7 +109,7 @@
         :isEnabled="!!+size[1]"
         :limit="limit"
         v-if="+size[1]"
-        :style="[{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, {maxWidth: widgetStyle.bottom ? '66%' : ''}]"
+        :style="[{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, panelsWidgetsStyle]"
         :config="config.messages"
       />
     </div>
@@ -118,15 +118,15 @@
       <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
     </div>
     <widgets
-      ref="messageView"
-      :active="activeWidgetWindow === 'messageView'"
+      ref="messagesView"
+      :active="activeWidgetWindow === 'messagesView'"
       v-model="isWidgetsMessageActive"
-      :siblingHeight="siblingHeight.message"
       :config="messageWidgetsViewConfig"
       :actions="widgetsHandleActions"
       :controls="widgetWindowControls"
-      @minimize="data => widgetsMinimizeHandler('message', data)"
-      @active="activateWidgetWindow('messageView')"
+      :view-model="widgetsViewModel.data"
+      @change-view-model="data => widgetsChangeViewModelHandler(entityName, 'data', data)"
+      @active="activateWidgetWindow('messagesView')"
       @close="closeMessageWidgetsHandler"
       @next="nextWidgetsMessage"
       @prev="prevWidgetsMessage"
@@ -135,11 +135,11 @@
       ref="logsView"
       :active="activeWidgetWindow === 'logsView'"
       v-model="isWidgetsLogsActive"
-      :siblingHeight="siblingHeight.logs"
       :config="logsWidgetsViewConfig"
       :actions="widgetsHandleActions"
       :controls="widgetWindowControls"
-      @minimize="data => widgetsMinimizeHandler('logs', data)"
+      :view-model="widgetsViewModel.data"
+      @change-view-model="data => widgetsChangeViewModelHandler(entityName, 'data', data)"
       @active="activateWidgetWindow('logsView')"
       @close="closeLogsWidgetsHandler"
       @next="nextWidgetLog"
@@ -149,10 +149,10 @@
       ref="track"
       :active="activeWidgetWindow === 'track'"
       v-model="isWidgetsTrackActive"
-      :siblingHeight="siblingHeight.track"
       :config="trackWidgetConfig"
       :controls="widgetWindowControls"
-      @minimize="data => widgetsMinimizeHandler('track', data)"
+      :view-model="widgetsViewModel.track"
+      @change-view-model="data => widgetsChangeViewModelHandler(entityName, 'track', data)"
       @active="activateWidgetWindow('track')"
       @close="closeWidgetsHandler"
     />
@@ -184,9 +184,9 @@ export default {
   mixins: [init, MainWidgetsMixin, LogsWidgetsMixin, MessageWidgetsMixin, TrackWidgetMixin],
   data () {
     return {
+      entityName: 'devices',
       filter: '',
       active: null,
-      ratio: 50,
       isInit: false,
       isItemsInit: false,
       isItemsInitStart: false,
@@ -315,6 +315,28 @@ export default {
           condition: !this.isEmptyMessages
         }
       ]
+    },
+    panelsWidgetsStyle () {
+      const style = {}
+      const enabledFlags = {
+        track: this.isWidgetsTrackActive,
+        data: this.isWidgetsMessageActive || this.isWidgetsLogsActive
+      }
+      const isTwoSide = (this.widgetStyle.left && this.widgetStyle.right) &&
+        (enabledFlags.track && enabledFlags.data)
+      const isLeftSide = this.widgetStyle.left && enabledFlags[this.widgetStyle.left]
+      const isRightSide = this.widgetStyle.right && enabledFlags[this.widgetStyle.right]
+      if (isTwoSide) {
+        style.maxWidth = 'calc(100% - 600px)'
+        style.left = '300px'
+      } else if (isLeftSide || isRightSide) {
+        style.maxWidth = 'calc(100% - 300px)'
+        if (isRightSide) { style.left = '300px' }
+      }
+      return style
+    },
+    ratio () {
+      return get(this.settings.viewSettings, `${this.entityName}.ratio`, 50)
     }
   },
   methods: {
@@ -332,7 +354,7 @@ export default {
         .onCancel(() => {})
     },
     async getDeletedHandler () {
-      await this.getDeleted('devices')
+      await this.getDeleted(this.entityName)
       this.needShowGetDeletedAction = false
       this.$refs.itemSelect.reset()
     },
@@ -340,7 +362,7 @@ export default {
       this.active = null
     },
     deletedHandler () {
-      this.ratio = 100
+      this.changeRatioHandler(100)
     },
     getTrafficRoute (device) {
       this.trafficRoute = null
@@ -361,7 +383,7 @@ export default {
       }
     },
     init () {
-      const entity = 'devices',
+      const entity = this.entityName,
         activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined)
       let idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null
       this.isInit = true
@@ -388,23 +410,35 @@ export default {
       this.isWidgetsMessageActive = false
       this.isWidgetsLogsActive = false
       this.isWidgetsTrackActive = false
-      this.widgetsMinimizedOptions = {}
       this.activeWidgetWindow = undefined
       this.widgetsViewedMessage = null
       this.widgetsViewedLog = null
     },
+    beforeEnableWidgetByPane (entity) {
+      if (!this.widgetStyle.left && !this.isWidgetsMessageActive && !this.isWidgetsLogsActive && !this.widgetsViewModel.data) {
+        this.$nextTick(() => this.widgetsChangeViewModelHandler(this.entityName, 'data', { type: 'minimized', to: 'left' }))
+      }
+      switch (entity) {
+        case 'messages': {
+          this.isWidgetsLogsActive = false
+          this.closeLogsWidgetsHandler()
+          break
+        }
+        case 'logs': {
+          this.isWidgetsMessageActive = false
+          this.closeMessageWidgetsHandler()
+          break
+        }
+      }
+    },
     onResizePage (size) {
       this.$refs.track.resize(size)
-      this.$refs.messageView.resize(size)
+      this.$refs.messagesView.resize(size)
       this.$refs.logsView.resize(size)
     },
     changeRatioHandler (r) {
       this.ratioWidgetsModify(r)
-      this.ratio = r
-    }
-  },
-  watch: {
-    ratio (val) {
+      this.$emit('update:settings', { type: 'ENTITY_VIEW_SETTINGS_CHANGE', opt: { entity: this.entityName }, value: { ratio: r } })
       this.$nextTick(() => {
         if (+this.size[0] && this.active) {
           this.$refs.logs.resetParams()
@@ -413,7 +447,9 @@ export default {
           this.$refs.messages.resetParams()
         }
       })
-    },
+    }
+  },
+  watch: {
     $route (route) {
       if (route.params && route.params.id) {
         if (this.itemsCollection[Number(route.params.id)]) {
@@ -429,15 +465,13 @@ export default {
     active (val, old) {
       const currentItem = this.itemsCollection[val] || {}
       if (val) {
-        this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: 'devices' }, value: currentItem.id })
+        this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: this.entityName }, value: currentItem.id })
         this.$router.push(`/devices/${val}`).catch(err => err)
       } else {
         this.$router.push('/devices').catch(err => err)
       }
       if (currentItem.deleted) {
         this.deletedHandler()
-      } else {
-        this.ratio = currentItem.deleted ? 100 : 50
       }
     }
   },

@@ -226,7 +226,7 @@ export default {
     },
     viewMessagesHandler ({ index, content }) {
       this.selected = [index]
-      this.$eventBus.$emit('view-data', content)
+      this.$root.$emit('view-data', content)
     },
     messageClickHandler ({ index, content, event }) {
       if (event.shiftKey) {

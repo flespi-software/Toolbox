@@ -200,7 +200,7 @@ function getToolboxSettings (state) {
     })
   }
   /* end migration */
-  settings = { entities: settings.entities }
+  settings = { entities: settings.entities, viewSettings: settings.viewSettings }
   state.settings = settings || {}
 }
 
@@ -213,9 +213,15 @@ function setToolboxSettings (state, { type, opt, value }) {
       settings.entities[entity] = value
       break
     }
+    case 'ENTITY_VIEW_SETTINGS_CHANGE': {
+      const { entity } = opt
+      if (!settings.viewSettings) { settings.viewSettings = {} }
+      settings.viewSettings[entity] = { ...(settings.viewSettings[entity] || {}), ...value }
+      break
+    }
   }
   LocalStorage.set('flespi-toolbox-settings', settings)
-  settings = { entities: settings.entities }
+  settings = { entities: settings.entities, viewSettings: settings.viewSettings }
   state.settings = settings
 }
 

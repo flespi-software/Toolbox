@@ -19,7 +19,7 @@
           :disable="!isNeedSelect"
           popup-content-class="items__popup"
           :popup-content-style="{height: `${((filteredItems.length > 6 ? 6 : filteredItems.length) * 60) + (needShowGetDeletedAction && tokenType === 1 ? 77 : 48)}px`}"
-          @filter="(filter, update) => filterItems('channels', filter, update)"
+          @filter="(filter, update) => filterItems(entityName, filter, update)"
         >
           <div slot="before-options" class="bg-dark q-pa-xs select__filter">
             <q-input v-model="filter" @input="filter => $refs.itemSelect.filter(filter)" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" autofocus>
@@ -97,7 +97,7 @@
         originPattern="gw/channels/:id"
         :config="logsConfig"
         v-if="+size[0]"
-        :style="{height: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', maxWidth: widgetStyle.top ? '66%' : ''}"
+        :style="{height: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', ...panelsWidgetsStyle}"
         @view-log-message="viewWidgetsLogHandler"
         @action-select="data => widgetsViewedLog = data.content"
         @to-traffic="toTrafficHandler"
@@ -115,7 +115,7 @@
         :limit="limit"
         :config="config.messages"
         v-if="+size[1]"
-        :style="{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', maxWidth: widgetStyle.bottom ? '66%' : ''}"
+        :style="{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', ...panelsWidgetsStyle}"
       />
     </div>
     <div v-if="!items.length && isItemsInit" class="text-center text-grey-3 q-mt-lg">
@@ -123,15 +123,15 @@
       <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
     </div>
     <widgets
-      ref="messageView"
-      :active="activeWidgetWindow === 'messageView'"
+      ref="messagesView"
+      :active="activeWidgetWindow === 'messagesView'"
       v-model="isWidgetsMessageActive"
-      :siblingHeight="siblingHeight.message"
       :config="messageWidgetsViewConfig"
       :actions="widgetsHandleActions"
       :controls="widgetWindowControls"
-      @minimize="data => widgetsMinimizeHandler('message', data)"
-      @active="activateWidgetWindow('messageView')"
+      :view-model="widgetsViewModel.data"
+      @change-view-model="data => widgetsChangeViewModelHandler(entityName, 'data', data)"
+      @active="activateWidgetWindow('messagesView')"
       @close="closeMessageWidgetsHandler"
       @next="nextWidgetsMessage"
       @prev="prevWidgetsMessage"
@@ -140,11 +140,11 @@
       ref="logsView"
       :active="activeWidgetWindow === 'logsView'"
       v-model="isWidgetsLogsActive"
-      :siblingHeight="siblingHeight.logs"
       :config="logsWidgetsViewConfig"
       :actions="widgetsHandleActions"
       :controls="widgetWindowControls"
-      @minimize="data => widgetsMinimizeHandler('logs', data)"
+      :view-model="widgetsViewModel.data"
+      @change-view-model="data => widgetsChangeViewModelHandler(entityName, 'data', data)"
       @active="activateWidgetWindow('logsView')"
       @close="closeLogsWidgetsHandler"
       @next="nextWidgetLog"
@@ -177,9 +177,9 @@ export default {
   mixins: [init, MainWidgetsMixin, LogsWidgetsMixin, MessageWidgetsMixin],
   data () {
     return {
+      entityName: 'channels',
       filter: '',
       active: null,
-      ratio: 50,
       isInit: false,
       isItemsInit: false,
       isItemsInitStart: false,
@@ -288,6 +288,24 @@ export default {
           condition: !this.isEmptyMessages
         }
       ]
+    },
+    panelsWidgetsStyle () {
+      const style = {}
+      const isWidgetActive = (this.isWidgetsMessageActive || this.isWidgetsLogsActive)
+      const isTwoSide = (this.widgetStyle.left && this.widgetStyle.right) && isWidgetActive
+      const isLeftSide = this.widgetStyle.left && isWidgetActive
+      const isRightSide = this.widgetStyle.right && isWidgetActive
+      if (isTwoSide) {
+        style.maxWidth = 'calc(100% - 600px)'
+        style.left = '300px'
+      } else if (isLeftSide || isRightSide) {
+        style.maxWidth = 'calc(100% - 300px)'
+        if (isRightSide) { style.left = '300px' }
+      }
+      return style
+    },
+    ratio () {
+      return get(this.settings.viewSettings, `${this.entityName}.ratio`, 50)
     }
   },
   methods: {
@@ -322,7 +340,7 @@ export default {
       this.$refs.itemSelect && this.$refs.itemSelect.reset()
     },
     async getDeletedHandler () {
-      await this.getDeleted('channels')
+      await this.getDeleted(this.entityName)
       this.needShowGetDeletedAction = false
       this.selectReset()
     },
@@ -330,10 +348,10 @@ export default {
       this.active = null
     },
     deletedHandler () {
-      this.ratio = 100
+      this.changeRatioHandler(100)
     },
     init () {
-      const entity = 'channels',
+      const entity = this.entityName,
         activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined),
         idFromRoute = this.$route.params && this.$route.params.id ? Number(this.$route.params.id) : null
       this.isInit = true
@@ -355,22 +373,34 @@ export default {
     clearWidgetsState () {
       this.isWidgetsMessageActive = false
       this.isWidgetsLogsActive = false
-      this.widgetsMinimizedOptions = {}
       this.activeWidgetWindow = undefined
       this.widgetsViewedMessage = null
       this.widgetsViewedLog = null
     },
+    beforeEnableWidgetByPane (entity) {
+      if (!this.widgetStyle.left && !this.isWidgetsMessageActive && !this.isWidgetsLogsActive && !this.widgetsViewModel.data) {
+        this.$nextTick(() => this.widgetsChangeViewModelHandler(this.entityName, 'data', { type: 'minimized', to: 'left' }))
+      }
+      switch (entity) {
+        case 'messages': {
+          this.isWidgetsLogsActive = false
+          this.closeLogsWidgetsHandler()
+          break
+        }
+        case 'logs': {
+          this.isWidgetsMessageActive = false
+          this.closeMessageWidgetsHandler()
+          break
+        }
+      }
+    },
     onResizePage (size) {
-      this.$refs.messageView.resize(size)
+      this.$refs.messagesView.resize(size)
       this.$refs.logsView.resize(size)
     },
     changeRatioHandler (r) {
       this.ratioWidgetsModify(r)
-      this.ratio = r
-    }
-  },
-  watch: {
-    ratio (val) {
+      this.$emit('update:settings', { type: 'ENTITY_VIEW_SETTINGS_CHANGE', opt: { entity: this.entityName }, value: { ratio: r } })
       this.$nextTick(() => {
         if (+this.size[0] && this.active) {
           this.$refs.logs.resetParams()
@@ -379,7 +409,9 @@ export default {
           this.$refs.messages.resetParams()
         }
       })
-    },
+    }
+  },
+  watch: {
     $route (route) {
       if (route.params && route.params.id) {
         const id = Number(route.params.id)
@@ -396,15 +428,13 @@ export default {
     active (val) {
       const currentItem = this.itemsCollection[val] || {}
       if (val) {
-        this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: 'channels' }, value: currentItem.id })
+        this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: this.entityName }, value: currentItem.id })
         this.$router.push(`/channels/${val}`).catch(err => err)
       } else {
         this.$router.push('/channels').catch(err => err)
       }
       if (currentItem.deleted) {
         this.deletedHandler()
-      } else {
-        this.ratio = currentItem.deleted ? 100 : 50
       }
     }
   },

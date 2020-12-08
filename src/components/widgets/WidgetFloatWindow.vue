@@ -7,30 +7,30 @@
     :x="x" :y="y" :w="width" :h="height" :min-width="100" :min-height="100"
     @resizing="resizeHandler" @dragging="draggingHandler"
   >
-    <div class="widget__header" :style="{height: `${headerHeight}px`}" v-show="!isMinimized && !isMaximized" style="padding-right: 1px; padding-top: 3px;">
+    <div class="widget__header" :style="{height: `${headerHeight}px`}" v-show="!isMinimized && !isMaximized">
       <q-icon @mousedown.stop.prevent.native="closeHandler" name="mdi-close" class="float-right cursor-pointer" color="white"/>
-      <q-icon @mousedown.stop.prevent.native="maximizeHandler" :name="isMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" class="float-right cursor-pointer" color="white"/>
-      <q-icon v-if="(siblingHeight !== undefined && siblingHeight !== 0) || controls.minimizeBottom" @mousedown.stop.prevent.native="minimizeHandler('bottom')" name="mdi-arrow-bottom-right" class="float-right cursor-pointer" color="white"/>
-      <q-icon v-if="(siblingHeight !== undefined && siblingHeight !== 100) || controls.minimizeTop" :class='{[`height${siblingHeight}`]: true}' @mousedown.stop.prevent.native="minimizeHandler('top')" name="mdi-arrow-top-right" class="float-right cursor-pointer" color="white"/>
+      <q-icon @mousedown.stop.prevent.native="maximizeHandler(), calculateViewModel()" :name="isMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" class="float-right cursor-pointer" color="white"/>
+      <q-icon v-if="controls.minimizeLeft" @mousedown.stop.prevent.native="minimizeHandler('left'), calculateViewModel()" name="mdi-arrow-collapse-right" class="float-right cursor-pointer" color="white"/>
+      <q-icon v-if="controls.minimizeRight" @mousedown.stop.prevent.native="minimizeHandler('right'), calculateViewModel()" name="mdi-arrow-collapse-left" class="float-right cursor-pointer" color="white"/>
     </div>
     <div :style="styles" class="widget__content relative-position">
       <slot name="default"></slot>
     </div>
     <div class="widget__custom-controls" v-if="isMinimized || isMaximized" :style="{ top: isMaximized ? '3px' : '' }">
-      <q-icon v-if="isMinimized && $q.platform.is.desktop" @mousedown.stop.prevent.native="restoreHandler" name="mdi-window-restore" size="30px" class="pull-right cursor-pointer" color="white"/>
-      <q-icon v-if="isMaximized && $q.platform.is.desktop" @mousedown.stop.prevent.native="maximizeHandler" :name="isMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" size="30px" class="pull-right cursor-pointer" color="white"/>
-      <q-icon @mousedown.stop.prevent.native="closeHandler" name="mdi-close" class="pull-right cursor-pointer" size="30px" color="white"/>
+      <q-icon v-if="(isMinimized || isMaximized) && ($q.platform.is.desktop && $q.screen.width > 500)" @mousedown.stop.prevent.native="restoreHandler" name="mdi-window-restore" size="25px" class="pull-right cursor-pointer" color="white"/>
+      <q-icon @mousedown.stop.prevent.native="closeHandler" name="mdi-close" class="pull-right cursor-pointer" size="25px" color="white"/>
     </div>
   </vue-draggable-resizable>
 </template>
 
 <script>
 import VueDraggableResizable from 'vue-draggable-resizable'
+import debounce from 'lodash/debounce'
 
 export default {
   name: 'widget-float-window',
   props: [
-    'siblingHeight', 'controls', 'wrapperSize'
+    'controls', 'wrapperSize', 'viewModel'
   ],
   data () {
     return {
@@ -68,37 +68,21 @@ export default {
     closeHandler () {
       this.$emit('close')
       if (this.isMinimized) {
-        this.$emit('minimize')
         this.minimizeTo = ''
         this.isMinimized = false
       }
       if (this.isMaximized) {
         this.isMaximized = false
-        this.$emit('maximize', this.isMaximized)
       }
     },
     maximizeHandler () {
-      if (this.isMaximized) {
-        this.width = this.prevWidth
-        this.height = this.prevHeight
-        this.x = this.prevX
-        this.y = this.prevY
-        this.prevWidth = 0
-        this.prevHeight = 0
-        this.prevX = 0
-        this.prevY = 0
-        this.isMaximized = false
-      } else {
-        this.prevWidth = this.width
-        this.prevHeight = this.height
-        this.prevX = this.x
-        this.prevY = this.y
-        this.maximize()
-      }
-      this.$emit('maximize', this.isMaximized)
+      this.prevWidth = this.width
+      this.prevHeight = this.height
+      this.prevX = this.x
+      this.prevY = this.y
+      this.maximize()
     },
     minimizeHandler (type) {
-      this.$emit('minimize', { type, value: true })
       this.prevWidth = this.width
       this.prevHeight = this.height
       this.isMinimized = true
@@ -108,28 +92,31 @@ export default {
       }
     },
     restoreHandler () {
-      this.$emit('minimize')
       this.isMinimized = false
+      this.isMaximized = false
       this.minimizeTo = ''
-      this.x = 50
-      this.y = 50
+      this.x = this.prevX || 50
+      this.y = this.prevY || 50
+      this.width = this.prevWidth || 500
+      this.height = this.prevHeight || 520
+      this.calculateViewModel()
     },
     minimize (minimizeTo) {
       const parentW = this.wrapperSize.width,
         parentH = this.wrapperSize.height
-      this.width = parentW * 0.34
-      this.height = ((parentH - 50) * ((this.siblingHeight || 100) / 100))
+      this.width = 300
+      this.height = parentH - 50
       switch (minimizeTo) {
-        case 'bottom': {
+        case 'left': {
           this.$nextTick(() => {
-            this.x = parentW * 0.66
+            this.x = parentW - 300
             this.y = parentH - this.height
           })
           break
         }
-        case 'top': {
+        case 'right': {
           this.$nextTick(() => {
-            this.x = parentW * 0.66
+            this.x = 0
             this.y = 50
           })
           break
@@ -146,7 +133,6 @@ export default {
         this.y = 0
       })
       if (this.isMinimized) {
-        this.$emit('minimize')
         this.minimizeTo = ''
         this.isMinimized = false
       }
@@ -155,6 +141,7 @@ export default {
     resizeHandler (left, top, width, height) {
       this.width = width
       this.height = height
+      this.calculateViewModel()
     },
     onWindowResize (size) {
       this.$refs.dragResize.checkParentSize()
@@ -204,24 +191,56 @@ export default {
           }
         }
       }
+      this.calculateViewModel()
     },
-    draggingHandler (top, left) {
+    draggingHandler (left, top) {
       if (this.isMinimized) {
-        this.$emit('minimize')
         this.minimizeTo = ''
         this.isMinimized = false
       }
       if (this.isMaximized) {
         this.isMaximized = false
-        this.$emit('maximize', this.isMaximized)
       }
       this.x = left
       this.y = top
       this.$emit('dragging')
+      this.calculateViewModel()
+    },
+    applyViewModel (model) {
+      if (!model) { return false }
+      if (model.type === 'minimized' && !this.isMinimized) {
+        this.minimizeHandler(model.to)
+      } else if (model.type === 'maximized' && !this.isMaximized) {
+        this.maximizeHandler()
+      } else if (model.type === 'windowed') {
+        this.x = model.x
+        this.y = model.y
+        this.width = model.width
+        this.height = model.height
+      }
     }
   },
   mounted () {
     if (this.$q.platform.is.mobile) { this.maximizeHandler() }
+    this.applyViewModel(this.viewModel)
+  },
+  created () {
+    this.calculateViewModel = debounce(() => {
+      const model = {}
+      if (this.isMinimized) {
+        model.type = 'minimized'
+        model.to = this.minimizeTo
+      } else if (this.isMaximized) {
+        model.type = 'maximized'
+      } else {
+        model.type = 'windowed'
+        model.x = this.x
+        model.y = this.y
+        model.width = this.width
+        model.height = this.height
+      }
+      this.$emit('change-view-model', model)
+    }, 150)
   },
   watch: {
     minimizeTo (minimizeTo) {
@@ -232,15 +251,11 @@ export default {
         this.height = this.prevHeight
       }
     },
-    siblingHeight (height, prev) {
-      if (!height && prev && this.isMinimized) {
-        this.restoreHandler()
-      } else if (prev && height && prev !== height) {
-        this.minimize(this.minimizeTo)
-      }
-    },
     wrapperSize (size) {
       this.onWindowResize(size)
+    },
+    viewModel (model) {
+      this.applyViewModel(model)
     }
   },
   components: { VueDraggableResizable }
@@ -250,9 +265,13 @@ export default {
 <style lang="stylus">
   .widget__wrapper
     z-index 1
+    .widget__header
+      cursor move
+      padding-right 1px
+      padding-top 3px
     .widget__custom-controls
       position absolute
-      top 10px
+      top 13px
       right 3px
       z-index 999
       background rgba(100,100,100,.4)
