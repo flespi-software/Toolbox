@@ -174,8 +174,9 @@ export default {
         ]
       }
       Object.keys(item).some(name => {
-        const hasImage = item[name].toString().match(/^data:image\/(?:gif|png|jpeg|bmp|webp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}/) ||
-          name.indexOf('image.bin.') === 0
+        const hasImage = item[name] &&
+          (item[name].toString().match(/^data:image\/(?:gif|png|jpeg|bmp|webp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}/) ||
+          name.indexOf('image.bin.') === 0)
         if (hasImage) {
           data.props.actions = [
             ...data.props.actions,
