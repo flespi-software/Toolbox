@@ -3,7 +3,7 @@
     <q-layout ref="layout" view="hHh LpR lFf" class="bg-grey-9">
       <q-header v-if="isVisibleToolbar">
         <q-toolbar class="header__main-toolbar bg-grey-9">
-          <q-btn flat icon="mdi-menu" @click="toggleMenu" v-if="!dashMode"/>
+          <q-btn flat round icon="mdi-menu" @click="toggleMenu" v-if="!dashMode"/>
           <q-toolbar-title :style="{minWidth: $q.platform.is.mobile ? '60px' : '210px'}">
             <img class="gt-sm cursor-pointer" src="statics/toolbox50.png" alt="Toolbox" style="height: 30px" @click="goToMain">
             <img class="lt-md cursor-pointer" src="statics/toolbox_mobile.png" alt="Toolbox" style="height: 30px" @click="goToMain">

@@ -12,7 +12,6 @@ export default {
         case 202:
         case 300:
         case 312:
-        case 313:
         case 401:
         case 410:
         case 420:
@@ -61,6 +60,7 @@ export default {
         case 203:
         case 204:
         case 304:
+        case 313:
         case 315:
         case 316:
         case 322:
@@ -69,14 +69,16 @@ export default {
         case 501:
           return 'text-red'
         case 201: {
-          if (this.item.send_code < 0) {
+          const code = this.item ? this.item.send_code : 0
+          if (code < 0) {
             return 'text-red'
           } else {
             return 'text-green'
           }
         }
         case 102: {
-          switch (this.item.close_code) {
+          const code = this.item ? this.item.close_code : 0
+          switch (code) {
             case 3: { return 'text-green' }
             case 2:
             case 12:
@@ -92,11 +94,11 @@ export default {
             case 8:
             case 9:
             case 10: { return 'text-yellow' }
-            default: { return '' }
+            default: { return 'text-grey-6' }
           }
         }
         default:
-          return ''
+          return 'text-grey-6'
       }
     },
     getLogDescriptionByItem (item) {

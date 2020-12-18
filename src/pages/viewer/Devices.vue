@@ -89,6 +89,7 @@
         :item="selectedItem"
         :limit="limit"
         originPattern="gw/devices/:id"
+        :enitity-name="entityName"
         :isEnabled="!!+size[0]"
         v-if="+size[0]"
         :style="[{height: `calc(${size[0]}vh - ${+size[1] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, panelsWidgetsStyle]"

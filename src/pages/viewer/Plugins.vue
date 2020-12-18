@@ -79,6 +79,7 @@
       ref="logs"
       v-if="isInit && active"
       :item="selectedItem"
+      :enitity-name="entityName"
       :limit="limit"
       originPattern="gw/plugins/:id"
       :isEnabled="true"

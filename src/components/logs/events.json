@@ -60,7 +60,6 @@
     "604": "device was blocked by calculator",
     "605": "device was unblocked by calculator",
     "700": "container size has been changed",
-    "800": "abque size has been changed",
     "900": "cdn size has been changed"
   },
   "closeCodes": {
@@ -254,5 +253,18 @@
       "5": "items count exceeds the current limit",
       "6": "item configuration is invalid"
     }
+  },
+  "codesByEntities": {
+    "base": [1,2,3,20,21],
+    "channels": [100,101,102,103,110,111,112,113,114],
+    "modems": [200,201,202,203,204],
+    "devices": [300,301,302,303,304,310,311,312,313,314,315,316],
+    "plugins": [320,321,322],
+    "streams": [401,402,403,404,410,411,412,420,422,430,432],
+    "mqtt": [500,501,502,503,504,510,511,512],
+    "platform": [600],
+    "calcs": [601,602,603,604,605],
+    "containers": [700],
+    "cdns": [900]
   }
 }

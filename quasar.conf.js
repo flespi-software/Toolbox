@@ -77,7 +77,8 @@ module.exports = function (ctx) {
         'QCardActions',
         'QChatMessage',
         'QTimeline',
-        'QTimelineEntry'
+        'QTimelineEntry',
+        'QRadio'
       ],
 
       directives: [

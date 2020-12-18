@@ -29,16 +29,19 @@
       @update-cols="updateColsHandler"
     >
       <empty-pane slot="empty" :config="config.emptyState"/>
+      <logs-filter-menu slot="filter-append" :filter="filter" :entity="enitityName" @update="filterChangeHandler"/>
     </virtual-scroll-list>
   </div>
 </template>
 
 <script>
 import { date } from 'quasar'
-import { VirtualScrollList, logsModule } from 'qvirtualscroll'
+import { VirtualScrollList } from 'qvirtualscroll'
+import logsModule from 'qvirtualscroll/src/store/modules/logs'
 import ItemMixin from './ItemMixin'
 import Vue from 'vue'
 import LogsListItem from './LogsListItem.vue'
+import LogsFilterMenu from './LogsFilterMenu.vue'
 import EmptyPane from '../EmptyPane'
 import filterMessages from '../../mixins/filterMessages'
 
@@ -48,7 +51,8 @@ export default {
     'cid',
     'limit',
     'originPattern',
-    'config'
+    'config',
+    'enitityName'
   ],
   data () {
     return {
@@ -383,6 +387,6 @@ export default {
     this.$store.commit(`${this.moduleName}/clear`)
   },
   mixins: [filterMessages, ItemMixin],
-  components: { VirtualScrollList, EmptyPane }
+  components: { VirtualScrollList, EmptyPane, LogsFilterMenu }
 }
 </script>
