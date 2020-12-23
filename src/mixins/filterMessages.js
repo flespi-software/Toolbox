@@ -68,16 +68,20 @@ export default {
         return messages.filter(message => {
           const isMessageIncluded = filters.reduce((flag, filter) => {
             let comp
-            /* eslint-disable */
             switch (filter.operation) {
               case '!=': {
+                /* eslint-disable */
                 comp = !!message[filter.field] && message[filter.field] != filter.value
+                /* eslint-enable */
+                break
               }
               case '<=': {
                 comp = !!message[filter.field] && message[filter.field] <= filter.value
+                break
               }
               case '>=': {
                 comp = !!message[filter.field] && message[filter.field] >= filter.value
+                break
               }
               case '=': {
                 let val = JSON.stringify(message[filter.field])
@@ -85,18 +89,21 @@ export default {
                   val = val.slice(1, -1)
                 }
                 comp = !!val && !!val.match(`^${filter.value.replace(/\*/g, '.*')}$`)
+                break
               }
               case '<': {
                 comp = !!message[filter.field] && message[filter.field] < filter.value
+                break
               }
               case '>': {
                 comp = !!message[filter.field] && message[filter.field] > filter.value
+                break
               }
               default: {
                 comp = message[filter.field] !== undefined
+                break
               }
             }
-            /* eslint-enable */
             return compare(flag, comp, filter.compareOperation)
           }, true)
           if (isMessageIncluded) {

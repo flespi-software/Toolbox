@@ -36,8 +36,7 @@
 
 <script>
 import { date } from 'quasar'
-import { VirtualScrollList } from 'qvirtualscroll'
-import logsModule from 'qvirtualscroll/src/store/modules/logs'
+import { VirtualScrollList, logsModule } from 'qvirtualscroll'
 import ItemMixin from './ItemMixin'
 import Vue from 'vue'
 import LogsListItem from './LogsListItem.vue'
