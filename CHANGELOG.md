@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.7.5] - 2020-12-23
+[feature] custom cols schemas
+[fix] styles
 ### [1.7.4] - 2020-12-23
 [fix] rt filter
 ### [1.7.3] - 2020-12-18

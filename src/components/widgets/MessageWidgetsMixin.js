@@ -28,13 +28,10 @@ export default {
     }
   },
   computed: {
-    filedsMetaData () {
-      return this.$store.state[this.config.messages.vuexModuleName].cols.reduce((res, col) => {
-        if (col.display) {
-          res.push(col.name)
-        }
-        return res
-      }, [])
+    fieldsDevicesMetaData () {
+      const list = get(this.$refs.messages.$refs, 'scrollList', {})
+      const cols = list.activeCols || []
+      return cols.map(col => col.name)
     },
     messageWidgetsViewConfig () {
       const content = this.widgetsViewedMessage
@@ -57,7 +54,7 @@ export default {
           title: 'Fields',
           description,
           wrapper: ObjectView,
-          meta: this.filedsMetaData,
+          meta: this.fieldsDevicesMetaData,
           action: this.messagesWidgetActionHandler,
           data: content
         }

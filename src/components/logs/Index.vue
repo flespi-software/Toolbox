@@ -17,7 +17,6 @@
       :item="listItem"
       :itemprops="getItemsProps"
       :has-new-messages="hasNewMessages"
-      :toDefaultCols="toDefaultColsHandler"
       @action="actionHandler"
       @change-filter="filterChangeHandler"
       @scroll-top="paginationPrevChangeHandler"
@@ -293,13 +292,6 @@ export default {
       this.$store.dispatch(`${this.moduleName}/getCols`, this.config.cols)
       await this.$store.dispatch(`${this.moduleName}/initTime`)
       await this.$store.dispatch(`${this.moduleName}/get`)
-    },
-    toDefaultColsHandler () {
-      const cols = [...this.config.cols]
-      if (cols[cols.length - 1].__dest !== 'etc') {
-        cols.push({ name: 'etc', width: 150, display: true, __dest: 'etc' })
-      }
-      this.$store.commit(`${this.moduleName}/setCols`, cols)
     },
     unselect () {
       if (this.selected.length) {

@@ -205,7 +205,10 @@ function getToolboxSettings (state) {
 }
 
 function setToolboxSettings (state, { type, opt, value }) {
-  let settings = LocalStorage.getItem('flespi-toolbox-settings') || {}
+  let settings = LocalStorage.getItem('flespi-toolbox-settings')
+  if (!settings || settings === 'null') {
+    settings = {}
+  }
   switch (type) {
     case 'ENTITY_CHANGE': {
       const { entity } = opt

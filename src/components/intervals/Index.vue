@@ -16,7 +16,6 @@
       :i18n="i18n"
       :item="listItem"
       :itemprops="getItemsProps"
-      :toDefaultCols="toDefaultColsHandler"
       @action="actionHandler"
       @change-filter="filterChangeHandler"
       @change-date-range="dateRangeChangeHandler"
@@ -289,9 +288,6 @@ export default {
         const message = messages[selectedIndex]
         this.viewMessagesHandler({ index: selectedIndex, content: message, entity: this.item })
       }
-    },
-    toDefaultColsHandler () {
-      this.$store.commit(`${this.moduleName}/setDefaultCols`)
     },
     scrollTo (index) {
       this.$nextTick(() => this.$refs.scrollList && this.$refs.scrollList.scrollTo(index))

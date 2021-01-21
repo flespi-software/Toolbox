@@ -17,7 +17,6 @@
       :i18n="i18n"
       :itemprops="getItemsProps"
       :has-new-messages="hasNewMessages"
-      :toDefaultCols="toDefaultColsHandler"
       @action="actionHandler"
       @change-filter="filterChangeHandler"
       @scroll-top="paginationPrevChangeHandler"
@@ -34,7 +33,8 @@
 </template>
 
 <script>
-import { VirtualScrollList, devicesMessagesModule } from 'qvirtualscroll'
+import { VirtualScrollList } from 'qvirtualscroll'
+import devicesMessagesModule from 'qvirtualscroll/src/store/modules/devicesMessages'
 import Vue from 'vue'
 import { copyToClipboard } from 'quasar'
 import filterMessages from '../../../mixins/filterMessages'
@@ -365,9 +365,6 @@ export default {
           this.scrollTo(newIndex)
         }
       }
-    },
-    toDefaultColsHandler () {
-      this.$store.commit(`${this.moduleName}/setDefaultCols`)
     },
     scrollControlling (count) {
       if (this.selected.length && this.selected[0] + 1000 <= count) {

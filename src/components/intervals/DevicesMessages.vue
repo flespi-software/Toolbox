@@ -16,7 +16,6 @@
       scrollOffset="10%"
       :item="listItem"
       :itemprops="getItemsProps"
-      :toDefaultCols="toDefaultColsHandler"
       @action="actionHandler"
       @change-filter="filterChangeHandler"
       @scroll-top="paginationPrevChangeHandler"
@@ -334,9 +333,6 @@ export default {
       if (this.selected.length) {
         this.selected = []
       }
-    },
-    toDefaultColsHandler () {
-      this.$store.commit(`${this.moduleName}/setDefaultCols`)
     },
     scrollControlling (count) {
       if (this.selected.length && this.selected[0] + 1000 <= count) {

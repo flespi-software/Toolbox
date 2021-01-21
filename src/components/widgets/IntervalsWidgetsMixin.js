@@ -27,13 +27,10 @@ export default {
     }
   },
   computed: {
-    filedsMetaData () {
-      return this.$store.state[this.config.logs.vuexModuleName].cols.reduce((res, col) => {
-        if (col.display) {
-          res.push(col.name)
-        }
-        return res
-      }, [])
+    fieldsIntervalsMetaData () {
+      const list = get(this.$refs.intervals.$refs, 'scrollList', {})
+      const cols = list.activeCols || []
+      return cols.map(col => col.name)
     },
     intervalsWidgetsViewConfig () {
       const config = {}
@@ -61,7 +58,7 @@ export default {
           description,
           wrapper: ObjectView,
           data: content,
-          meta: this.filedsMetaData,
+          meta: this.fieldsIntervalsMetaData,
           action: this.intervalsWidgetActionHandler
         }
       }
