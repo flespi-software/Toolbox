@@ -1,6 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
-### [1.7.5] - 2020-12-23
+### [1.7.6] - 2020-01-22
+[update] lib
+### [1.7.5] - 2020-01-21
 [feature] custom cols schemas
 [fix] styles
 ### [1.7.4] - 2020-12-23
