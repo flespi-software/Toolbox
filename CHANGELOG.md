@@ -1,5 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.7.7] - 2020-01-26
+[feature] confirmation delete cols schema
+[feature] locale to all timestamp columns
+[feature] new logs filter settings
+[fix] drag float window
 ### [1.7.6] - 2020-01-22
 [update] lib
 ### [1.7.5] - 2020-01-21

@@ -33,8 +33,7 @@
 </template>
 
 <script>
-import { VirtualScrollList } from 'qvirtualscroll'
-import devicesMessagesModule from 'qvirtualscroll/src/store/modules/devicesMessages'
+import { VirtualScrollList, devicesMessagesModule } from 'qvirtualscroll'
 import Vue from 'vue'
 import { copyToClipboard } from 'quasar'
 import filterMessages from '../../../mixins/filterMessages'

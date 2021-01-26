@@ -3,7 +3,7 @@
     ref="dragResize"
     class="widget__wrapper absolute-top-left absolute-bottom-right"
     :class="[isMinimized || isMaximized ? 'widget--pinned' : '']"
-    :style="wrapperStyles" drag-cancel=".widget__content" :parent="true" :active="true"
+    :style="wrapperStyles" drag-cancel=".widget--drag-stop" :parent="true" :active="true"
     :x="x" :y="y" :w="width" :h="height" :min-width="100" :min-height="100"
     @resizing="resizeHandler" @dragging="draggingHandler"
   >
@@ -13,10 +13,10 @@
       <q-icon v-if="controls.minimizeLeft" @mousedown.stop.prevent.native="minimizeHandler('left'), calculateViewModel()" name="mdi-arrow-collapse-right" class="float-right cursor-pointer" color="white"/>
       <q-icon v-if="controls.minimizeRight" @mousedown.stop.prevent.native="minimizeHandler('right'), calculateViewModel()" name="mdi-arrow-collapse-left" class="float-right cursor-pointer" color="white"/>
     </div>
-    <div :style="styles" class="widget__content relative-position">
+    <div :style="styles" class="widget__content widget--drag-stop relative-position">
       <slot name="default"></slot>
     </div>
-    <div class="widget__custom-controls" v-if="isMinimized || isMaximized" :style="{ top: isMaximized ? '3px' : '' }">
+    <div class="widget__custom-controls widget--drag-stop" v-if="isMinimized || isMaximized" :style="{ top: isMaximized ? '3px' : '' }">
       <q-icon v-if="(isMinimized || isMaximized) && ($q.platform.is.desktop && $q.screen.width > 500)" @mousedown.stop.prevent.native="restoreHandler" name="mdi-window-restore" size="25px" class="pull-right cursor-pointer" color="white"/>
       <q-icon @mousedown.stop.prevent.native="closeHandler" name="mdi-close" class="pull-right cursor-pointer" size="25px" color="white"/>
     </div>
