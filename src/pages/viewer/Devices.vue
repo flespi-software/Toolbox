@@ -105,13 +105,14 @@
         @action-show="data => messageWidgetsActions('show', data)"
         @action-image="data => messageWidgetsActions('image', data)"
         @action-select="data => messageWidgetsActions('select', data)"
+        @action-traffic="data => messageWidgetsActions('traffic', data)"
         :item="selectedItem"
         :activeId="active"
         :isEnabled="!!+size[1]"
         :limit="limit"
         v-if="+size[1]"
         :style="[{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, panelsWidgetsStyle]"
-        :config="config.messages"
+        :config="messagesConfig"
       />
     </div>
     <div v-if="!items.length && isItemsInit" class="text-center text-grey-3 q-mt-lg">
@@ -172,6 +173,7 @@ import EntitiesToolbar from '../../components/EntitiesToolbar'
 import { mapState, mapActions } from 'vuex'
 import init from '../../mixins/entitiesInit'
 import get from 'lodash/get'
+import cloneDeep from 'lodash/cloneDeep'
 
 export default {
   props: [
@@ -288,6 +290,18 @@ export default {
     },
     size () {
       return [this.ratio, 100 - this.ratio]
+    },
+    messagesConfig () {
+      const config = cloneDeep(this.config.messages)
+      if (this.trafficRoute) {
+        config.actions.push({
+          icon: 'mdi-download-network-outline',
+          label: 'View in traffic',
+          classes: '',
+          type: 'traffic'
+        })
+      }
+      return config
     },
     actions () {
       return [

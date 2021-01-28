@@ -78,6 +78,7 @@ async function getMessagesNext ({ state, commit }) {
     const resp = await Vue.connector.gw.getChannelsIdentsPackets(state.active, state.ident, { data: { count: state.limit, from, to: Math.floor(state.to / 1000) } })
     const messages = get(resp, 'data.result', [])
     commit('setMessagesAppend', messages)
+    return messages
   } catch (e) {
     commit('reqFailed', e)
   }
@@ -93,6 +94,7 @@ async function getMessagesPrev ({ state, commit }) {
     const messages = get(resp, 'data.result', [])
     messages.reverse()
     commit('setMessagesPrepend', messages)
+    return messages
   } catch (e) {
     commit('reqFailed', e)
   }

@@ -204,9 +204,11 @@ export default {
       const offsetAll = scrollerElement.scrollHeight - scrollerElement.clientHeight
       const scrollTop = scrollerElement.scrollTop
       this.$store.dispatch(`${this.moduleName}/getMessagesPrev`)
-        .then(() => {
-          const newOffsetAll = scrollerElement.scrollHeight - scrollerElement.clientHeight
-          scrollerElement.scrollTop = (newOffsetAll - offsetAll) + scrollTop
+        .then((messages) => {
+          if (messages && messages.length) {
+            const newOffsetAll = scrollerElement.scrollHeight - scrollerElement.clientHeight
+            scrollerElement.scrollTop = (newOffsetAll - offsetAll) + scrollTop
+          }
         })
     },
     getMessagesNext () {

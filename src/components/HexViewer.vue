@@ -51,7 +51,7 @@
               @mouseover="setActiveHandler(row, index)"
               @mousedown="event => startSelectionHandler(event, row, index)"
               @mouseup="event => endSelectionHandler(event, row, index)"
-              class="q-pr-xs q-pl-xs q-mt-sm q-mb-sm"
+              class="q-pr-xs q-pl-xs q-mt-sm q-mb-sm hex-char"
               :class="{ 'selected': (selected.includes((row * 16) + index)), '--active': (active === (row * 16) + index) || (start === end === ((row * 16) + index))}"
               v-for="(byte, index) in byte16"
               :key="`${row}${index}${byte}`"
@@ -65,7 +65,7 @@
           @mouseover="setActiveHandler(null, index)"
           @mousedown="event => startSelectionHandler(event, null, index)"
           @mouseup="event => endSelectionHandler(event, null, index)"
-          class="q-mt-sm q-mb-sm"
+          class="q-mt-sm q-mb-sm text-char"
           :class="{ 'selected': (selected.includes(index)), '--active': (active === index) || (start === end === index), 'raw-hex-data': isEmptySymbol(byte)}"
           :key="`${index}${byte}`"
         >{{replaceByteWithMnemo(byte)}}<br v-if="byte === '0A'"/></span>
@@ -83,6 +83,8 @@
     background-color #555
     color #ccc
     padding 0 2px
+  .hex-char, .text-char
+    white-space pre
   .selected
     color rgb(51, 51, 51)
     background-color rgba(255, 255, 255, 0.7)

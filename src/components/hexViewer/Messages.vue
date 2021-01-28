@@ -441,9 +441,35 @@ export default {
         )
       )
     }
-    this.currentLimit = this.limit
     if (this.activeId) {
-      this.active = this.activeId
+      this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
+      const activeItem = this.$store.state.channels[this.activeId] || {}
+      this.$set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
+    }
+    this.currentLimit = this.limit
+    const from = this.$route.query.from,
+      to = this.$route.query.to,
+      ident = this.$route.query.ident
+    if (from && to) {
+      this.from = from
+      this.to = to
+      this.$store.dispatch(`${this.moduleName}/get`).then(() => {
+        if (this.to > Date.now()) {
+          this.$store.dispatch(`${this.moduleName}/pollingGet`).then(render => render())
+        }
+        if (ident) {
+          const connetion = this.connections[ident]
+          this.connectionClickHandler({ content: connetion })
+        }
+      })
+    } else {
+      this.$store.dispatch(`${this.moduleName}/initTime`).then(() => {
+        this.$store.dispatch(`${this.moduleName}/get`).then(() => {
+          if (this.to > Date.now()) {
+            this.$store.dispatch(`${this.moduleName}/pollingGet`).then(render => render())
+          }
+        })
+      })
     }
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
       this.$store.commit(`${this.moduleName}/setOffline`, this.realtimeEnabled)

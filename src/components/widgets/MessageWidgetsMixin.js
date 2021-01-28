@@ -102,27 +102,31 @@ export default {
     },
     messageWidgetsActions (type, data) {
       const isActive = this.isWidgetsMessageActive
-      this.setWidgetsMessageView(data.content)
       const view = this.$refs.messagesView
       switch (type) {
         case 'position': {
+          this.setWidgetsMessageView(data.content)
           view.setTab(type)
           break
         }
         case 'show': {
+          this.setWidgetsMessageView(data.content)
           view.setTab('message')
           break
         }
         case 'object': {
+          this.setWidgetsMessageView(data.content)
           if (!isActive) {
             view.setTab('object')
           }
           break
         }
         case 'select': {
+          this.setWidgetsMessageView(data.content)
           break
         }
         case 'image': {
+          this.setWidgetsMessageView(data.content)
           let firstImage
           Object.keys(this.messageWidgetsViewConfig).some(name => {
             const isImage = name.indexOf('image') === 0
@@ -130,6 +134,14 @@ export default {
             return isImage
           })
           firstImage && view.setTab(firstImage)
+          break
+        }
+        case 'traffic': {
+          this.toTrafficHandler(data)
+          break
+        }
+        case 'hex': {
+          this.toHexHandler(data)
           break
         }
       }

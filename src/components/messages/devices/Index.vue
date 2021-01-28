@@ -3,12 +3,12 @@
     <virtual-scroll-list
       ref="scrollList"
       :cols="cols"
-      :actions="actions"
+      :actions="config.actions"
       :items="messages"
       :dateRange="dateRange"
-      :viewConfig="viewConfig"
+      :viewConfig="config.viewConfig"
       :filter="filter"
-      :theme="theme"
+      :theme="config.theme"
       :title="'Messages'"
       :loading="loadingFlag"
       :autoscroll="needAutoscroll"
@@ -50,9 +50,6 @@ export default {
   data () {
     return {
       listItem: MessagesListItem,
-      theme: this.config.theme,
-      viewConfig: this.config.viewConfig,
-      actions: this.config.actions,
       moduleName: this.config.vuexModuleName,
       autoscroll: true,
       i18n: {

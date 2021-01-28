@@ -107,6 +107,8 @@
         ref="messages"
         @action-view-data="data => messageWidgetsActions('object', data)"
         @action-map="data => messageWidgetsActions('position', data)"
+        @action-traffic="data => messageWidgetsActions('traffic', data)"
+        @action-hex="data => messageWidgetsActions('hex', data)"
         @action-show="data => messageWidgetsActions('show', data)"
         @action-image="data => messageWidgetsActions('image', data)"
         @action-select="data => messageWidgetsActions('select', data)"
@@ -114,7 +116,7 @@
         :activeId="active"
         :isEnabled="!!+size[1]"
         :limit="limit"
-        :config="config.messages"
+        :config="messagesConfig"
         v-if="+size[1]"
         :style="{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', ...panelsWidgetsStyle}"
       />
@@ -165,6 +167,7 @@ import { mapState, mapActions } from 'vuex'
 import EntitiesToolbar from '../../components/EntitiesToolbar'
 import get from 'lodash/get'
 import init from '../../mixins/entitiesInit'
+import cloneDeep from 'lodash/cloneDeep'
 
 export default {
   props: [
@@ -222,6 +225,25 @@ export default {
         config.itemSettings.needTrafficRoute = true
       } else {
         config.itemSettings.needTrafficRoute = false
+      }
+      return config
+    },
+    messagesConfig () {
+      const config = cloneDeep(this.config.messages)
+      if (this.selectedItem && this.selectedItem.protocol_id === this.proxyProtocolId) {
+        config.actions.push({
+          icon: 'mdi-matrix',
+          label: 'View in hex',
+          classes: '',
+          type: 'hex'
+        })
+      } else if (this.isTrafficViewerSupported) {
+        config.actions.push({
+          icon: 'mdi-download-network-outline',
+          label: 'View in traffic',
+          classes: '',
+          type: 'traffic'
+        })
       }
       return config
     },
@@ -316,6 +338,21 @@ export default {
     },
     trafficViewHandler () {
       this.$router.push(`/tools/traffic/${this.active}`).catch(err => err)
+    },
+    toHexHandler ({ content }) {
+      const ident = content.ident,
+        timeEnd = Math.floor(content.timestamp * 1000),
+        timeStart = timeEnd - 10000
+      if (ident) {
+        this.$router.push({
+          path: `/tools/hex/${this.active}`,
+          query: {
+            from: timeStart,
+            to: timeEnd,
+            ident
+          }
+        }).catch(err => err)
+      }
     },
     toTrafficHandler ({ content }) {
       const ident = content.ident,

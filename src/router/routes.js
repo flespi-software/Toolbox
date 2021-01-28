@@ -34,7 +34,7 @@ function getIndexChildrenRoutes (config) {
           }
         ]
       }
-      if (moduleName === 'trafficViewer') {
+      if (moduleName === 'trafficViewer' || moduleName === 'hexViewer') {
         route.children[0].children = [
           {
             path: 'ident/:ident',

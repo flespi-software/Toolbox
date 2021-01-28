@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.7.8] - 2020-01-28
+[feature] looking raw traffic in channel/devices messages
+[fix] hex viewer styles
 ### [1.7.7] - 2020-01-26
 [feature] confirmation delete cols schema
 [feature] locale to all timestamp columns
