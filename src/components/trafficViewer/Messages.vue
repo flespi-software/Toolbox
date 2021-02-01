@@ -312,6 +312,14 @@ export default {
       this.from = from
       this.to = to
       this.$store.dispatch(`${this.moduleName}/getMessages`)
+        .then(() => {
+          this.$nextTick(() => {
+            const incomingMessageIndex = this.messages.findIndex(message => message.type === 2)
+            if (incomingMessageIndex > -1) {
+              this.messageClickHandler({ index: incomingMessageIndex, event: {} })
+            }
+          })
+        })
       if (this.to > Date.now()) {
         this.$store.dispatch(`${this.moduleName}/pollingGetMessages`)
       }

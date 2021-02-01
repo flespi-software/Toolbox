@@ -460,6 +460,12 @@ export default {
         if (ident) {
           const connetion = this.connections[ident]
           this.connectionClickHandler({ content: connetion })
+          this.$nextTick(() => {
+            const incomingMessageIndex = this.currentMessages.findIndex(message => message['proxy.source'] === 0 && Math.floor(message.timestamp * 1000) === to)
+            if (incomingMessageIndex > -1) {
+              this.messageClickHandler({ index: incomingMessageIndex, event: {} })
+            }
+          })
         }
       })
     } else {

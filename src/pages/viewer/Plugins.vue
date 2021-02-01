@@ -216,7 +216,13 @@ export default {
         message: 'Do you really want to clear all data from the panes?',
         ok: true,
         cancel: true
-      }).onOk(() => { this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`) })
+      }).onOk(() => {
+        this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`)
+        if (this.isWidgetsLogsActive) {
+          this.isWidgetsLogsActive = false
+          this.closeLogsWidgetsHandler()
+        }
+      })
         .onCancel(() => {})
     },
     async getDeletedHandler () {

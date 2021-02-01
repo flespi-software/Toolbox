@@ -365,6 +365,13 @@ export default {
       }).onOk(() => {
         this.$store.commit(`${this.config.messages.vuexModuleName}/clearMessages`)
         this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`)
+        if (this.isWidgetsLogsActive) {
+          this.isWidgetsLogsActive = false
+          this.closeLogsWidgetsHandler()
+        } else if (this.isWidgetsMessageActive) {
+          this.isWidgetsMessageActive = false
+          this.closeMessageWidgetsHandler()
+        }
       })
         .onCancel(() => {})
     },
