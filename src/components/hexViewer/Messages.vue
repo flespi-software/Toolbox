@@ -150,7 +150,8 @@ export default {
         return this.$store.state[this.moduleName].from
       },
       set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setFrom`, val) : this.$store.commit(`${this.moduleName}/setFrom`, 0)
+        val = val || 0
+        this.$store.commit(`${this.moduleName}/setFrom`, val)
       }
     },
     to: {
@@ -158,7 +159,8 @@ export default {
         return this.$store.state[this.moduleName].to
       },
       set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setTo`, val) : this.$store.commit(`${this.moduleName}/setTo`, 0)
+        val = val || 0
+        this.$store.commit(`${this.moduleName}/setTo`, val)
       }
     },
     realtimeEnabled () {
@@ -169,7 +171,8 @@ export default {
         return this.$store.state[this.moduleName].limit
       },
       set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setLimit`, val) : this.$store.commit(`${this.moduleName}/setLimit`, 0)
+        val = val || 0
+        this.$store.commit(`${this.moduleName}/setLimit`, val)
       }
     },
     loadingFlag () {

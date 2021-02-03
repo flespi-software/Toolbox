@@ -114,7 +114,8 @@ export default {
         return this.$store.state[this.moduleName].filter
       },
       set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setFilter`, val) : this.$store.commit(`${this.moduleName}/setFilter`, '')
+        val = val || ''
+        this.$store.commit(`${this.moduleName}/setFilter`, val)
       }
     },
     begin: {
@@ -122,7 +123,8 @@ export default {
         return this.$store.state[this.moduleName].begin
       },
       set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setBegin`, val) : this.$store.commit(`${this.moduleName}/setBegin`, 0)
+        val = val || 0
+        this.$store.commit(`${this.moduleName}/setBegin`, val)
       }
     },
     end: {
@@ -130,7 +132,8 @@ export default {
         return this.$store.state[this.moduleName].end
       },
       set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setEnd`, val) : this.$store.commit(`${this.moduleName}/setEnd`, 0)
+        val = val || 0
+        this.$store.commit(`${this.moduleName}/setEnd`, val)
       }
     },
     reverse: {
@@ -146,7 +149,8 @@ export default {
         return this.$store.state[this.moduleName].limit
       },
       set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setLimit`, val) : this.$store.commit(`${this.moduleName}/setLimit`, 0)
+        val = val || 0
+        this.$store.commit(`${this.moduleName}/setLimit`, val)
       }
     },
     selected: {

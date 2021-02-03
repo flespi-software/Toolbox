@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.7.10] - 2020-02-03
+[feature] save filter for internal redirects
+[fix] next/prev date scrolling
 ### [1.7.9] - 2020-02-01
 [feature] select message in hex/traffic viewer
 [feature] hide widgets after clearing messages

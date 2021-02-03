@@ -39,13 +39,15 @@ import { copyToClipboard } from 'quasar'
 import filterMessages from '../../../mixins/filterMessages'
 import EmptyPane from '../../EmptyPane'
 import MessagesListItem from './MessagesListItem.vue'
+import get from 'lodash/get'
 
 export default {
   props: [
     'item',
     'activeId',
     'limit',
-    'config'
+    'config',
+    'needRestoreSettings'
   ],
   data () {
     return {
@@ -94,7 +96,8 @@ export default {
         return this.$store.state[this.moduleName].filter
       },
       set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setFilter`, val) : this.$store.commit(`${this.moduleName}/setFilter`, '')
+        val = val || ''
+        this.$store.commit(`${this.moduleName}/setFilter`, val)
       }
     },
     from: {
@@ -102,7 +105,8 @@ export default {
         return this.$store.state[this.moduleName].from
       },
       set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setFrom`, val) : this.$store.commit(`${this.moduleName}/setFrom`, 0)
+        val = val || 0
+        this.$store.commit(`${this.moduleName}/setFrom`, val)
       }
     },
     to: {
@@ -110,7 +114,8 @@ export default {
         return this.$store.state[this.moduleName].to
       },
       set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setTo`, val) : this.$store.commit(`${this.moduleName}/setTo`, 0)
+        val = val || 0
+        this.$store.commit(`${this.moduleName}/setTo`, val)
       }
     },
     dateRange () {
@@ -132,7 +137,8 @@ export default {
         return this.$store.state[this.moduleName].limit
       },
       set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setLimit`, val) : this.$store.commit(`${this.moduleName}/setLimit`, 1000)
+        val = val || 1000
+        this.$store.commit(`${this.moduleName}/setLimit`, val)
       }
     },
     selected: {
@@ -383,6 +389,14 @@ export default {
       this.$store.commit(`${this.moduleName}/clear`)
     }
     this.currentLimit = this.limit
+    let filter = get(this.$store.state.sessionSettings, 'savedFilter', '')
+    if (filter) {
+      if (this.needRestoreSettings) {
+        filter = get(filter, `devices.${this.activeId}`, '')
+        this.filter = filter
+      }
+      this.$store.commit('setToolboxSessionSettings', { savedFilter: undefined })
+    }
     if (this.activeId) { this.active = this.activeId }
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
       this.$store.commit(`${this.moduleName}/setOffline`, this.realtimeEnabled)

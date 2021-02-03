@@ -109,6 +109,7 @@
         :item="selectedItem"
         :activeId="active"
         :isEnabled="!!+size[1]"
+        :needRestoreSettings="needRestoreSettings"
         :limit="limit"
         v-if="+size[1]"
         :style="[{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, panelsWidgetsStyle]"
@@ -194,7 +195,8 @@ export default {
       isItemsInit: false,
       isItemsInitStart: false,
       needShowGetDeletedAction: true,
-      trafficRoute: null
+      trafficRoute: null,
+      needRestoreSettings: false
     }
   },
   computed: {
@@ -395,6 +397,7 @@ export default {
     },
     trafficViewHandler () {
       this.$router.push(this.trafficRoute).catch(err => err)
+      this.saveSessionMessageFilter()
     },
     toTrafficHandler ({ content }) {
       const ident = content.ident,
@@ -403,6 +406,7 @@ export default {
       if (ident) {
         this.$router.push({ path: this.trafficRoute, query: { from: timeStart, to: timeEnd } }).catch(err => err)
       }
+      this.saveSessionMessageFilter()
     },
     init () {
       const entity = this.entityName,
@@ -427,6 +431,12 @@ export default {
     },
     moveToIntervals (deviceId, calcId) {
       this.$nextTick(() => { this.$router.push(`/device/${deviceId}/calc/${calcId}/intervals?noselect=devices`).catch(err => err) })
+    },
+    saveSessionMessageFilter () {
+      const filter = get(this.$store.state, `${this.config.messages.vuexModuleName}.filter`, '')
+      if (filter) {
+        this.$store.commit('setToolboxSessionSettings', { savedFilter: { [this.entityName]: { [this.active]: filter } } })
+      }
     },
     clearWidgetsState () {
       this.isWidgetsMessageActive = false
@@ -470,6 +480,13 @@ export default {
         }
       })
     }
+  },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      if (from.meta.moduleName === 'trafficViewer') {
+        vm.needRestoreSettings = true
+      }
+    })
   },
   watch: {
     $route (route) {

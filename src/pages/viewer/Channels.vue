@@ -114,6 +114,7 @@
         @action-select="data => messageWidgetsActions('select', data)"
         :item="selectedItem"
         :activeId="active"
+        :needRestoreSettings="needRestoreSettings"
         :isEnabled="!!+size[1]"
         :limit="limit"
         :config="messagesConfig"
@@ -187,7 +188,8 @@ export default {
       isInit: false,
       isItemsInit: false,
       isItemsInitStart: false,
-      needShowGetDeletedAction: true
+      needShowGetDeletedAction: true,
+      needRestoreSettings: false
     }
   },
   computed: {
@@ -335,9 +337,11 @@ export default {
     ...mapActions(['getDeleted']),
     hexViewHandler () {
       this.$router.push(`/tools/hex/${this.active}`).catch(err => err)
+      this.saveSessionMessageFilter()
     },
     trafficViewHandler () {
       this.$router.push(`/tools/traffic/${this.active}`).catch(err => err)
+      this.saveSessionMessageFilter()
     },
     toHexHandler ({ content }) {
       const ident = content.ident,
@@ -353,6 +357,7 @@ export default {
           }
         }).catch(err => err)
       }
+      this.saveSessionMessageFilter()
     },
     toTrafficHandler ({ content }) {
       const ident = content.ident,
@@ -360,6 +365,13 @@ export default {
         timeStart = timeEnd - 10000
       if (ident) {
         this.$router.push({ path: `/tools/traffic/${this.active}/ident/${ident}`, query: { from: timeStart, to: timeEnd } }).catch(err => err)
+      }
+      this.saveSessionMessageFilter()
+    },
+    saveSessionMessageFilter () {
+      const filter = get(this.$store.state, `${this.config.messages.vuexModuleName}.filter`, '')
+      if (filter) {
+        this.$store.commit('setToolboxSessionSettings', { savedFilter: { [this.entityName]: { [this.active]: filter } } })
       }
     },
     clearHandler () {
@@ -455,6 +467,13 @@ export default {
         }
       })
     }
+  },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      if (from.meta.moduleName === 'trafficViewer' || from.meta.moduleName === 'hexViewer') {
+        vm.needRestoreSettings = true
+      }
+    })
   },
   watch: {
     $route (route) {

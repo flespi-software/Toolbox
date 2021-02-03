@@ -102,7 +102,8 @@ export default {
         return this.$store.state[this.moduleName].filter
       },
       set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setFilter`, val) : this.$store.commit(`${this.moduleName}/setFilter`, '')
+        val = val || ''
+        this.$store.commit(`${this.moduleName}/setFilter`, val)
       }
     },
     dateRange () {
@@ -113,7 +114,8 @@ export default {
         return this.$store.state[this.moduleName].from
       },
       set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setFrom`, val) : this.$store.commit(`${this.moduleName}/setFrom`, 0)
+        val = val || 0
+        this.$store.commit(`${this.moduleName}/setFrom`, val)
       }
     },
     to: {
@@ -121,7 +123,8 @@ export default {
         return this.$store.state[this.moduleName].to
       },
       set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setTo`, val) : this.$store.commit(`${this.moduleName}/setTo`, 0)
+        val = val || 0
+        this.$store.commit(`${this.moduleName}/setTo`, val)
       }
     },
     reverse: {
@@ -149,7 +152,8 @@ export default {
         return this.$store.state[this.moduleName].limit
       },
       set (val) {
-        val ? this.$store.commit(`${this.moduleName}/setLimit`, val) : this.$store.commit(`${this.moduleName}/setLimit`, 1000)
+        val = val || 1000
+        this.$store.commit(`${this.moduleName}/setLimit`, val)
       }
     },
     hasNewMessages: {
