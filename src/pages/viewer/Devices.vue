@@ -404,7 +404,7 @@ export default {
     },
     toTrafficHandler ({ content }) {
       const ident = content.ident,
-        timeEnd = Math.floor(content.timestamp * 1000),
+        timeEnd = Math.floor(content['server.timestamp'] * 1000),
         timeStart = timeEnd - 10000
       if (ident) {
         this.$router.push({ path: this.trafficRoute, query: { from: timeStart, to: timeEnd } }).catch(err => err)
