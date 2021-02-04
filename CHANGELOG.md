@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.7.12] - 2020-02-04
+[fix] redirects to traffic viewer from devices in intergartion
 ### [1.7.11] - 2020-02-04
 [feature] export csv
 ### [1.7.10] - 2020-02-03

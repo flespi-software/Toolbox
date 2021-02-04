@@ -13,8 +13,8 @@
             :loading="isItemsInitStart && !isItemsInit"
             :label="active ? 'Channel' : 'SELECT CHANNEL'"
             dark hide-bottom-space dense color="white"
-            :disable="!isNeedSelect"
-            :hide-dropdown-icon="!isNeedSelect"
+            :disable="!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('channels') > -1)"
+            :hide-dropdown-icon="!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('channels') > -1)"
             popup-content-class="items__popup"
             :popup-content-style="{height: `${((filteredItems.length > 6 ? 6 : filteredItems.length) * 48) + 48}px`}"
             @filter="(filter, update) => filterItems('channels', filter, update)"
@@ -166,7 +166,22 @@ export default {
       return this.items.filter(item => item.id === this.active)[0] || null
     },
     needShowBackToChannel () {
-      return this.active && (!this.isIntegration || (this.isIntegration && ((this.prevEntity === 'channels' && !this.isNeedSelect) || this.isNeedSelect)))
+      return this.active &&
+      (
+        !this.isIntegration ||
+        (
+          this.isIntegration &&
+          (
+            (
+              this.prevEntity === 'channels' &&
+              !this.isNeedSelect
+            ) || (
+              this.isNeedSelect &&
+              !(typeof this.isNeedSelect === 'string' && this.isNeedSelect.indexOf('channels') > -1)
+            )
+          )
+        )
+      )
     },
     needShowBackToDevice () {
       return (this.active && this.activeDevice && this.relatedDeviceId) && (!this.isIntegration || (this.isIntegration && ((this.prevEntity === 'devices' && !this.isNeedSelect) || this.isNeedSelect)))
