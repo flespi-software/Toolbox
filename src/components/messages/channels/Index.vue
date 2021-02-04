@@ -4,6 +4,7 @@
       ref="scrollList"
       :cols="cols"
       :actions="config.actions"
+      :panelActions="panelActions"
       :items="messages"
       :dateRange="dateRange"
       :viewConfig="config.viewConfig"
@@ -40,6 +41,7 @@ import filterMessages from '../../../mixins/filterMessages'
 import MessagesListItem from './MessagesListItem.vue'
 import EmptyPane from '../../EmptyPane'
 import get from 'lodash/get'
+import actions from '../../../mixins/actions'
 
 export default {
   props: [
@@ -69,6 +71,18 @@ export default {
       set (val) {
         this.$store.commit(`${this.moduleName}/setMessages`, val)
       }
+    },
+    panelActions () {
+      return [
+        {
+          label: 'Export CSV',
+          icon: 'mdi-file-document-outline',
+          handler: this.exportCsv,
+          condition: this.messages.length,
+          tooltip: 'Save messages to CSV',
+          async: this.isFileCsvLoading
+        }
+      ]
     },
     active: {
       get () {
@@ -456,7 +470,7 @@ export default {
     this.connectHandler !== undefined && Vue.connector.socket.off('connect', this.connectHandler)
     this.$store.commit(`${this.moduleName}/clear`)
   },
-  mixins: [filterMessages],
+  mixins: [filterMessages, actions],
   components: { VirtualScrollList, EmptyPane }
 }
 </script>

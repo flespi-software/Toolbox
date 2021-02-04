@@ -23,15 +23,26 @@
     <div v-if="item && ($q.platform.is.desktop && width >= 900)" class="flex justify-end" :style="{width: `${actions && actions.length ? actions.length * 72 : ''}px`}">
       <template v-for="(action, index) in actions">
         <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp" :key="index" v-if="action.condition">
-          <q-btn :title="action.label" class="on-left cursor-pointer pull-right text-center rounded-borders q-px-xs q-py-none text-white" @click="action.handler" flat dense style="width: 60px">
+          <q-btn :title="action.label" :loading="action.async" class="on-left cursor-pointer pull-right text-center rounded-borders q-px-xs q-py-none text-white" @click="action.handler" flat dense style="width: 60px">
+            <div slot="loading">
+              <q-icon size="1.5rem" :name="action.icon"/>
+              <div style="font-size: .7rem; line-height: .7rem">{{action.label}}</div>
+              <q-tooltip v-if="action.tooltip">{{action.tooltip}}</q-tooltip>
+              <q-spinner class="absolute-bottom-right" color="white" size=".7rem" />
+            </div>
             <q-icon size="1.5rem" :name="action.icon"/>
             <div style="font-size: .7rem; line-height: .7rem">{{action.label}}</div>
+            <q-tooltip v-if="action.tooltip">{{action.tooltip}}</q-tooltip>
           </q-btn>
         </transition>
       </template>
     </div>
     <div v-else-if="item && (!$q.platform.is.desktop || width < 900)">
-      <q-btn flat icon="mdi-dots-vertical" color="white" v-if="hasActiveActions" dense>
+      <q-btn flat icon="mdi-dots-vertical" :loading="hasAsync" color="white" v-if="hasActiveActions" dense>
+        <template slot="loading">
+          <q-icon size="1.5rem" name="mdi-dots-vertical"/>
+          <q-spinner class="absolute-bottom-right" color="white" size=".7rem" />
+        </template>
         <q-menu>
           <q-list dark class="bg-grey-7">
             <q-item v-close-popup v-if="!item.deleted && ratio !== undefined">
@@ -48,10 +59,14 @@
             </q-item>
             <template v-for="(action, index) in actions">
               <q-item v-close-popup v-if="action.condition" clickable @click="action.handler" :key="index" dense>
-                <q-item-section avatar>
+                <q-item-section side>
                   <q-icon :name="action.icon" />
                 </q-item-section>
                 <q-item-section>{{action.label}}</q-item-section>
+                <q-item-section side v-if="action.async">
+                  <q-spinner color="white" size="1rem" />
+                </q-item-section>
+                <q-tooltip v-if="action.tooltip">{{action.tooltip}}</q-tooltip>
               </q-item>
             </template>
           </q-list>
@@ -72,6 +87,9 @@ export default {
   computed: {
     hasActiveActions () {
       return (!this.item.deleted && this.ratio !== undefined) || (this.actions && this.actions.reduce((res, action) => res || (action && action.condition), false))
+    },
+    hasAsync () {
+      return !!this.actions.filter(action => action.async).length
     }
   },
   methods: {

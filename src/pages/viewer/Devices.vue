@@ -202,7 +202,10 @@ export default {
   computed: {
     ...mapState({
       isEmptyMessages (state) {
-        const hasntMessages = this.config.messages && state[this.config.messages.vuexModuleName] && !state[this.config.messages.vuexModuleName].messages.length && this.ratio !== 100,
+        return this.config.messages && state[this.config.messages.vuexModuleName] && !state[this.config.messages.vuexModuleName].messages.length && this.ratio !== 100
+      },
+      isEmptyData (state) {
+        const hasntMessages = this.isEmptyMessages,
           hasntLogs = this.config.logs && state[this.config.logs.vuexModuleName] && state[this.config.logs.vuexModuleName].messages && !state[this.config.logs.vuexModuleName].messages.length && this.ratio !== 0
         return hasntMessages && hasntLogs
       },

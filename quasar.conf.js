@@ -78,7 +78,8 @@ module.exports = function (ctx) {
         'QChatMessage',
         'QTimeline',
         'QTimelineEntry',
-        'QRadio'
+        'QRadio',
+        'QSpinner'
       ],
 
       directives: [
