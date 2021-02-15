@@ -79,6 +79,7 @@ export default {
       rawConfig: {},
       entity: '',
       isVisibleToolbar: true,
+      toolboxMode: undefined,
       connectFlag: false,
       isTabsVisible: true,
       entityByGroup: ['platform', 'channels', 'devices', 'streams', 'calcs', 'intervals', 'plugins', 'hexViewer', 'trafficViewer', 'modems', 'containers', 'cdns', 'mqtt', 'mqttClient'],
@@ -100,9 +101,6 @@ export default {
       localeName: state => state.sessionSettings && state.sessionSettings.region && state.sessionSettings.region.name,
       sessionSettings: state => state.sessionSettings
     }),
-    messagesConfigByEntity () {
-      return this.configByEntity.messages
-    },
     loadingFlag () {
       return this.connectFlag || this.isLoading
     },
@@ -247,27 +245,36 @@ export default {
       }
     },
     routeProcess (route) {
-      if (route.params.group) {
-        const routeProcessIndex = Vue.connector.socket.on('connect', () => {
-          const groups = this.$route.params.group.split(','),
+      const routeProcessIndex = Vue.connector.socket.on('connect', () => {
+        if (route.query.group) {
+          const groups = route.query.group.split(','),
             entityByGroups = this.getGroups(groups)
           if (entityByGroups.length) {
             this.entityByGroup = entityByGroups
             this.setDefaultEntity()
           }
-          Vue.connector.socket.off('connect', routeProcessIndex)
-        })
-      }
-      if (route.params.token) {
-        this.routeParamsProcess(route)
+        }
+        const entity = route.meta.moduleName
+        if (entity) {
+          if (this.renderEntities.includes(entity)) {
+            this.setEntity(entity)
+          } else {
+            this.reset('Nothing to show by current token')
+          }
+        }
+        Vue.connector.socket.off('connect', routeProcessIndex)
+      })
+      if (route.query.token) {
+        this.initConnection({ token: route.query.token })
       } else if (!this.token) { // if not logged in
-        this.$router.push({ name: 'simpleLogin', params: { goto: route.path } }).catch(err => err)
+        Vue.connector.socket.off('connect', routeProcessIndex)
+        this.$router.push({ name: 'simpleLogin', params: { goto: route } }).catch(err => err)
       } else {
         this.routeMainProcess(route)
       }
     },
     routeParamsProcess (route) {
-      const noselect = this.$route.params.noselect
+      const noselect = route.query.noselect
       this.isNeedSelect = true
       if (noselect) {
         if (noselect !== 'all') {
@@ -276,22 +283,8 @@ export default {
           this.isNeedSelect = false
         }
       }
-      this.isVisibleToolbar = !route.params.fullscreen
-      this.setToolboxSessionSettings({ isNeedSelect: this.isNeedSelect, isVisibleToolbar: this.isVisibleToolbar })
-      this.initConnection({ token: route.params.token })
-        .then(() => {
-          if (route.params.id && route.params.type) {
-            const routeProcessIndex = Vue.connector.socket.on('connect', () => {
-              if (this.renderEntities.includes(route.params.type)) {
-                this.setEntity(this.$route.params.type)
-                this.$router.push(`/${route.params.type}/${route.params.id}`).catch(err => err)
-              } else {
-                this.reset('Nothing to show by current token')
-              }
-              Vue.connector.socket.off('connect', routeProcessIndex)
-            })
-          }
-        })
+      this.isVisibleToolbar = !route.query.fullscreen
+      this.toolboxMode = !route.query.mode
     },
     routeMainProcess (route) {
       if (route.path === '/') { // if main route
@@ -299,10 +292,6 @@ export default {
       } else { // go to send route
         if (this.$route.meta.moduleName) {
           this.setEntity(this.$route.meta.moduleName)
-          if (this.$route.meta.moduleName === this.entity) { return false }
-          this.$router.push(this.$route.path).catch(err => err)
-        } else {
-          this.$router.push(this.$route.path).catch(err => err)
         }
       }
     },
@@ -329,17 +318,19 @@ export default {
     this.$store.commit('getToolboxSettings')
   },
   created () {
+    this.routeParamsProcess(this.$route)
     this.routeProcess(this.$route)
     const sessionSettings = this.sessionSettings || {}
     if (sessionSettings.isNeedSelect !== undefined) this.isNeedSelect = sessionSettings.isNeedSelect
     if (sessionSettings.isVisibleToolbar !== undefined) this.isVisibleToolbar = sessionSettings.isVisibleToolbar
+    if (sessionSettings.mode !== undefined) this.toolboxMode = sessionSettings.mode
     if (!this.isInit) {
       this.connectFlag = true
       this.connectionPreserveHandlerIndex = Vue.connector.socket.on('connect', this.connectionPreserveHandler)
     }
+    this.setToolboxSessionSettings({ isNeedSelect: this.isNeedSelect, isVisibleToolbar: this.isVisibleToolbar, mode: this.toolboxMode })
   },
   beforeDestroy () {
-    this.$root.$off('cols:edit', this.colsEditHandler)
     this.connectionPreserveHandlerIndex !== undefined && Vue.connector.socket.off('connect', this.connectionPreserveHandlerIndex)
   },
   components: { LeftMenu, Settings, Dash }

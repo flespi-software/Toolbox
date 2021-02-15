@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.8.0] - 2020-02-15
+[feature] iframe integration bus
+[rebase] integration routes
 ### [1.7.13] - 2020-02-04
 [fix] traffic viewer route by timestamp
 ### [1.7.12] - 2020-02-04

@@ -27,40 +27,33 @@ export default {
         let entity = toEntity
         const promises = []
         if (entity) {
-          const idFromRoute = to.params && to.params.id ? to.params.id : null
-          let mainEntityIdFromRoute
-          if (idFromRoute) { mainEntityIdFromRoute = JSON.parse(idFromRoute.split('-')[0]) }
+          const idFromRoute = to.params && to.params.id ? JSON.parse(to.params.id) : null
           const idFromLS = get(vm.settings, `entities[${entity}]`, undefined)
           switch (entity) {
             case 'devices': {
               if (fromEntity === 'intervals') { fromEntity = 'devices' }
               if (idFromRoute) {
-                promises.push({ entity: 'tasks', id: { device: JSON.parse(idFromRoute) }, mode: 1 })
+                promises.push({ entity: 'tasks', id: { device: idFromRoute }, mode: 1 })
               }
               if (entity !== fromEntity) {
-                getMainEntity(entity, mainEntityIdFromRoute, idFromLS, vm.isNeedSelect, promises)
+                getMainEntity(entity, idFromRoute, idFromLS, vm.isNeedSelect, promises)
               }
               break
             }
             case 'calcs': {
               if (fromEntity === 'intervals') { fromEntity = 'calcs' }
               if (idFromRoute) {
-                promises.push({ entity: 'tasks', id: { calc: JSON.parse(idFromRoute) }, mode: 1 })
+                promises.push({ entity: 'tasks', id: { calc: idFromRoute }, mode: 1 })
               }
               if (entity !== fromEntity) {
-                getMainEntity(entity, mainEntityIdFromRoute, idFromLS, vm.isNeedSelect, promises)
+                getMainEntity(entity, idFromRoute, idFromLS, vm.isNeedSelect, promises)
               }
               break
             }
             case 'intervals': {
-              let deviceTo = to.params && to.params.deviceId ? JSON.parse(to.params.deviceId) : null,
-                calcTo = to.params && to.params.calcId ? JSON.parse(to.params.calcId) : null
-              const fromId = from.params && from.params.id ? JSON.parse(from.params.id.split('-')[0]) : null
-              if (to.params.id) {
-                const ids = to.params.id.split('-')
-                deviceTo = ids[0]
-                calcTo = ids[1]
-              }
+              const deviceTo = to.params && to.params.deviceId ? JSON.parse(to.params.deviceId) : null,
+                calcTo = to.params && to.params.calcId ? JSON.parse(to.params.calcId) : null,
+                fromId = from.params && from.params.id ? JSON.parse(from.params.id) : null
               if (fromEntity === 'devices') {
                 vm.isCalcsInit = getMainEntity('calcs', calcTo, undefined, vm.isNeedSelect || (typeof vm.isNeedSelect === 'string' && !vm.isNeedSelect.indexOf('calcs')), promises)
                 vm.isDevicesInit = loadedEntities.devices && !loadedEntities.devices.id
@@ -98,14 +91,14 @@ export default {
             case 'hexViewer': {
               entity = 'channels'
               if (entity !== fromEntity) {
-                getMainEntity(entity, mainEntityIdFromRoute, idFromLS, vm.isNeedSelect, promises)
+                getMainEntity(entity, idFromRoute, idFromLS, vm.isNeedSelect, promises)
               }
               break
             }
             case 'channels': {
               fromEntity = fromEntity === 'hexViewer' || fromEntity === 'trafficViewer' ? 'channels' : fromEntity
               if (entity !== fromEntity) {
-                getMainEntity(entity, mainEntityIdFromRoute, idFromLS, vm.isNeedSelect, promises)
+                getMainEntity(entity, idFromRoute, idFromLS, vm.isNeedSelect, promises)
               }
               break
             }
@@ -114,7 +107,7 @@ export default {
               if (fromEntity === 'mqtt') {
                 break
               }
-              getMainEntity(entity, mainEntityIdFromRoute, idFromLS, vm.isNeedSelect, promises)
+              getMainEntity(entity, idFromRoute, idFromLS, vm.isNeedSelect, promises)
               break
             }
             case 'mqtt': {
@@ -122,11 +115,11 @@ export default {
               if (fromEntity === 'platform') {
                 break
               }
-              getMainEntity(entity, mainEntityIdFromRoute, idFromLS, vm.isNeedSelect, promises)
+              getMainEntity(entity, idFromRoute, idFromLS, vm.isNeedSelect, promises)
               break
             }
             default: {
-              getMainEntity(entity, mainEntityIdFromRoute, idFromLS, vm.isNeedSelect, promises)
+              getMainEntity(entity, idFromRoute, idFromLS, vm.isNeedSelect, promises)
             }
           }
         }
@@ -213,6 +206,7 @@ export default {
           if (toEntity === 'intervals') { toEntity = 'devices' }
           // promises.push({ entity: 'tasks', id: { device: idFromRoute }, mode: 1 })
           if (toEntity !== fromEntity) {
+            promises.push({ entity: 'tasks', id: { device: idFromRoute }, mode: 1 })
             promises.push(this.isNeedSelect && this.isItemsInit ? { entity: fromEntity, mode: 1 } : { entity: fromEntity, id: idFromRoute, mode: 1 })
           }
           break
