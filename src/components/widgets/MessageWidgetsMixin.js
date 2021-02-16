@@ -60,7 +60,7 @@ export default {
         }
         Object.keys(content).forEach(name => {
           if (
-            content[name].toString().match(/^data:image\/(?:gif|png|jpeg|bmp|webp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}/) ||
+            JSON.stringify(content[name]).match(/^data:image\/(?:gif|png|jpeg|bmp|webp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}/) ||
             name.indexOf('image.bin.') === 0
           ) {
             let data = content[name]

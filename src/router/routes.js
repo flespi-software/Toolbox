@@ -45,7 +45,6 @@ const redirect = (to) => {
   if (to.params.token) { route.query.token = to.params.token }
   if (to.params.fullscreen) { route.query.fullscreen = to.params.fullscreen }
   if (to.params.noselect) { route.query.noselect = to.params.noselect }
-  console.log(route)
   return route
 }
 

@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.8.1] - 2020-02-16
+[fix] null valued params
 ### [1.8.0] - 2020-02-15
 [feature] iframe integration bus
 [rebase] integration routes
