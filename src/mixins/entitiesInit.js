@@ -154,15 +154,6 @@ export default {
           }
         }
       }
-      if (toEntity === 'intervals') {
-        const deviceTo = to.params && to.params.deviceId ? JSON.parse(to.params.deviceId) : null,
-          deviceFrom = from.params && from.params.deviceId ? JSON.parse(from.params.deviceId) : null,
-          calcTo = to.params && to.params.calcId ? JSON.parse(to.params.calcId) : null,
-          calcFrom = from.params && from.params.calcId ? JSON.parse(from.params.calcId) : null
-        if (deviceTo !== deviceFrom || calcTo !== calcFrom) {
-          init.push({ entity: 'tasks', id: { device: deviceTo, calc: calcTo }, mode: 1 })
-        }
-      }
       if (fromId) {
         switch (toEntity) {
           case 'devices': {
@@ -175,15 +166,16 @@ export default {
           }
         }
       }
-      if (toEntity === 'intervals') {
-        const deviceTo = to.params && to.params.deviceId ? JSON.parse(to.params.deviceId) : null,
-          deviceFrom = from.params && from.params.deviceId ? JSON.parse(from.params.deviceId) : null,
-          calcTo = to.params && to.params.calcId ? JSON.parse(to.params.calcId) : null,
-          calcFrom = from.params && from.params.calcId ? JSON.parse(from.params.calcId) : null
-        if (deviceTo !== deviceFrom || calcTo !== calcFrom) {
-          uninit.push({ entity: 'tasks', id: { device: deviceFrom, calc: calcFrom }, mode: 1 })
-        }
-      }
+      // if (toEntity === 'intervals') {
+      //   const deviceTo = to.params && to.params.deviceId ? JSON.parse(to.params.deviceId) : null,
+      //     deviceFrom = from.params && from.params.deviceId ? JSON.parse(from.params.deviceId) : null,
+      //     calcTo = to.params && to.params.calcId ? JSON.parse(to.params.calcId) : null,
+      //     calcFrom = from.params && from.params.calcId ? JSON.parse(from.params.calcId) : null
+      //   if (deviceTo !== deviceFrom || calcTo !== calcFrom) {
+      //     init.push({ entity: 'tasks', id: { device: deviceTo, calc: calcTo }, mode: 1 })
+      //     uninit.push({ entity: 'tasks', id: { device: deviceFrom, calc: calcFrom }, mode: 1 })
+      //   }
+      // }
     }
     uninit.forEach(promise => {
       delete loadedEntities[promise.entity]
@@ -230,7 +222,7 @@ export default {
             promises.push((this.isNeedSelect || (typeof this.isNeedSelect === 'string' && !this.isNeedSelect.indexOf('calcs'))) && this.isCalcsInit ? { entity: 'calcs', mode: 1 } : { entity: 'calcs', id: calcFrom, mode: 1 })
             promises.push((this.isNeedSelect || (typeof this.isNeedSelect === 'string' && !this.isNeedSelect.indexOf('devices'))) && this.isDevicesInit ? { entity: 'devices', mode: 1 } : { entity: 'devices', id: deviceFrom, mode: 1 })
           }
-          promises.push({ entity: 'tasks', id: { calc: calcFrom, device: deviceFrom }, mode: 1 })
+          promises.push(loadedEntities.tasks)
           break
         }
         case 'trafficViewer':

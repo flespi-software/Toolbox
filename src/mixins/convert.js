@@ -14,6 +14,23 @@ export default {
       const bytesHexArray = preview.match(/.{1,2}/g)
       return bytesHexArray.map((byte) => this.replaceByteWithMnemo(byte)).join('')
     },
+    isEmptySymbol (byte) {
+      const number = parseInt(byte, 16)
+      if (number < 0x20 || number >= 0x7f) {
+        return true
+      } else {
+        return false
+      }
+    },
+    replaceByteWithDot (byte) {
+      const number = parseInt(byte, 16),
+        string = String.fromCharCode(number)
+      if (number < 0x20 || number >= 0x7f) {
+        return '.'
+      } else {
+        return string
+      }
+    },
     replaceByteWithMnemo (byte) {
       const number = parseInt(byte, 16),
         string = String.fromCharCode(number)

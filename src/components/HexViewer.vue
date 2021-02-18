@@ -1,30 +1,24 @@
 <template>
   <div @click="clearSelectedHandler" ref="wrapper">
     <q-menu context-menu>
-      <q-list v-if="hex" separator style="min-width: 150px; max-height: 300px;">
-        <q-item v-close-popup @click="copy('hex')" clickable>
-          <q-item-section>Copy as hex</q-item-section>
-        </q-item>
-
-        <q-item v-close-popup @click="copy('text')" clickable>
-          <q-item-section>Copy as raw</q-item-section>
-        </q-item>
-
-        <q-item v-close-popup @click="copy('view')" clickable>
-          <q-item-section>Copy as seen</q-item-section>
-        </q-item>
-
-        <q-item v-close-popup @click="exportData('hex')" clickable>
-          <q-item-section>Export as hex</q-item-section>
-        </q-item>
-
-        <q-item v-close-popup @click="exportData('text')" clickable>
-          <q-item-section>Export as raw</q-item-section>
-        </q-item>
-
-        <q-item v-close-popup @click="exportData('view')" clickable>
-          <q-item-section>Export as seen</q-item-section>
-        </q-item>
+      <q-list style="min-width: 100px" class="bg-grey-8 text-white">
+        <div class="q-pa-sm">
+          <div style="font-size: .8rem">Copy as</div>
+          <div>
+            <q-btn v-close-popup dense flat label="seen" @click="copy(getContent('view', hex, view, selected), 'view')" />
+            <q-btn v-close-popup dense flat label="hex" @click="copy(getContent('hex', hex, view, selected), 'hex')" />
+            <q-btn v-close-popup dense flat label="raw" @click="copy(getContent('text', hex, view, selected), 'text')" />
+          </div>
+        </div>
+        <q-separator />
+        <div class="q-pa-sm">
+          <div style="font-size: .8rem">Export as</div>
+          <div>
+            <q-btn v-close-popup dense flat label="seen" @click="exportData(getContent('view', hex, view, selected), 'view')" />
+            <q-btn v-close-popup dense flat label="hex" @click="exportData(getContent('hex', hex, view, selected), 'hex')" />
+            <q-btn v-close-popup dense flat label="raw" @click="exportData(getContent('text', hex, view, selected), 'text')" />
+          </div>
+        </div>
       </q-list>
     </q-menu>
     <div class="text-white hex-viewer" :style="{wordBreak: view === 'text' ? 'break-all' : ''}" v-if="hex" @click="selectAllHandler">
@@ -114,10 +108,7 @@
 </style>
 
 <script>
-import range from 'lodash/range'
-import chunk from 'lodash/chunk'
-import { copyToClipboard } from 'quasar'
-import convert from '../mixins/convert'
+import hexProcessing from '../mixins/hexProcessing'
 export default {
   name: 'HexViewer',
   props: ['hex', 'view'],
@@ -132,27 +123,9 @@ export default {
     }
   },
   computed: {
-    bytesArray () {
-      let bytesArray
-      if (this.view === 'hex') {
-        const bytes16Array = this.hex.match(/.{1,32}/g)
-        bytesArray = bytes16Array.map(byte16 => byte16.match(/.{1,2}/g))
-      } else if (this.view === 'text') {
-        bytesArray = this.hex.match(/.{1,2}/g)
-      }
-      return bytesArray
-    },
-    addresses () { return range(0x00, 0x10 * this.hex.match(/.{1,32}/g).length, 0x10) },
-    selected () {
-      if (this.start !== -1 && this.end !== -1) {
-        if (this.start > this.end) {
-          return range(this.end, this.start + 1)
-        } else {
-          return range(this.start, this.end + 1)
-        }
-      }
-      return []
-    }
+    bytesArray () { return this.getBytesArray(this.hex, this.view) },
+    addresses () { return this.getAddresses(this.hex) },
+    selected () { return this.getSelected(this.start, this.end) }
   },
   watch: {
     hex () {
@@ -160,25 +133,8 @@ export default {
       this.end = -1
     }
   },
-  mixins: [convert],
+  mixins: [hexProcessing],
   methods: {
-    isEmptySymbol (byte) {
-      const number = parseInt(byte, 16)
-      if (number < 0x20 || number >= 0x7f) {
-        return true
-      } else {
-        return false
-      }
-    },
-    replaceByteWithDot (byte) {
-      const number = parseInt(byte, 16),
-        string = String.fromCharCode(number)
-      if (number < 0x20 || number >= 0x7f) {
-        return '.'
-      } else {
-        return string
-      }
-    },
     clearSelectedHandler (e) {
       if (e.target.isEqualNode(this.$refs.wrapper) && !this.selectionMode) {
         this.start = -1
@@ -224,115 +180,6 @@ export default {
       if (this.selectionMode && this.$q.platform.is.desktop) {
         this.end = this.hex.match(/.{1,2}/g).length - 1
       }
-    },
-    getContent (type, onlyBySelection) {
-      let content = ''
-      switch (type) {
-        case 'hex': {
-          if (onlyBySelection && this.selected.length) {
-            const byteArray = this.hex.match(/.{1,2}/g)
-            content = this.selected.map(index => byteArray[index]).join('')
-          } else {
-            content = this.hex
-          }
-          break
-        }
-        case 'text': {
-          const bytesHexArray = this.hex.match(/.{1,2}/g)
-          const byteArray = onlyBySelection && this.selected.length ? this.selected.map(index => bytesHexArray[index]) : bytesHexArray
-          content = byteArray.map((byte) => String.fromCharCode(parseInt(byte, 16))).join('')
-          break
-        }
-        case 'view': {
-          if (this.view === 'text') {
-            const byteArray = onlyBySelection && this.selected.length ? this.selected.map(index => this.bytesArray[index]) : this.bytesArray
-            content = byteArray.map((byte) => {
-              let str = this.replaceByteWithMnemo(byte)
-              if (byte === '0A') {
-                str += '\n'
-              }
-              return str
-            }).join('')
-          } else {
-            const isSelectionMode = onlyBySelection && this.selected.length,
-              allIndexes = chunk(Object.keys(this.hex.match(/.{1,2}/g)), 16),
-              indexes = isSelectionMode ? allIndexes.reduce((indexes, row) => {
-                let isRowEmpty = true
-                const localRow = row.reduce((currentRow, byteIndex, index) => {
-                  if (byteIndex < this.selected[0] || byteIndex > this.selected[this.selected.length - 1]) {
-                    currentRow.push(null)
-                  } else {
-                    currentRow.push(byteIndex)
-                    isRowEmpty = false
-                  }
-                  if (index === row.length - 1) {
-                    currentRow = isRowEmpty ? null : currentRow
-                  }
-                  return currentRow
-                }, [])
-                indexes.push(localRow)
-                return indexes
-              }, []) : allIndexes
-            indexes.forEach((row, index) => {
-              if (!row) { return false }
-              content += `${this.addresses[index].toString(16).padStart(7, 0).toUpperCase()}   `
-              const currentBytesArray = this.bytesArray[index]
-              let hexView = '',
-                textView = ''
-              row.forEach((index, byteIndex) => {
-                if (!index) {
-                  hexView += '  '
-                  textView += ' '
-                } else {
-                  hexView += currentBytesArray[byteIndex]
-                  textView += this.replaceByteWithDot(currentBytesArray[byteIndex])
-                }
-                hexView += ' '
-              })
-              content += hexView
-              content += '   '
-              content += ''.padEnd(32 - row.length * 2, ' ')
-              content += ''.padEnd(16 - row.length, ' ')
-              content += textView
-              content += '\n'
-            })
-          }
-          break
-        }
-      }
-      return content
-    },
-    copy (type) {
-      const content = this.getContent(type, true)
-
-      copyToClipboard(content).then((e) => {
-        this.$q.notify({
-          type: 'positive',
-          icon: 'content_copy',
-          message: `${type} copied`,
-          timeout: 1000
-        })
-      }, (e) => {
-        this.$q.notify({
-          type: 'negative',
-          icon: 'content_copy',
-          message: `Error coping ${type}`,
-          timeout: 1000
-        })
-      })
-    },
-    exportData (type) {
-      const typeOfFile = type === 'hex' ? 'application/octet-stream' : 'text/plain',
-        link = document.createElement('a'),
-        content = this.getContent(type, true),
-        blob = new Blob([content], { type: typeOfFile }),
-        data = URL.createObjectURL(blob)
-      link.setAttribute('href', data)
-      link.setAttribute('download', 'data.txt')
-      link.style.display = 'none'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
     }
   }
 }

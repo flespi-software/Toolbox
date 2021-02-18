@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.8.2] - 2020-02-18
+[feature] selected packets export in hex/traffic viewers
+[fix] init/reinit intervals
 ### [1.8.1] - 2020-02-16
 [fix] null valued params
 ### [1.8.0] - 2020-02-15

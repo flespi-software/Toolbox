@@ -38,8 +38,33 @@
         <q-btn color="white" flat dense :icon="typeOfHexView === 'hex' ? 'mdi-matrix' : 'mdi-format-text'" @click="typeOfHexView = typeOfHexView === 'hex' ? 'text' : 'hex'">
           <q-tooltip>Change view mode (hex/text)</q-tooltip>
         </q-btn>
-        <q-btn v-if="activeDevice" color="white" flat dense icon="mdi-export-variant" @click="$refs.messages && $refs.messages.exportModalOpen()">
+        <q-btn v-if="activeDevice" color="white" flat dense icon="mdi-export-variant">
           <q-tooltip>Export</q-tooltip>
+          <q-menu>
+            <q-list style="min-width: 100px" class="bg-grey-8 text-white">
+              <div class="q-pa-sm">
+                <div style="font-size: .8rem">Copy selected as</div>
+                <div>
+                  <q-btn v-close-popup :disable="!selectedMessages.length" dense flat label="seen" @click="copySelected()" />
+                  <q-btn v-close-popup :disable="!selectedMessages.length" dense flat label="hex" @click="copySelected('hex')" />
+                  <q-btn v-close-popup :disable="!selectedMessages.length" dense flat label="raw" @click="copySelected('text')" />
+                </div>
+              </div>
+              <q-separator />
+              <div class="q-pa-sm">
+                <div style="font-size: .8rem">Export selected as</div>
+                <div>
+                  <q-btn v-close-popup :disable="!selectedMessages.length" dense flat label="seen" @click="exportSelected()" />
+                  <q-btn v-close-popup :disable="!selectedMessages.length" dense flat label="hex" @click="exportSelected('hex')" />
+                  <q-btn v-close-popup :disable="!selectedMessages.length" dense flat label="raw" @click="exportSelected('text')" />
+                </div>
+              </div>
+              <q-separator />
+              <q-item clickable v-close-popup @click="$refs.messages && $refs.messages.exportModalOpen()">
+                <q-item-section>Export by time</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
         </q-btn>
       </q-toolbar>
       <packet-view
@@ -70,7 +95,7 @@ import Devices from './Devices'
 import MessagePreviewItem from './MessagePreviewItem'
 import PacketView from './PacketView'
 import trafficViewerVuexModule from '../../store/modules/trafficViewer'
-import convertMixin from '../../mixins/convert'
+import hexProcessing from '../../mixins/hexProcessing'
 export default {
   props: ['active', 'activeDevice', 'isVisibleToolbar', 'config', 'deviceCloseble'],
   data () {
@@ -101,6 +126,24 @@ export default {
     },
     previewHide (device) {
       this.devicePreview = null
+    },
+    getContentBySelected (type) {
+      return this.selectedMessages.reduce((content, packet) => {
+        content += this.getHeader(packet)
+        if (packet.data) {
+          content += this.getContent(type, this.base64ToHex(packet.data), this.typeOfHexView)
+        }
+        content += '\r\n'
+        return content
+      }, '')
+    },
+    copySelected (type = 'view') {
+      const content = this.getContentBySelected(type)
+      this.copy(content, type)
+    },
+    exportSelected (type = 'view') {
+      const content = this.getContentBySelected(type)
+      this.exportData(content, type)
     }
   },
   created () {
@@ -122,7 +165,7 @@ export default {
       this.devicePreview = null
     }
   },
-  mixins: [convertMixin],
+  mixins: [hexProcessing],
   components: { Devices, Messages, MessagePreviewItem, PacketView }
 }
 </script>

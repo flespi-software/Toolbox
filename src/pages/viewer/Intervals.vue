@@ -16,8 +16,8 @@
             filled
             :label="active ? undefined : 'SELECT DEVICE'"
             dark hide-bottom-space dense color="white"
-            :disable="(!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('devices') > -1)) || deviceBlocked"
-            :hide-dropdown-icon="(!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('devices') > -1)) || deviceBlocked"
+            :disable="devicesSelectorDisabled"
+            :hide-dropdown-icon="devicesSelectorDisabled"
             popup-content-class="items__popup"
             :popup-content-style="{height: `${((filteredDevices.length > 6 ? 6 : filteredDevices.length) * 48) + 48 + (filteredDevices.length ? 0 : 34)}px`}"
             @filter="filterDevicesSelectItems"
@@ -82,8 +82,8 @@
             :options="filteredCalcs"
             filled
             :clearable="$q.platform.is.desktop && !!active"
-            :disable="(!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('calcs') > -1)) || calcsBlocked"
-            :hide-dropdown-icon="(!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('calcs') > -1)) || calcsBlocked"
+            :disable="calcsSelectorDisabled"
+            :hide-dropdown-icon="calcsSelectorDisabled"
             @clear="clearCalc"
             :label="activeCalcId ? undefined : 'SELECT CALC'"
             dark hide-bottom-space dense color="white"
@@ -320,6 +320,18 @@ export default {
         this.$nextTick(() => { this.clearActiveCalc() })
       }
       return this.filterItems(calcs, this.calcFilter.toLowerCase())
+    },
+    devicesSelectorDisabled () {
+      return (
+        !this.isNeedSelect ||
+        (typeof isNeedSelect === 'string' && this.isNeedSelect.indexOf('devices') > -1)
+      ) || this.deviceBlocked
+    },
+    calcsSelectorDisabled () {
+      return (
+        !this.isNeedSelect ||
+        (typeof isNeedSelect === 'string' && this.isNeedSelect.indexOf('calcs') > -1)
+      ) || this.calcsBlocked
     },
     size () {
       return [this.ratio, 100 - this.ratio]

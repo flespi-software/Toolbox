@@ -343,7 +343,7 @@ export default {
         } else {
           this.selected = [index]
         }
-      } else if (event.ctrlKey) {
+      } else if (event.ctrlKey || event.metaKey) {
         if (this.selected.includes(index)) {
           const selected = this.selected
           selected.splice(this.selected.indexOf(index), 1)
