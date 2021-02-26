@@ -45,7 +45,7 @@
               <div class="q-pa-sm">
                 <div style="font-size: .8rem">Copy selected as</div>
                 <div>
-                  <q-btn v-close-popup :disable="!selectedMessages.length" dense flat label="seen" @click="copySelected()" />
+                  <q-btn v-close-popup :disable="!selectedMessages.length" dense flat label="shown" @click="copySelected()" />
                   <q-btn v-close-popup :disable="!selectedMessages.length" dense flat label="hex" @click="copySelected('hex')" />
                   <q-btn v-close-popup :disable="!selectedMessages.length" dense flat label="raw" @click="copySelected('text')" />
                 </div>
@@ -54,7 +54,7 @@
               <div class="q-pa-sm">
                 <div style="font-size: .8rem">Export selected as</div>
                 <div>
-                  <q-btn v-close-popup :disable="!selectedMessages.length" dense flat label="seen" @click="exportSelected()" />
+                  <q-btn v-close-popup :disable="!selectedMessages.length" dense flat label="shown" @click="exportSelected()" />
                   <q-btn v-close-popup :disable="!selectedMessages.length" dense flat label="hex" @click="exportSelected('hex')" />
                   <q-btn v-close-popup :disable="!selectedMessages.length" dense flat label="raw" @click="exportSelected('text')" />
                 </div>

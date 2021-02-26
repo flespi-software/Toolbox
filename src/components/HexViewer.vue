@@ -5,7 +5,7 @@
         <div class="q-pa-sm">
           <div style="font-size: .8rem">Copy as</div>
           <div>
-            <q-btn v-close-popup dense flat label="seen" @click="copy(getContent('view', hex, view, selected), 'view')" />
+            <q-btn v-close-popup dense flat label="shown" @click="copy(getContent('view', hex, view, selected), 'view')" />
             <q-btn v-close-popup dense flat label="hex" @click="copy(getContent('hex', hex, view, selected), 'hex')" />
             <q-btn v-close-popup dense flat label="raw" @click="copy(getContent('text', hex, view, selected), 'text')" />
           </div>
@@ -14,7 +14,7 @@
         <div class="q-pa-sm">
           <div style="font-size: .8rem">Export as</div>
           <div>
-            <q-btn v-close-popup dense flat label="seen" @click="exportData(getContent('view', hex, view, selected), 'view')" />
+            <q-btn v-close-popup dense flat label="shown" @click="exportData(getContent('view', hex, view, selected), 'view')" />
             <q-btn v-close-popup dense flat label="hex" @click="exportData(getContent('hex', hex, view, selected), 'hex')" />
             <q-btn v-close-popup dense flat label="raw" @click="exportData(getContent('text', hex, view, selected), 'text')" />
           </div>

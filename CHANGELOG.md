@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.8.3] - 2020-02-26
+[feature] init map features
 ### [1.8.2] - 2020-02-18
 [feature] selected packets export in hex/traffic viewers
 [fix] init/reinit intervals

@@ -54,6 +54,7 @@ export default {
     const mapInitHandler = (e) => {
       if (e.data === 'MapView|state:{"ready": true}') {
         this.mapInited = true
+        this.$refs.frame.contentWindow.postMessage('MapView|cmd:{"ruler": true, "zoomcontrol": true}', '*')
         this.send()
         window.removeEventListener('message', mapInitHandler)
       }
