@@ -147,7 +147,7 @@ export default {
 }
 </script>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
   .bg-white-opasity
     background-color rgba(255, 255, 255, .7)!important
   .list__item

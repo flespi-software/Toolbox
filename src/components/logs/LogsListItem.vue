@@ -7,13 +7,7 @@
       :class="[color, item['x-flespi-status'] ? 'missed-items' : '', selected ? 'bg-white-opasity-3' : '']"
     >
       <template v-for="(prop, k) in cols">
-        <span class="list__item item_actions" :class="{[`item_${k}`]: true, 'item--active': menuCellActive && menuCellActive.row === index && menuCellActive.col === k}" v-if="prop.__dest === 'action'" :key="prop.name + k">
-          <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, clearItem)"
-                  :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
-            <q-tooltip>{{action.label}}</q-tooltip>
-          </q-icon>
-        </span>
-        <span v-else-if="prop.__dest === 'etc'" class="list__item item_etc" :class="{[`item_${k}`]: true, 'item--active': menuCellActive && menuCellActive.row === index && menuCellActive.col === k}" :key="prop.name + k">{{etc}}</span>
+        <span v-if="prop.__dest === 'etc'" class="list__item item_etc" :class="{[`item_${k}`]: true, 'item--active': menuCellActive && menuCellActive.row === index && menuCellActive.col === k}" :key="prop.name + k">{{etc}}</span>
         <span
           v-else
           :key="prop.name + k"
@@ -201,17 +195,18 @@ export default {
 }
 </script>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
   .bg-white-opasity-3
     background-color rgba(255, 255, 255, .3)
   .list__item
     display inline-block
-    min-height 19px
+    height 19px
     white-space nowrap
     padding-left 5px
     text-overflow ellipsis
     overflow hidden
     border-right 2px solid $grey-8
+    vertical-align text-bottom
   .item--active
     background-color $grey-1
   .message-viewer .q-w-list>.missed-items

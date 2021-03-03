@@ -120,7 +120,7 @@ export default {
 }
 </script>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
   .list__item
     display inline-block
     min-height 19px

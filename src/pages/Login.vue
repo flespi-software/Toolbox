@@ -3,7 +3,7 @@
     <a v-if="!$q.platform.is.mobile || !$q.platform.within.iframe" href="https://github.com/flespi-software/Toolbox/" target="_blank"><img class="absolute-top-right" style="border: 0; width: 149px; height: 149px;" src="../statics/right-graphite@2x.png" alt="Fork me on GitHub"></a>
     <div class="login-back flex items-center justify-center">
       <div class="login-code flex justify-center">
-        <img style="max-width: 80vw;" :style="{ maxHeight: $q.platform.is.mobile ? '80px' : '50vh' }" src="../statics/toolbox.png" alt="Toolbox">
+        <img style="max-width: 80vw;" :style="{ maxHeight: $q.platform.is.mobile ? '80px' : '18vw' }" src="../statics/toolbox.png" alt="Toolbox">
         <div v-if="!$route.params.token">
           <div v-if="!canLogin || $q.platform.within.iframe" class="login-card shadow-4 bg-white column items-center justify-center no-wrap">
             <div class="row full-width">

@@ -453,14 +453,15 @@ export default {
     }
     if (this.activeId) { this.active = this.activeId }
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
-      this.$store.commit(`${this.moduleName}/setOffline`, this.realtimeEnabled)
+      this.$store.commit(`${this.moduleName}/setOffline`)
     })
     this.connectHandler = Vue.connector.socket.on('connect', () => {
       if (this.$store.state[this.moduleName].offline) {
-        this.$store.commit(`${this.moduleName}/setReconnected`, this.realtimeEnabled)
+        this.$store.commit(`${this.moduleName}/setReconnected`)
         if (this.realtimeEnabled) {
           this.$store.dispatch(`${this.moduleName}/getMissedMessages`)
         }
+        this.$store.commit(`${this.moduleName}/clearOfflineState`)
       }
     })
   },

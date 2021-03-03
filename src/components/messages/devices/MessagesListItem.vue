@@ -1,7 +1,6 @@
 <template>
   <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}" @click="itemClickHandler(index, clearItem)">
     <div
-      v-if="!item['__connectionStatus']"
       class="cursor-pointer"
       :class="[item['x-flespi-status'] ? 'missed-items' : '', selected ? 'bg-white-opasity' : highlightLevel ? `text-${highlightType}-${highlightLevel}` : '']"
       :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, color: selected ? '#333' : ''}"
@@ -18,25 +17,6 @@
           {{values[prop.name].value}}
         </span>
       </template>
-    </div>
-    <div
-      v-else
-      :style="{
-      height: `${itemHeight}px`,
-      width: `${rowWidth}px`,
-      border: 'solid 1px #000',
-      color: '#000',
-      fontWeight: 'bold',
-      backgroundColor: item.__connectionStatus === 'offline' ? '#ff0' : '#0f0',
-      backgroundImage: 'url(./statics/police.png)',
-      overflow: 'hidden',
-      opacity: '.7'
-    }"
-      :title="date.formatDate(item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')"
-    >
-    <span style="padding: 0 5px; margin-left: 150px;" :style="{ backgroundColor: item.__connectionStatus === 'offline' ? '#ff0' : '#0f0'}" class="text-uppercase" v-for="n in Array(10)" :key="n">
-      {{item['__connectionStatus']}}
-    </span>
     </div>
   </div>
 </template>
@@ -144,7 +124,7 @@ export default {
 }
 </script>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
   .bg-white-opasity
     background-color rgba(255, 255, 255, .7)
   .list__item
@@ -157,8 +137,4 @@ export default {
     border-right 2px solid $grey-8
   .item--active
     background-color $grey-7
-  .message-viewer .q-w-list>.missed-items
-    background-color rgba(255,255,255,.05)
-    &:nth-child(odd)
-      background-color rgba(255,255,255,.1)
 </style>

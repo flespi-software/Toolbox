@@ -374,11 +374,12 @@ export default {
         this.$store.dispatch(`${this.moduleName}/pollingGet`)
       })
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
-      this.$store.commit(`${this.moduleName}/setOffline`, true)
+      this.$store.commit(`${this.moduleName}/setOffline`)
     })
     this.connectHandler = Vue.connector.socket.on('connect', () => {
       if (this.$store.state[this.moduleName].offline) {
-        this.$store.commit(`${this.moduleName}/setReconnected`, true)
+        this.$store.commit(`${this.moduleName}/setReconnected`)
+        this.$store.commit(`${this.moduleName}/clearOfflineState`)
       }
     })
   },

@@ -481,11 +481,11 @@ export default {
       })
     }
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
-      this.$store.commit(`${this.moduleName}/setOffline`, this.realtimeEnabled)
+      this.$store.commit(`${this.moduleName}/setOffline`)
     })
     this.connectHandler = Vue.connector.socket.on('connect', () => {
       if (this.$store.state[this.moduleName].offline) {
-        this.$store.commit(`${this.moduleName}/setReconnected`, this.realtimeEnabled)
+        this.$store.commit(`${this.moduleName}/setReconnected`)
       }
     })
   },

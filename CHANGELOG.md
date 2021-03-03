@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.8.4] - 2020-03-03
+[rebase] offline
+[fix] styles
 ### [1.8.3] - 2020-02-26
 [feature] init map features
 ### [1.8.2] - 2020-02-18
