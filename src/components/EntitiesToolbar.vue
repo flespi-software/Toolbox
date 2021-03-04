@@ -1,5 +1,5 @@
 <template>
-  <q-toolbar class="justify-between bg-grey-9">
+  <q-toolbar class="justify-between bg-grey-9" style="height: 50px;">
     <q-resize-observer @resize="resizeHandler"/>
     <slot name="selects"></slot>
     <div v-if="item">

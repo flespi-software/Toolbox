@@ -171,6 +171,7 @@ import MessageWidgetsMixin from '../../components/widgets/MessageWidgetsMixin'
 import TrackWidgetMixin from '../../components/widgets/TrackWidgetMixin'
 import Widgets from '../../components/widgets/Widgets'
 import EntitiesToolbar from '../../components/EntitiesToolbar'
+import { openURL } from 'quasar'
 import { mapState, mapActions } from 'vuex'
 import init from '../../mixins/entitiesInit'
 import get from 'lodash/get'
@@ -329,6 +330,12 @@ export default {
           condition: !!this.trackByMessages.length
         },
         {
+          label: 'TrackIt',
+          icon: 'mdi-map-marker-path',
+          handler: () => this.goToTrackit(),
+          condition: !!this.trackByMessages.length
+        },
+        {
           label: 'Clear',
           icon: 'mdi-playlist-remove',
           handler: this.clearHandler,
@@ -482,6 +489,12 @@ export default {
           this.$refs.messages.resetParams()
         }
       })
+    },
+    goToTrackit () {
+      const state = this.config && this.config.messages && this.$store.state[this.config.messages.vuexModuleName]
+      const from = Math.floor(state.from / 1000)
+      const to = Math.floor(state.to / 1000)
+      openURL(`https://trackit.flespi.io/#/login/${this.$store.state.token}/devices/${this.active}?from=${from}&to=${to}`)
     }
   },
   beforeRouteEnter (to, from, next) {

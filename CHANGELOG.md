@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.8.5] - 2020-03-04
+[feature] trackit device integration
+[fix] toolbar style
 ### [1.8.4] - 2020-03-03
 [rebase] offline
 [fix] styles
