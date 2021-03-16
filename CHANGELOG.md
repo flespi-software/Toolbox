@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.8.7] - 2020-03-16
+[fix] log widget description
 ### [1.8.6] - 2020-03-09
 [update] packages
 ### [1.8.5] - 2020-03-04

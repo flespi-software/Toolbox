@@ -306,36 +306,28 @@ export default {
       if (this.selected.length) {
         const lastIndex = this.selected.slice(-1)[0]
         const newIndex = lastIndex + 1
-        const message = this.messages[newIndex]
-        if (message) {
-          this.selected = [newIndex]
-          const content = { ...this.getLogClearItem(message) }
-          content._description = `[${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}] ${content.event_code}: ${this.getLogDescriptionByItem(content)}`
-          content._color = this.getLogItemColor(content.event_code)
-          this.$emit('action-select', {
-            index: newIndex,
-            content
-          })
-          this.scrollTo(newIndex)
-        }
+        this.processSelected(newIndex)
       }
     },
     prevSelect () {
       if (this.selected.length) {
         const firstIndex = this.selected[0]
         const newIndex = firstIndex - 1
-        const message = this.messages[newIndex]
-        if (message) {
-          this.selected = [newIndex]
-          const content = { ...this.getLogClearItem(message) }
-          content._description = `[${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}] ${content.event_code}: ${this.getLogDescriptionByItem(content)}`
-          content._color = this.getLogItemColor(content.event_code)
-          this.$emit('action-select', {
-            index: newIndex,
-            content
-          })
-          this.scrollTo(newIndex)
-        }
+        this.processSelected(newIndex)
+      }
+    },
+    processSelected (index) {
+      const message = this.messages[index]
+      if (message) {
+        this.selected = [index]
+        const content = { ...this.getLogClearItem(message) }
+        content._description = `<div style="font-size: 1.1rem">${content.event_code}: ${this.getLogDescriptionByItem(content)}</div><div style="font-size: .9rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}</div>`
+        content._color = this.getLogItemColor(content.event_code, content.close_code, content.send_code)
+        this.$emit('action-select', {
+          index: index,
+          content
+        })
+        this.scrollTo(index)
       }
     }
   },
