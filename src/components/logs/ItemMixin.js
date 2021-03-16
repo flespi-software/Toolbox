@@ -44,6 +44,8 @@ export default {
         case 900:
           return 'text-yellow'
         case 113:
+        case 115:
+        case 317:
         case 310:
         case 320:
         case 404:

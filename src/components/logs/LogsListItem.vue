@@ -135,6 +135,7 @@ export default {
         case 314:
         case 315:
         case 316:
+        case 317:
         case 320:
         case 321:
         case 322: { return `${host}/docs/#/gw/!/devices` }
