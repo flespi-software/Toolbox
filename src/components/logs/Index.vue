@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import { date } from 'quasar'
+import { date, copyToClipboard } from 'quasar'
 import { VirtualScrollList, logsModule } from 'qvirtualscroll'
 import ItemMixin from './ItemMixin'
 import Vue from 'vue'
@@ -254,11 +254,32 @@ export default {
           this.viewMessagesHandler({ index, content })
           break
         }
+        case 'copy': {
+          this.copyMessageHandler({ index, content })
+          break
+        }
         case 'traffic': {
           this.$emit('to-traffic', { index, content })
           break
         }
       }
+    },
+    copyMessageHandler ({ index, content }) {
+      copyToClipboard(JSON.stringify(content)).then((e) => {
+        this.$q.notify({
+          type: 'positive',
+          icon: 'content_copy',
+          message: 'Log object copied',
+          timeout: 1000
+        })
+      }, (e) => {
+        this.$q.notify({
+          type: 'negative',
+          icon: 'content_copy',
+          message: 'Error coping log',
+          timeout: 1000
+        })
+      })
     },
     actionToBottomHandler () {
       if (this.realtimeEnabled) {

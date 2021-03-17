@@ -38,7 +38,14 @@ export default {
           description: "Connected device's address (source) or IP address from which HTTP request was received (host)"
         }
       ],
-      actions: [],
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log object',
+          classes: '',
+          type: 'copy'
+        }
+      ],
       viewConfig: {
         needShowFilter: true,
         needShowDateRange: true
@@ -137,7 +144,14 @@ export default {
           description: "Connected device's transport: tcp, udp, http etc"
         }
       ],
-      actions: [],
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log object',
+          classes: '',
+          type: 'copy'
+        }
+      ],
       viewConfig: {
         needShowFilter: true,
         needShowDateRange: true
@@ -224,7 +238,14 @@ export default {
           description: "Connected device's address (source) or IP address from which HTTP request was received (host)"
         }
       ],
-      actions: [],
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log object',
+          classes: '',
+          type: 'copy'
+        }
+      ],
       viewConfig: {
         needShowFilter: true,
         needShowDateRange: true
@@ -282,7 +303,14 @@ export default {
           description: "Connected device's address (source) or IP address from which HTTP request was received (host)"
         }
       ],
-      actions: [],
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log object',
+          classes: '',
+          type: 'copy'
+        }
+      ],
       viewConfig: {
         needShowFilter: true,
         needShowDateRange: true
@@ -394,7 +422,14 @@ export default {
           description: "Connected device's transport: tcp, udp, http etc"
         }
       ],
-      actions: [],
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log object',
+          classes: '',
+          type: 'copy'
+        }
+      ],
       itemSettings: {},
       viewConfig: {
         needShowFilter: true,
@@ -604,7 +639,14 @@ export default {
           description: 'Messages count has skipped'
         }
       ],
-      actions: [],
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log object',
+          classes: '',
+          type: 'copy'
+        }
+      ],
       viewConfig: {
         needShowFilter: true,
         needShowDateRange: true
@@ -680,7 +722,14 @@ export default {
           description: 'hex representation of binary SMS contents'
         }
       ],
-      actions: [],
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log object',
+          classes: '',
+          type: 'copy'
+        }
+      ],
       viewConfig: {
         needShowFilter: true,
         needShowDateRange: true
@@ -737,7 +786,14 @@ export default {
           description: 'IP address from which HTTP request was received'
         }
       ],
-      actions: [],
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log object',
+          classes: '',
+          type: 'copy'
+        }
+      ],
       viewConfig: {
         needShowFilter: true,
         needShowDateRange: true
@@ -804,7 +860,14 @@ export default {
           description: 'amount of messages received by session'
         }
       ],
-      actions: [],
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log object',
+          classes: '',
+          type: 'copy'
+        }
+      ],
       viewConfig: {
         needShowFilter: true,
         needShowDateRange: true
@@ -879,7 +942,14 @@ export default {
           description: ''
         }
       ],
-      actions: [],
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log object',
+          classes: '',
+          type: 'copy'
+        }
+      ],
       viewConfig: {
         needShowFilter: true,
         needShowDateRange: true
