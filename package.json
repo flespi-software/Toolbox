@@ -1,6 +1,6 @@
 {
   "name": "toolbox",
-  "version": "1.8.9",
+  "version": "1.8.10",
   "description": "Flespi ToolboX",
   "productName": "ToolboX",
   "cordovaId": "org.cordova.quasar.app",
