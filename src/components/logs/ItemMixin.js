@@ -25,6 +25,7 @@ export default {
           return 'text-green'
         case 2:
         case 3:
+        case 4:
         case 21:
         case 111:
         case 112:
@@ -53,6 +54,8 @@ export default {
         case 432:
         case 503:
         case 512:
+        case 520:
+        case 521:
         case 602:
         case 700:
         case 800:
