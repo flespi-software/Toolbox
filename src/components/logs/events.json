@@ -250,11 +250,13 @@
     "255": "Unknown Error"
   },
   "blockedCodes": {
-    "1": "too many items quantity",
-    "2": "too many messages per minute",
-    "3": "too much traffic associated with item in timeframe",
-    "4": "too much storage used by item",
-    "5": "items quantity is out of specified limit"
+    "1": "exceeded connections limit",
+    "2": "exceeded messages limit per minute",
+    "3": "exceeded traffic limit per minute",
+    "4": "exceeded storage limit",
+    "5": "exceeded items limit",
+    "6": "item configuration is invalid",
+    "7": "customer was moved to another region"
   },
   "codesByEntities": {
     "base": [1,2,3,4,20,21],

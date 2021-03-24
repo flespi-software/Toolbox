@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.8.13] - 2020-03-24
+[update] codes
+[fix] hex-viewer filter
+[fix] hex-viewer empty state
 ### [1.8.12] - 2020-03-24
 [fix] blocked log codes
 ### [1.8.11] - 2020-03-18

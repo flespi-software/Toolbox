@@ -27,6 +27,7 @@
       <template v-else-if="!loadingFlag && messages.length">
         <template v-if="type === 'connections'">
           <virtual-list
+            v-if="connectionsByIndex.length"
             ref="scroller"
             class="absolute-top-left absolute-bottom-right bg-grey-9 text-white cursor-pointer"
             wclass="q-w-list"
@@ -38,9 +39,17 @@
             :itemcount="connectionsByIndex.length"
             :itemprops="getConnectionItem"
           />
+          <div
+            v-else
+            class="absolute-top-left absolute-bottom-right bg-grey-9 text-white text-center"
+            style="top: 50px; height: auto; font-size: 1.2rem"
+          >
+            Nothing to show by filter <span class="text-bold">&laquo;{{filter}}&raquo;</span>
+          </div>
         </template>
         <template v-else>
           <virtual-list
+            v-if="currentMessages.length"
             ref="scroller"
             class="absolute-top-left absolute-bottom-right bg-grey-9 text-white cursor-pointer"
             wclass="q-w-list"
@@ -52,6 +61,13 @@
             :itemcount="currentMessages.length"
             :itemprops="getMessageItem"
           />
+          <div
+            v-else
+            class="absolute-top-left absolute-bottom-right bg-grey-9 text-white text-center"
+            style="top: 50px; height: auto; font-size: 1.2rem"
+          >
+            Nothing to show by filter <span class="text-bold">&laquo;{{filter}}&raquo;</span>
+          </div>
         </template>
       </template>
       <empty-pane v-else :config="config.emptyState"/>
@@ -64,7 +80,6 @@ import { DateRangeModal, channelsMessagesModuleSerial } from 'qvirtualscroll'
 import VirtualList from 'vue-virtual-scroll-list'
 import Vue from 'vue'
 import { copyToClipboard } from 'quasar'
-import filterMessages from '../../mixins/filterMessages'
 import MessagesListItem from './MessagesListItem.vue'
 import ConnectionsListItem from './ConnectionsListItem.vue'
 import EmptyPane from '../EmptyPane'
@@ -91,7 +106,6 @@ export default {
       wrapperHeight: 0,
       needAutoScroll: true,
       connections: {},
-      connectionsByIndex: [],
       selected: [],
       filter: '',
       connectionsFilter: '',
@@ -102,13 +116,20 @@ export default {
     }
   },
   computed: {
+    connectionsByIndex () {
+      return Object.keys(this.currentConnections)
+    },
     currentConnections () {
-      return this.filter ? this.connectionsByIndex.reduce((res, connectionId) => {
-        if (this.connections[connectionId].peer.indexOf(this.filter) !== -1) {
-          res[connectionId] = this.connections[connectionId]
+      let connections = this.connections
+      if (this.filter) {
+        connections = {}
+        for (const connectionId in this.connections) {
+          if (this.connections[connectionId].peer.indexOf(this.filter) !== -1) {
+            connections[connectionId] = this.connections[connectionId]
+          }
         }
-        return res
-      }, {}) : this.connections
+      }
+      return connections
     },
     currentMessages () {
       return this.filter ? this.connection.messages.filter(this.filterMessages) : this.connection.messages
@@ -184,7 +205,7 @@ export default {
     getConnectionItem (index) {
       const item = this.currentConnections[this.connectionsByIndex[index]]
       const props = {
-        key: item.peer,
+        key: item.peer + item.ident,
         props: {
           item,
           index,
@@ -280,7 +301,6 @@ export default {
           peer: message.peer,
           ident: ident
         }
-        this.connectionsByIndex.push(ident)
       }
       this.connections[ident].messages.push(message)
     },
@@ -388,7 +408,6 @@ export default {
     },
     clearConnections () {
       this.connections = {}
-      this.connectionsByIndex = []
     },
     closeCurrentConnection () {
       this.$emit('close')
@@ -506,7 +525,6 @@ export default {
     this.$store.commit(`${this.moduleName}/clear`)
     this.$store.unregisterModule(this.moduleName)
   },
-  mixins: [filterMessages],
   components: { VirtualList, EmptyPane, DateRangeModal, ConnectionSkeleton }
 }
 </script>
