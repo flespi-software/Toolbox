@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.8.14] - 2020-03-24
+[fix] packages
 ### [1.8.13] - 2020-03-24
 [update] codes
 [fix] hex-viewer filter
