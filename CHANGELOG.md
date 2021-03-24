@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.8.12] - 2020-03-24
+[fix] blocked log codes
 ### [1.8.11] - 2020-03-18
 [feature] new event codes
 ### [1.8.10] - 2020-03-17

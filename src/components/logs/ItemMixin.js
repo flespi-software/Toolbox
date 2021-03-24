@@ -111,28 +111,22 @@ export default {
         closeCodes = events.closeCodes,
         errorCodes = events.errorCodes,
         sendCodes = events.sendCodes,
-        codesByEvent = events.codesByEventcode
+        blockedCodes = events.blockedCodes
       let res = types[item.event_code] ? `${types[item.event_code]}` : item.event_code
-      res += item.close_code
-        ? ` (${closeCodes[item.close_code]})`
-        : (closeCodes[item.close_code]
-          ? `(${item.close_code})`
-          : '')
-      res += item.error_code
-        ? ` (${item.error_code}: ${errorCodes[item.event_code][item.error_code]})`
-        : (errorCodes[item.event_code] && errorCodes[item.event_code][item.error_code]
-          ? `(${item.error_code})`
-          : '')
-      res += item.send_code
-        ? ` (${item.send_code}: ${sendCodes[item.send_code]})`
-        : (errorCodes[item.event_code] && errorCodes[item.event_code][item.send_code]
-          ? `(${item.send_code})`
-          : '')
-      res += item.code && codesByEvent[item.event_code] && codesByEvent[item.event_code][item.code]
-        ? ` (${item.code}: ${codesByEvent[item.event_code][item.code]})`
-        : item.code && codesByEvent[item.event_code] && !codesByEvent[item.event_code][item.code]
-          ? `(code: ${item.code})`
-          : ''
+      if (item.close_code) {
+        res += closeCodes[item.close_code] ? ` (${closeCodes[item.close_code]})` : ` (close: ${item.close_code})`
+      }
+      if (item.error_code) {
+        res += errorCodes[item.event_code] && errorCodes[item.event_code][item.error_code]
+          ? ` (${errorCodes[item.event_code][item.error_code]})`
+          : ` (error: ${item.error_code})`
+      }
+      if (item.send_code) {
+        res += sendCodes[item.send_code] ? ` (${sendCodes[item.send_code]})` : ` (send: ${item.send_code})`
+      }
+      if (item.blocked) {
+        res += blockedCodes[item.blocked] ? ` (${blockedCodes[item.blocked]})` : ` (blocked: ${item.blocked})`
+      }
       return res
     },
     getLogClearItem (item) {
