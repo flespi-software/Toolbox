@@ -4,9 +4,9 @@
     <div class="margin-left" v-for="(value, key, index) in data" :key="`${key}-${index}`">
       <div v-if="value && typeof value === 'object'">
         <div @click="toggle(Array.isArray(data) ? key : index)" class="cursor-pointer">
+          <span :class="[theme.label]">{{key}}</span><span :class="{'text-white': inverted !== undefined}"> : {{Array.isArray(value) ? `Array [${value.length}]` : 'Object'}}</span>
           <q-icon :color="inverted !== undefined ? 'white' : 'grey-9'" v-if="showObj[Array.isArray(data) ? key : index]" name="mdi-menu-down" style="vertical-align: baseline" />
           <q-icon :color="inverted !== undefined ? 'white' : 'grey-9'" v-else name="mdi-menu-right" style="vertical-align: baseline" />
-          <span :class="[theme.label]">{{key}}</span><span :class="{'text-white': inverted !== undefined}"> : {{Array.isArray(value) ? `Array [${value.length}]` : 'Object'}}</span>
         </div>
         <json-tree class="margin-left" v-if="showObj[Array.isArray(data) ? key : index]" :data='value' :inverted="inverted"/>
       </div>
