@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.8.16] - 2020-04-06
+[update] log codes
+[update] packages
 ### [1.8.15] - 2020-03-29
 [update] packages
 [fix] json view
