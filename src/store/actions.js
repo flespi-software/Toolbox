@@ -328,7 +328,7 @@ async function initConnection ({ state, commit }, { region, token }) {
 async function getDeviceTrafficRoute ({ state }, { id, ident }) {
   let route = ''
   try {
-    const channelIdData = await Vue.connector.gw.getDevicesTelemetry(id)
+    const channelIdData = await Vue.connector.gw.getDevicesTelemetry(id, 'channel.id')
     const channelId = get(channelIdData, ['data', 'result', '0', 'telemetry', 'channel.id', 'value'], undefined)
     if (!channelId) { return null }
     const channelData = await Vue.connector.gw.getChannels(channelId, { fields: 'id,name,protocol_features' })

@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.8.17] - 2020-04-07
+[fix] telemetry getting
 ### [1.8.16] - 2020-04-06
 [update] log codes
 [update] packages
