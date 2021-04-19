@@ -45,8 +45,8 @@ export default {
       eventsDesc: {
         0: 'Connect',
         1: 'Disconnect',
-        2: 'Data recieved',
-        130: 'Data recieved',
+        2: 'Data received',
+        130: 'Data received',
         3: 'Data sent',
         131: 'Data sent'
       },

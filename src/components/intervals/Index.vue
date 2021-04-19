@@ -31,7 +31,6 @@
 import { VirtualScrollList, intervalsModule } from 'qvirtualscroll'
 import Vue from 'vue'
 import { copyToClipboard } from 'quasar'
-import filterMessages from '../../mixins/filterMessages'
 import MessagesListItem from './MessagesListItem.vue'
 import EmptyPane from '../EmptyPane'
 
@@ -211,6 +210,7 @@ export default {
     },
     filterChangeHandler (val) {
       if (this.filter !== val) {
+        if (this.realtimeEnabled) { this.$store.dispatch(`${this.moduleName}/unsubscribePooling`) }
         this.filter = val
         this.$store.commit(`${this.moduleName}/clearMessages`)
         this.$store.dispatch(`${this.moduleName}/get`)
@@ -355,7 +355,7 @@ export default {
   },
   created () {
     if (!this.$store.state[this.moduleName]) {
-      this.$store.registerModule(this.moduleName, intervalsModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) }, filterHandler: this.filterMessages }))
+      this.$store.registerModule(this.moduleName, intervalsModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
     } else {
       this.$store.commit(`${this.moduleName}/clear`)
     }
@@ -391,7 +391,6 @@ export default {
     this.$store.commit(`${this.moduleName}/setActive`, null)
     this.$store.commit(`${this.moduleName}/setActiveDevice`, null)
   },
-  mixins: [filterMessages],
   components: { VirtualScrollList, EmptyPane }
 }
 </script>

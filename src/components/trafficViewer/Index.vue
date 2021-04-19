@@ -41,9 +41,9 @@
         <q-btn v-if="activeDevice" color="white" flat dense icon="mdi-export-variant">
           <q-tooltip>Export</q-tooltip>
           <q-menu>
-            <q-list style="min-width: 100px" class="bg-grey-8 text-white">
+            <q-list style="min-width: 150px" class="bg-grey-8 text-white">
               <div class="q-pa-sm">
-                <div style="font-size: .8rem">Copy selected as</div>
+                <div style="font-size: .8rem">Copy selected packets as</div>
                 <div>
                   <q-btn v-close-popup :disable="!selectedMessages.length" dense flat label="shown" @click="copySelected()" />
                   <q-btn v-close-popup :disable="!selectedMessages.length" dense flat label="hex" @click="copySelected('hex')" />
@@ -52,7 +52,7 @@
               </div>
               <q-separator />
               <div class="q-pa-sm">
-                <div style="font-size: .8rem">Export selected as</div>
+                <div style="font-size: .8rem">Export selected packets as</div>
                 <div>
                   <q-btn v-close-popup :disable="!selectedMessages.length" dense flat label="shown" @click="exportSelected()" />
                   <q-btn v-close-popup :disable="!selectedMessages.length" dense flat label="hex" @click="exportSelected('hex')" />
@@ -130,6 +130,7 @@ export default {
     getContentBySelected (type) {
       return this.selectedMessages.reduce((content, packet) => {
         content += this.getHeader(packet)
+        content += '\r\n'
         if (packet.data) {
           content += this.getContent(type, this.base64ToHex(packet.data), this.typeOfHexView)
         }

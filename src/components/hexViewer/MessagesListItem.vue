@@ -39,7 +39,7 @@ export default {
         2: 'red'
       },
       eventsDesc: {
-        0: 'Data recieved',
+        0: 'Data received',
         1: 'Connect',
         2: 'Disconnect'
       }

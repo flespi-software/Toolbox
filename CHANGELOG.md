@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.9.0] - 2020-04-19
+[feature] new filter logic
+[fix] ui
 ### [1.8.17] - 2020-04-07
 [fix] telemetry getting
 ### [1.8.16] - 2020-04-06

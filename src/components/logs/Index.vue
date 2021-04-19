@@ -41,7 +41,6 @@ import Vue from 'vue'
 import LogsListItem from './LogsListItem.vue'
 import LogsFilterMenu from './LogsFilterMenu.vue'
 import EmptyPane from '../EmptyPane'
-import filterMessages from '../../mixins/filterMessages'
 
 export default {
   props: [
@@ -213,6 +212,7 @@ export default {
     },
     filterChangeHandler (val) {
       if (this.filter !== val) {
+        if (this.realtimeEnabled) { this.$store.dispatch(`${this.moduleName}/unsubscribePooling`) }
         this.filter = val
         this.$store.commit(`${this.moduleName}/clearMessages`)
         this.getMessages()
@@ -367,7 +367,7 @@ export default {
   },
   created () {
     if (!this.$store.state[this.moduleName]) {
-      this.$store.registerModule(this.moduleName, logsModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) }, filterHandler: this.filterMessages }))
+      this.$store.registerModule(this.moduleName, logsModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
     } else {
       this.$store.commit(`${this.moduleName}/clear`)
     }
@@ -395,7 +395,7 @@ export default {
     this.connectHandler !== undefined && Vue.connector.socket.off('connect', this.connectHandler)
     this.$store.commit(`${this.moduleName}/clear`)
   },
-  mixins: [filterMessages, ItemMixin],
+  mixins: [ItemMixin],
   components: { VirtualScrollList, EmptyPane, LogsFilterMenu }
 }
 </script>

@@ -1,24 +1,27 @@
 <template>
   <q-dialog :maximized="$q.platform.is.mobile" ref="modal" :no-esc-dismiss="loadingFlag" :no-backdrop-dismiss="loadingFlag">
-    <q-card :style="{minWidth: $q.platform.is.mobile ? '100%' : '310px', height: $q.platform.is.mobile ? '100%' : 'auto'}">
+    <q-card class="bg-grey-9" :style="{minWidth: $q.platform.is.mobile ? '100%' : '310px', height: $q.platform.is.mobile ? '100%' : 'auto'}">
       <q-card-section :style="{height: 'calc(100% - 54px)'}" class="q-pa-sm">
         <date-range-picker
+          :theme="{ color: 'white', bgColor: 'grey-9', contentInverted: true, controlsInverted: true }"
           v-model="currentDateRange"
         />
         <q-select
-          :options="selectOpts" v-model="currentFormat" multiple
-          filled label="Format" hide-bottom-space dense bg-color="grey-3"
+          :options="selectOpts" v-model="currentFormat" multiple dark
+          outlined label="Format" hide-bottom-space dense color="white" bg-color="grey-9"
         />
-        <q-toggle v-model="needTimeConvert" label="Format timestamps"/>
+        <q-toggle v-model="needTimeConvert" dark>
+          <span class="text-white">Format timestamps</span>
+        </q-toggle>
         <template v-if="needTimeConvert">
-          <q-input v-model="timeFormat" outlined dense label="Date format" class="q-mb-sm" />
+          <q-input v-model="timeFormat" outlined dense label="Date format" class="q-mb-sm" dark color="white" />
           <q-select
-            :options="timezoneOptions" v-model="timezoneOffset" emit-value map-options
-            filled label="Timezone" hide-bottom-space dense bg-color="grey-3"
+            :options="timezoneOptions" v-model="timezoneOffset" emit-value map-options dark
+            outlined label="Timezone" hide-bottom-space dense color="white" bg-color="grey-9"
           />
         </template>
       </q-card-section>
-      <q-separator color="white"/>
+      <q-separator color="grey-8"/>
       <q-card-actions align="right" class="bg-grey-9 text-white">
         <q-btn flat @click="hide" :disable="loadingFlag">Close</q-btn>
         <q-btn flat @click="importHandler" :disable="loadingFlag || currentFormat.length < 1" :loading="loadingFlag">Export</q-btn>
