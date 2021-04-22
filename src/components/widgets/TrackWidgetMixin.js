@@ -16,6 +16,7 @@ export default {
   data () {
     return {
       isWidgetsTrackActive: false,
+      trackWidgetMessageMarker: undefined,
       trackWidgetConfig: {
         track: {
           title: 'Track',
@@ -38,7 +39,7 @@ export default {
       const markerData = track[track.length - 1]
       let marker
       if (markerData) {
-        marker = { latlng: [markerData.lat, markerData.lon], direction: markerData.dir }
+        marker = { latlng: [markerData.lat, markerData.lon], direction: markerData.dir, label: 'Last position' }
       }
       track = track.map(marker => ([marker.lat, marker.lon]))
       map.clear()
@@ -46,10 +47,34 @@ export default {
         map.addPoints(track)
       }
       if (marker) {
-        map.addNamedMarkers([marker])
+        map.addNamedMarkers({ position: marker, ...this.trackWidgetMessageMarker })
       }
       map.send()
       this.activateWidgetWindow('track')
+    },
+    addWidgetTrackMarker (type, data) {
+      if (!this.isWidgetsTrackActive) { return }
+      const map = this.$refs.track.ref(type)
+      if (!map) { return }
+      if (data) {
+        const { content } = data
+        const marker = {
+          message: {
+            latlng: [
+              content['position.latitude'],
+              content['position.longitude']
+            ],
+            direction: content['position.direction'],
+            color: '#f0f',
+            label: 'Message'
+          }
+        }
+        this.trackWidgetMessageMarker = marker
+        map.addNamedMarker(marker)
+      } else {
+        this.trackWidgetMessageMarker = undefined
+      }
+      map.send()
     },
     closeWidgetsHandler () {}
   }

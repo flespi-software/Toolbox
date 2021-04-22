@@ -3,7 +3,7 @@
     <q-resize-observer @resize="wrapperResizeHandler"/>
     <div>
       <q-toolbar class="bg-grey-9">
-        <q-input v-model="filter" outlined hide-bottom-space rounded dense color="white" dark placeholder="ident" :debounce="500">
+        <q-input v-model="filter" class="full-width" outlined hide-bottom-space rounded dense color="white" dark placeholder="ident" :debounce="500">
           <q-icon slot="prepend" name="mdi-magnify" color="white" />
         </q-input>
       </q-toolbar>
@@ -83,11 +83,13 @@ export default {
       set (filter) {
         this.$store.commit(`${this.moduleName}/setDeviceFilter`, filter)
         this.$store.dispatch(`${this.moduleName}/getDevices`)
-        this.$nextTick(() => {
-          if (this.$refs.scroller) {
-            this.$refs.scroller.forceRender()
-          }
-        })
+          .then(() => {
+            this.$nextTick(() => {
+              if (this.$refs.scroller) {
+                this.$refs.scroller.forceRender()
+              }
+            })
+          })
       }
     },
     active: {

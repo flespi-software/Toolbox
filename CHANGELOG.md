@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.9.1] - 2020-04-22
+[feature] message position on map in devices
+[fix] traffic-viewer error log redirect
+[fix] traffic-viewer init
 ### [1.9.0] - 2020-04-19
 [feature] new filter logic
 [fix] ui

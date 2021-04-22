@@ -100,7 +100,7 @@
       />
       <messages
         ref="messages"
-        @action-view-data="data => messageWidgetsActions('object', data)"
+        @action-view-data="data => { messageWidgetsActions('object', data), addWidgetTrackMarker('track', data) }"
         @action-map="data => messageWidgetsActions('position', data)"
         @action-show="data => messageWidgetsActions('show', data)"
         @action-image="data => messageWidgetsActions('image', data)"

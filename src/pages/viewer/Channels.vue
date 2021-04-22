@@ -216,12 +216,15 @@ export default {
           return res
         }, 0)
       },
-      isTrafficViewerSupported () {
+      protocolFeatures () {
         const protocols = this.protocols
-        if (!this.selectedItem) { return false }
+        if (!this.selectedItem) { return {} }
         const protocolId = this.selectedItem.protocol_id
         const protocol = protocols[protocolId]
-        return protocol.features.raw_packets
+        return protocol.features
+      },
+      isTrafficViewerSupported () {
+        return this.protocolFeatures.raw_packets
       }
     }),
     logsConfig () {
@@ -363,8 +366,8 @@ export default {
       this.saveSessionMessageFilter()
     },
     toTrafficHandler ({ content }) {
-      const ident = content.ident,
-        timeEnd = Math.floor(content['server.timestamp'] * 1000),
+      const ident = this.protocolFeatures.shared_connection ? 'unidentified' : content.ident,
+        timeEnd = Math.floor(content.timestamp * 1000),
         timeStart = timeEnd - 10000
       if (ident) {
         this.$router.push({ path: `/tools/traffic/${this.active}/ident/${ident}`, query: { from: timeStart, to: timeEnd } }).catch(err => err)

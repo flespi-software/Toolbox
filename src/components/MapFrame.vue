@@ -30,6 +30,10 @@ export default {
       this.lastCommand.namedmarkers = markers
       return this
     },
+    addNamedMarker (markers) {
+      this.lastCommand.namedmarkers = { ...this.lastCommand.namedmarkers, ...markers }
+      return this
+    },
     addPoints (points) {
       this.lastCommand.appendpoints = points
       return this

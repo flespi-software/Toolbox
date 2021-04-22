@@ -150,6 +150,9 @@ export default {
       if (this.$refs.messages) {
         this.$refs.messages.unselect()
       }
+      if (this.trackWidgetMessageMarker) {
+        this.addWidgetTrackMarker('track')
+      }
     },
     nextWidgetsMessage () {
       this.$refs.messages.nextSelect()

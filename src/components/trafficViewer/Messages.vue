@@ -328,7 +328,7 @@ export default {
     } else {
       this.$store.dispatch(`${this.moduleName}/initTime`)
         .then(() => {
-          this.$store.dispatch(`${this.moduleName}/getMessages`)
+          this.$store.dispatch(`${this.moduleName}/getMessagesTail`)
           if (this.to > Date.now()) {
             this.$store.dispatch(`${this.moduleName}/pollingGetMessages`)
           }
