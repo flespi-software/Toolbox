@@ -317,7 +317,10 @@ export default {
         .then(() => {
           this.$nextTick(() => {
             const incomingMessageIndex = this.messages.findIndex(message => message.type === 2)
-            if (incomingMessageIndex > -1) {
+            const incomingMessageIndexEnd = this.messages.findIndex(message => message.type === 2 && Math.floor(message.timestamp) === Math.floor(to / 1000))
+            if (incomingMessageIndexEnd > -1) {
+              this.messageClickHandler({ index: incomingMessageIndexEnd, event: {} })
+            } else if (incomingMessageIndex > -1) {
               this.messageClickHandler({ index: incomingMessageIndex, event: {} })
             }
           })

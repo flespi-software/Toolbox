@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.9.2] - 2020-04-23
+[feature] traffic viewer pick right message
 ### [1.9.1] - 2020-04-22
 [feature] message position on map in devices
 [fix] traffic-viewer error log redirect
