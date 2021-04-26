@@ -73,32 +73,34 @@ let requestStatus = false
 async function getMessagesNext ({ state, commit }) {
   if (!state.messages.length || requestStatus || state.messagePolling) { return }
   requestStatus = true
+  let messages = []
   try {
     const from = Math.ceil(state.messages[state.messages.length - 1].timestamp)
     const resp = await Vue.connector.gw.getChannelsIdentsPackets(state.active, state.ident, { data: { count: state.limit, from, to: Math.floor(state.to / 1000) } })
-    const messages = get(resp, 'data.result', [])
+    messages = get(resp, 'data.result', [])
     commit('setMessagesAppend', messages)
-    return messages
   } catch (e) {
     commit('reqFailed', e)
   }
   requestStatus = false
+  return messages
 }
 
 async function getMessagesPrev ({ state, commit }) {
   if (!state.messages.length || requestStatus) { return }
   requestStatus = true
+  let messages = []
   try {
     const to = Math.floor(state.messages[0].timestamp) - 1
     const resp = await Vue.connector.gw.getChannelsIdentsPackets(state.active, state.ident, { data: { count: state.limit, from: Math.floor(state.from / 1000), to, reverse: true } })
-    const messages = get(resp, 'data.result', [])
+    messages = get(resp, 'data.result', [])
     messages.reverse()
     commit('setMessagesPrepend', messages)
-    return messages
   } catch (e) {
     commit('reqFailed', e)
   }
   requestStatus = false
+  return messages
 }
 
 async function pollingGetDevices ({ state, commit }) {
