@@ -28,9 +28,16 @@ export default {
   },
   computed: {
     fieldsIntervalsMetaData () {
-      const list = get(this.$refs.intervals.$refs, 'scrollList', {})
-      const cols = list.activeCols || []
-      return cols.map(col => col.name)
+      const cols = get(this.$refs, 'intervals.cols', undefined)
+      const activeCols = get(this.$refs, 'intervals.$refs.scrollList.activeCols', [])
+      let result = {}
+      if (cols) {
+        result = activeCols.reduce((result, col) => {
+          result[col.name] = cols.enum[col.name]
+          return result
+        }, {})
+      }
+      return result
     },
     intervalsWidgetsViewConfig () {
       const config = {}

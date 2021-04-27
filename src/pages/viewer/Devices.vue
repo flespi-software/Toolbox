@@ -302,7 +302,7 @@ export default {
       if (this.trafficRoute) {
         config.actions.push({
           icon: 'mdi-download-network-outline',
-          label: 'View in traffic',
+          label: 'View traffic',
           classes: '',
           type: 'traffic'
         })

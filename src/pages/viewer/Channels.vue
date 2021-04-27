@@ -248,7 +248,7 @@ export default {
       } else if (this.isTrafficViewerSupported) {
         config.actions.push({
           icon: 'mdi-download-network-outline',
-          label: 'View in traffic',
+          label: 'View traffic',
           classes: '',
           type: 'traffic'
         })

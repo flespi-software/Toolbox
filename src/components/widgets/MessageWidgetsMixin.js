@@ -29,9 +29,16 @@ export default {
   },
   computed: {
     fieldsDevicesMetaData () {
-      const list = get(this.$refs.messages.$refs, 'scrollList', {})
-      const cols = list.activeCols || []
-      return cols.map(col => col.name)
+      const cols = get(this.$refs, 'messages.cols', undefined)
+      const activeCols = get(this.$refs, 'messages.$refs.scrollList.activeCols', [])
+      let result = {}
+      if (cols) {
+        result = activeCols.reduce((result, col) => {
+          result[col.name] = cols.enum[col.name]
+          return result
+        }, {})
+      }
+      return result
     },
     messageWidgetsViewConfig () {
       const content = this.widgetsViewedMessage
