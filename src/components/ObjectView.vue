@@ -31,7 +31,7 @@
             <q-item-label v-else-if="key.indexOf('image.bin.') === 0" caption><img class="image-bin" :src="`data:image/${key.split('.')[2]};base64, ${filteredObject[key].replace(/^data\:image\/\w*\;base64\,\s/, '')}`" :alt="key"></q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-btn v-if="meta[key].display" flat dense icon="mdi-table-column-remove" @click="action('col-remove', key)" color='red-3'></q-btn>
+            <q-btn v-if="meta[key] && meta[key].display" flat dense icon="mdi-table-column-remove" @click="action('col-remove', key)" color='red-3'></q-btn>
             <q-btn v-else flat dense icon="mdi-table-column-plus-after" @click="action('col-add', key)" color="green-3"></q-btn>
           </q-item-section>
         </q-item>
