@@ -28,12 +28,17 @@ export default {
   },
   computed: {
     fieldsIntervalsMetaData () {
-      const cols = get(this.$refs, 'intervals.cols', undefined)
-      const activeCols = get(this.$refs, 'intervals.$refs.scrollList.activeCols', [])
+      const schema = get(this.$refs, 'intervals.cols', undefined)
+      const cols = Object.values(schema.enum)
+      const activeCols = get(this.$refs, 'intervals.$refs.scrollList.activeCols', []).reduce((res, col) => {
+        res[col.name] = true
+        return res
+      }, {})
       let result = {}
       if (cols) {
-        result = activeCols.reduce((result, col) => {
-          result[col.name] = cols.enum[col.name]
+        result = cols.reduce((result, col) => {
+          result[col.name] = { ...col }
+          result[col.name].display = activeCols[col.name] || false
           return result
         }, {})
       }

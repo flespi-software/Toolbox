@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.9.5] - 2020-04-26
+[fix] widgets logic
 ### [1.9.4] - 2020-04-26
 [feature] widgets fields view units added
 ### [1.9.3] - 2020-04-26
