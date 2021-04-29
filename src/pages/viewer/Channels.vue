@@ -366,7 +366,7 @@ export default {
       this.saveSessionMessageFilter()
     },
     toTrafficHandler ({ content }) {
-      const ident = this.protocolFeatures.shared_connection ? 'unidentified' : content.ident,
+      const ident = this.protocolFeatures.shared_connection || !content.ident ? 'unidentified' : content.ident,
         timeEnd = Math.floor(content.timestamp * 1000),
         timeStart = timeEnd - 10000
       if (ident) {
