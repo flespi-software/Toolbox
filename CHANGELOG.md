@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.9.8] - 2020-05-04
+[fix] traffic viewer device logic
 ### [1.9.7] - 2020-04-29
 [update] traffic viewer logic
 ### [1.9.6] - 2020-04-26

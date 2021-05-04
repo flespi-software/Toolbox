@@ -334,6 +334,7 @@ async function getDeviceTrafficRoute ({ state }, { id, ident }) {
     const channelData = await Vue.connector.gw.getChannels(channelId, { fields: 'id,name,protocol_features' })
     const channel = get(channelData, 'data.result[0]', undefined)
     if (!channel) { return null }
+    ident = channel.protocol_features.shared_connection || !ident ? 'unidentified' : ident
     return channel.protocol_features.raw_packets ? `/tools/traffic/${channelId}/ident/${ident}` : null
   } catch (e) {
     route = null
