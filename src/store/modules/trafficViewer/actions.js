@@ -41,7 +41,8 @@ async function getMessages ({ state, commit }) {
     Vue.set(state, 'isLoading', true)
   }
   try {
-    const to = state.to > Date.now() ? Date.now() : state.to
+    const now = Date.now()
+    const to = state.to > now ? now : state.to
     const resp = await Vue.connector.gw.getChannelsIdentsPackets(state.active, state.ident, { data: { from: Math.floor(state.from / 1000), to: Math.floor(to / 1000), count: state.limit } })
     const messages = get(resp, 'data.result', [])
     commit('setMessages', messages)
@@ -58,7 +59,9 @@ async function getMessagesTail ({ state, commit }) {
     Vue.set(state, 'isLoading', true)
   }
   try {
-    const resp = await Vue.connector.gw.getChannelsIdentsPackets(state.active, state.ident, { data: { count: state.limit, reverse: true } })
+    const now = Date.now()
+    const to = state.to > now ? now : state.to
+    const resp = await Vue.connector.gw.getChannelsIdentsPackets(state.active, state.ident, { data: { count: state.limit, reverse: true, from: Math.floor(state.from / 1000), to: Math.floor(to / 1000) } })
     const messages = get(resp, 'data.result', [])
     messages.reverse()
     commit('setMessages', messages)

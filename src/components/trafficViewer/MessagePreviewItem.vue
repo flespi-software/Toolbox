@@ -25,7 +25,6 @@ export default {
   data () {
     return {
       date: date,
-      transport: (this.message.type === 0 || this.message.type === 1) ? '' : (this.message.type >= 128) ? 'udp' : 'tcp',
       eventsColors: {
         0: 'green',
         1: 'red',
@@ -60,7 +59,8 @@ export default {
         preview = bytesHexArray.map((byte) => this.replaceByteWithMnemo(byte)).join('')
       }
       return preview
-    }
+    },
+    transport () { return (this.message.type === 0 || this.message.type === 1) ? '' : (this.message.type >= 128) ? 'udp' : 'tcp' }
   },
   mixins: [convertMixin]
 }
