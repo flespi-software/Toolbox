@@ -12,7 +12,7 @@
       </div>
       <div v-else>
         <span :class="[theme.label]">{{key}}</span><span :class="{'text-white': inverted !== undefined}"> : </span>
-        <span :class="{[theme.typeNumberOrBool]: typeof value === 'number' || typeof value === 'boolean', [theme.typeString]: typeof value === 'string', [theme.typeEmpty]: typeof value === 'undefined' || value === null }">{{JSON.stringify(value)}}</span>
+        <pre class="json-tree__field-value" :class="{[theme.typeNumberOrBool]: typeof value === 'number' || typeof value === 'boolean', [theme.typeString]: typeof value === 'string', [theme.typeEmpty]: typeof value === 'undefined' || value === null }">{{JSON.stringify(value)}}</pre>
       </div>
     </div>
     <span :class="{'text-white': inverted !== undefined}">{{Array.isArray(data) ? ']' : '}'}}</span>
@@ -67,8 +67,11 @@ export default {
 }
 </script>
 
-<style>
-  .margin-left {
-    margin-left: 16px;
-  }
+<style lang='stylus'>
+  .margin-left
+    margin-left 16px
+  .json-tree__field-value
+    display inline
+    white-space pre-wrap
+    word-wrap break-word
 </style>
