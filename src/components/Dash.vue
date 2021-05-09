@@ -59,6 +59,7 @@ export default {
     background-repeat no-repeat
     &__element
       max-height 33%
+      min-height 200px
       &--mobile
         opacity .9
       &:hover

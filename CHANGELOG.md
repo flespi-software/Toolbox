@@ -1,5 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.9.11] - 2020-05-08
+[fix] relogin
+[fix] dash styles
+[fix] traffic redirect from messages
+[hide] logs filter - on rebase
 ### [1.9.10] - 2020-05-07
 [fix] json tree whitespaces view
 ### [1.9.9] - 2020-05-06

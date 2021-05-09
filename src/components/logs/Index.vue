@@ -28,7 +28,7 @@
       @update-cols="updateColsHandler"
     >
       <empty-pane slot="empty" :config="config.emptyState"/>
-      <logs-filter-menu slot="filter-append" :filter="filter" :entity="enitityName" @update="filterChangeHandler"/>
+      <!-- <logs-filter-menu slot="filter-append" :filter="filter" :entity="enitityName" @update="filterChangeHandler"/> -->
     </virtual-scroll-list>
   </div>
 </template>
@@ -39,7 +39,7 @@ import { VirtualScrollList, logsModule } from 'qvirtualscroll'
 import ItemMixin from './ItemMixin'
 import Vue from 'vue'
 import LogsListItem from './LogsListItem.vue'
-import LogsFilterMenu from './LogsFilterMenu.vue'
+// import LogsFilterMenu from './LogsFilterMenu.vue'
 import EmptyPane from '../EmptyPane'
 
 export default {
@@ -396,6 +396,10 @@ export default {
     this.$store.commit(`${this.moduleName}/clear`)
   },
   mixins: [ItemMixin],
-  components: { VirtualScrollList, EmptyPane, LogsFilterMenu }
+  components: {
+    VirtualScrollList,
+    EmptyPane
+    // LogsFilterMenu
+  }
 }
 </script>

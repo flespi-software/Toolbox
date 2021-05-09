@@ -149,6 +149,7 @@ export default {
     }
     const tokenHandler = (event) => {
       if (typeof event.data === 'string' && ~event.data.indexOf('FlespiLogin|token:')) {
+        window.removeEventListener('message', tokenHandler)
         let payload = event.data
         payload = payload.replace('FlespiLogin|token:', '')
         payload = JSON.parse(payload)
@@ -156,7 +157,6 @@ export default {
         this.regionInitFromAuth(payload.region)
         this.setToken(payload.token)
         this.logIn()
-        window.removeEventListener('message', tokenHandler)
       }
     }
     window.addEventListener('message', tokenHandler)

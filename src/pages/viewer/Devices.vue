@@ -410,7 +410,8 @@ export default {
       this.saveSessionMessageFilter()
     },
     toTrafficHandler ({ content }) {
-      const timeEnd = Math.floor(content.timestamp * 1000),
+      const timestamp = content['server.timestamp'] || content.timestamp,
+        timeEnd = Math.floor(timestamp * 1000),
         timeStart = timeEnd - 10000
       if (this.trafficRoute) {
         this.$router.push({ path: this.trafficRoute, query: { from: timeStart, to: timeEnd } }).catch(err => err)

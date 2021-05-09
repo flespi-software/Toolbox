@@ -367,7 +367,8 @@ export default {
     },
     toTrafficHandler ({ content }) {
       const ident = this.protocolFeatures.shared_connection || !content.ident ? 'unidentified' : content.ident,
-        timeEnd = Math.floor(content.timestamp * 1000),
+        timestamp = content['server.timestamp'] || content.timestamp,
+        timeEnd = Math.floor(timestamp * 1000),
         timeStart = timeEnd - 10000
       if (ident) {
         this.$router.push({ path: `/tools/traffic/${this.active}/ident/${ident}`, query: { from: timeStart, to: timeEnd } }).catch(err => err)
