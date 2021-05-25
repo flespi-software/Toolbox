@@ -1,7 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.9.13] - 2020-05-25
+[fix] palette
 ### [1.9.12] - 2020-05-11
-[rebase] switch color pallete for messages
+[rebase] switch color palette for messages
 [rebse] logs filter helper
 ### [1.9.11] - 2020-05-08
 [fix] relogin
