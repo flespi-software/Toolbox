@@ -22,7 +22,7 @@ export default {
         case 510:
         case 601:
         case 605:
-          return 'text-green'
+          return 'green'
         case 2:
         case 3:
         case 4:
@@ -43,7 +43,7 @@ export default {
         case 603:
         case 604:
         case 900:
-          return 'text-yellow'
+          return 'yellow'
         case 113:
         case 115:
         case 317:
@@ -59,7 +59,7 @@ export default {
         case 602:
         case 700:
         case 800:
-          return 'text-grey-6'
+          return 'grey-6'
         case 20:
         case 103:
         case 114:
@@ -73,37 +73,37 @@ export default {
         case 402:
         case 403:
         case 501:
-          return 'text-red'
+          return 'red'
         case 201: {
           if (sendCode < 0) {
-            return 'text-red'
+            return 'red'
           } else {
-            return 'text-green'
+            return 'green'
           }
         }
         case 301:
         case 102: {
           switch (closeCode) {
-            case 3: { return 'text-green' }
+            case 3: { return 'green' }
             case 2:
             case 12:
             case 15:
-            case 16: { return 'text-grey-6' }
+            case 16: { return 'grey-6' }
             case 4:
             case 5:
             case 6:
             case 11:
             case 13:
-            case 14: { return 'text-red' }
+            case 14: { return 'red' }
             case 7:
             case 8:
             case 9:
-            case 10: { return 'text-yellow' }
-            default: { return 'text-grey-6' }
+            case 10: { return 'yellow' }
+            default: { return 'grey-6' }
           }
         }
         default:
-          return 'text-grey-6'
+          return 'grey-6'
       }
     },
     getLogDescriptionByItem (item) {

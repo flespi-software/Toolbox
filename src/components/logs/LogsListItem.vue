@@ -100,7 +100,7 @@ export default {
         return acc
       }, '') || '*Empty*'
     },
-    color () { return this.getLogItemColor(this.item.event_code) },
+    color () { return `text-${this.getLogItemColor(this.item.event_code)}` },
     eventLinkMore () {
       const host = this.$flespiServer
       switch (this.item.event_code) {
@@ -189,7 +189,7 @@ export default {
     },
     itemClickHandler (index, content) {
       content._description = `<div style="font-size: 1.1rem">${content.event_code}: ${this.getLogDescriptionByItem(content)}</div><div style="font-size: .9rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}</div>`
-      content._color = this.getLogItemColor(content.event_code)
+      content._color = `text-${this.getLogItemColor(content.event_code)}`
       this.$emit('item-click', { index, content })
     }
   }

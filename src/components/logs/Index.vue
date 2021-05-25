@@ -28,7 +28,7 @@
       @update-cols="updateColsHandler"
     >
       <empty-pane slot="empty" :config="config.emptyState"/>
-      <!-- <logs-filter-menu slot="filter-append" :filter="filter" :entity="enitityName" @update="filterChangeHandler"/> -->
+      <logs-filter-menu slot="filter-append" :filter="filter" :entity="enitityName" @update="filterChangeHandler"/>
     </virtual-scroll-list>
   </div>
 </template>
@@ -39,7 +39,7 @@ import { VirtualScrollList, logsModule } from 'qvirtualscroll'
 import ItemMixin from './ItemMixin'
 import Vue from 'vue'
 import LogsListItem from './LogsListItem.vue'
-// import LogsFilterMenu from './LogsFilterMenu.vue'
+import LogsFilterMenu from './LogsFilterMenu.vue'
 import EmptyPane from '../EmptyPane'
 
 export default {
@@ -343,7 +343,7 @@ export default {
         this.selected = [index]
         const content = { ...this.getLogClearItem(message) }
         content._description = `<div style="font-size: 1.1rem">${content.event_code}: ${this.getLogDescriptionByItem(content)}</div><div style="font-size: .9rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}</div>`
-        content._color = this.getLogItemColor(content.event_code, content.close_code, content.send_code)
+        content._color = `text-${this.getLogItemColor(content.event_code, content.close_code, content.send_code)}`
         this.$emit('action-select', {
           index: index,
           content
@@ -398,8 +398,8 @@ export default {
   mixins: [ItemMixin],
   components: {
     VirtualScrollList,
-    EmptyPane
-    // LogsFilterMenu
+    EmptyPane,
+    LogsFilterMenu
   }
 }
 </script>
