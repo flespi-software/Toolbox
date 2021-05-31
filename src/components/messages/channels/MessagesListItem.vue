@@ -69,13 +69,13 @@ export default {
     } else if (this.item.timestamp < this.item['server.timestamp'] - 120) { // 2-10min
       highlightType = 'grey'
       highlightLevel = 5
-    } else if (this.item.timestamp - 1800 > this.item['server.timestamp']) { // < 1sec-1min
+    } else if (this.item.timestamp - 1800 > this.item['server.timestamp']) { // >30min
       highlightType = 'orange'
       highlightLevel = 10
     } else if (this.item.timestamp - 60 > this.item['server.timestamp']) { // 1-30min
       highlightType = 'orange'
       highlightLevel = 7
-    } else if (this.item.timestamp - 1 > this.item['server.timestamp']) { // >30min
+    } else if (this.item.timestamp - 1 > this.item['server.timestamp']) { // < 1sec-1min
       highlightType = 'orange'
       highlightLevel = 4
     }
