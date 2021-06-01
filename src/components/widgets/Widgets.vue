@@ -116,14 +116,14 @@ export default {
         this.$q.notify({
           type: 'positive',
           icon: 'content_copy',
-          message: 'Message copied',
+          message: 'Data copied',
           timeout: 1000
         })
       }, (e) => {
         this.$q.notify({
           type: 'negative',
           icon: 'content_copy',
-          message: 'Error coping messages',
+          message: 'Error coping data',
           timeout: 1000
         })
       })

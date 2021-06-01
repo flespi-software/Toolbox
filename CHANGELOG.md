@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.9.15] - 2020-06-01
+[update] deps
 ### [1.9.14] - 2020-05-31
 [feature] copy button in widgets
 ### [1.9.13] - 2020-05-25
