@@ -1,6 +1,6 @@
 {
   "name": "toolbox",
-  "version": "1.9.15",
+  "version": "1.9.16",
   "description": "Flespi ToolboX",
   "productName": "ToolboX",
   "cordovaId": "org.cordova.quasar.app",
@@ -20,7 +20,7 @@
     "json2csv": "^5.0.5",
     "lodash": "^4.17.19",
     "quasar": "^1.14.3",
-    "qvirtualscroll": "github:flespi-software/QVirtualScroll#747a9a83b304c82c8dc34fa097a8401e635d9166",
+    "qvirtualscroll": "github:flespi-software/QVirtualScroll#c25d791627814b97914d62cbccc87d88ac2c8b9e",
     "vue-draggable-resizable": "^2.1.0",
     "vue-i18n": "^8.15.5",
     "vue-virtual-scroll-list": "^1.4.6"
