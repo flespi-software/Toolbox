@@ -562,7 +562,7 @@ export default {
         contentInverted: true,
         controlsInverted: true
       },
-      vuexModuleName: 'intervalsDevicesMessages',
+      vuexModuleName: 'devicesMessages',
       emptyState: {
         label: 'Messages not found',
         sublabel: 'If you expect to see the device messages here',

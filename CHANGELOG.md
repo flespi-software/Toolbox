@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.9.17] - 2020-06-08
+[rebase] devicesMessages and intervalsDevicesMessages joined
 ### [1.9.16] - 2020-06-07
 [fix] deps
 ### [1.9.15] - 2020-06-01
