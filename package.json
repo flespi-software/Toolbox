@@ -20,7 +20,7 @@
     "json2csv": "^5.0.5",
     "lodash": "^4.17.19",
     "quasar": "^1.14.3",
-    "qvirtualscroll": "github:flespi-software/QVirtualScroll#c25d791627814b97914d62cbccc87d88ac2c8b9e",
+    "qvirtualscroll": "github:flespi-software/QVirtualScroll#930e8aa5e138bc811f4b3baf0cb078b8fe93fc43",
     "vue-draggable-resizable": "^2.1.0",
     "vue-i18n": "^8.15.5",
     "vue-virtual-scroll-list": "^1.4.6"
