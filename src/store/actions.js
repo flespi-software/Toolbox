@@ -89,7 +89,7 @@ async function getItems ({ state, commit }, payload) {
         }
         const items = {}
         const partsOfTopicFilter = origin.split('/').reverse().slice(1)
-        const objectModeHandler = (value, topic, packet) => {
+        const objectModeHandler = (value, topic, packet, subsIds) => {
           const partsOfTopic = topic.split('/').reverse(),
             idsParts = partsOfTopicFilter.reduce((ids, part, index) => {
               if (part === '+') {
@@ -106,7 +106,7 @@ async function getItems ({ state, commit }, payload) {
             commit('deleteItem', { id, mode: entity === 'tasks', source })
           }
         }
-        const fieldModeHandler = (value, topic, packet) => {
+        const fieldModeHandler = (value, topic, packet, subsIds) => {
           const partsOfTopic = topic.split('/').reverse(),
             name = partsOfTopic.shift(),
             idsParts = partsOfTopicFilter.reduce((ids, part, index) => {
@@ -132,12 +132,14 @@ async function getItems ({ state, commit }, payload) {
             Vue.set(source, id, { id: id, [name]: JSON.parse(value.toString()) })
           }
         }
-        const subsIds = await Vue.connector.socket.subscribe(
-          {
+        let subsIds = null
+        const params = {
             name: origin,
-            handler: mode === GET_ITEMS_MODE_OBJECT ? objectModeHandler : fieldModeHandler
+            handler: mode === GET_ITEMS_MODE_OBJECT ?
+              (value, topic, packet) => objectModeHandler(value, topic, packet, subsIds) :
+              (value, topic, packet) => fieldModeHandler(value, topic, packet, subsIds)
           }
-        )
+        subsIds = await Vue.connector.socket.subscribe(params)
         Vue.set(state, writePath, items)
         return subsIds
       } catch (e) {
@@ -261,7 +263,7 @@ async function checkConnection ({ state, commit }) {
     return false
   }
   try {
-    const resp = await Vue.connector.http.external.get(`./statics/icons/favicon-16x16.png?_=${(new Date()).getTime()}`)
+    const resp = await Vue.connector.http.external.get(`./icons/favicon-16x16.png?_=${(new Date()).getTime()}`)
     if (resp.status === 200 && state.offline) {
       commit('setOfflineFlag', false)
     }

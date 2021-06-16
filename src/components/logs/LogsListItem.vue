@@ -1,7 +1,6 @@
 <template>
   <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}" @click="itemClickHandler(index, clearItem)">
     <div
-      v-if="!item['__connectionStatus']"
       class="cursor-pointer"
       :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, boxSizing: 'border-box'}"
       :class="[color, item['x-flespi-status'] ? 'missed-items' : '', selected ? 'bg-white-opasity-3' : '']"
@@ -31,23 +30,6 @@
           </span>
         </span>
       </template>
-    </div>
-    <div
-      v-else
-      :style="{
-      height: `${itemHeight}px`,
-      width: `${rowWidth}px`,
-      border: 'solid 1px #000',
-      color: '#000',
-      fontWeight: 'bold',
-      backgroundColor: item.__connectionStatus === 'offline' ? '#ff0' : '#0f0',
-      backgroundImage: 'url(./statics/police.png)',
-      overflow: 'hidden',
-      opacity: '.7'
-    }" :class="[color]"
-      :title="date.formatDate(item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')"
-    >
-      <span style="padding: 0 5px; margin-left: 150px;" :style="{ backgroundColor: item.__connectionStatus === 'offline' ? '#ff0' : '#0f0'}"  class="text-uppercase" v-for="n in Array(10)" :key="n">{{item['__connectionStatus']}}</span>
     </div>
   </div>
 </template>

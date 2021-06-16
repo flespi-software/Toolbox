@@ -306,7 +306,7 @@ export default {
     },
     poolConnection (message) {
       if (message.ident === this.connection.ident) {
-        this.connection.messages.push(message)
+        this.$emit('connection:add', message)
       }
     },
     // getMessages () {

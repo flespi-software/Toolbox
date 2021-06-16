@@ -5,8 +5,8 @@
         <q-toolbar class="header__main-toolbar bg-grey-9">
           <q-btn flat round icon="mdi-menu" @click="toggleMenu" v-if="!dashMode"/>
           <q-toolbar-title :style="{minWidth: $q.platform.is.mobile ? '60px' : '210px'}">
-            <img class="gt-sm cursor-pointer" src="statics/toolbox50.png" alt="Toolbox" style="height: 30px" @click="goToMain">
-            <img class="lt-md cursor-pointer" src="statics/toolbox_mobile.png" alt="Toolbox" style="height: 30px" @click="goToMain">
+            <img class="gt-sm cursor-pointer" src="toolbox50.png" alt="Toolbox" style="height: 30px" @click="goToMain">
+            <img class="lt-md cursor-pointer" src="toolbox_mobile.png" alt="Toolbox" style="height: 30px" @click="goToMain">
             <sup class="version">{{version}}({{localeName}})</sup>
             <span v-if="configByEntity" style="position: relative; top: -5px; margin-left: 10px;">{{configByEntity.label}}</span>
           </q-toolbar-title>

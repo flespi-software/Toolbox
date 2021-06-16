@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.10.0] - 2020-06-16
+[update] all deps
 ### [1.9.18] - 2020-06-08
 [update] deps
 ### [1.9.17] - 2020-06-08

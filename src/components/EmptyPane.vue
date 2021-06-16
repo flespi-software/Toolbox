@@ -44,7 +44,7 @@ export default {
   width 100%
   height 100%
   overflow auto
-  background-image url(../statics/mountain.svg)
+  background-image url(../../public/mountain.svg)
   background-position center 100px
   background-size contain
   background-repeat no-repeat

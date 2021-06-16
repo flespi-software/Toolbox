@@ -15,6 +15,7 @@
       @close="() => { activeConnection = null, selectedMessages = '' }"
       @connection:preview="connection => connectionPreview = connection"
       @connection:preview-hide="connection => connectionPreview = null"
+      @connection:add="msg => activeConnection.messages.push(msg)"
     />
     <div v-show="$q.platform.is.desktop || ($q.platform.is.mobile && selectedMessages)" :style="{width: $q.platform.is.desktop ? '75%' : '100%'}">
       <q-toolbar class="bg-grey-9" v-if="activeConnection">
