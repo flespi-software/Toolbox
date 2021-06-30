@@ -369,6 +369,29 @@ export default {
         if (isRightSide) { style.left = '300px' }
       }
       return style
+    },
+    mapExtendConfig () {
+      let config = {}
+      if (this.selectedCalc.selectors) {
+        config = this.selectedCalc.selectors.reduce((result, selectorInstanse, selectorIndex) => {
+          if (selectorInstanse.type !== 'geofence') { return result }
+          selectorInstanse.geofences.forEach((geofence, gIndex) => {
+            const name = `${geofence.name||'NoName'}-${selectorIndex}-${gIndex}`
+            if (geofence.type === 'circle') {
+              if (!result.circles) { result.circles = {} }
+              result.circles[name] = { center: geofence.center, radius: geofence.radius * 1000 }
+            } else if (geofence.type === 'corridor') {
+              if (!result.corridors) { result.corridors = {} }
+              result.corridors[name] = { path: geofence.path, width: geofence.width * 1000 }
+            } else if (geofence.type === 'polygon') {
+              if (!result.polygons) { result.polygons = {} }
+              result.polygons[name] = { path: geofence.path }
+            }
+          })
+          return result
+        }, {})
+      }
+      return config
     }
   },
   methods: {

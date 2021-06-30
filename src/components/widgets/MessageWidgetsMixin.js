@@ -104,6 +104,9 @@ export default {
         const map = this.$refs.messagesView.ref('position')
         if (map) {
           map.clear()
+          if (this.mapExtendConfig) {
+            map.addConfig(this.mapExtendConfig)
+          }
           if (marker) {
             map.autobounds(true).addNamedMarkers([marker])
           }
@@ -186,5 +189,15 @@ export default {
         }
       }
     }
+  },
+  created () {
+    this.$watch('mapExtendConfig', (config) => {
+      const map = this.$refs.messagesView.ref('position')
+      if (map) {
+        map.clear(['polygons', 'circles', 'corridors'])
+        map.addConfig(config)
+        map.send()
+      }
+    })
   }
 }

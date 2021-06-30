@@ -53,8 +53,8 @@ export default {
   mixins: [ItemMixin],
   data () {
     return {
-      date: date,
-      needTrafficRoute: (this.itemSettings && this.itemSettings.needTrafficRoute) || !this.itemSettings
+      date,
+      needTrafficRoute: this.itemSettings && this.itemSettings.needTrafficRoute
     }
   },
   computed: {

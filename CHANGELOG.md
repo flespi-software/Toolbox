@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.10.1] - 2020-06-30
+[feature] geofences on intervals map
+[fix] error log extension info
 ### [1.10.0] - 2020-06-16
 [update] all deps
 ### [1.9.18] - 2020-06-08

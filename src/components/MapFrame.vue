@@ -3,6 +3,7 @@
 </template>
 
 <script>
+import merge from 'lodash/merge'
 export default {
   name: 'map-frame',
   data () {
@@ -20,6 +21,9 @@ export default {
     autobounds (flag) {
       this.lastCommand.autobounds = flag
       return this
+    },
+    addConfig (config) {
+      this.lastCommand = merge({}, this.lastCommand, config)
     },
     addMarkers (markers) {
       this.lastCommand.addmarkers = markers

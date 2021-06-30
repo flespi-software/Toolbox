@@ -100,7 +100,11 @@ export default {
       this.$nextTick(() => {
         const map = this.$refs.intervalsView.ref('track')
         if (!map) { return }
-        map.clear().autobounds(true).addRoutes(routes).send()
+        map.clear()
+        if (this.mapExtendConfig) {
+          map.addConfig(this.mapExtendConfig)
+        }
+        map.autobounds(true).addRoutes(routes).send()
       })
       this.activateWidgetWindow('intervalsView')
     },
@@ -153,5 +157,15 @@ export default {
         }
       }
     }
+  },
+  created () {
+    this.$watch('mapExtendConfig', (config) => {
+      const map = this.$refs.intervalsView.ref('track')
+      if (map) {
+        map.clear(['polygons', 'circles', 'corridors'])
+        map.addConfig(config)
+        map.send()
+      }
+    })
   }
 }
