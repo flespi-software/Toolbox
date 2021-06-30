@@ -84,6 +84,7 @@
     "14": "password mismatch",
     "15": "device associated with the connection was created, changed or deleted",
     "16": "channel rejected connection due to IP addresses whitelist missmatch",
+    "17": "connection is closed by inactivity timeout",
     "128": "Unspecified error",
     "129": "Malformed Packet",
     "130": "Protocol Error",
