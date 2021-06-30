@@ -1,9 +1,8 @@
 {
   "name": "toolbox",
-  "version": "1.9.17",
+  "version": "1.10.1",
   "description": "Flespi ToolboX",
   "productName": "ToolboX",
-  "cordovaId": "org.cordova.quasar.app",
   "capacitorId": "",
   "author": "Sergey Buntsevich <scarry92@yandex.ru>",
   "private": true,
@@ -15,35 +14,40 @@
     "deploy": "rm -rf dist && npm run build && rm -rf deploy && mkdir deploy && cp -R dist/spa/* misc CNAME LICENSE package.json deploy && cp README.md deploy/README.md && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rhttps://git.gurtam.net/flespi/frontend/toolbox.git && rm -rf deploy && git push github gh-pages"
   },
   "dependencies": {
-    "@quasar/extras": "^1.9.10",
-    "flespi-io-js": "github:flespi-software/flespi-io-js#5a430095b9f3795a3c0b82d2dec90ec961c8fc46",
+    "@quasar/extras": "^1.10.7",
+    "core-js": "^3.14.0",
+    "flespi-io-js": "github:flespi-software/flespi-io-js",
     "json2csv": "^5.0.5",
     "lodash": "^4.17.21",
-    "quasar": "^1.14.3",
-    "qvirtualscroll": "github:flespi-software/QVirtualScroll#b3ddc41321f973c7609aef2172de2b09a7ba28e9",
-    "vue-draggable-resizable": "^2.1.0",
-    "vue-i18n": "^8.15.5",
+    "quasar": "^1.15.20",
+    "qvirtualscroll": "github:flespi-software/QVirtualScroll",
+    "vue-draggable-resizable": "^2.3.0",
+    "vue-i18n": "^8.24.4",
     "vue-virtual-scroll-list": "^1.4.6"
   },
   "devDependencies": {
-    "@quasar/app": "^1.9.6",
-    "@vue/eslint-config-standard": "^5.1.2",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^6.8.0",
-    "eslint-loader": "^3.0.3",
-    "eslint-plugin-import": "^2.20.1",
-    "eslint-plugin-node": "^11.0.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
-    "eslint-plugin-vue": "^6.2.2",
+    "@quasar/app": "^2.2.10",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^7.21.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-vue": "^7.7.0",
+    "eslint-webpack-plugin": "^2.4.0",
     "git-directory-deploy": "^1.5.1"
   },
   "engines": {
-    "node": ">= 8.9.0",
-    "npm": ">= 5.6.0",
-    "yarn": ">= 1.6.0"
+    "node": ">= 10.18.1",
+    "npm": ">= 6.13.4",
+    "yarn": ">= 1.21.1"
   },
   "browserslist": [
-    "last 1 version, not dead, ie >= 11"
+    "last 10 Chrome versions",
+    "last 10 Firefox versions",
+    "last 4 Edge versions",
+    "last 7 Safari versions",
+    "last 8 Android versions",
+    "last 8 ChromeAndroid versions",
+    "last 8 FirefoxAndroid versions",
+    "last 10 iOS versions",
+    "last 5 Opera versions"
   ]
 }
