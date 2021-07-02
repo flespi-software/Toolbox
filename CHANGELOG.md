@@ -1,5 +1,6 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.10.3] - 2020-07-02
 ### [1.10.2] - 2020-06-30
 [add] new logs code
 ### [1.10.1] - 2020-06-30
