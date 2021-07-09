@@ -26,7 +26,7 @@
               </q-list>
             </q-menu>
           </q-btn>
-          <q-btn @click="settingsHandler" small flat round icon="mdi-settings" v-if="!dashMode">
+          <q-btn @click="settingsHandler" small flat round icon="mdi-cog" v-if="!dashMode">
             <settings ref="settings" :limit="limit" @input="saveSettings" @clear="clearSettings" />
           </q-btn>
           <q-btn class="within-iframe-hide" @click="confirmExitHandler" small  flat round icon="mdi-exit-to-app"/>

@@ -271,7 +271,7 @@ export default {
           if (id) {
             this.unsubscribeItems({ entity, id, mode: 1 })
           }
-          update()
+          update && update()
           loadedEntities[entity] = { entity, mode: 1 }
           cb && cb()
         })

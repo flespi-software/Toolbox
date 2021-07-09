@@ -2,7 +2,7 @@
   <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}" @click="itemClickHandler(index, clearItem)">
     <div
       class="cursor-pointer"
-      :class="[item['x-flespi-status'] ? 'missed-items' : '', highlighted ? 'bg-purple-9' : '']"
+      :class="[item['x-flespi-status'] ? 'missed-items' : '', highlighted && !selected ? 'bg-purple-9' : '']"
       :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, backgroundColor: selected ? 'rgba(255,255,255,0.7)': '', color: selected && !highlighted ? '#333' : ''}"
     >
       <template v-for="(prop, k) in cols">

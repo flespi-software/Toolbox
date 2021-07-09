@@ -28,9 +28,9 @@ export default {
   },
   computed: {
     fieldsIntervalsMetaData () {
-      const schema = get(this.$refs, 'intervals.cols', undefined)
+      const schema = get(this.$refs, `${this.intervalsWidgetsRefName}.cols`, undefined)
       const cols = Object.values(schema.enum)
-      const activeCols = get(this.$refs, 'intervals.$refs.scrollList.activeCols', []).reduce((res, col) => {
+      const activeCols = get(this.$refs, `${this.intervalsWidgetsRefName}.$refs.scrollList.activeCols`, []).reduce((res, col) => {
         res[col.name] = true
         return res
       }, {})
@@ -43,6 +43,30 @@ export default {
         }, {})
       }
       return result
+    },
+    mapExtendConfig () {
+      let config = {}
+      const selectors = get(this.widgetsViewedInterval, 'entity.selectors', undefined)
+      if (selectors) {
+        config = selectors.reduce((result, selectorInstanse, selectorIndex) => {
+          if (selectorInstanse.type !== 'geofence') { return result }
+          selectorInstanse.geofences.forEach((geofence, gIndex) => {
+            const name = `${geofence.name||'NoName'}-${selectorIndex}-${gIndex}`
+            if (geofence.type === 'circle') {
+              if (!result.circles) { result.circles = {} }
+              result.circles[name] = { center: geofence.center, radius: geofence.radius * 1000 }
+            } else if (geofence.type === 'corridor') {
+              if (!result.corridors) { result.corridors = {} }
+              result.corridors[name] = { path: geofence.path, width: geofence.width * 1000 }
+            } else if (geofence.type === 'polygon') {
+              if (!result.polygons) { result.polygons = {} }
+              result.polygons[name] = { path: geofence.path }
+            }
+          })
+          return result
+        }, {})
+      }
+      return config
     },
     intervalsWidgetsViewConfig () {
       const config = {}
@@ -75,11 +99,14 @@ export default {
         }
       }
       return config
+    },
+    intervalsWidgetsRefName () {
+      return get(this.widgetsViewedInterval, 'refName')
     }
   },
   methods: {
-    setWidgetsIntervalView ({ content, entity }) {
-      this.widgetsViewedInterval = { content: { ...content }, entity }
+    setWidgetsIntervalView ({ content, entity, refName }) {
+      this.widgetsViewedInterval = { content: { ...content }, entity, refName }
       const routesFields = entity.counters && entity.counters.filter((counter) => {
         return counter.type === 'route'
       })
@@ -133,18 +160,18 @@ export default {
       }
     },
     closeIntervalsWidgetsHandler () {
-      if (this.$refs.intervals) {
-        this.$refs.intervals.unselect()
+      if (this.$refs[this.intervalsWidgetsRefName]) {
+        this.$refs[this.intervalsWidgetsRefName].unselect()
       }
     },
     nextWidgetsInterval () {
-      this.$refs.intervals.nextSelect()
+      this.$refs[this.intervalsWidgetsRefName].nextSelect()
     },
     prevWidgetsInterval () {
-      this.$refs.intervals.prevSelect()
+      this.$refs[this.intervalsWidgetsRefName].prevSelect()
     },
     intervalsWidgetActionHandler ({ type, data }) {
-      const list = get(this.$refs.intervals.$refs, 'scrollList', undefined)
+      const list = get(this.$refs[this.intervalsWidgetsRefName].$refs, 'scrollList', undefined)
       if (!list) { return }
       switch (type) {
         case 'col-add': {
@@ -165,6 +192,14 @@ export default {
         map.clear(['polygons', 'circles', 'corridors'])
         map.addConfig(config)
         map.send()
+      }
+    })
+    this.$watch('widgetsViewedInterval.refName', (ref, old) => {
+      if (ref !== old && old) {
+        this.$refs[old].unselect()
+        if (ref.indexOf('related') === 0) {
+          this.viewedInterval = null
+        }
       }
     })
   }

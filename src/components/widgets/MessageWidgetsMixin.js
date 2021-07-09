@@ -30,18 +30,20 @@ export default {
   computed: {
     fieldsDevicesMetaData () {
       const schema = get(this.$refs, 'messages.cols', undefined)
-      const cols = Object.values(schema.enum)
-      const activeCols = get(this.$refs, 'messages.$refs.scrollList.activeCols', []).reduce((res, col) => {
-        res[col.name] = true
-        return res
-      }, {})
       let result = {}
-      if (cols) {
-        result = cols.reduce((result, col) => {
-          result[col.name] = { ...col }
-          result[col.name].display = activeCols[col.name] || false
-          return result
+      if (schema) {
+        const cols = Object.values(schema.enum)
+        const activeCols = get(this.$refs, 'messages.$refs.scrollList.activeCols', []).reduce((res, col) => {
+          res[col.name] = true
+          return res
         }, {})
+        if (cols) {
+          result = cols.reduce((result, col) => {
+            result[col.name] = { ...col }
+            result[col.name].display = activeCols[col.name] || false
+            return result
+          }, {})
+        }
       }
       return result
     },

@@ -40,13 +40,16 @@ export default {
     'activeId',
     'activeDeviceId',
     'limit',
-    'config'
+    'config',
+    'interval',
+    'dateRange'
   ],
   data () {
     return {
       listItem: MessagesListItem,
       theme: this.config.theme,
       viewConfig: this.config.viewConfig,
+      isSecondary: this.config.mode === 'secondary',
       moduleName: this.config.vuexModuleName,
       autoscroll: true,
       viewedInterval: null,
@@ -79,7 +82,8 @@ export default {
         await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active device */
         this.$store.commit(`${this.moduleName}/setActive`, val)
         this.$store.commit(`${this.moduleName}/clearMessages`)
-        val && this.$store.dispatch(`${this.moduleName}/getCols`, this.item.counters)
+        const counters = this.item.counters || []
+        val && this.$store.dispatch(`${this.moduleName}/getCols`, counters)
         await this.$store.dispatch(`${this.moduleName}/initTime`)
         this.$emit('change:date-range', [this.begin, this.end])
         await this.$store.dispatch(`${this.moduleName}/get`)
@@ -119,7 +123,8 @@ export default {
     },
     begin: {
       get () {
-        return this.$store.state[this.moduleName].begin
+        const begin = this.isSecondary ? this.dateRange[0] : this.$store.state[this.moduleName].begin
+        return begin
       },
       set (val) {
         val = val || 0
@@ -128,7 +133,8 @@ export default {
     },
     end: {
       get () {
-        return this.$store.state[this.moduleName].end
+        const end = this.isSecondary ? this.dateRange[1] : this.$store.state[this.moduleName].end
+        return end
       },
       set (val) {
         val = val || 0
@@ -185,7 +191,8 @@ export default {
       data.props.etcVisible = this.etcVisible
       data.props.actionsVisible = this.actionsVisible
       data.props.selected = this.selected.includes(index)
-      data.props.highlighted = this.viewedInterval && item.id === this.viewedInterval.id
+      data.props.highlighted = (this.viewedInterval && item.id === this.viewedInterval.id) ||
+        (this.interval && item.begin >= this.interval.begin && item.end <= this.interval.end)
       if (this.routesFields.some(field => !!item[field.name])) {
         data.props.actions = [
           ...data.props.actions,
@@ -219,16 +226,21 @@ export default {
     updateColsHandler (cols) {
       this.cols = cols
     },
-    dateRangeChangeHandler (range) {
+    dateRangeChange (range) {
       const begin = range[0],
         end = range[1]
-      if (this.begin === begin && this.end === end) { return false }
       this.begin = begin
       this.end = end
       this.$emit('change:date-range', range)
       this.viewedInterval = null
       this.$store.commit(`${this.moduleName}/clearMessages`)
       this.$store.dispatch(`${this.moduleName}/get`)
+    },
+    dateRangeChangeHandler (range) {
+      const begin = range[0],
+        end = range[1]
+      if (this.begin === begin && this.end === end) { return false }
+      this.dateRangeChange(range)
     },
     actionHandler ({ index, type, content }) {
       this.selected = [index]
@@ -296,6 +308,34 @@ export default {
     scrollTo (index) {
       this.$nextTick(() => this.$refs.scrollList && this.$refs.scrollList.scrollTo(index))
     },
+    async showMessagesByInterval () {
+      const interval = this.interval
+      if (!interval) { return }
+      const existMessageIndex = this.messages.findIndex(message => message.begin === interval.begin)
+      if (existMessageIndex !== -1) {
+        this.scrollTo(existMessageIndex - 1)
+      } else {
+        this.$store.state[this.moduleName].messages = []
+        const intervalMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.begin, to: interval.end, count: this.limit })
+        const count = Math.ceil((this.limit - intervalMessages.length) / 2)
+        let scrollToIndex = 0
+        if (intervalMessages.length < this.limit) {
+          const paddingMessages = await Promise.all([
+            this.$store.dispatch(`${this.moduleName}/getMessages`, { from: Math.floor(this.from / 1000), to: interval.begin - 1, count, reverse: true }),
+            this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.end + 1, to: Math.floor(this.to / 1000), count })
+          ])
+          const prevMsgs = paddingMessages[0].reverse(),
+            nextMsgs = paddingMessages[1]
+          intervalMessages.splice(0, 0, ...prevMsgs)
+          scrollToIndex = prevMsgs.length
+          intervalMessages.splice(intervalMessages.length, 0, ...nextMsgs)
+          await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
+        } else {
+          await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
+        }
+        this.scrollTo(scrollToIndex)
+      }
+    },
     clearMessage (message) {
       return Object.keys(message).reduce((result, key) => {
         if (key.indexOf('x-flespi') !== -1) {
@@ -351,28 +391,41 @@ export default {
     },
     limit (limit) {
       this.currentLimit = limit
+    },
+    interval () {
+      this.showMessagesByInterval()
+    },
+    dateRange (range) {
+      this.dateRangeChange(range)
     }
   },
   created () {
     if (!this.$store.state[this.moduleName]) {
-      this.$store.registerModule(this.moduleName, intervalsModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
+      this.$store.registerModule(this.moduleName, intervalsModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.isSecondary ? 'intervals' : this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
     } else {
       this.$store.commit(`${this.moduleName}/clear`)
     }
     this.currentLimit = this.limit
     if (this.activeId) {
       this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
-      this.$store.dispatch(`${this.moduleName}/getCols`, this.item.counters)
+      const counters = this.item.counters || []
+      this.$store.dispatch(`${this.moduleName}/getCols`, counters)
     }
     if (this.activeDeviceId) {
       this.$store.commit(`${this.moduleName}/setActiveDevice`, this.activeDeviceId)
     }
-    this.$store.dispatch(`${this.moduleName}/initTime`)
+    if (this.isSecondary) {
+      this.begin = this.dateRange[0]
+      this.end = this.dateRange[1]
+      this.$store.dispatch(`${this.moduleName}/get`)
+    } else {
+      this.$store.dispatch(`${this.moduleName}/initTime`)
       .then(() => {
         this.$emit('change:date-range', [this.begin, this.end])
         this.$store.dispatch(`${this.moduleName}/get`)
         this.$store.dispatch(`${this.moduleName}/pollingGet`)
       })
+    }
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
       this.$store.commit(`${this.moduleName}/setOffline`)
     })

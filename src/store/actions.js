@@ -17,7 +17,7 @@ const origins = {
   basicEntitiesFields = {
     devices: ['id', 'name', 'deleted', 'configuration'],
     channels: ['id', 'name', 'deleted', 'protocol_id', 'uri'],
-    calcs: ['id', 'name', 'deleted', 'counters', 'selectors'],
+    calcs: ['id', 'name', 'deleted', 'counters', 'selectors', 'messages_source'],
     plugins: ['id', 'name', 'deleted'],
     streams: ['id', 'name', 'deleted', 'configuration', 'protocol_id'],
     modems: ['id', 'name', 'deleted', 'configuration'],

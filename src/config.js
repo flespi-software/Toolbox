@@ -538,6 +538,41 @@ export default {
         controlsInverted: true
       }
     },
+    relatedIntervals: {
+      vuexModuleName: 'relatedIntervals',
+      mode: 'secondary',
+      emptyState: {
+        label: 'Intervals not found',
+        sublabel: 'If you expect to see the intervals here',
+        hints: [
+          { html: 'Make sure the selected device has messages to perform intervals calculations with.' },
+          { html: "Pick a specific date and time using the <span class='text-bold'>date/time picker</span> on the top right." }
+        ]
+      },
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy interval',
+          classes: '',
+          type: 'copy'
+        },
+        {
+          icon: 'mdi-information-outline',
+          label: 'Show interval',
+          classes: '',
+          type: 'show'
+        }
+      ],
+      viewConfig: {
+        needShowFilter: true
+      },
+      theme: {
+        color: 'white',
+        bgColor: 'grey-9',
+        contentInverted: true,
+        controlsInverted: true
+      }
+    },
     messages: {
       actions: [
         {

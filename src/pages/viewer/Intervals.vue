@@ -147,6 +147,7 @@
             <q-btn :title="action.label" class="on-left cursor-pointer pull-right text-center rounded-borders q-px-xs q-py-none text-white" @click="action.handler" flat dense style="width: 60px">
               <q-icon size="1.5rem" :name="action.icon"/>
               <div style="font-size: .7rem; line-height: .7rem">{{action.label}}</div>
+              <q-tooltip v-if="action.desc">{{action.desc}}</q-tooltip>
             </q-btn>
           </transition>
         </template>
@@ -171,10 +172,10 @@
     <div>
       <intervals
         ref="intervals"
-        @action-view-data="data => intervalWidgetsActions('object', data)"
-        @action-map="data => intervalWidgetsActions('track', data)"
-        @action-show="data => intervalWidgetsActions('show', data)"
-        @action-select="data => intervalWidgetsActions('select', data)"
+        @action-view-data="data => intervalWidgetsActions('object', { ...data, refName: 'intervals' })"
+        @action-map="data => intervalWidgetsActions('track', { ...data, refName: 'intervals' })"
+        @action-show="data => intervalWidgetsActions('show', { ...data, refName: 'intervals' })"
+        @action-select="data => intervalWidgetsActions('select', { ...data, refName: 'intervals' })"
         @in-messages="(interval) => viewedInterval = interval"
         @change:date-range="range => { dateRange = range, viewedInterval = null }"
         :activeId="activeCalcId"
@@ -186,6 +187,7 @@
         :style="{height: `calc(50vh - ${isVisibleToolbar ? '50px' : '25px'})`, position: 'relative', ...panelsWidgetsStyle}"
       />
       <messages
+        v-if="isInit && !relatedDataMode"
         ref="messages"
         @action-view-data="data => messageWidgetsActions('object', data)"
         @action-map="data => messageWidgetsActions('position', data)"
@@ -197,9 +199,24 @@
         :dateRange="dateRange"
         :activeId="active"
         :limit="limit"
-        v-if="isInit"
         :style="[{height: `calc(50vh - ${isVisibleToolbar ? '50px' : '25px'})`, position: 'relative'}, panelsWidgetsStyle]"
         :config="config.messages"
+      />
+      <intervals
+        v-else-if="isInit && relatedDataMode"
+        ref="relatedIntervals"
+        @action-view-data="data => intervalWidgetsActions('object', { ...data, refName: 'relatedIntervals' })"
+        @action-map="data => intervalWidgetsActions('track', { ...data, refName: 'relatedIntervals' })"
+        @action-show="data => intervalWidgetsActions('show', { ...data, refName: 'relatedIntervals' })"
+        @action-select="data => intervalWidgetsActions('select', { ...data, refName: 'relatedIntervals' })"
+        :interval="viewedInterval"
+        :dateRange="dateRange"
+        :activeId="relatedCalcId"
+        :item="relatedCalc"
+        :activeDeviceId="active"
+        :limit="0"
+        :config="config.relatedIntervals"
+        :style="[{height: `calc(50vh - ${isVisibleToolbar ? '50px' : '25px'})`, position: 'relative'}, panelsWidgetsStyle]"
       />
     </div>
     <widgets
@@ -243,6 +260,9 @@ import Widgets from '../../components/widgets/Widgets'
 import { mapState, mapActions, mapMutations } from 'vuex'
 import init from '../../mixins/entitiesInit'
 
+const DEVICE_SOURCE = false,
+  CALC_SOURCE = true
+
 export default {
   props: [
     'limit',
@@ -269,7 +289,8 @@ export default {
       calcsBlocked: false,
       viewedInterval: null,
       dateRange: [0, 0],
-      blocked: ''
+      blocked: '',
+      relatedDataMode: DEVICE_SOURCE
     }
   },
   computed: {
@@ -300,7 +321,21 @@ export default {
       return this.devicesCollection[this.active] || {}
     },
     selectedCalc () {
-      return this.calcsCollection[this.activeCalcId] ? this.calcsCollection[this.activeCalcId] : {}
+      return this.calcsCollection[this.activeCalcId] || {}
+    },
+    relatedCalcId () {
+      const source = this.selectedCalc.messages_source || {}
+      let id = false
+      if (source.source === 'calc') {
+        id = source.calc_id
+      }
+      return id
+    },
+    relatedCalc () {
+      if (this.relatedCalcId && !this.isCalcsInit) {
+        this.itemsLoad('calcs', undefined, this.activeCalcId, () => { this.isCalcsInit = true })
+      }
+      return this.calcsCollection[this.relatedCalcId] || {}
     },
     filteredDevices () {
       let devices = this.devices
@@ -342,6 +377,13 @@ export default {
     actions () {
       return [
         {
+          label: this.relatedDataMode ? 'Messages' : 'Intervals',
+          icon: this.relatedDataMode ? 'mdi-card-text-outline' : 'mdi-card-bulleted-outline',
+          handler: this.changeRelatedDataMode,
+          condition: this.relatedCalcId,
+          desc: 'Switch related data between messages/intervals'
+        },
+        {
           label: 'Devices',
           icon: 'mdi-developer-board',
           handler: this.goBackDevice,
@@ -369,29 +411,6 @@ export default {
         if (isRightSide) { style.left = '300px' }
       }
       return style
-    },
-    mapExtendConfig () {
-      let config = {}
-      if (this.selectedCalc.selectors) {
-        config = this.selectedCalc.selectors.reduce((result, selectorInstanse, selectorIndex) => {
-          if (selectorInstanse.type !== 'geofence') { return result }
-          selectorInstanse.geofences.forEach((geofence, gIndex) => {
-            const name = `${geofence.name||'NoName'}-${selectorIndex}-${gIndex}`
-            if (geofence.type === 'circle') {
-              if (!result.circles) { result.circles = {} }
-              result.circles[name] = { center: geofence.center, radius: geofence.radius * 1000 }
-            } else if (geofence.type === 'corridor') {
-              if (!result.corridors) { result.corridors = {} }
-              result.corridors[name] = { path: geofence.path, width: geofence.width * 1000 }
-            } else if (geofence.type === 'polygon') {
-              if (!result.polygons) { result.polygons = {} }
-              result.polygons[name] = { path: geofence.path }
-            }
-          })
-          return result
-        }, {})
-      }
-      return config
     }
   },
   methods: {
@@ -462,7 +481,8 @@ export default {
     },
     unselect () {
       this.$refs.intervals.unselect()
-      this.$refs.messages.unselect()
+      this.$refs.messages && this.$refs.messages.unselect()
+      this.$refs.relatedIntervals && this.$refs.relatedIntervals.unselect()
       this.viewedInterval = null
     },
     setActive (id) {
@@ -528,6 +548,12 @@ export default {
     onResizePage (size) {
       this.$refs.intervalsView.resize(size)
       this.$refs.messagesView.resize(size)
+    },
+    changeRelatedDataMode () {
+      this.unselect()
+      if (this.isWidgetsMessageActive) { this.isWidgetsMessageActive = false }
+      if (this.isWidgetsIntervalsActive && this.widgetsViewedInterval.refName.indexOf('related') === 0) { this.isWidgetsIntervalsActive = false }
+      this.relatedDataMode = !this.relatedDataMode
     }
   },
   created () {
@@ -578,7 +604,7 @@ export default {
   components: { intervals, messages, Widgets }
 }
 </script>
-<style lang="stylus">
+<style lang="stylus" scope>
   .middle-modificator
     position absolute
     left calc(50% - 71px)
@@ -625,4 +651,8 @@ export default {
     font-size .7rem
     padding-top 0
     padding-bottom 0
+  .q-field--auto-height.q-field--dense .q-field__control, .q-field--auto-height.q-field--dense .q-field__native
+    min-height: 34px!important
+  .q-field--dense .q-field__label
+    top: 14px!important
 </style>
