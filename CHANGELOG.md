@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.10.5] - 2020-07-30
+[new] log codes
 ### [1.10.4] - 2020-07-09
 [feature] intervals by intervals
 [fix] style
