@@ -426,6 +426,38 @@ export default {
       if (this.selected.length && this.selected[0] + 1000 <= count) {
         this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
       }
+    },
+    async init () {
+      if (!this.$store.state[this.moduleName]) {
+        this.$store.registerModule(this.moduleName, channelsMessagesModuleSerial({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
+      } else {
+        this.$store.commit(`${this.moduleName}/clear`)
+      }
+      this.currentLimit = this.limit
+      let filter = get(this.$store.state.sessionSettings, 'savedFilter', '')
+      if (filter) {
+        if (this.needRestoreSettings) {
+          filter = get(filter, `channels.${this.activeId}`, '')
+          this.filter = filter
+        }
+        this.$store.commit('setToolboxSessionSettings', { savedFilter: undefined })
+      }
+      if (this.activeId) {
+        const from = this.$route.query.from * 1000,
+          to = this.$route.query.to * 1000
+        this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
+        const activeItem = this.$store.state.channels[this.activeId] || {}
+        this.$set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
+        await this.$store.dispatch(`${this.moduleName}/getCols`, { etc: true })
+        if (from && to) {
+          this.from = from
+          this.to = to
+          await this.getMessages()
+        } else {
+          await this.$store.dispatch(`${this.moduleName}/initTime`)
+          await this.getMessages()
+        }
+      }
     }
   },
   watch: {
@@ -437,21 +469,7 @@ export default {
     }
   },
   created () {
-    if (!this.$store.state[this.moduleName]) {
-      this.$store.registerModule(this.moduleName, channelsMessagesModuleSerial({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
-    } else {
-      this.$store.commit(`${this.moduleName}/clear`)
-    }
-    this.currentLimit = this.limit
-    let filter = get(this.$store.state.sessionSettings, 'savedFilter', '')
-    if (filter) {
-      if (this.needRestoreSettings) {
-        filter = get(filter, `channels.${this.activeId}`, '')
-        this.filter = filter
-      }
-      this.$store.commit('setToolboxSessionSettings', { savedFilter: undefined })
-    }
-    if (this.activeId) { this.active = this.activeId }
+    this.init()
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
       this.$store.commit(`${this.moduleName}/setOffline`)
     })

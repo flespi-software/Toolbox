@@ -425,6 +425,54 @@ export default {
         cancel: true
       }).onOk(() => { this.$store.commit(`${this.moduleName}/clearMessages`) })
         .onCancel(() => {})
+    },
+    async init () {
+      if (!this.$store.state[this.moduleName]) {
+        this.$store.registerModule(
+          this.moduleName,
+          channelsMessagesModuleSerial(
+            {
+              Vue,
+              LocalStorage: this.$q.localStorage,
+              name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' },
+              errorHandler: (err) => { this.$store.commit('reqFailed', err) },
+              filterHandler: this.filterMessage,
+              newMessagesInterseptor: this.newMessagesInterseptor
+            }
+          )
+        )
+      }
+      if (this.activeId) {
+        this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
+        const activeItem = this.$store.state.channels[this.activeId] || {}
+        this.$set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
+      }
+      this.currentLimit = this.limit
+      const from = this.$route.query.from * 1000,
+        to = this.$route.query.to * 1000,
+        ident = this.$route.query.ident
+      if (from && to) {
+        this.from = from
+        this.to = to
+        await this.$store.dispatch(`${this.moduleName}/get`)
+        if (ident) {
+          const connetion = this.connections[ident]
+          this.connectionClickHandler({ content: connetion })
+          this.$nextTick(() => {
+            const incomingMessageIndex = this.currentMessages.findIndex(message => message['proxy.source'] === 0 && Math.floor(message.timestamp * 1000) === to)
+            if (incomingMessageIndex > -1) {
+              this.messageClickHandler({ index: incomingMessageIndex, event: {} })
+            }
+          })
+        }
+      } else {
+        await this.$store.dispatch(`${this.moduleName}/initTime`)
+        await this.$store.dispatch(`${this.moduleName}/get`)
+      }
+      if (this.to > Date.now()) {
+        const render = await this.$store.dispatch(`${this.moduleName}/pollingGet`)
+        render()
+      }
     }
   },
   watch: {
@@ -448,57 +496,7 @@ export default {
     }
   },
   created () {
-    if (!this.$store.state[this.moduleName]) {
-      this.$store.registerModule(
-        this.moduleName,
-        channelsMessagesModuleSerial(
-          {
-            Vue,
-            LocalStorage: this.$q.localStorage,
-            name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' },
-            errorHandler: (err) => { this.$store.commit('reqFailed', err) },
-            filterHandler: this.filterMessage,
-            newMessagesInterseptor: this.newMessagesInterseptor
-          }
-        )
-      )
-    }
-    if (this.activeId) {
-      this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
-      const activeItem = this.$store.state.channels[this.activeId] || {}
-      this.$set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
-    }
-    this.currentLimit = this.limit
-    const from = this.$route.query.from,
-      to = this.$route.query.to,
-      ident = this.$route.query.ident
-    if (from && to) {
-      this.from = from
-      this.to = to
-      this.$store.dispatch(`${this.moduleName}/get`).then(() => {
-        if (this.to > Date.now()) {
-          this.$store.dispatch(`${this.moduleName}/pollingGet`).then(render => render())
-        }
-        if (ident) {
-          const connetion = this.connections[ident]
-          this.connectionClickHandler({ content: connetion })
-          this.$nextTick(() => {
-            const incomingMessageIndex = this.currentMessages.findIndex(message => message['proxy.source'] === 0 && Math.floor(message.timestamp * 1000) === to)
-            if (incomingMessageIndex > -1) {
-              this.messageClickHandler({ index: incomingMessageIndex, event: {} })
-            }
-          })
-        }
-      })
-    } else {
-      this.$store.dispatch(`${this.moduleName}/initTime`).then(() => {
-        this.$store.dispatch(`${this.moduleName}/get`).then(() => {
-          if (this.to > Date.now()) {
-            this.$store.dispatch(`${this.moduleName}/pollingGet`).then(render => render())
-          }
-        })
-      })
-    }
+    this.init()
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
       this.$store.commit(`${this.moduleName}/setOffline`)
     })

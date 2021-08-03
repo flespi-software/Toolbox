@@ -350,6 +350,30 @@ export default {
         })
         this.scrollTo(index)
       }
+    },
+    async init () {
+      if (!this.$store.state[this.moduleName]) {
+        this.$store.registerModule(this.moduleName, logsModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
+      } else {
+        this.$store.commit(`${this.moduleName}/clear`)
+      }
+      this.currentLimit = this.limit
+      if (this.cid) { this.$store.commit(`${this.moduleName}/setCid`, this.cid) }
+      if (this.item) {
+        const from = this.$route.query.from * 1000,
+          to = this.$route.query.to * 1000
+        this.$store.commit(`${this.moduleName}/setOrigin`, this.originByPattern)
+        this.$store.commit(`${this.moduleName}/setItemDeletedStatus`, (this.item && this.item.deleted))
+        await this.$store.dispatch(`${this.moduleName}/getCols`, this.config.cols)
+        if (from && to) {
+          this.from = from
+          this.to = to
+          await this.getMessages()
+        } else {
+          await this.$store.dispatch(`${this.moduleName}/initTime`)
+          await this.getMessages()
+        }
+      }
     }
   },
   watch: {
@@ -366,16 +390,7 @@ export default {
     }
   },
   created () {
-    if (!this.$store.state[this.moduleName]) {
-      this.$store.registerModule(this.moduleName, logsModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
-    } else {
-      this.$store.commit(`${this.moduleName}/clear`)
-    }
-    this.currentLimit = this.limit
-    if (this.cid) { this.$store.commit(`${this.moduleName}/setCid`, this.cid) }
-    if (this.item) {
-      this.origin = this.originByPattern
-    }
+    this.init()
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
       this.$store.commit(`${this.moduleName}/setOffline`)
     })

@@ -290,7 +290,39 @@ export default {
       this.$store.commit(`${this.moduleName}/clearMessages`)
       this.closeDevice()
     },
-    exportModalOpen () { this.$refs.export.show() }
+    exportModalOpen () { this.$refs.export.show() },
+    highlightIncoming (from, to) {
+      const incomingMessageIndex = this.messages.findIndex(message => message.type === 2)
+      const incomingMessageIndexEnd = this.messages.findIndex(message => message.type === 2 && Math.floor(message.timestamp) === Math.floor(this.to / 1000))
+      if (incomingMessageIndexEnd > -1) {
+        this.messageClickHandler({ index: incomingMessageIndexEnd, event: {} })
+      } else if (incomingMessageIndex > -1) {
+        this.messageClickHandler({ index: incomingMessageIndex, event: {} })
+      }
+    },
+    async init () {
+      this.currentLimit = this.limit
+      if (this.activeId && !this.$store.state[this.moduleName].active) {
+        this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
+      }
+      if (this.device && !this.$store.state[this.moduleName].ident) {
+        this.$store.commit(`${this.moduleName}/setIdent`, this.device.ident)
+      }
+      const from = this.$route.query.from * 1000,
+        to = this.$route.query.to * 1000
+      if (from && to) {
+        this.from = from
+        this.to = to
+        await this.$store.dispatch(`${this.moduleName}/getMessages`)
+        this.$nextTick(this.highlightIncoming)
+      } else {
+        await this.$store.dispatch(`${this.moduleName}/initTime`)
+        await this.$store.dispatch(`${this.moduleName}/getMessagesTail`)
+      }
+      if (this.to > Date.now()) {
+        await this.$store.dispatch(`${this.moduleName}/pollingGetMessages`)
+      }
+    }
   },
   watch: {
     activeId (val) {
@@ -301,42 +333,7 @@ export default {
     }
   },
   created () {
-    this.currentLimit = this.limit
-    if (this.activeId && !this.$store.state[this.moduleName].active) {
-      this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
-    }
-    if (this.device && !this.$store.state[this.moduleName].ident) {
-      this.$store.commit(`${this.moduleName}/setIdent`, this.device.ident)
-    }
-    const from = this.$route.query.from,
-      to = this.$route.query.to
-    if (from && to) {
-      this.from = from
-      this.to = to
-      this.$store.dispatch(`${this.moduleName}/getMessages`)
-        .then(() => {
-          this.$nextTick(() => {
-            const incomingMessageIndex = this.messages.findIndex(message => message.type === 2)
-            const incomingMessageIndexEnd = this.messages.findIndex(message => message.type === 2 && Math.floor(message.timestamp) === Math.floor(to / 1000))
-            if (incomingMessageIndexEnd > -1) {
-              this.messageClickHandler({ index: incomingMessageIndexEnd, event: {} })
-            } else if (incomingMessageIndex > -1) {
-              this.messageClickHandler({ index: incomingMessageIndex, event: {} })
-            }
-          })
-        })
-      if (this.to > Date.now()) {
-        this.$store.dispatch(`${this.moduleName}/pollingGetMessages`)
-      }
-    } else {
-      this.$store.dispatch(`${this.moduleName}/initTime`)
-        .then(() => {
-          this.$store.dispatch(`${this.moduleName}/getMessagesTail`)
-          if (this.to > Date.now()) {
-            this.$store.dispatch(`${this.moduleName}/pollingGetMessages`)
-          }
-        })
-    }
+    this.init()
   },
   mounted () {
     this.resetParams()

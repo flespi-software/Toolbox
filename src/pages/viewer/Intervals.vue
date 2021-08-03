@@ -351,9 +351,9 @@ export default {
       calcs = this.active
         ? calcs.filter(item => this.tasks.some(task => this.active === task.device_id && item.id === task.calc_id))
         : calcs
-      if (this.isInit && this.active && this.activeCalcId && !this.tasks.filter(task => task.device_id === this.active && task.calc_id === this.activeCalcId).length) {
-        this.$nextTick(() => { this.clearActiveCalc() })
-      }
+      // if (this.isInit && this.active && this.activeCalcId && !this.tasks.filter(task => task.device_id === this.active && task.calc_id === this.activeCalcId).length) {
+      //   this.$nextTick(() => { this.clearActiveCalc() })
+      // }
       return this.filterItems(calcs, this.calcFilter.toLowerCase())
     },
     devicesSelectorDisabled () {
@@ -520,6 +520,13 @@ export default {
         this.setActiveCalc(calcIdFromRoute)
       }
       this.isInit = true
+      this.$router.push(`/device/${deviceIdFromRoute || 'null'}/calc/${calcIdFromRoute || 'null'}/intervals`).catch(err => err)
+      this.$watch('active', (id, old) => {
+        this.$router.push(`/device/${id}/calc/${this.activeCalcId || 'null'}/intervals`).catch(err => err)
+      })
+      this.$watch('activeCalcId', (activeCalcId, old) => {
+        this.$router.push(`/device/${this.active}/calc/${activeCalcId || 'null'}/intervals`).catch(err => err)
+      })
       this.$emit('inited')
     },
     clearWidgetsState () {
@@ -572,6 +579,7 @@ export default {
   },
   watch: {
     $route (route) {
+      console.trace()
       if (
         route.params && route.params.deviceId && Number(route.params.deviceId) === this.active &&
         route.params.calcId && this.activeCalcId === Number(route.params.calcId)
@@ -593,12 +601,6 @@ export default {
         this.clearActive()
       }
       this.clearWidgetsState()
-    },
-    active (id, old) {
-      this.$router.push(`/device/${id}/calc/${this.activeCalcId || 'null'}/intervals`).catch(err => err)
-    },
-    activeCalcId (activeCalcId) {
-      this.$router.push(`/device/${this.active}/calc/${activeCalcId || 'null'}/intervals`).catch(err => err)
     }
   },
   components: { intervals, messages, Widgets }

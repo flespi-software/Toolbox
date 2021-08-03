@@ -78,8 +78,10 @@ export default {
                 }
               } else {
                 vm.deviceBlocked = true
+                vm.calcsBlocked = true
                 vm.setToolboxSessionSettings({
-                  intervalDevicesBlocked: true
+                  intervalDevicesBlocked: true,
+                  intervalCalcsBlocked: true
                 })
                 promises.push({ entity: 'tasks', id: { device: deviceTo, calc: calcTo }, mode: 1 })
                 vm.isCalcsInit = getMainEntity('calcs', calcTo, undefined, vm.isNeedSelect || (typeof vm.isNeedSelect === 'string' && !vm.isNeedSelect.indexOf('calcs')), promises)

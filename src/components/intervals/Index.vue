@@ -380,6 +380,39 @@ export default {
           this.scrollTo(newIndex)
         }
       }
+    },
+    async init () {
+      if (!this.$store.state[this.moduleName]) {
+        this.$store.registerModule(this.moduleName, intervalsModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.isSecondary ? 'intervals' : this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
+      } else {
+        this.$store.commit(`${this.moduleName}/clear`)
+      }
+      this.currentLimit = this.limit
+      if (this.activeId) {
+        this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
+        const counters = this.item.counters || []
+        this.$store.dispatch(`${this.moduleName}/getCols`, counters)
+      }
+      if (this.activeDeviceId) {
+        this.$store.commit(`${this.moduleName}/setActiveDevice`, this.activeDeviceId)
+      }
+      const from = this.$route.query.from * 1000,
+          to = this.$route.query.to * 1000
+      if (this.isSecondary) {
+        this.begin = this.dateRange[0]
+        this.end = this.dateRange[1]
+        await this.$store.dispatch(`${this.moduleName}/get`)
+      } else {
+        if (from && to) {
+          this.begin = from
+          this.end = to
+        } else {
+          await this.$store.dispatch(`${this.moduleName}/initTime`)
+        }
+        this.$emit('change:date-range', [this.begin, this.end])
+        await this.$store.dispatch(`${this.moduleName}/get`)
+        await this.$store.dispatch(`${this.moduleName}/pollingGet`)
+      }
     }
   },
   watch: {
@@ -400,32 +433,7 @@ export default {
     }
   },
   created () {
-    if (!this.$store.state[this.moduleName]) {
-      this.$store.registerModule(this.moduleName, intervalsModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.isSecondary ? 'intervals' : this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
-    } else {
-      this.$store.commit(`${this.moduleName}/clear`)
-    }
-    this.currentLimit = this.limit
-    if (this.activeId) {
-      this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
-      const counters = this.item.counters || []
-      this.$store.dispatch(`${this.moduleName}/getCols`, counters)
-    }
-    if (this.activeDeviceId) {
-      this.$store.commit(`${this.moduleName}/setActiveDevice`, this.activeDeviceId)
-    }
-    if (this.isSecondary) {
-      this.begin = this.dateRange[0]
-      this.end = this.dateRange[1]
-      this.$store.dispatch(`${this.moduleName}/get`)
-    } else {
-      this.$store.dispatch(`${this.moduleName}/initTime`)
-      .then(() => {
-        this.$emit('change:date-range', [this.begin, this.end])
-        this.$store.dispatch(`${this.moduleName}/get`)
-        this.$store.dispatch(`${this.moduleName}/pollingGet`)
-      })
-    }
+    this.init()
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
       this.$store.commit(`${this.moduleName}/setOffline`)
     })

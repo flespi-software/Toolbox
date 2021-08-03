@@ -381,6 +381,15 @@ export default {
           this.scrollTo(newIndex)
         }
       }
+    },
+    async init () {
+      if (!this.$store.state[this.moduleName]) {
+        this.$store.registerModule(this.moduleName, devicesMessagesModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
+      } else {
+        this.$store.commit(`${this.moduleName}/clear`)
+      }
+      this.currentLimit = this.limit
+      if (this.activeId) { this.active = this.activeId }
     }
   },
   watch: {
@@ -398,13 +407,7 @@ export default {
     }
   },
   created () {
-    if (!this.$store.state[this.moduleName]) {
-      this.$store.registerModule(this.moduleName, devicesMessagesModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
-    } else {
-      this.$store.commit(`${this.moduleName}/clear`)
-    }
-    this.currentLimit = this.limit
-    if (this.activeId) { this.active = this.activeId }
+    this.init()
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
       this.$store.commit(`${this.moduleName}/setOffline`)
     })

@@ -351,8 +351,8 @@ export default {
     },
     toHexHandler ({ content }) {
       const ident = content.ident,
-        timeEnd = Math.floor(content.timestamp * 1000),
-        timeStart = timeEnd - 10000
+        timeEnd = content.timestamp,
+        timeStart = timeEnd - 10
       if (ident) {
         this.$router.push({
           path: `/tools/hex/${this.active}`,
@@ -368,8 +368,8 @@ export default {
     toTrafficHandler ({ content }) {
       const ident = this.protocolFeatures.shared_connection || !content.ident ? 'unidentified' : content.ident,
         timestamp = content['server.timestamp'] || content.timestamp,
-        timeEnd = Math.floor(timestamp * 1000),
-        timeStart = timeEnd - 10000
+        timeEnd = timestamp,
+        timeStart = timeEnd - 10
       if (ident) {
         this.$router.push({ path: `/tools/traffic/${this.active}/ident/${ident}`, query: { from: timeStart, to: timeEnd } }).catch(err => err)
       }
