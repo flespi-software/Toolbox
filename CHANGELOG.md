@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.10.7] - 2020-08-04
+[fix] traffic route in devices
 ### [1.10.6] - 2020-08-03
 [feature] global route from/to query parameters
 [fix] intervals routing
