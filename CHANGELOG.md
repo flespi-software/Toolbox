@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.10.9] - 2020-08-05
+[fix] http traffic view
 ### [1.10.8] - 2020-08-05
 [feature] autoscroll in hex
 [feature] http in traffic

@@ -12,7 +12,7 @@
           <small
             v-if="batch.transport"
             class="rounded-borders q-px-xs text-white"
-            :class="{'bg-blue': batch.transport === 'tcp', 'bg-purple-9': batch.transport === 'udp'}"
+            :class="{'bg-blue': batch.transport === 'tcp', 'bg-purple-9': batch.transport === 'udp', 'bg-green-9': batch.transport === 'http'}"
             style="vertical-align: middle;"
           >
             {{batch.transport}}
@@ -45,12 +45,22 @@ export default {
   data () {
     return {
       date,
+      transports: {
+        2: 'tcp',
+        66: 'http',
+        67: 'http',
+        130: 'udp',
+        3: 'tcp',
+        131: 'udp'
+      },
       eventsColors: {
         0: 'green',
         1: 'red',
         2: 'purple',
         130: 'purple',
         3: 'yellow',
+        66: 'purple',
+        67: 'yellow',
         131: 'yellow'
       },
       eventsDesc: {
@@ -59,6 +69,8 @@ export default {
         2: 'Data received',
         130: 'Data received',
         3: 'Data sent',
+        66: 'Data received',
+        67: 'Data sent',
         131: 'Data sent'
       },
       eventIcons: {
@@ -67,6 +79,8 @@ export default {
         2: 'mdi-arrow-right-thick',
         130: 'mdi-arrow-right-thick',
         3: 'mdi-arrow-left-thick',
+        66: 'mdi-arrow-right-thick',
+        67: 'mdi-arrow-left-thick',
         131: 'mdi-arrow-left-thick'
       },
       bgDataColors: {
@@ -75,6 +89,8 @@ export default {
         2: 'rgba(156, 39, 176, 0.4)',
         130: 'rgba(156, 39, 176, 0.4)',
         3: 'rgba(255, 235, 59, 0.4)',
+        66: 'rgba(156, 39, 176, 0.4)',
+        67: 'rgba(255, 235, 59, 0.4)',
         131: 'rgba(255, 235, 59, 0.4)'
       }
     }
@@ -86,7 +102,7 @@ export default {
         const batch = { ...packet }
         batch.data = this.base64ToHex(packet.data)
         batch.index = [batch.index]
-        batch.transport = (batch.type === 0 || batch.type === 1) ? '' : (batch.type >= 128) ? 'udp' : 'tcp'
+        batch.transport = this.transports[batch.type]
         if (batch.data) {
           batch.size = Math.floor(batch.data.length / 2)
         }

@@ -30,9 +30,17 @@ export default {
     'view'
   ],
   data () {
+     const transports = {
+      2: 'tcp',
+      66: 'http',
+      67: 'http',
+      130: 'udp',
+      3: 'tcp',
+      131: 'udp'
+     }
     return {
       date: date,
-      transport: (this.item.type === 0 || this.item.type === 1) ? '' : (this.item.type === 66 || this.item.type === 67) ? 'http' : (this.item.type >= 128) ? 'udp' : 'tcp',
+      transport: transports[this.item.type],
       hex: this.base64ToHex(this.item.data),
       eventsColors: {
         0: 'green',
