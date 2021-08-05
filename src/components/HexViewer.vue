@@ -21,7 +21,7 @@
         </div>
       </q-list>
     </q-menu>
-    <div class="text-white hex-viewer" :style="{wordBreak: view === 'text' ? 'break-all' : ''}" v-if="hex" @click="selectAllHandler">
+    <div class="text-white hex-viewer" :style="{wordBreak: view === 'text' ? 'break-all' : ''}" v-if="hex" @click="selectAllHandler" @mouseover="wrapperMouseOverHandler">
       <template v-if="view === 'hex'">
         <div class="hex-viewer__addresses">
           <div v-for="address in addresses" :key='address'>{{address.toString(16).padStart(7, 0).toUpperCase()}}</div>
@@ -179,6 +179,36 @@ export default {
       this.active = -1
       if (this.selectionMode && this.$q.platform.is.desktop) {
         this.end = this.hex.match(/.{1,2}/g).length - 1
+      }
+    },
+    scrollingTo (direction) {
+      if (this.scrollingId) { return false }
+      this.scrollingId = setInterval(() => {
+        if (!this.selectionMode) { this.clearSCrolling() }
+        if (direction === 'top') {
+          this.$refs.wrapper.scrollTop -= 5
+        } else if (direction === 'bottom') {
+          this.$refs.wrapper.scrollTop += 5
+        }
+      }, 100)
+    },
+    clearSCrolling () {
+      clearInterval(this.scrollingId)
+      this.scrollingId = undefined
+    },
+    wrapperMouseOverHandler (e) {
+      if (this.selectionMode) {
+        const wrapperHeight = this.$refs.wrapper.offsetHeight
+        const minLevelWithoutAutoScrolling = wrapperHeight / 20
+        const maxLevelWithoutAutoScrolling = wrapperHeight - minLevelWithoutAutoScrolling
+        const currentLevel = e.layerY
+        if (currentLevel < minLevelWithoutAutoScrolling) {
+          this.scrollingTo('top')
+        } else if (currentLevel > maxLevelWithoutAutoScrolling) {
+          this.scrollingTo('bottom')
+        } else {
+          this.clearSCrolling()
+        }
       }
     }
   }

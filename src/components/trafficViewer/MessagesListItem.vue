@@ -12,7 +12,7 @@
     </q-item-section>
     <q-item-section side class="">
       <small :class="[`text-grey-${selected ? 5 : 7}`]">{{eventsDesc[item.type]}}</small>
-      <div><small class="rounded-borders q-mx-xs q-px-xs text-white" :class="{'bg-blue': transport === 'tcp', 'bg-purple-9': transport === 'udp'}">{{transport}}</small><q-icon class="q-ml-xs" size="1.2rem" :color="eventsColors[item.type]" :name="eventIcons[item.type]"/></div>
+      <div><small class="rounded-borders q-mx-xs q-px-xs text-white" :class="{'bg-blue': transport === 'tcp', 'bg-purple-9': transport === 'udp', 'bg-green-9': transport === 'http'}">{{transport}}</small><q-icon class="q-ml-xs" size="1.2rem" :color="eventsColors[item.type]" :name="eventIcons[item.type]"/></div>
     </q-item-section>
   </q-item>
 </template>
@@ -32,12 +32,14 @@ export default {
   data () {
     return {
       date: date,
-      transport: (this.item.type === 0 || this.item.type === 1) ? '' : (this.item.type >= 128) ? 'udp' : 'tcp',
+      transport: (this.item.type === 0 || this.item.type === 1) ? '' : (this.item.type === 66 || this.item.type === 67) ? 'http' : (this.item.type >= 128) ? 'udp' : 'tcp',
       hex: this.base64ToHex(this.item.data),
       eventsColors: {
         0: 'green',
         1: 'red',
         2: 'purple',
+        66: 'purple',
+        67: 'yellow',
         130: 'purple',
         3: 'yellow',
         131: 'yellow'
@@ -47,6 +49,8 @@ export default {
         1: 'Disconnect',
         2: 'Data received',
         130: 'Data received',
+        66: 'Data received',
+        67: 'Data sent',
         3: 'Data sent',
         131: 'Data sent'
       },
@@ -54,6 +58,8 @@ export default {
         0: 'mdi-lan-connect',
         1: 'mdi-lan-disconnect',
         2: 'mdi-arrow-right-thick',
+        66: 'mdi-arrow-right-thick',
+        67: 'mdi-arrow-left-thick',
         130: 'mdi-arrow-right-thick',
         3: 'mdi-arrow-left-thick',
         131: 'mdi-arrow-left-thick'

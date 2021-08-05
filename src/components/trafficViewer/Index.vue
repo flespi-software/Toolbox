@@ -35,8 +35,8 @@
         <q-toolbar-title>
           <div class="text-white">{{activeDevice.ident}}</div>
         </q-toolbar-title>
-        <q-btn color="white" flat dense :icon="typeOfHexView === 'hex' ? 'mdi-matrix' : 'mdi-format-text'" @click="typeOfHexView = typeOfHexView === 'hex' ? 'text' : 'hex'">
-          <q-tooltip>Change view mode (hex/text)</q-tooltip>
+        <q-btn color="white" flat dense :label="typeOfHexView === 'hex' ? 'text' : 'hex'" :icon-right="typeOfHexView === 'hex' ? 'mdi-format-text' : 'mdi-matrix'" @click="typeOfHexView = typeOfHexView === 'hex' ? 'text' : 'hex'">
+          <q-tooltip>Change view mode to {{typeOfHexView === 'hex' ? 'text' : 'hex'}}</q-tooltip>
         </q-btn>
         <q-btn v-if="activeDevice" color="white" flat dense icon="mdi-export-variant">
           <q-tooltip>Export</q-tooltip>
