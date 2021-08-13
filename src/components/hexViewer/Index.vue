@@ -11,8 +11,8 @@
       :view="typeOfHexView"
       :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', width: $q.platform.is.desktop ? '25%' : '100%', minWidth: '180px'}"
       @view-data="(content) => { selectedMessages = content }"
-      @change:connection="content => { activeConnection = content }"
-      @close="() => { activeConnection = null, selectedMessages = '' }"
+      @change:connection="changeConnectionHandler"
+      @close="closeHandler"
       @connection:preview="connection => connectionPreview = connection"
       @connection:preview-hide="connection => connectionPreview = null"
       @connection:add="msg => activeConnection.messages.push(msg)"
@@ -53,7 +53,7 @@
         </q-btn>
       </q-toolbar>
       <hex-viewer
-        v-if="activeConnection"
+        v-if="activeConnection && !loadingFlag"
         :style="{height: `calc(100vh - ${isVisibleToolbar ? activeConnection ? '150px' : '100px' : '100px'})`, position: 'relative', overflow: 'auto'}"
         :hex="hex"
         :view="typeOfHexView"
@@ -82,13 +82,13 @@ import { mapState } from 'vuex'
 import { date } from 'quasar'
 import hexProcessing from '../../mixins/hexProcessing'
 export default {
-  props: ['active', 'isVisibleToolbar', 'config'],
+  props: ['active', 'activeDevice', 'isVisibleToolbar', 'config'],
   data () {
     return {
       connectionPreview: null,
       typeOfHexView: 'hex',
       selectedMessages: '',
-      activeConnection: null
+      activeConnection: this.activeDevice || null
     }
   },
   computed: {
@@ -97,6 +97,10 @@ export default {
         return this.config.messages && state[this.config.messages.vuexModuleName] && !state[this.config.messages.vuexModuleName].messages.length
       }
     }),
+    loadingFlag () {
+      const state = this.$store.state[this.config.messages.vuexModuleName]
+      return !!(state && state.isLoading)
+    },
     hex () {
       if (this.selectedMessages && this.activeConnection) {
         return this.selectedMessages.reduce((hex, message) => {
@@ -143,6 +147,15 @@ export default {
     exportSelected (type = 'view') {
       const content = this.getContentBySelected(type)
       this.exportData(content, type)
+    },
+    changeConnectionHandler (content) {
+      this.activeConnection = content
+      this.$emit('change-active-device', {ident: content.ident})
+    },
+    closeHandler () {
+      this.activeConnection = null
+      this.selectedMessages = ''
+      this.$emit('change-active-device', null)
     }
   },
   watch: {

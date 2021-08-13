@@ -21,7 +21,7 @@
         :theme="theme"
         @save="dateRangeChangeHandler"
       />
-      <div v-if="loadingFlag && !connection && itemsCount > 0" class="absolute-bottom-right absolute-top-left" style="overflow: hidden;">
+      <div v-if="loadingFlag && itemsCount > 0" class="absolute-bottom-right absolute-top-left" style="overflow: hidden;">
         <connection-skeleton v-for="(_, index) in new Array(itemsCount).fill('')" :key="index"/>
       </div>
       <template v-else-if="!loadingFlag && messages.length">
@@ -50,6 +50,7 @@
         <template v-else>
           <virtual-list
             v-if="currentMessages.length"
+            :key="connection.ident"
             ref="scroller"
             class="absolute-top-left absolute-bottom-right bg-grey-9 text-white cursor-pointer"
             wclass="q-w-list"
@@ -85,6 +86,7 @@ import ConnectionsListItem from './ConnectionsListItem.vue'
 import EmptyPane from '../EmptyPane'
 import ConnectionSkeleton from './ConnectionSkeleton'
 import range from 'lodash/range'
+import get from 'lodash/get'
 
 export default {
   props: [
@@ -111,6 +113,7 @@ export default {
       connectionsFilter: '',
       scrollerScrollTop: 0,
       visitedConnections: [],
+      inited: false,
       MessagesListItem,
       ConnectionsListItem
     }
@@ -132,7 +135,7 @@ export default {
       return connections
     },
     currentMessages () {
-      return this.filter ? this.connection.messages.filter(this.filterMessages) : this.connection.messages
+      return (this.filter ? this.connection.messages.filter(this.filterMessages) : this.connection.messages) || []
     },
     messages: {
       get () {
@@ -290,7 +293,7 @@ export default {
         this.clearConnections()
         return false
       }
-      const cb = this.connection ? this.poolConnection : this.poolConnections
+      const cb = this.inited && this.connection ? this.poolConnection : this.poolConnections
       messages.forEach(cb)
     },
     poolConnections (message) {
@@ -448,31 +451,37 @@ export default {
         this.$set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
       }
       this.currentLimit = this.limit
-      const from = this.$route.query.from * 1000,
-        to = this.$route.query.to * 1000,
-        ident = this.$route.query.ident
+      const from = Math.floor(this.$route.query.from * 1000),
+        to = Math.floor(this.$route.query.to * 1000)
       if (from && to) {
         this.from = from
         this.to = to
         await this.$store.dispatch(`${this.moduleName}/get`)
-        if (ident) {
-          const connetion = this.connections[ident]
-          this.connectionClickHandler({ content: connetion })
-          this.$nextTick(() => {
-            const incomingMessageIndex = this.currentMessages.findIndex(message => message['proxy.source'] === 0 && Math.floor(message.timestamp * 1000) === to)
-            if (incomingMessageIndex > -1) {
-              this.messageClickHandler({ index: incomingMessageIndex, event: {} })
-            }
-          })
-        }
       } else {
         await this.$store.dispatch(`${this.moduleName}/initTime`)
         await this.$store.dispatch(`${this.moduleName}/get`)
+      }
+      const ident = get(this.connection, 'ident')
+      const connection = this.connections[ident]
+      if (connection) {
+        this.connectionClickHandler({ content: connection })
+        this.$nextTick(() => {
+          const incomingMessageIndex = this.currentMessages.findIndex(message => {
+            return message['proxy.source'] === 0 &&
+              Math.floor(message.timestamp) === Math.floor(from / 1000)
+          })
+          if (incomingMessageIndex > -1) {
+            this.messageClickHandler({ index: incomingMessageIndex, event: {} })
+          }
+        })
+      } else {
+        this.closeCurrentConnection()
       }
       if (this.to > Date.now()) {
         const render = await this.$store.dispatch(`${this.moduleName}/pollingGet`)
         render()
       }
+      this.inited = true
     }
   },
   watch: {

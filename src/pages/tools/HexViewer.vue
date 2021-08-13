@@ -76,7 +76,15 @@
         </transition>
       </div>
     </entities-toolbar>
-    <hex-viewer v-if="active" :active="active" :isVisibleToolbar="isVisibleToolbar" :config="config" class="flex"/>
+    <hex-viewer
+      v-if="active"
+      class="flex"
+      :active="active"
+      :active-device="activeDevice"
+      :isVisibleToolbar="isVisibleToolbar"
+      :config="config"
+      @change-active-device="changeActiveDeviceHandler"
+    />
     <div v-if="!items.length && isItemsInit" class="text-center text-grey-3 q-mt-lg" style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Proxy channels not found'}}</div>
   </q-page>
 </template>
@@ -102,6 +110,7 @@ export default {
   data () {
     return {
       active: null,
+      activeDevice: null,
       isInit: false,
       isItemsInit: false,
       isItemsInitStart: false,
@@ -157,6 +166,18 @@ export default {
     }
   },
   methods: {
+    changeActiveDeviceHandler (device) {
+      this.activeDevice = device
+      if (this.active) {
+        if (this.activeDevice) {
+          this.$router.push(`/tools/hex/${this.active}/ident/${device.ident}`).catch(err => err)
+        } else {
+          this.$router.push(`/tools/hex/${this.active}`).catch(err => err)
+        }
+      } else {
+        this.$router.push('/tools/hex').catch(err => err)
+      }
+    },
     unselect () {
       this.$refs.messages.unselect()
     },
@@ -170,6 +191,10 @@ export default {
       if (this.$route.params && this.$route.params.id) {
         if (this.items.filter(item => item.id === Number(this.$route.params.id)).length) {
           this.active = Number(this.$route.params.id)
+          const ident = this.$route.params.ident
+          if (ident) {
+            this.activeDevice = { ident }
+          }
         } else {
           this.active = null
         }
@@ -184,6 +209,10 @@ export default {
       if (route.params && route.params.id) {
         if (this.items.filter(item => item.id === Number(route.params.id)).length) {
           this.active = Number(route.params.id)
+          const ident = this.$route.params.ident
+          if (ident) {
+            this.activeDevice = { ident }
+          }
         } else if (this.isInit) {
           this.active = null
         }
@@ -195,7 +224,11 @@ export default {
       const currentItem = this.items.filter(item => item.id === val)[0] || {}
       if (val) {
         this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: 'tools/hex' }, value: currentItem.id })
-        this.$router.push(`/tools/hex/${val}`).catch(err => err)
+        if (this.activeDevice) {
+          this.$router.push(`/tools/hex/${val}/ident/${this.activeDevice.ident}`).catch(err => err)
+        } else {
+          this.$router.push(`/tools/hex/${val}`).catch(err => err)
+        }
       } else {
         this.$router.push('/tools/hex').catch(err => err)
       }

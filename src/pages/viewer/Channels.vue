@@ -355,11 +355,10 @@ export default {
         timeStart = timeEnd - 10
       if (ident) {
         this.$router.push({
-          path: `/tools/hex/${this.active}`,
+          path: `/tools/hex/${this.active}/ident/${ident}`,
           query: {
             from: timeStart,
-            to: timeEnd,
-            ident
+            to: timeEnd
           }
         }).catch(err => err)
       }
