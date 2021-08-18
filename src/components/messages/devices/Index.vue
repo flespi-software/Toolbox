@@ -403,8 +403,19 @@ export default {
         this.$store.commit('setToolboxSessionSettings', { savedFilter: undefined })
       }
       if (this.activeId) {
-        const from = this.$route.query.from * 1000,
-          to = this.$route.query.to * 1000
+        const from = Math.floor(this.$route.query.from * 1000),
+          to = Math.floor(this.$route.query.to * 1000),
+          routeConfig = this.$route.query.messages
+        if (routeConfig) {
+          try {
+            routeConfig = JSON.parse(routeConfig)
+            if (routeConfig.filter) { this.filter = routeConfig.filter }
+            if (routeConfig.from && routeConfig.to) {
+              from = Math.floor(routeConfig.from * 1000)
+              to = Math.floor(routeConfig.to * 1000)
+            }
+          } catch (e) {}
+        }
         this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
         await this.$store.dispatch(`${this.moduleName}/getCols`, { etc: true })
         if (from && to) {

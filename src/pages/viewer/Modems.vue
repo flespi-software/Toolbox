@@ -292,7 +292,7 @@ export default {
   components: { logs, EntitiesToolbar, Widgets }
 }
 </script>
-<style lang="stylus">
+<style lang="stylus" scoped>
   .middle-modificator
     position absolute
     left calc(50% - 71px)

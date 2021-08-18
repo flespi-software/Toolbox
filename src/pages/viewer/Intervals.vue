@@ -1,5 +1,5 @@
 <template>
-  <q-page>
+  <q-page class="intervals-page">
     <q-resize-observer @resize="onResizePage" />
     <q-toolbar class="justify-between q-py-none bg-grey-9">
       <div class="flex" style="width: 75%;">
@@ -182,7 +182,7 @@
         :item="selectedCalc"
         :activeDeviceId="active"
         :limit="0"
-        :config="config.logs"
+        :config="config.intervals"
         v-if="isInit"
         :style="{height: `calc(50vh - ${isVisibleToolbar ? '50px' : '25px'})`, position: 'relative', ...panelsWidgetsStyle}"
       />
@@ -513,6 +513,14 @@ export default {
       this.blocked = this.$route.query.noselect || ''
       const deviceIdFromRoute = this.$route.params && this.$route.params.deviceId ? Number(this.$route.params.deviceId) : null,
         calcIdFromRoute = this.$route.params && this.$route.params.calcId ? Number(this.$route.params.calcId) : null
+      const viewMode = this.$route.query.related
+      if (viewMode) {
+        if (viewMode === 'messages') {
+          this.relatedDataMode = DEVICE_SOURCE
+        } else if (viewMode === 'intervals') {
+          this.relatedDataMode = CALC_SOURCE
+        }
+      }
       if (deviceIdFromRoute) {
         this.setActive(deviceIdFromRoute)
       }
@@ -579,7 +587,6 @@ export default {
   },
   watch: {
     $route (route) {
-      console.trace()
       if (
         route.params && route.params.deviceId && Number(route.params.deviceId) === this.active &&
         route.params.calcId && this.activeCalcId === Number(route.params.calcId)
@@ -606,55 +613,51 @@ export default {
   components: { intervals, messages, Widgets }
 }
 </script>
-<style lang="stylus" scope>
-  .middle-modificator
-    position absolute
-    left calc(50% - 71px)
-  .items__select
-    max-width 100%
-    &--no-selected
-      width 180px
-      .q-field__marginal
-        height auto!important
-    .q-field__marginal
-      height 48px
-  .items__popup
-    .select__filter
-      position sticky
-      top 0
-      z-index 1
-    .select__get-deleted
-      position sticky
-      bottom 0
-      z-index 1
-  .items__filter
-    min-width 250px
-    border 1px solid $grey-9
-    border-radius 3px
-  .cheap-modifier
-    font-size .6rem
-    font-weight bolder
-    border-radius 3px
-    background-color #90a4ae
-    color white
-    padding 0 2px
-    width 45px
-    position absolute
-    top -10px
-    right 0px
-    &--item
-      top 5px
-    &--mobile
-      right 7px
-  .deleted-action
-    width 100%
-    color #eee
-    background-color #999
-    font-size .7rem
-    padding-top 0
-    padding-bottom 0
-  .q-field--auto-height.q-field--dense .q-field__control, .q-field--auto-height.q-field--dense .q-field__native
-    min-height: 34px!important
-  .q-field--dense .q-field__label
-    top: 14px!important
+<style lang="stylus">
+  .intervals-page
+    .middle-modificator
+      position absolute
+      left calc(50% - 71px)
+    .items__select
+      max-width 100%
+      .q-field__control
+        height 100%
+        padding-top 2px
+      &--no-selected
+        width 180px
+    .items__popup
+      .select__filter
+        position sticky
+        top 0
+        z-index 1
+      .select__get-deleted
+        position sticky
+        bottom 0
+        z-index 1
+    .items__filter
+      min-width 250px
+      border 1px solid $grey-9
+      border-radius 3px
+    .cheap-modifier
+      font-size .6rem
+      font-weight bolder
+      border-radius 3px
+      background-color #90a4ae
+      color white
+      padding 0 2px
+      width 45px
+      position absolute
+      top -10px
+      right 0px
+      &--item
+        top 5px
+      &--mobile
+        right 7px
+    .deleted-action
+      width 100%
+      color #eee
+      background-color #999
+      font-size .7rem
+      padding-top 0
+      padding-bottom 0
 </style>

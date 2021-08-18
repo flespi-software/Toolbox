@@ -422,6 +422,16 @@ export default {
       const entity = this.entityName,
         activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined)
       let idFromRoute = this.$route.params && this.$route.params.id ? this.$route.params.id : null
+      const viewMode = this.$route.query.view_mode
+      if (viewMode) {
+        let ratio = 50
+        if (viewMode === 'messages') {
+          ratio = 0
+        } else if (viewMode === 'logs') {
+          ratio = 100
+        }
+        this.$emit('update:settings', { type: 'ENTITY_VIEW_SETTINGS_CHANGE', opt: { entity: this.entityName }, value: { ratio } })
+      }
       this.isInit = true
       if (idFromRoute) {
         idFromRoute = Number(idFromRoute)
@@ -533,7 +543,7 @@ export default {
   components: { logs, messages, Widgets, EntitiesToolbar }
 }
 </script>
-<style lang="stylus">
+<style lang="stylus" scoped>
   .middle-modificator
     position absolute
     left calc(50% - 71px)

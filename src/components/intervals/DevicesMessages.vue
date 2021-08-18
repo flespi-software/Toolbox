@@ -390,6 +390,13 @@ export default {
       }
       this.currentLimit = this.limit
       if (this.activeId) { this.active = this.activeId }
+      let routeConfig = this.$route.query.messages
+      if (routeConfig) {
+        try {
+          routeConfig = JSON.parse(routeConfig)
+          if (routeConfig.filter) { this.filter = routeConfig.filter }
+        } catch (e) {}
+      }
     }
   },
   watch: {

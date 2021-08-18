@@ -148,6 +148,8 @@ export default {
     }
   },
   created () {
+    const filter = this.$route.query.filter
+    if (filter) { this.$store.commit(`${this.moduleName}/setDeviceFilter`, filter) }
     if (this.activeId) {
       this.active = this.activeId
     }

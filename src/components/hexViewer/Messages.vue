@@ -135,7 +135,7 @@ export default {
       return connections
     },
     currentMessages () {
-      return (this.filter ? this.connection.messages.filter(this.filterMessages) : this.connection.messages) || []
+      return (this.filter && this.connection.messages ? this.connection.messages.filter(this.filterMessages) : this.connection.messages) || []
     },
     messages: {
       get () {
@@ -452,7 +452,9 @@ export default {
       }
       this.currentLimit = this.limit
       const from = Math.floor(this.$route.query.from * 1000),
-        to = Math.floor(this.$route.query.to * 1000)
+        to = Math.floor(this.$route.query.to * 1000),
+        filter = this.$route.query.filter
+      if (filter) { this.filter = filter }
       if (from && to) {
         this.from = from
         this.to = to

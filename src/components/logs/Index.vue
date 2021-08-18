@@ -360,8 +360,19 @@ export default {
       this.currentLimit = this.limit
       if (this.cid) { this.$store.commit(`${this.moduleName}/setCid`, this.cid) }
       if (this.item) {
-        const from = this.$route.query.from * 1000,
-          to = this.$route.query.to * 1000
+        let from = Math.floor(this.$route.query.from * 1000),
+          to = Math.floor(this.$route.query.to * 1000),
+          routeConfig = this.$route.query.logs
+        if (routeConfig) {
+          try {
+            routeConfig = JSON.parse(routeConfig)
+            if (routeConfig.filter) { this.filter = routeConfig.filter }
+            if (routeConfig.from && routeConfig.to) {
+              from = Math.floor(routeConfig.from * 1000)
+              to = Math.floor(routeConfig.to * 1000)
+            }
+          } catch (e) {}
+        }
         this.$store.commit(`${this.moduleName}/setOrigin`, this.originByPattern)
         this.$store.commit(`${this.moduleName}/setItemDeletedStatus`, (this.item && this.item.deleted))
         await this.$store.dispatch(`${this.moduleName}/getCols`, this.config.cols)

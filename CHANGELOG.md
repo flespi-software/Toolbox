@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.10.11] - 2020-08-18
+[feature] init state by router params
+[fix] intervals styles
 ### [1.10.10] - 2020-08-13
 [rebase] hex viewer routing
 ### [1.10.9] - 2020-08-05

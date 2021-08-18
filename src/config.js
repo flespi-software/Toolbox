@@ -503,7 +503,7 @@ export default {
       }
     ],
     isDrawable: false,
-    logs: {
+    intervals: {
       vuexModuleName: 'intervals',
       emptyState: {
         label: 'Intervals not found',

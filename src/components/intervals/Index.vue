@@ -398,6 +398,13 @@ export default {
       }
       const from = this.$route.query.from * 1000,
           to = this.$route.query.to * 1000
+      let routeConfig = this.isSecondary ? this.$route.query.related_intervals : this.$route.query.intervals
+      if (routeConfig) {
+        try {
+          routeConfig = JSON.parse(routeConfig)
+          if (routeConfig.filter) { this.filter = routeConfig.filter }
+        } catch (e) {}
+      }
       if (this.isSecondary) {
         this.begin = this.dateRange[0]
         this.end = this.dateRange[1]
