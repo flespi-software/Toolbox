@@ -51,6 +51,7 @@ $ npm run dev_local
 
 ## [Requirements](docs/Token.md)
 
+## [Routes](docs/Routes.md)
 
 ## License
 [MIT](https://github.com/flespi-software/Toolbox/blob/master/LICENSE) license.

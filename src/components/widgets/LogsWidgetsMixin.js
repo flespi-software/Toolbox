@@ -31,7 +31,7 @@ export default {
         config = {
           'log object': {
             title: 'log object',
-            description: log._description,
+            description: log['x-flespi-description'],
             wrapper: JsonTree,
             data: log
           }

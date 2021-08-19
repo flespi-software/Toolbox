@@ -22,6 +22,7 @@
           </template>
           <q-icon name="mdi-download-network-outline" v-if="prop.name === 'event_code' && !!item['error_text'] && needTrafficRoute" color="white" style="float: right; margin-top: 3px;" @click.stop.native="clickHandler(index, 'traffic', clearItem)"><q-tooltip>Show in traffic viewer</q-tooltip></q-icon>
           <q-icon name="mdi-alert-outline" v-if="prop.name === 'event_code' && !!item['error_text']"><q-tooltip><pre class="q-ma-none">{{item['error_text']}}</pre></q-tooltip></q-icon>
+          <q-icon name="mdi-bug" v-if="prop.name === 'event_code' && isErrorType && isIntegration" @click.stop.native="clickHandler(index, 'error-report', clearItem)"><q-tooltip>Report error to chat</q-tooltip></q-icon>
           <a @click.stop="" target="_blank" class="text-green" v-if="item.event_code === 901 && prop.name === 'name'" :href="`${$flespiCDN}/file/${item.uuid}`">
             {{getLogValueOfProp(prop, item)}}
           </a>
@@ -54,7 +55,8 @@ export default {
   data () {
     return {
       date,
-      needTrafficRoute: this.itemSettings && this.itemSettings.needTrafficRoute
+      needTrafficRoute: this.itemSettings && this.itemSettings.needTrafficRoute,
+      isIntegration: this.$q.platform.within.iframe
     }
   },
   computed: {
@@ -83,6 +85,9 @@ export default {
       }, '') || '*Empty*'
     },
     color () { return `text-${this.getLogItemColor(this.item.event_code)}` },
+    isErrorType () {
+      return this.color === 'text-red'
+    },
     eventLinkMore () {
       const host = this.$flespiServer
       switch (this.item.event_code) {
@@ -170,8 +175,8 @@ export default {
       openURL(this.eventLinkMore)
     },
     itemClickHandler (index, content) {
-      content._description = `<div style="font-size: 1.1rem">${content.event_code}: ${this.getLogDescriptionByItem(content)}</div><div style="font-size: .9rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}</div>`
-      content._color = `text-${this.getLogItemColor(content.event_code)}`
+      content['x-flespi-description'] = `<div style="font-size: 1.1rem">${content.event_code}: ${this.getLogDescriptionByItem(content)}</div><div style="font-size: .9rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}</div>`
+      content['x-flespi-color'] = `text-${this.getLogItemColor(content.event_code)}`
       this.$emit('item-click', { index, content })
     }
   }

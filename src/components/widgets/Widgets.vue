@@ -18,7 +18,7 @@
     <div class="bg-grey-8 scroll relative-position" :style="{ height: isModified ? 'calc(100% - 50px)' : 'calc(100% - 40px)', width: 'calc(100% - 4px)' }">
       <q-tab-panel v-for="(item, key) in config" :name="key" :key="`tab-pane-${key}`" v-show="tabModel === key">
         <div v-if="item.description">
-          <div style="font-size: 1rem; width: calc(100% - 35px)" class="text-center text-bold q-mb-sm text-white" :class="[item.data._color]" v-html="item.description"></div>
+          <div style="font-size: 1rem; width: calc(100% - 35px)" class="text-center text-bold q-mb-sm text-white" :class="[item.data['x-flespi-color']]" v-html="item.description"></div>
           <q-btn class="absolute" style="top: 5px; right: 5px;" color="grey-1" flat dense icon="mdi-content-copy" @click="copyMessageHandler({content: getData(item.data)})">
             <q-tooltip>Copy data</q-tooltip>
           </q-btn>
@@ -61,7 +61,7 @@ export default {
         return data
       } else {
         return Object.keys(data).reduce((result, key) => {
-          if (key === '_description' || key === '_color') { return result }
+          if (key === 'x-flespi-description' || key === 'x-flespi-color') { return result }
           result[key] = data[key]
           return result
         }, {})

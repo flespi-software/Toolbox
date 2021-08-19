@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.10.12] - 2020-08-19
+[fix] getting missed messages
+[feature] integration error report
+[fix] typo
 ### [1.10.11] - 2020-08-18
 [feature] init state by router params
 [fix] intervals styles

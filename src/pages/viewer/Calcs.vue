@@ -81,7 +81,7 @@
       :item="selectedItem"
       :limit="limit"
       originPattern="gw/calcs/:id"
-      :enitity-name="entityName"
+      :entity-name="entityName"
       :isEnabled="true"
       :config="config.logs"
       :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', ...panelsWidgetsStyle}"

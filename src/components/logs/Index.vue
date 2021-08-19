@@ -28,7 +28,7 @@
       @update-cols="updateColsHandler"
     >
       <empty-pane slot="empty" :config="config.emptyState"/>
-      <logs-filter-menu slot="filter-append" :filter="filter" :entity="enitityName" @update="filterChangeHandler"/>
+      <logs-filter-menu slot="filter-append" :filter="filter" :entity="entityName" @update="filterChangeHandler"/>
     </virtual-scroll-list>
   </div>
 </template>
@@ -49,7 +49,7 @@ export default {
     'limit',
     'originPattern',
     'config',
-    'enitityName'
+    'entityName'
   ],
   data () {
     return {
@@ -262,6 +262,32 @@ export default {
           this.$emit('to-traffic', { index, content })
           break
         }
+        case 'error-report': {
+          const timestamp = Math.floor(content.timestamp)
+          let from = timestamp - 10
+          let to = timestamp + 2
+          let url = `${window.location.href}`
+          if (this.entityName === 'devices') {
+            from = timestamp - 120
+            to = timestamp + 2
+            url += `?from=${from}&to=${to}`
+          }
+          if (this.entityName === 'channels' && !!content.ident) {
+            from = timestamp - 120
+            to = timestamp + 2
+            url += `?from=${from}&to=${to}&messages=${encodeURI(JSON.stringify({filter: `ident="${content.ident}"`}))}`
+          }
+          this.$integrationBus.send('errorReport', {
+            data: content,
+            type: 'log',
+            enitity: {
+              type: this.entityName,
+              id: this.item.id
+            },
+            url
+          })
+          break
+        }
       }
     },
     copyMessageHandler ({ index, content }) {
@@ -342,8 +368,8 @@ export default {
       if (message) {
         this.selected = [index]
         const content = { ...this.getLogClearItem(message) }
-        content._description = `<div style="font-size: 1.1rem">${content.event_code}: ${this.getLogDescriptionByItem(content)}</div><div style="font-size: .9rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}</div>`
-        content._color = `text-${this.getLogItemColor(content.event_code, content.close_code, content.send_code)}`
+        content['x-flespi-description'] = `<div style="font-size: 1.1rem">${content.event_code}: ${this.getLogDescriptionByItem(content)}</div><div style="font-size: .9rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}</div>`
+        content['x-flespi-color'] = `text-${this.getLogItemColor(content.event_code, content.close_code, content.send_code)}`
         this.$emit('action-select', {
           index: index,
           content

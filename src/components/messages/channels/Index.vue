@@ -446,6 +446,7 @@ export default {
         let from = Math.floor(this.$route.query.from * 1000),
           to = Math.floor(this.$route.query.to * 1000),
           routeConfig = this.$route.query.messages
+        console.log(routeConfig)
         if (routeConfig) {
           try {
             routeConfig = JSON.parse(routeConfig)
