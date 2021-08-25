@@ -44,9 +44,9 @@ const baseEvents = events.codesByEntities.base,
     11: 'outgoing connection failed',
     12: 'current connection closed because of ident collision',
     13: 'device is blocked',
-    14: 'password mismatch',
+    14: 'authentication failed',
     15: 'device associated with the connection was created, changed or deleted',
-    16: 'channel rejected connection due to IP addresses whitelist missmatch'
+    16: 'channel rejected connection due to IP addresses whitelist mismatch'
   }
 
 export default {

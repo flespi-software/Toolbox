@@ -34,6 +34,7 @@ export default {
         case 303:
         case 311:
         case 314:
+        case 315:
         case 321:
         case 331:
         case 332:
@@ -72,7 +73,6 @@ export default {
         case 204:
         case 304:
         case 313:
-        case 315:
         case 316:
         case 322:
         case 402:

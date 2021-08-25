@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.10.13] - 2020-08-25
+[feature] mqtt traffic support
+[fix] log description
+[fix] small improvements
 ### [1.10.12] - 2020-08-19
 [fix] getting missed messages
 [feature] integration error report

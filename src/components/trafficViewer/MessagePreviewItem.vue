@@ -10,7 +10,7 @@
       </div>
       <div class="text-grey-5" style="font-size: .7rem;">
         {{date.formatDate(message.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}}
-        <small class="rounded-borders q-mx-xs q-px-xs text-white" :class="{'bg-blue': transport === 'tcp', 'bg-purple-9': transport === 'udp'}">{{transport}}</small>
+        <small class="rounded-borders q-mx-xs q-px-xs text-white" :class="{'bg-blue': transport === 'tcp', 'bg-pink-4': transport === 'udp', 'bg-green-9': transport === 'http', 'bg-purple-9': transport === 'mqtt'}">{{transport}}</small>
       </div>
     </div>
     <div style="word-break: break-all; font-size: .8rem; height: 1rem;" class="ellipsis">{{dataPreview}}</div>
@@ -25,28 +25,58 @@ export default {
   data () {
     return {
       date: date,
+      transports: {
+        2: 'tcp',
+        66: 'http',
+        67: 'http',
+        130: 'udp',
+        3: 'tcp',
+        131: 'udp',
+        32: 'mqtt',
+        33: 'mqtt',
+        34: 'mqtt',
+        35: 'mqtt'
+      },
       eventsColors: {
         0: 'green',
+        32: 'green',
         1: 'red',
+        33: 'red',
         2: 'purple',
         130: 'purple',
+        66: 'purple',
+        34: 'purple',
         3: 'yellow',
-        131: 'yellow'
+        67: 'yellow',
+        131: 'yellow',
+        35: 'yellow'
       },
       eventsDesc: {
         0: 'Connect',
+        32: 'Connect',
         1: 'Disconnect',
+        33: 'Disconnect',
         2: 'Data received',
         130: 'Data received',
+        66: 'Data received',
+        34: 'Data received',
         3: 'Data sent',
-        131: 'Data sent'
+        67: 'Data sent',
+        131: 'Data sent',
+        35: 'Data sent'
       },
       eventIcons: {
         0: 'mdi-lan-connect',
+        32: 'mdi-lan-connect',
         1: 'mdi-lan-disconnect',
+        33: 'mdi-lan-disconnect',
         2: 'mdi-arrow-right-thick',
         130: 'mdi-arrow-right-thick',
+        66: 'mdi-arrow-right-thick',
+        34: 'mdi-arrow-right-thick',
         3: 'mdi-arrow-left-thick',
+        67: 'mdi-arrow-left-thick',
+        35: 'mdi-arrow-left-thick',
         131: 'mdi-arrow-left-thick'
       }
     }
@@ -60,7 +90,7 @@ export default {
       }
       return preview
     },
-    transport () { return (this.message.type === 0 || this.message.type === 1) ? '' : (this.message.type >= 128) ? 'udp' : 'tcp' }
+    transport () { return this.transports[this.message.type] }
   },
   mixins: [convertMixin]
 }

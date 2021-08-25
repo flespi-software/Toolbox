@@ -12,7 +12,7 @@
     </q-item-section>
     <q-item-section side class="">
       <small :class="[`text-grey-${selected ? 5 : 7}`]">{{eventsDesc[item.type]}}</small>
-      <div><small class="rounded-borders q-mx-xs q-px-xs text-white" :class="{'bg-blue': transport === 'tcp', 'bg-purple-9': transport === 'udp', 'bg-green-9': transport === 'http'}">{{transport}}</small><q-icon class="q-ml-xs" size="1.2rem" :color="eventsColors[item.type]" :name="eventIcons[item.type]"/></div>
+      <div><small class="rounded-borders q-mx-xs q-px-xs text-white" :class="{'bg-blue': transport === 'tcp', 'bg-pink-4': transport === 'udp', 'bg-green-9': transport === 'http', 'bg-purple-9': transport === 'mqtt'}">{{transport}}</small><q-icon class="q-ml-xs" size="1.2rem" :color="eventsColors[item.type]" :name="eventIcons[item.type]"/></div>
     </q-item-section>
   </q-item>
 </template>
@@ -36,7 +36,11 @@ export default {
       67: 'http',
       130: 'udp',
       3: 'tcp',
-      131: 'udp'
+      131: 'udp',
+      32: 'mqtt',
+      33: 'mqtt',
+      34: 'mqtt',
+      35: 'mqtt'
      }
     return {
       date: date,
@@ -44,32 +48,44 @@ export default {
       hex: this.base64ToHex(this.item.data),
       eventsColors: {
         0: 'green',
+        32: 'green',
         1: 'red',
+        33: 'red',
         2: 'purple',
-        66: 'purple',
-        67: 'yellow',
         130: 'purple',
+        66: 'purple',
+        34: 'purple',
         3: 'yellow',
-        131: 'yellow'
+        67: 'yellow',
+        131: 'yellow',
+        35: 'yellow'
       },
       eventsDesc: {
         0: 'Connect',
+        32: 'Connect',
         1: 'Disconnect',
+        33: 'Disconnect',
         2: 'Data received',
         130: 'Data received',
         66: 'Data received',
-        67: 'Data sent',
+        34: 'Data received',
         3: 'Data sent',
-        131: 'Data sent'
+        67: 'Data sent',
+        131: 'Data sent',
+        35: 'Data sent'
       },
       eventIcons: {
         0: 'mdi-lan-connect',
+        32: 'mdi-lan-connect',
         1: 'mdi-lan-disconnect',
+        33: 'mdi-lan-disconnect',
         2: 'mdi-arrow-right-thick',
-        66: 'mdi-arrow-right-thick',
-        67: 'mdi-arrow-left-thick',
         130: 'mdi-arrow-right-thick',
+        66: 'mdi-arrow-right-thick',
+        34: 'mdi-arrow-right-thick',
         3: 'mdi-arrow-left-thick',
+        67: 'mdi-arrow-left-thick',
+        35: 'mdi-arrow-left-thick',
         131: 'mdi-arrow-left-thick'
       }
     }
