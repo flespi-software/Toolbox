@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.10.14] - 2020-08-27
+[fix] action typo
 ### [1.10.13] - 2020-08-25
 [feature] mqtt traffic support
 [fix] log description
