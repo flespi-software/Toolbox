@@ -279,6 +279,7 @@ export default {
           }
           this.$integrationBus.send('errorReport', {
             data: content,
+            description: this.getLogDescriptionByItem(content),
             type: 'log',
             entity: {
               type: this.entityName,
