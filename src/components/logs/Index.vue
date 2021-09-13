@@ -272,10 +272,13 @@ export default {
             to = timestamp + 2
             url += `?from=${from}&to=${to}`
           }
-          if (this.entityName === 'channels' && !!content.ident) {
+          if (this.entityName === 'channels') {
             from = timestamp - 120
             to = timestamp + 2
-            url += `?from=${from}&to=${to}&messages=${encodeURI(JSON.stringify({filter: `ident="${content.ident}"`}))}`
+            url += `?from=${from}&to=${to}`
+            if (content.ident) {
+              url += `&messages=${encodeURI(JSON.stringify({filter: `ident="${content.ident}"`}))}`
+            }
           }
           this.$integrationBus.send('errorReport', {
             data: content,

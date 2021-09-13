@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.10.16] - 2020-09-13
+[fix] error channels report
 ### [1.10.15] - 2020-08-27
 [add] description to error report
 ### [1.10.14] - 2020-08-27
