@@ -504,7 +504,7 @@ export default {
       const state = this.config && this.config.messages && this.$store.state[this.config.messages.vuexModuleName]
       const from = Math.floor(state.from / 1000)
       const to = Math.floor(state.to / 1000)
-      openURL(`https://trackit.flespi.io/#/login/${this.$store.state.token}/devices/${this.active}?from=${from}&to=${to}`)
+      openURL(`${this.$flespiServer}/trackit/#/login/${this.$store.state.token}/devices/${this.active}?from=${from}&to=${to}`)
     }
   },
   beforeRouteEnter (to, from, next) {
