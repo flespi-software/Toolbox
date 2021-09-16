@@ -4,6 +4,7 @@
       ref="scrollList"
       :cols="cols"
       :actions="actions"
+      :panelActions="panelActions"
       :items="messages"
       :dateRange="[begin, end]"
       :viewConfig="viewConfig"
@@ -33,6 +34,7 @@ import Vue from 'vue'
 import { copyToClipboard } from 'quasar'
 import MessagesListItem from './MessagesListItem.vue'
 import EmptyPane from '../EmptyPane'
+import actions from '../../mixins/actions'
 
 export default {
   props: [
@@ -182,6 +184,28 @@ export default {
         return counter.type === 'route'
       })
       return routesFields || []
+    },
+    panelActions () {
+      return [
+        {
+          label: 'Export CSV',
+          icon: 'mdi-file-document-outline',
+          handler: () => this.exportCsv(
+            {
+              filter: `${this.filter}`,
+              begin: Math.floor(this.begin / 1000),
+              end: Math.floor(this.end / 1000)
+            },
+            {
+              from: this.begin,
+              to: this.end
+            }
+          ),
+          condition: this.messages.length,
+          tooltip: 'Save messages to CSV',
+          async: this.isFileCsvLoading
+        }
+      ]
     }
   },
   methods: {
@@ -459,6 +483,7 @@ export default {
     this.$store.commit(`${this.moduleName}/setActive`, null)
     this.$store.commit(`${this.moduleName}/setActiveDevice`, null)
   },
+  mixins: [actions],
   components: { VirtualScrollList, EmptyPane }
 }
 </script>

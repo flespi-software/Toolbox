@@ -4,6 +4,7 @@
       ref="scrollList"
       :cols="cols"
       :actions="actions"
+      :panelActions="panelActions"
       :items="messages"
       :dateRange="dateRange"
       :viewConfig="viewConfig"
@@ -31,6 +32,7 @@
 <script>
 import { VirtualScrollList, devicesMessagesModule } from 'qvirtualscroll'
 import Vue from 'vue'
+import actions from '../../mixins/actions'
 import { copyToClipboard } from 'quasar'
 import EmptyPane from '../EmptyPane'
 import MessagesListItem from './DevicesMessagesListItem.vue'
@@ -153,6 +155,28 @@ export default {
     },
     needAutoscroll () {
       return this.realtimeEnabled && !this.selected.length && this.autoscroll
+    },
+    panelActions () {
+      return [
+        {
+          label: 'Export CSV',
+          icon: 'mdi-file-document-outline',
+          handler: () => this.exportCsv(
+            {
+              filter: `${this.filter}`,
+              from: Math.floor(this.from / 1000),
+              to: Math.floor(this.to / 1000)
+            },
+            {
+              from: this.from,
+              to: this.to
+            }
+          ),
+          condition: this.messages.length,
+          tooltip: 'Save messages to CSV',
+          async: this.isFileCsvLoading
+        }
+      ]
     }
   },
   methods: {
@@ -434,6 +458,7 @@ export default {
     this.connectHandler !== undefined && Vue.connector.socket.off('connect', this.connectHandler)
     this.$store.commit(`${this.moduleName}/clear`)
   },
+  mixins: [actions],
   components: { VirtualScrollList, EmptyPane }
 }
 </script>

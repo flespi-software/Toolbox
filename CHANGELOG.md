@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.10.18] - 2020-09-16
+[feature] csv export intervals
+[feature] csv export with timestamps processing
 ### [1.10.17] - 2020-09-13
 [fix] trackit redirect
 ### [1.10.16] - 2020-09-13

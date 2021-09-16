@@ -89,7 +89,17 @@ export default {
         {
           label: 'Export CSV',
           icon: 'mdi-file-document-outline',
-          handler: this.exportCsv,
+          handler: () => this.exportCsv(
+            {
+              filter: `${this.filter}`,
+              from: Math.floor(this.from / 1000),
+              to: Math.floor(this.to / 1000)
+            },
+            {
+              from: this.from,
+              to: this.to
+            }
+          ),
           condition: this.messages.length,
           tooltip: 'Save messages to CSV',
           async: this.isFileCsvLoading
