@@ -20,6 +20,7 @@ function clean (state) {
   state.to = 0
   state.from = 0
   state.active = null
+  state.ident = null
 }
 function reqFailed (state, e) {}
 export default {

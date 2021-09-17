@@ -293,7 +293,7 @@ export default {
     exportModalOpen () { this.$refs.export.show() },
     highlightIncoming (from, to) {
       const incomingMessageIndex = this.messages.findIndex(message => message.type === 2)
-      const incomingMessageIndexEnd = this.messages.findIndex(message => message.type === 2 && Math.floor(message.timestamp) === Math.floor(this.to / 1000))
+      const incomingMessageIndexEnd = this.messages.findIndex(message => message.type === 2 && Math.floor(message.timestamp) === Math.floor((this.to / 1000) - 1)) // Math.floor((this.to / 1000) - 1)) getting timestamp in seconds for related entity
       if (incomingMessageIndexEnd > -1) {
         this.messageClickHandler({ index: incomingMessageIndexEnd, event: {} })
       } else if (incomingMessageIndex > -1) {

@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.10.19] - 2020-09-17
+[fix] traffic microseconds getting
 ### [1.10.18] - 2020-09-16
 [feature] csv export intervals
 [feature] csv export with timestamps processing
