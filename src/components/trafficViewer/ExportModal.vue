@@ -136,7 +136,7 @@ export default {
         data = URL.createObjectURL(blob),
         fileNameRange = `[${date.formatDate(this.currentDateRange[0], 'DD.MM.YYYY HH-mm-ss')} - ${date.formatDate(this.currentDateRange[1], 'DD.MM.YYYY HH-mm-ss')}]`,
         fileNameTZ = this.timezoneOffset === 'local' ? this.currentTimezoneOffset : this.timezoneOffset,
-        fileName = `${this.itemId}_${this.ident}${fileNameRange}_${fileNameTZ >= 0 ? `GMT+${fileNameTZ}` : `GMT${fileNameTZ}`}.json`
+        fileName = `${this.itemId}_${this.ident ? `_${this.ident}` : ''}${fileNameRange}_${fileNameTZ >= 0 ? `GMT+${fileNameTZ}` : `GMT${fileNameTZ}`}.json`
       link.setAttribute('href', data)
       link.setAttribute('download', fileName)
       link.style.display = 'none'

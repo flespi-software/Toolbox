@@ -76,7 +76,7 @@
           </template>
         </q-select>
         <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp" v-if="$q.platform.is.desktop && selectedItem && !selectedItem.deleted">
-          <q-btn title="Traffic hex payload" class="on-right pull-right text-center rounded-borders q-px-xs q-py-none text-white" v-if="trafficRoute" @click="trafficViewHandler" flat dense style="width: 50px;">
+          <q-btn title="Traffic hex payload" class="on-right pull-right text-center rounded-borders q-px-xs q-py-none text-white" v-if="needTrafficRoute" @click="trafficViewHandler" flat dense style="width: 50px;">
             <q-icon size="1.5rem" color="white" name="mdi-download-network-outline"/>
             <div style="font-size: .7rem; line-height: .7rem">Traffic</div>
           </q-btn>
@@ -196,7 +196,6 @@ export default {
       isItemsInit: false,
       isItemsInitStart: false,
       needShowGetDeletedAction: true,
-      trafficRoute: null,
       needRestoreSettings: false
     }
   },
@@ -236,6 +235,9 @@ export default {
         }
         if (this.isWidgetsTrackActive) { this.setWidgetTrackView('track', track) }
         return track
+      },
+      needTrafficRoute (state) {
+        return get(state.config, 'deviceTraffic.isDrawable', false)
       }
     }),
     items () {
@@ -245,16 +247,15 @@ export default {
       const item = (this.itemsCollection && this.itemsCollection[this.active]) || null
       if (item) {
         item.deleted && this.deletedHandler()
-        this.getTrafficRoute(item)
       }
       return item
     },
     logsConfig () {
       const config = this.config.logs
-      if (this.trafficRoute) {
-        config.itemSettings.needTrafficRoute = true
+      if (this.needTrafficRoute) {
+        config.itemSettings.needneedTrafficRoute = true
       } else {
-        config.itemSettings.needTrafficRoute = false
+        config.itemSettings.needneedTrafficRoute = false
       }
       return config
     },
@@ -299,7 +300,7 @@ export default {
     },
     messagesConfig () {
       const config = cloneDeep(this.config.messages)
-      if (this.trafficRoute) {
+      if (this.needTrafficRoute) {
         config.actions.push({
           icon: 'mdi-download-network-outline',
           label: 'View traffic',
@@ -321,7 +322,7 @@ export default {
           label: 'Traffic',
           icon: 'mdi-download-network-outline',
           handler: this.trafficViewHandler,
-          condition: this.trafficRoute && this.$q.platform.is.mobile
+          condition: this.needTrafficRoute && this.$q.platform.is.mobile
         },
         {
           label: 'Map',
@@ -367,7 +368,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['getDeleted', 'getDeviceTrafficRoute']),
+    ...mapActions(['getDeleted']),
     clearHandler () {
       this.$q.dialog({
         title: 'Confirm',
@@ -398,24 +399,15 @@ export default {
     deletedHandler () {
       this.changeRatioHandler(100)
     },
-    getTrafficRoute (device) {
-      this.trafficRoute = null
-      const ident = device.configuration ? device.configuration.ident : ''
-      if (!ident) { return false }
-      this.getDeviceTrafficRoute({ id: device.id, ident })
-        .then(route => { this.trafficRoute = route })
-    },
     trafficViewHandler () {
-      this.$router.push(this.trafficRoute).catch(err => err)
+      this.$router.push(`/tools/device-traffic/${this.active}`).catch(err => err)
       this.saveSessionMessageFilter()
     },
     toTrafficHandler ({ content }) {
       const timestamp = content['server.timestamp'] || content.timestamp,
         timeEnd = timestamp + 1,
         timeStart = timeEnd - 10
-      if (this.trafficRoute) {
-        this.$router.push({ path: this.trafficRoute, query: { from: timeStart, to: timeEnd } }).catch(err => err)
-      }
+      this.$router.push({ path: `/tools/device-traffic/${this.active}`, query: { from: timeStart, to: timeEnd, highlight: timestamp } }).catch(err => err)
       this.saveSessionMessageFilter()
     },
     init () {

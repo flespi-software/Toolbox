@@ -95,7 +95,7 @@
 </template>
 
 <script>
-import TrafficViewer from '../../components/trafficViewer/Index'
+import TrafficViewer from '../../components/trafficViewer/channels/Index'
 import EntitiesToolbar from '../../components/EntitiesToolbar'
 import { mapState } from 'vuex'
 import init from '../../mixins/entitiesInit'

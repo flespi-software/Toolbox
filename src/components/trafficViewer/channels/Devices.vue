@@ -39,7 +39,7 @@
 <script>
 import VirtualList from 'vue-virtual-scroll-list'
 import DeviceListItem from './DeviceListItem.vue'
-import EmptyPane from '../EmptyPane'
+import EmptyPane from '../../EmptyPane'
 import DeviceSkeleton from './DeviceSkeleton'
 
 export default {

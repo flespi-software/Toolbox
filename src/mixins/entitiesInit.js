@@ -31,10 +31,17 @@ export default {
           const idFromLS = get(vm.settings, `entities[${entity}]`, undefined)
           switch (entity) {
             case 'devices': {
-              if (fromEntity === 'intervals') { fromEntity = 'devices' }
+              if (fromEntity === 'intervals' || fromEntity === 'deviceTraffic') { fromEntity = 'devices' }
               if (idFromRoute) {
                 promises.push({ entity: 'tasks', id: { device: idFromRoute }, mode: 1 })
               }
+              if (entity !== fromEntity) {
+                getMainEntity(entity, idFromRoute, idFromLS, vm.isNeedSelect, promises)
+              }
+              break
+            }
+            case 'deviceTraffic': {
+              entity = 'devices'
               if (entity !== fromEntity) {
                 getMainEntity(entity, idFromRoute, idFromLS, vm.isNeedSelect, promises)
               }
@@ -201,6 +208,13 @@ export default {
           // promises.push({ entity: 'tasks', id: { device: idFromRoute }, mode: 1 })
           if (toEntity !== fromEntity) {
             promises.push({ entity: 'tasks', id: { device: idFromRoute }, mode: 1 })
+            promises.push(this.isNeedSelect && this.isItemsInit ? { entity: fromEntity, mode: 1 } : { entity: fromEntity, id: idFromRoute, mode: 1 })
+          }
+          break
+        }
+        case 'deviceTraffic': {
+          fromEntity = 'devices'
+          if (fromEntity !== toEntity) {
             promises.push(this.isNeedSelect && this.isItemsInit ? { entity: fromEntity, mode: 1 } : { entity: fromEntity, id: idFromRoute, mode: 1 })
           }
           break

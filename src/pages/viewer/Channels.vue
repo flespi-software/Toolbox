@@ -223,8 +223,9 @@ export default {
         const protocol = protocols[protocolId]
         return protocol.features
       },
-      isTrafficViewerSupported () {
-        return this.protocolFeatures.raw_packets
+      isTrafficViewerSupported (state) {
+        const isTrafficAccessible = get(state.config, 'trafficViewer.isDrawable', false)
+        return this.protocolFeatures.raw_packets && isTrafficAccessible
       }
     }),
     logsConfig () {
@@ -370,7 +371,7 @@ export default {
         timeEnd = timestamp + 1,
         timeStart = timeEnd - 10
       if (ident) {
-        this.$router.push({ path: `/tools/traffic/${this.active}/ident/${ident}`, query: { from: timeStart, to: timeEnd } }).catch(err => err)
+        this.$router.push({ path: `/tools/traffic/${this.active}/ident/${ident}`, query: { from: timeStart, to: timeEnd, highlight: timestamp } }).catch(err => err)
       }
       this.saveSessionMessageFilter()
     },

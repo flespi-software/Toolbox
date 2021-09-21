@@ -82,7 +82,7 @@ export default {
       toolboxMode: undefined,
       connectFlag: false,
       isTabsVisible: true,
-      entityByGroup: ['platform', 'channels', 'devices', 'streams', 'calcs', 'intervals', 'plugins', 'hexViewer', 'trafficViewer', 'modems', 'containers', 'cdns', 'mqtt', 'mqttClient'],
+      entityByGroup: ['platform', 'channels', 'devices', 'streams', 'calcs', 'intervals', 'plugins', 'hexViewer', 'trafficViewer', 'deviceTraffic', 'modems', 'containers', 'cdns', 'mqtt', 'mqttClient'],
       isNeedSelect: true,
       entityInited: false,
       isInit: Vue.connector.socket.connected()
@@ -200,6 +200,7 @@ export default {
               result.push('modems')
               result.push('hexViewer')
               result.push('trafficViewer')
+              result.push('deviceTraffic')
               break
             }
             case 'storage': {

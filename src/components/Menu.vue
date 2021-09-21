@@ -75,8 +75,8 @@
               <div>{{config.plugins.label}}</div>
             </q-item-section>
           </q-item>
-          <q-separator style="width: 100%" v-if="entities.includes('intervals') || entities.includes('calcs') || entities.includes('plugins')"/>
-          <q-item-label header class="col-12 text-white" v-if="entities.includes('hexViewer') || entities.includes('trafficViewer')">Tools</q-item-label>
+          <!-- <q-separator style="width: 100%" v-if="entities.includes('intervals') || entities.includes('calcs') || entities.includes('plugins')"/> -->
+          <!-- <q-item-label header class="col-12 text-white" v-if="entities.includes('hexViewer') || entities.includes('trafficViewer') || entities.includes('deviceTraffic')">Tools</q-item-label>
           <q-item to='/tools/hex' class="col-6" v-if="entities.includes('hexViewer')" active-class="bg-grey-6">
             <q-item-section class="text-center text-white">
               <div>
@@ -93,6 +93,14 @@
               <div>{{config.trafficViewer.label}}</div>
             </q-item-section>
           </q-item>
+          <q-item to='/tools/device-traffic' class="col-6" v-if="entities.includes('deviceTraffic')" active-class="bg-grey-6">
+            <q-item-section class="text-center text-white">
+              <div>
+                <q-icon :name="config.deviceTraffic.icon" size="2.6em"/>
+              </div>
+              <div>{{config.deviceTraffic.label}}</div>
+            </q-item-section>
+          </q-item> -->
         </q-list>
       </div>
     </q-expansion-item>

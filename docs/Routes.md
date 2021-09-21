@@ -41,3 +41,5 @@
 ### TrafficViewer
 /#/tools/traffic/<b>ID</b>?filter=<b>CONNECTION_FILTER</b>
 /#/tools/traffic/<b>ID</b>/ident/<b>IDENT</b>?from=<b>UTC_TIMESTAMP</b>&to=<b>UTC_TIMESTAMP</b>
+### DeviceTraffic
+/#/tools/device-traffic/<b>ID</b>?from=<b>UTC_TIMESTAMP</b>&to=<b>UTC_TIMESTAMP</b>

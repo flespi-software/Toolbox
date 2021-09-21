@@ -3,10 +3,6 @@
     <q-resize-observer @resize="wrapperResizeHandler"/>
     <div>
       <q-toolbar class="bg-grey-9">
-        <q-btn class="text-white" flat dense rounded icon="mdi-arrow-left" @click="closeDevice" v-if="deviceCloseble">
-          <q-tooltip>Close current device</q-tooltip>
-        </q-btn>
-        <q-toolbar-title v-if="deviceCloseble"></q-toolbar-title>
         <date-range-modal
           class="flex flex-center"
           :date="dateRange"
@@ -43,7 +39,7 @@
       </template>
       <empty-pane v-else :config="config.emptyState"/>
     </div>
-    <export-modal ref="export" :format="view" :dateRange="dateRange" :config="config" :ident="device.ident" :item-id="activeId"/>
+    <export-modal ref="export" :format="view" :dateRange="dateRange" :config="config" :item-id="active"/>
   </div>
 </template>
 
@@ -52,20 +48,18 @@ import VirtualList from 'vue-virtual-scroll-list'
 import get from 'lodash/get'
 import { DateRangeModal } from 'qvirtualscroll'
 import { copyToClipboard } from 'quasar'
-import MessagesListItem from './MessagesListItem.vue'
-import EmptyPane from '../EmptyPane'
-import MessageSkeleton from './MessageSkeleton'
+import MessagesListItem from '../MessagesListItem.vue'
+import EmptyPane from '../../EmptyPane'
+import MessageSkeleton from '../MessageSkeleton'
 import range from 'lodash/range'
-import ExportModal from './ExportModal'
+import ExportModal from '../ExportModal'
 
 export default {
   props: [
     'activeId',
-    'device',
     'limit',
     'config',
-    'view',
-    'deviceCloseble'
+    'view'
   ],
   data () {
     return {
@@ -82,6 +76,22 @@ export default {
     }
   },
   computed: {
+    active: {
+      get () {
+        return this.$store.state[this.moduleName].active
+      },
+      async set (id) {
+        if (this.realtimeEnabled) {
+          await this.$store.dispatch(`${this.moduleName}/removePollingGetMessages`)
+        }
+        this.$store.commit(`${this.moduleName}/setActive`, id)
+        await this.$store.dispatch(`${this.moduleName}/initTime`)
+        await this.$store.dispatch(`${this.moduleName}/getMessagesTail`)
+        if (this.to > Date.now()) {
+          await this.$store.dispatch(`${this.moduleName}/pollingGetMessages`)
+        }
+      }
+    },
     messages: {
       get () {
         return this.$store.state[this.moduleName].messages
@@ -280,20 +290,16 @@ export default {
         this.selected = []
       }
     },
-    closeDevice () {
-      this.$emit('close')
-    },
     clear () {
       if (this.realtimeEnabled) {
         this.$store.dispatch(`${this.moduleName}/removePollingGetMessages`)
       }
       this.$store.commit(`${this.moduleName}/clearMessages`)
-      this.closeDevice()
     },
     exportModalOpen () { this.$refs.export.show() },
-    highlightIncoming (from, to) {
+    highlightIncoming (timestamp) {
       const incomingMessageIndex = this.messages.findIndex(message => message.type === 2)
-      const incomingMessageIndexEnd = this.messages.findIndex(message => message.type === 2 && Math.floor(message.timestamp) === Math.floor((this.to / 1000) - 1)) // Math.floor((this.to / 1000) - 1)) getting timestamp in seconds for related entity
+      const incomingMessageIndexEnd = this.messages.findIndex(message => message.type === 2 && Math.floor(message.timestamp) === Math.floor(timestamp)) // Math.floor((this.to / 1000) - 1)) getting timestamp in seconds for related entity
       if (incomingMessageIndexEnd > -1) {
         this.messageClickHandler({ index: incomingMessageIndexEnd, event: {} })
       } else if (incomingMessageIndex > -1) {
@@ -305,16 +311,14 @@ export default {
       if (this.activeId && !this.$store.state[this.moduleName].active) {
         this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
       }
-      if (this.device && !this.$store.state[this.moduleName].ident) {
-        this.$store.commit(`${this.moduleName}/setIdent`, this.device.ident)
-      }
       const from = this.$route.query.from * 1000,
-        to = this.$route.query.to * 1000
+        to = this.$route.query.to * 1000,
+        selectTime = this.$route.query.highlight || from
       if (from && to) {
         this.from = from
         this.to = to
         await this.$store.dispatch(`${this.moduleName}/getMessages`)
-        this.$nextTick(this.highlightIncoming)
+        this.$nextTick(() => this.highlightIncoming(selectTime))
       } else {
         await this.$store.dispatch(`${this.moduleName}/initTime`)
         await this.$store.dispatch(`${this.moduleName}/getMessagesTail`)
@@ -327,6 +331,7 @@ export default {
   watch: {
     activeId (val) {
       this.clear()
+      this.active = val
     },
     limit (limit) {
       this.currentLimit = limit

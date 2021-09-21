@@ -327,23 +327,6 @@ async function initConnection ({ state, commit }, { region, token }) {
   }
 }
 
-async function getDeviceTrafficRoute ({ state }, { id, ident }) {
-  let route = ''
-  try {
-    const channelIdData = await Vue.connector.gw.getDevicesTelemetry(id, 'channel.id')
-    const channelId = get(channelIdData, ['data', 'result', '0', 'telemetry', 'channel.id', 'value'], undefined)
-    if (!channelId) { return null }
-    const channelData = await Vue.connector.gw.getChannels(channelId, { fields: 'id,name,protocol_features' })
-    const channel = get(channelData, 'data.result[0]', undefined)
-    if (!channel) { return null }
-    ident = channel.protocol_features.shared_connection || !ident ? 'unidentified' : ident
-    return channel.protocol_features.raw_packets ? `/tools/traffic/${channelId}/ident/${ident}` : null
-  } catch (e) {
-    route = null
-  }
-  return route
-}
-
 export default {
   getItems,
   unsubscribeItems,
@@ -352,6 +335,5 @@ export default {
   getEntities,
   removeEntities,
   getRegions,
-  initConnection,
-  getDeviceTrafficRoute
+  initConnection
 }
