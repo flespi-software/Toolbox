@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.11.1] - 2020-09-21
+[fix] direct login
 ### [1.11.0] - 2020-09-21
 [feature] device traffic viewer
 [fix] traffic acl check

@@ -154,9 +154,7 @@ export default {
         payload = payload.replace('FlespiLogin|token:', '')
         payload = JSON.parse(payload)
         this.token = payload.token
-        this.regionInitFromAuth(payload.region)
-        this.setToken(payload.token)
-        this.logIn()
+        this.logIn(payload.region)
       }
     }
     window.addEventListener('message', tokenHandler)
