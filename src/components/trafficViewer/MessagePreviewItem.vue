@@ -9,7 +9,7 @@
         <span>{{eventsDesc[message.type]}}</span>
       </div>
       <div class="text-grey-5" style="font-size: .7rem;">
-        {{date.formatDate(message.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}}
+        {{date.formatDate(message.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss.SSS')}}
         <small class="rounded-borders q-mx-xs q-px-xs text-white" :class="{'bg-blue': transport === 'tcp', 'bg-pink-4': transport === 'udp', 'bg-green-9': transport === 'http', 'bg-purple-9': transport === 'mqtt'}">{{transport}}</small>
       </div>
     </div>

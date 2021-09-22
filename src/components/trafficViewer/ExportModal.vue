@@ -116,7 +116,7 @@ export default {
       const events = await this.$store.dispatch(`${this.moduleName}/getExportData`, params)
       events.forEach((event, index) => {
         if (this.needTimeConvert) {
-          const dateFormat = this.timeFormat || 'YYYY/MM/DD HH:mm:ss'
+          const dateFormat = this.timeFormat || 'YYYY/MM/DD HH:mm:ss.SSS'
           if (this.timezoneOffset === 'local') {
             events[index].timestamp = date.formatDate(events[index].timestamp * 1000, dateFormat)
           } else {

@@ -9,7 +9,7 @@
         <span>{{eventsDesc[message['proxy.event']]}}</span>
         <span v-if="message['proxy.source']" class="q-ml-xs text-grey-5" style="font-size: .8rem;">[target {{message['proxy.source']}}]</span>
       </div>
-      <div class="text-grey-5" style="font-size: .7rem;">{{date.formatDate(message.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}}</div>
+      <div class="text-grey-5" style="font-size: .7rem;">{{date.formatDate(message.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss.SSS')}}</div>
     </div>
     <div style="word-break: break-all; font-size: .8rem; height: 1rem;" class="ellipsis">{{dataPreview}}</div>
   </q-timeline-entry>

@@ -1,5 +1,5 @@
 <template>
-  <q-item :class="[`${selected ? 'bg-grey-8' : ''}`]" clickable @click="(event) => { itemClickHandler(index, item, event) }" style="user-select: none">
+  <q-item :class="[`${selected ? 'bg-grey-8' : ''}`]" :focused="highlight" clickable @click="(event) => { itemClickHandler(index, item, event) }" style="user-select: none">
     <q-tooltip>{{eventsDesc[item.type]}}</q-tooltip>
     <q-item-section v-if="actions" side class="q-pr-none">
       <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon" :color="selected ? 'grey-5' : ''">
@@ -7,12 +7,16 @@
       </q-icon>
     </q-item-section>
     <q-item-section>
-      <q-item-label header class="ellipsis overflow-hidden q-pa-none" :class="[`text-${eventsColors[item.type]}-${selected ? 3 : 4}`]">{{date.formatDate(item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}}</q-item-label>
+      <q-item-label header class="ellipsis overflow-hidden q-pa-none" :class="[`text-${eventsColors[item.type]}-${selected ? 3 : 4}`]">{{date.formatDate(item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss.SSS')}}</q-item-label>
       <q-item-label v-if="size" caption class="ellipsis overflow-hidden text-grey-5">{{`${size} B : `}}<small>{{dataPreview}}</small></q-item-label>
     </q-item-section>
     <q-item-section side class="">
       <small :class="[`text-grey-${selected ? 5 : 7}`]">{{eventsDesc[item.type]}}</small>
-      <div><small class="rounded-borders q-mx-xs q-px-xs text-white" :class="{'bg-blue': transport === 'tcp', 'bg-pink-4': transport === 'udp', 'bg-green-9': transport === 'http', 'bg-purple-9': transport === 'mqtt'}">{{transport}}</small><q-icon class="q-ml-xs" size="1.2rem" :color="eventsColors[item.type]" :name="eventIcons[item.type]"/></div>
+      <div>
+        <small class="rounded-borders q-px-xs text-white bg-amber-8">{{item.conn}}</small>
+        <small class="rounded-borders q-mx-xs q-px-xs text-white" :class="{'bg-blue': transport === 'tcp', 'bg-pink-4': transport === 'udp', 'bg-green-9': transport === 'http', 'bg-purple-9': transport === 'mqtt'}">{{transport}}</small>
+        <q-icon class="q-ml-xs" size="1.2rem" :color="eventsColors[item.type]" :name="eventIcons[item.type]"/>
+      </div>
     </q-item-section>
   </q-item>
 </template>
@@ -27,7 +31,8 @@ export default {
     'actions',
     'itemHeight',
     'selected',
-    'view'
+    'view',
+    'highlight'
   ],
   data () {
      const transports = {

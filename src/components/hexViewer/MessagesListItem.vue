@@ -7,7 +7,7 @@
       </q-icon>
     </q-item-section>
     <q-item-section>
-      <q-item-label header class="ellipsis overflow-hidden q-pa-none" :class="[`text-${eventsColors[item['proxy.event']]}-${selected ? 3 : 4}`]">{{date.formatDate(item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}}</q-item-label>
+      <q-item-label header class="ellipsis overflow-hidden q-pa-none" :class="[`text-${eventsColors[item['proxy.event']]}-${selected ? 3 : 4}`]">{{date.formatDate(item.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss.SSS')}}</q-item-label>
       <q-item-label v-if="item['proxy.payload.size']" caption class="ellipsis overflow-hidden text-grey-5">{{`${item['proxy.payload.size']} B : `}}<small>{{dataPreview}}</small></q-item-label>
     </q-item-section>
     <q-item-section side class="">

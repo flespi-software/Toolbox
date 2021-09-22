@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.11.2] - 2020-09-22
+[feature] traffic connection highlight
+[feature] traffic data milliseconds
 ### [1.11.1] - 2020-09-21
 [fix] direct login
 ### [1.11.0] - 2020-09-21

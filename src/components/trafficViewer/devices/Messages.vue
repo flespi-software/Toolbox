@@ -32,8 +32,11 @@
             :itemHeight="itemHeight"
             :selected="selected.includes(index)"
             :view="view"
+            :highlight="highligtedConnection[index]"
             @action="actionHandler"
             @item-click="messageClickHandler"
+            @mouseenter.native="activeConnectionId = item.conn"
+            @mouseleave.native="activeConnectionId = null"
           />
         </VirtualList>
       </template>
@@ -72,7 +75,8 @@ export default {
       wrapperHeight: 0,
       needAutoScroll: true,
       selected: [],
-      scrollerScrollTop: 0
+      scrollerScrollTop: 0,
+      activeConnectionId: null
     }
   },
   computed: {
@@ -135,6 +139,16 @@ export default {
     loadingFlag () {
       const state = this.$store.state
       return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
+    },
+    highligtedConnection () {
+      let indexes = {}
+      if (this.activeConnectionId) {
+        indexes = this.messages.reduce((res, message, index) => {
+          if (message.conn === this.activeConnectionId) { res[index] = true }
+          return res
+        }, {})
+      }
+      return indexes
     }
   },
   methods: {
