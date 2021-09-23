@@ -345,8 +345,8 @@ export default {
         let scrollToIndex = 0
         if (intervalMessages.length < this.limit) {
           const paddingMessages = await Promise.all([
-            this.$store.dispatch(`${this.moduleName}/getMessages`, { from: Math.floor(this.from / 1000), to: interval.begin - 1, count, reverse: true }),
-            this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.end + 1, to: Math.floor(this.to / 1000), count })
+            this.$store.dispatch(`${this.moduleName}/getMessages`, { from: Math.floor(this.from / 1000), to: interval.begin, count, reverse: true }),
+            this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.end, to: Math.floor(this.to / 1000), count })
           ])
           const prevMsgs = paddingMessages[0].reverse(),
             nextMsgs = paddingMessages[1]

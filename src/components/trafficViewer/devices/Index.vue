@@ -13,6 +13,7 @@
     />
     <div v-show="$q.platform.is.desktop || ($q.platform.is.mobile && selectedMessages)" :style="{width: $q.platform.is.desktop ? '75%' : '100%', maxWidth: $q.platform.is.desktop ? 'calc(100% - 250px)' : ''}">
       <q-toolbar class="bg-grey-9" v-if="active">
+        <q-icon color="white" size="1.5rem" class="cursor-pointer" name="mdi-close" v-if="$q.platform.is.mobile" @click.native="() => { selectedMessages = '' }"/>
         <q-toolbar-title/>
         <q-btn color="white" flat dense :label="typeOfHexView === 'hex' ? 'text' : 'hex'" :icon-right="typeOfHexView === 'hex' ? 'mdi-format-text' : 'mdi-matrix'" @click="typeOfHexView = typeOfHexView === 'hex' ? 'text' : 'hex'">
           <q-tooltip>Change view mode to {{typeOfHexView === 'hex' ? 'text' : 'hex'}}</q-tooltip>

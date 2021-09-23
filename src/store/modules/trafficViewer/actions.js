@@ -54,7 +54,7 @@ async function getMessages ({ state, commit }) {
   }
 }
 
-async function getMessagesTail ({ state, commit }) {
+async function Tail ({ state, commit }) {
   if (typeof state.isLoading !== 'undefined') {
     Vue.set(state, 'isLoading', true)
   }
