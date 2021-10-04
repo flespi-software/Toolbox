@@ -3,7 +3,7 @@ import get from 'lodash/get'
 function getFromTo (val) {
   const now = val || Date.now(),
     from = new Date(now).setHours(0, 0, 0, 0),
-    to = from + 86399999
+    to = from + 86399999.999
   return { from, to }
 }
 async function initTime ({ state, commit }) {
@@ -24,7 +24,7 @@ async function getMessages ({ state, commit }) {
   try {
     const now = Date.now()
     const to = state.to > now ? now : state.to
-    const resp = await Vue.connector.gw.getDevicesPackets(state.active, { data: { from: Math.floor(state.from / 1000), to: Math.floor(to / 1000), count: state.limit } })
+    const resp = await Vue.connector.gw.getDevicesPackets(state.active, { data: { from: state.from / 1000, to: to / 1000, count: state.limit } })
     const messages = get(resp, 'data.result', [])
     commit('setMessages', messages)
   } catch (e) {
@@ -42,7 +42,7 @@ async function getMessagesTail ({ state, commit }) {
   try {
     const now = Date.now()
     const to = state.to > now ? now : state.to
-    const resp = await Vue.connector.gw.getDevicesPackets(state.active, { data: { count: state.limit, reverse: true, from: Math.floor(state.from / 1000), to: Math.floor(to / 1000) } })
+    const resp = await Vue.connector.gw.getDevicesPackets(state.active, { data: { count: state.limit, reverse: true, from: state.from / 1000, to: to / 1000 } })
     const messages = get(resp, 'data.result', [])
     messages.reverse()
     commit('setMessages', messages)
@@ -59,8 +59,8 @@ async function getMessagesNext ({ state, commit }) {
   requestStatus = true
   let messages = []
   try {
-    const from = Math.ceil(state.messages[state.messages.length - 1].timestamp)
-    const resp = await Vue.connector.gw.getDevicesPackets(state.active, { data: { count: state.limit, from, to: Math.floor(state.to / 1000) } })
+    const from = state.messages[state.messages.length - 1].timestamp + 0.000001
+    const resp = await Vue.connector.gw.getDevicesPackets(state.active, { data: { count: state.limit, from, to: state.to / 1000 } })
     messages = get(resp, 'data.result', [])
     commit('setMessagesAppend', messages)
   } catch (e) {
@@ -75,8 +75,8 @@ async function getMessagesPrev ({ state, commit }) {
   requestStatus = true
   let messages = []
   try {
-    const to = Math.floor(state.messages[0].timestamp) - 1
-    const resp = await Vue.connector.gw.getDevicesPackets(state.active, { data: { count: state.limit, from: Math.floor(state.from / 1000), to, reverse: true } })
+    const to = state.messages[0].timestamp - 0.000001
+    const resp = await Vue.connector.gw.getDevicesPackets(state.active, { data: { count: state.limit, from: state.from / 1000, to, reverse: true } })
     messages = get(resp, 'data.result', [])
     messages.reverse()
     commit('setMessagesPrepend', messages)
@@ -90,7 +90,7 @@ let mesagesPollingId = 0
 function pollingGetMessages ({ state, commit }) {
   mesagesPollingId = setInterval(async () => {
     try {
-      const from = Math.ceil(state.messages[state.messages.length - 1].timestamp)
+      const from = state.messages[state.messages.length - 1].timestamp + 0.000001
       const to = Math.ceil(Date.now() / 1000)
       const resp = await Vue.connector.gw.getDevicesPackets(state.active, { data: { from, to } })
       const messages = get(resp, 'data.result', [])

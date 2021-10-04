@@ -453,6 +453,7 @@ export default {
       this.currentLimit = this.limit
       const from = Math.floor(this.$route.query.from * 1000),
         to = Math.floor(this.$route.query.to * 1000),
+        highlight = this.$route.query.highlight,
         filter = this.$route.query.filter
       if (filter) { this.filter = filter }
       if (from && to) {
@@ -470,7 +471,7 @@ export default {
         this.$nextTick(() => {
           const incomingMessageIndex = this.currentMessages.findIndex(message => {
             return message['proxy.source'] === 0 &&
-              Math.floor(message.timestamp) === Math.floor(from / 1000)
+              Math.floor(message.timestamp) === Math.floor(highlight)
           })
           if (incomingMessageIndex > -1) {
             this.messageClickHandler({ index: incomingMessageIndex, event: {} })

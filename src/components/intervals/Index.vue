@@ -263,6 +263,7 @@ export default {
     dateRangeChangeHandler (range) {
       const begin = range[0],
         end = range[1]
+      console.log(range)
       if (this.begin === begin && this.end === end) { return false }
       this.dateRangeChange(range)
     },
@@ -340,13 +341,13 @@ export default {
         this.scrollTo(existMessageIndex - 1)
       } else {
         this.$store.state[this.moduleName].messages = []
-        const intervalMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.begin, to: interval.end, count: this.limit })
+        const intervalMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.begin, to: interval.end + 0.999999, count: this.limit })
         const count = Math.ceil((this.limit - intervalMessages.length) / 2)
         let scrollToIndex = 0
         if (intervalMessages.length < this.limit) {
           const paddingMessages = await Promise.all([
-            this.$store.dispatch(`${this.moduleName}/getMessages`, { from: Math.floor(this.from / 1000), to: interval.begin, count, reverse: true }),
-            this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.end, to: Math.floor(this.to / 1000), count })
+            this.$store.dispatch(`${this.moduleName}/getMessages`, { from: this.from / 1000, to: interval.begin - 0.000001, count, reverse: true }),
+            this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.end + 1, to: this.to / 1000, count })
           ])
           const prevMsgs = paddingMessages[0].reverse(),
             nextMsgs = paddingMessages[1]

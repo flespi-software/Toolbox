@@ -79,8 +79,8 @@ export default {
           handler: () => this.exportCsv(
             {
               filter: `${this.filter}`,
-              from: Math.floor(this.from / 1000),
-              to: Math.floor(this.to / 1000)
+              from: this.from / 1000,
+              to: this.to / 1000
             },
             {
               from: this.from,

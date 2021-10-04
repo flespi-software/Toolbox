@@ -352,14 +352,16 @@ export default {
     },
     toHexHandler ({ content }) {
       const ident = content.ident,
-        timeEnd = content.timestamp,
+        timestamp = content.timestamp,
+        timeEnd = timestamp + 1,
         timeStart = timeEnd - 10
       if (ident) {
         this.$router.push({
           path: `/tools/hex/${this.active}/ident/${ident}`,
           query: {
             from: timeStart,
-            to: timeEnd
+            to: timeEnd,
+            highlight: timestamp
           }
         }).catch(err => err)
       }

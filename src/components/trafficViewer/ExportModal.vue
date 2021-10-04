@@ -24,7 +24,7 @@
       <q-separator color="grey-8"/>
       <q-card-actions align="right" class="bg-grey-9 text-white">
         <q-btn flat @click="hide" :disable="loadingFlag">Close</q-btn>
-        <q-btn flat @click="importHandler" :disable="loadingFlag || currentFormat.length < 1" :loading="loadingFlag">Export</q-btn>
+        <q-btn flat @click="exportHandler" :disable="loadingFlag || currentFormat.length < 1" :loading="loadingFlag">Export</q-btn>
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -110,9 +110,9 @@ export default {
       const adjTime = utcTime + msOffset
       return new Date(adjTime)
     },
-    async importHandler () {
+    async exportHandler () {
       this.loadingFlag = true
-      const params = { from: Math.floor(this.currentDateRange[0].valueOf() / 1000), to: Math.floor(this.currentDateRange[1].valueOf() / 1000) }
+      const params = { from: Math.floor(this.currentDateRange[0].valueOf() / 1000), to: Math.floor(this.currentDateRange[1].valueOf() / 1000) + 0.999999 }
       const events = await this.$store.dispatch(`${this.moduleName}/getExportData`, params)
       events.forEach((event, index) => {
         if (this.needTimeConvert) {
