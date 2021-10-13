@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.11.5] - 2020-10-13
+[fix] see deleted filter null results
 ### [1.11.4] - 2020-09-24
 [fix] getting messages tail in traffic viewer
 ### [1.11.3] - 2020-09-23
