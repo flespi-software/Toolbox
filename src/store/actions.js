@@ -237,9 +237,11 @@ async function getDeleted ({ state, commit }, entity) {
         const result = {
           ...state[entity],
           ...deleted.reduce((deleted, item) => {
-            const itemObj = item.data
-            itemObj.deleted = true
-            deleted[itemObj.id] = itemObj
+            if (item.data) {
+              const itemObj = item.data
+              itemObj.deleted = true
+              deleted[itemObj.id] = itemObj
+            }
             return deleted
           }, {})
         }
