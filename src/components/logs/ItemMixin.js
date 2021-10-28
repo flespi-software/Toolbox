@@ -2,9 +2,10 @@ import events from './events.json'
 import { date } from 'quasar'
 export default {
   methods: {
-    getLogItemColor (code, closeCode, sendCode) {
+    getLogItemColor (code, closeCode, sendCode, responseСode) {
       sendCode = sendCode || (this.item ? this.item.send_code : 0)
       closeCode = closeCode || (this.item ? this.item.close_code : 0)
+      responseСode = responseСode || (this.item ? this.item.response_code : 0)
       switch (code) {
         case 1:
         case 100:
@@ -105,6 +106,15 @@ export default {
             case 9:
             case 10: { return 'yellow' }
             default: { return 'grey-6' }
+          }
+        }
+        case 1000: {
+          if (responseСode === 200) {
+            return 'grey-6'
+          } else if (responseСode === 500) {
+            return 'red'
+          } else {
+            return 'yellow'
           }
         }
         default:

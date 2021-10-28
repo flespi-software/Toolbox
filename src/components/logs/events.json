@@ -70,7 +70,8 @@
     "604": "device was blocked by calculator",
     "605": "device was unblocked by calculator",
     "700": "container size has been changed",
-    "900": "cdn size has been changed"
+    "900": "cdn size has been changed",
+    "1000": "REST API Request"
   },
   "closeCodes": {
     "-1": "unexpected disconnect",
@@ -272,7 +273,7 @@
     "plugins": [320,321,322],
     "streams": [401,402,403,404,410,411,412,420,422,430,432],
     "mqtt": [500,501,502,503,504,510,511,512,520,521],
-    "platform": [600],
+    "platform": [600, 1000],
     "calcs": [601,602,603,604,605],
     "containers": [700],
     "cdns": [900]

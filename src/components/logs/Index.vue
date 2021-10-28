@@ -373,7 +373,7 @@ export default {
         this.selected = [index]
         const content = { ...this.getLogClearItem(message) }
         content['x-flespi-description'] = `<div style="font-size: 1.1rem">${content.event_code}: ${this.getLogDescriptionByItem(content)}</div><div style="font-size: .9rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}</div>`
-        content['x-flespi-color'] = `text-${this.getLogItemColor(content.event_code, content.close_code, content.send_code)}`
+        content['x-flespi-color'] = `text-${this.getLogItemColor(content.event_code, content.close_code, content.send_code, content.response_code)}`
         this.$emit('action-select', {
           index: index,
           content
