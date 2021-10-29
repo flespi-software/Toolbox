@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.11.9] - 2020-10-29
+[fix] styles
 ### [1.11.8] - 2020-10-28
 [feature] new event code
 ### [1.11.7] - 2020-10-20
