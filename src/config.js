@@ -36,6 +36,18 @@ export default {
           width: 150,
           display: true,
           description: "Connected device's address (source) or IP address from which HTTP request was received (host)"
+        },
+        {
+          name: 'method',
+          width: 150,
+          display: true,
+          description: "REST API method"
+        },
+        {
+          name: 'uri',
+          width: 150,
+          display: true,
+          description: "Request URI"
         }
       ],
       actions: [
