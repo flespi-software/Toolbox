@@ -95,6 +95,7 @@ import EntitiesToolbar from '../../components/EntitiesToolbar'
 import { mapState } from 'vuex'
 import init from '../../mixins/entitiesInit'
 import get from 'lodash/get'
+import routerProcess from '../../mixins/routerProcess'
 
 export default {
   name: 'PageHexViewer',
@@ -106,7 +107,7 @@ export default {
     'config',
     'settings'
   ],
-  mixins: [init],
+  mixins: [init, routerProcess],
   data () {
     return {
       active: null,
@@ -114,7 +115,9 @@ export default {
       isInit: false,
       isItemsInit: false,
       isItemsInitStart: false,
-      filter: ''
+      filter: '',
+      prevEntity: null,
+      prevRoute: null
     }
   },
   computed: {
@@ -168,21 +171,21 @@ export default {
   methods: {
     changeActiveDeviceHandler (device) {
       this.activeDevice = device
-      if (this.active) {
-        if (this.activeDevice) {
-          this.$router.push(`/tools/hex/${this.active}/ident/${device.ident}`).catch(err => err)
-        } else {
-          this.$router.push(`/tools/hex/${this.active}`).catch(err => err)
-        }
+      if (this.active && this.activeDevice) {
+        this.updateRoute({ name: 'hexViewer-nested', params: { id: this.active, ident: device.ident } })
       } else {
-        this.$router.push('/tools/hex').catch(err => err)
+        this.updateRoute({ name: 'hexViewer', params: { id: this.active } })
       }
     },
     unselect () {
       this.$refs.messages.unselect()
     },
     viewLogsHandler () {
-      this.$router.push(`/channels/${this.active}`).catch(err => err)
+      if (this.prevEntity === 'channels' && this.prevRoute && this.prevRoute.params.id === this.active) {
+        this.$router.push(this.prevRoute).catch(err => err)
+      } else {
+        this.$router.push(`/channels/${this.active}`).catch(err => err)
+      }
     },
     init () {
       const entity = 'tools/hex'
@@ -224,15 +227,14 @@ export default {
       const currentItem = this.items.filter(item => item.id === val)[0] || {}
       if (val) {
         this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: 'tools/hex' }, value: currentItem.id })
-        if (this.activeDevice) {
-          this.$router.push(`/tools/hex/${val}/ident/${this.activeDevice.ident}`).catch(err => err)
-        } else {
-          this.$router.push(`/tools/hex/${val}`).catch(err => err)
-        }
-      } else {
-        this.$router.push('/tools/hex').catch(err => err)
       }
     }
+  },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.prevRoute = from
+      vm.prevEntity = from.meta.moduleName
+    })
   },
   components: { HexViewer, EntitiesToolbar }
 }

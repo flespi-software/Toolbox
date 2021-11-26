@@ -19,7 +19,7 @@
         class="flex flex-center"
         :date="dateRange"
         :theme="theme"
-        @save="dateRangeChangeHandler"
+        @save="dateRangeChange"
       />
       <div v-if="loadingFlag && itemsCount > 0" class="absolute-bottom-right absolute-top-left" style="overflow: hidden;">
         <connection-skeleton v-for="(_, index) in new Array(itemsCount).fill('')" :key="index"/>
@@ -87,6 +87,7 @@ import EmptyPane from '../EmptyPane'
 import ConnectionSkeleton from './ConnectionSkeleton'
 import range from 'lodash/range'
 import get from 'lodash/get'
+import routerProcess from '../../mixins/routerProcess'
 
 export default {
   props: [
@@ -164,6 +165,7 @@ export default {
           const render = await this.$store.dispatch(`${this.moduleName}/pollingGet`)
           render()
         }
+        this.dateRangeChange(this.dateRange)
       }
     },
     dateRange () {
@@ -315,6 +317,14 @@ export default {
     // getMessages () {
     //   return this.$store.dispatch(`${this.moduleName}/get`)
     // },
+    dateRangeChange (range) {
+      this.updateRoute({
+        query: {
+          from: range[0] / 1000,
+          to: range[1] / 1000
+        }
+      })
+    },
     dateRangeChangeHandler (range) {
       const from = range[0],
         to = range[1]
@@ -451,8 +461,8 @@ export default {
         this.$set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
       }
       this.currentLimit = this.limit
-      const from = Math.floor(this.$route.query.from * 1000),
-        to = Math.floor(this.$route.query.to * 1000),
+      const from = this.$route.query.from * 1000,
+        to = this.$route.query.to * 1000,
         highlight = this.$route.query.highlight,
         filter = this.$route.query.filter
       if (filter) { this.filter = filter }
@@ -484,6 +494,12 @@ export default {
         const render = await this.$store.dispatch(`${this.moduleName}/pollingGet`)
         render()
       }
+      this.updateRoute({
+        query: {
+          from: this.from / 1000,
+          to: this.to / 1000
+        }
+      }, true)
       this.inited = true
     }
   },
@@ -504,6 +520,13 @@ export default {
         this.clearConnections()
         this.connectionsFilter = this.filter
         this.filter = ''
+      }
+    },
+    $route (route) {
+      const from = route.query.from * 1000,
+        to = route.query.to * 1000
+      if (from && to && (this.dateRange[0] !== from || this.dateRange[1] !== to)) {
+        this.dateRangeChangeHandler([from, to])
       }
     }
   },
@@ -535,6 +558,7 @@ export default {
     this.$store.commit(`${this.moduleName}/clear`)
     this.$store.unregisterModule(this.moduleName)
   },
+  mixins: [routerProcess],
   components: { VirtualList, EmptyPane, DateRangeModal, ConnectionSkeleton }
 }
 </script>

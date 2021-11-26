@@ -35,6 +35,7 @@ import { copyToClipboard } from 'quasar'
 import MessagesListItem from './MessagesListItem.vue'
 import EmptyPane from '../EmptyPane'
 import actions from '../../mixins/actions'
+import routerProcess from '../../mixins/routerProcess'
 
 export default {
   props: [
@@ -52,8 +53,10 @@ export default {
       theme: this.config.theme,
       viewConfig: this.config.viewConfig,
       isSecondary: this.config.mode === 'secondary',
+      routeParamName: this.config.mode === 'secondary' ? 'related_intervals' : 'intervals',
       moduleName: this.config.vuexModuleName,
       autoscroll: true,
+      isInit: false,
       viewedInterval: null,
       actions: this.config.actions,
       i18n: {
@@ -239,12 +242,35 @@ export default {
     resetParams () {
       this.$refs.scrollList.resetParams()
     },
+    processQuery (params) {
+      if (!this.isInit) { return false }
+      try {
+        params = params ? JSON.parse(params) : {}
+        let needUpdate = false
+        if (
+          (!this.filter && !!params.filter) ||
+          (!!this.filter && !params.filter) ||
+          (this.filter && params.filter && this.filter !== params.filter)
+        ) {
+          if (this.realtimeEnabled) { this.$store.dispatch(`${this.moduleName}/unsubscribePooling`) }
+          this.filter = params.filter || null
+          needUpdate = true
+        }
+        if (needUpdate) {
+          this.$store.commit(`${this.moduleName}/clearMessages`)
+          this.$store.dispatch(`${this.moduleName}/get`)
+        }
+      } catch (e) {}
+    },
     filterChangeHandler (val) {
       if (this.filter !== val) {
-        if (this.realtimeEnabled) { this.$store.dispatch(`${this.moduleName}/unsubscribePooling`) }
-        this.filter = val
-        this.$store.commit(`${this.moduleName}/clearMessages`)
-        this.$store.dispatch(`${this.moduleName}/get`)
+        this.updateRoute({
+          query: {
+            [this.routeParamName]: val ? JSON.stringify({
+            filter: val
+          }) : undefined
+          }
+        })
       }
     },
     updateColsHandler (cols) {
@@ -263,7 +289,6 @@ export default {
     dateRangeChangeHandler (range) {
       const begin = range[0],
         end = range[1]
-      console.log(range)
       if (this.begin === begin && this.end === end) { return false }
       this.dateRangeChange(range)
     },
@@ -423,7 +448,7 @@ export default {
       }
       const from = this.$route.query.from * 1000,
           to = this.$route.query.to * 1000
-      let routeConfig = this.isSecondary ? this.$route.query.related_intervals : this.$route.query.intervals
+      let routeConfig = this.$route.query[this.routeParamName]
       if (routeConfig) {
         try {
           routeConfig = JSON.parse(routeConfig)
@@ -445,6 +470,14 @@ export default {
         await this.$store.dispatch(`${this.moduleName}/get`)
         await this.$store.dispatch(`${this.moduleName}/pollingGet`)
       }
+      this.updateRoute({
+        query: {
+          [this.routeParamName]: this.filter ? JSON.stringify({
+            filter: this.filter
+          }) : undefined
+        }
+      }, true)
+      this.isInit = true
     }
   },
   watch: {
@@ -462,6 +495,11 @@ export default {
     },
     dateRange (range) {
       this.dateRangeChange(range)
+    },
+    $route (route) {
+      this.processRoute({
+        [this.routeParamName]: this.processQuery,
+      }, route)
     }
   },
   created () {
@@ -484,7 +522,7 @@ export default {
     this.$store.commit(`${this.moduleName}/setActive`, null)
     this.$store.commit(`${this.moduleName}/setActiveDevice`, null)
   },
-  mixins: [actions],
+  mixins: [actions, routerProcess],
   components: { VirtualScrollList, EmptyPane }
 }
 </script>

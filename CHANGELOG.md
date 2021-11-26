@@ -1,5 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.12.0] - 2020-11-25
+[feature] main params migrated to router
+[feature] fields widgets view to logs
+[fix] side request messages
+[fix] clear messages button logic
 ### [1.11.11] - 2020-11-05
 [add] event code
 ### [1.11.10] - 2020-10-29

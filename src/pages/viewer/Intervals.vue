@@ -11,8 +11,6 @@
             :class="{'items__select--no-selected': !active}"
             :value="active"
             :options="filteredDevices"
-            :clearable="$q.platform.is.desktop && !!activeCalcId"
-            @clear="clearDevice"
             filled
             :label="active ? undefined : 'SELECT DEVICE'"
             dark hide-bottom-space dense color="white"
@@ -55,7 +53,7 @@
             <template v-slot:option="scope">
               <q-item
                 v-bind="scope.itemProps"
-                @click="active = scope.opt.id"
+                @click="setActive(scope.opt.id)"
                 v-on="scope.itemEvents"
                 :class="{'text-grey-8': scope.opt.deleted}"
                 class="q-pa-xs"
@@ -81,10 +79,8 @@
             :value="activeCalcId"
             :options="filteredCalcs"
             filled
-            :clearable="$q.platform.is.desktop && !!active"
             :disable="calcsSelectorDisabled"
             :hide-dropdown-icon="calcsSelectorDisabled"
-            @clear="clearCalc"
             :label="activeCalcId ? undefined : 'SELECT CALC'"
             dark hide-bottom-space dense color="white"
             popup-content-class="items__popup"
@@ -177,7 +173,7 @@
         @action-show="data => intervalWidgetsActions('show', { ...data, refName: 'intervals' })"
         @action-select="data => intervalWidgetsActions('select', { ...data, refName: 'intervals' })"
         @in-messages="(interval) => viewedInterval = interval"
-        @change:date-range="range => { dateRange = range, viewedInterval = null }"
+        @change:date-range="dateRangeChange"
         :activeId="activeCalcId"
         :item="selectedCalc"
         :activeDeviceId="active"
@@ -259,6 +255,7 @@ import IntervalsWidgetsMixin from '../../components/widgets/IntervalsWidgetsMixi
 import Widgets from '../../components/widgets/Widgets'
 import { mapState, mapActions, mapMutations } from 'vuex'
 import init from '../../mixins/entitiesInit'
+import routerProcess from '../../mixins/routerProcess'
 
 const DEVICE_SOURCE = false,
   CALC_SOURCE = true
@@ -272,7 +269,7 @@ export default {
     'config',
     'settings'
   ],
-  mixins: [init, MainWidgetsMixin, MessageWidgetsMixin, IntervalsWidgetsMixin],
+  mixins: [init, MainWidgetsMixin, MessageWidgetsMixin, IntervalsWidgetsMixin, routerProcess],
   data () {
     return {
       entityName: 'intervals',
@@ -290,7 +287,9 @@ export default {
       viewedInterval: null,
       dateRange: [0, 0],
       blocked: '',
-      relatedDataMode: DEVICE_SOURCE
+      relatedDataMode: DEVICE_SOURCE,
+      prevRoute: null,
+      prevEntity: null
     }
   },
   computed: {
@@ -379,7 +378,12 @@ export default {
         {
           label: this.relatedDataMode ? 'Messages' : 'Intervals',
           icon: this.relatedDataMode ? 'mdi-card-text-outline' : 'mdi-card-bulleted-outline',
-          handler: this.changeRelatedDataMode,
+          handler: () => this.updateRoute({
+            name: `${this.entityName}`,
+            query: {
+              related: !this.relatedDataMode ? 'intervals' : 'messages'
+            }
+          }),
           condition: this.relatedCalcId,
           desc: 'Switch related data between messages/intervals'
         },
@@ -486,28 +490,35 @@ export default {
       this.viewedInterval = null
     },
     setActive (id) {
-      this.active = id
+      if (id) {
+        this.updateRoute({name: `${this.entityName}`, params: { deviceId: id, calcId: this.activeCalcId }}, !this.active)
+      }
     },
     setActiveCalc (id) {
-      this.activeCalcId = id
+      if (id) {
+        this.updateRoute({name: `${this.entityName}`, params: { calcId: id, deviceId: this.active }}, !this.activeCalcId)
+      }
+      // this.activeCalcId = id
     },
     clearActive () {
       this.setActive(null)
     },
-    clearDevice () {
-      this.clearActive()
-    },
     clearActiveCalc () {
       this.setActiveCalc(null)
     },
-    clearCalc () {
-      this.clearActiveCalc()
-    },
     goBackDevice () {
-      this.$router.push(`/devices/${this.active}`).catch(err => err)
+      if (this.prevEntity === 'devices' && this.prevRoute && this.prevRoute.params.id === this.active) {
+        this.$router.push(this.prevRoute).catch(err => err)
+      } else {
+        this.$router.push(`/devices/${this.active}`).catch(err => err)
+      }
     },
     goBackCalc () {
-      this.$router.push(`/calcs/${this.activeCalcId}`).catch(err => err)
+      if (this.prevEntity === 'calcs' && this.prevRoute && this.prevRoute.params.id === this.activeCalcId) {
+        this.$router.push(this.prevRoute).catch(err => err)
+      } else {
+        this.$router.push(`/calcs/${this.activeCalcId}`).catch(err => err)
+      }
     },
     init () {
       this.blocked = this.$route.query.noselect || ''
@@ -522,19 +533,24 @@ export default {
         }
       }
       if (deviceIdFromRoute) {
-        this.setActive(deviceIdFromRoute)
+        this.active = deviceIdFromRoute
+        // this.setActive(deviceIdFromRoute)
       }
       if (calcIdFromRoute) {
-        this.setActiveCalc(calcIdFromRoute)
+        this.activeCalcId = calcIdFromRoute
+        // this.setActiveCalc(calcIdFromRoute)
       }
       this.isInit = true
-      this.$router.push(`/device/${deviceIdFromRoute || 'null'}/calc/${calcIdFromRoute || 'null'}/intervals`).catch(err => err)
-      this.$watch('active', (id, old) => {
-        this.$router.push(`/device/${id}/calc/${this.activeCalcId || 'null'}/intervals`).catch(err => err)
-      })
-      this.$watch('activeCalcId', (activeCalcId, old) => {
-        this.$router.push(`/device/${this.active}/calc/${activeCalcId || 'null'}/intervals`).catch(err => err)
-      })
+      this.updateRoute({
+        name: `${this.entityName}`,
+        params: {
+          deviceId: this.active,
+          calcId: this.activeCalcId
+        },
+        query: {
+          related: this.relatedDataMode ? 'intervals' : 'messages'
+        }
+      }, true)
       this.$emit('inited')
     },
     clearWidgetsState () {
@@ -564,12 +580,35 @@ export default {
       this.$refs.intervalsView.resize(size)
       this.$refs.messagesView.resize(size)
     },
-    changeRelatedDataMode () {
+    changeRelatedDataMode (val) {
+      val = val === 'intervals'
+      if (val === this.relatedDataMode) { return false }
       this.unselect()
       if (this.isWidgetsMessageActive) { this.isWidgetsMessageActive = false }
       if (this.isWidgetsIntervalsActive && this.widgetsViewedInterval.refName.indexOf('related') === 0) { this.isWidgetsIntervalsActive = false }
       this.relatedDataMode = !this.relatedDataMode
-    }
+    },
+    changeNoSelectMode (val) {
+      if (val === 'calcs' || (!val && this.calcs.length)) {
+        this.deviceBlocked = false
+        this.calcsBlocked = true
+      } else if (val === 'devices' || (!val && this.devices.length)) {
+        this.deviceBlocked = true
+        this.calcsBlocked = false
+      } else {
+        this.deviceBlocked = false
+        this.calcsBlocked = true
+      }
+    },
+    dateRangeChange (range) {
+      this.viewedInterval = null
+      this.updateRoute({
+        query: {
+          from: range[0] / 1000,
+          to: range[1] / 1000
+        }
+      })
+    },
   },
   created () {
     if (this.sessionSettings && this.sessionSettings.intervalDevicesBlocked) {
@@ -585,8 +624,25 @@ export default {
       intervalCalcsBlocked: undefined
     })
   },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      if (from.meta.moduleName !== to.meta.moduleName) {
+        vm.prevRoute = from
+        vm.prevEntity = from.meta.moduleName
+      }
+    })
+  },
   watch: {
     $route (route) {
+      this.processRoute({
+        related: (val) => { this.changeRelatedDataMode(val) },
+        noselect: (val) => { this.changeNoSelectMode(val) }
+      }, route)
+      const begin = route.query.from * 1000,
+        end = route.query.to * 1000
+      if (this.dateRange[0] !== begin || this.dateRange[1] !== end) {
+        this.dateRange = [begin, end]
+      }
       if (
         route.params && route.params.deviceId && Number(route.params.deviceId) === this.active &&
         route.params.calcId && this.activeCalcId === Number(route.params.calcId)
@@ -595,17 +651,17 @@ export default {
         const deviceId = Number(route.params.deviceId)
         if (this.devicesCollection[deviceId]) {
           if (deviceId !== this.active) {
-            this.setActive(deviceId)
+            this.active = deviceId
           }
           const calcId = Number(route.params.calcId)
           if (route.params && route.params.calcId && this.calcsCollection[calcId]) {
             this.activeCalcId = calcId
           }
         } else if (this.isInit) {
-          this.clearActive()
+          this.active = null
         }
       } else if (route.params && !route.params.deviceId) {
-        this.clearActive()
+        this.active = null
       }
       this.clearWidgetsState()
     }

@@ -41,6 +41,7 @@ import Vue from 'vue'
 import LogsListItem from './LogsListItem.vue'
 import LogsFilterMenu from './LogsFilterMenu.vue'
 import EmptyPane from '../EmptyPane'
+import routerProcess from '../../mixins/routerProcess'
 
 export default {
   props: [
@@ -62,7 +63,8 @@ export default {
       viewConfig: this.config.viewConfig,
       actions: this.config.actions,
       moduleName: this.config.vuexModuleName,
-      autoscroll: true
+      autoscroll: true,
+      isInit: false
     }
   },
   computed: {
@@ -210,12 +212,44 @@ export default {
     resetParams () {
       this.$refs.scrollList.resetParams()
     },
+    processQuery (params) {
+      if (!this.isInit) { return false }
+      if (params) {
+        try {
+          params = JSON.parse(params)
+          let needUpdate = false
+          if (
+            (!this.filter && !!params.filter) ||
+            (!!this.filter && !params.filter) ||
+            (this.filter && params.filter && this.filter !== params.filter)
+          ) {
+            if (this.realtimeEnabled) { this.$store.dispatch(`${this.moduleName}/unsubscribePooling`) }
+            this.filter = params.filter || null
+            needUpdate = true
+          }
+          if (this.from !== params.from * 1000 || this.to !== params.to * 1000) {
+            this.from = params.from * 1000
+            this.to = params.to * 1000
+            needUpdate = true
+          }
+          if (needUpdate) {
+            this.$store.commit(`${this.moduleName}/clearMessages`)
+            this.$store.dispatch(`${this.moduleName}/get`).then(() => this.scrollTo(0))
+          }
+        } catch (e) {}
+      }
+    },
     filterChangeHandler (val) {
       if (this.filter !== val) {
-        if (this.realtimeEnabled) { this.$store.dispatch(`${this.moduleName}/unsubscribePooling`) }
-        this.filter = val
-        this.$store.commit(`${this.moduleName}/clearMessages`)
-        this.getMessages()
+        this.updateRoute({
+          query: {
+            logs: JSON.stringify({
+              filter: val || undefined,
+              from: this.from / 1000,
+              to: this.to / 1000
+            })
+          }
+        })
       }
     },
     updateColsHandler (cols) {
@@ -225,10 +259,15 @@ export default {
       const from = range[0],
         to = range[1]
       if (this.from === from && this.to === to) { return false }
-      this.from = from
-      this.to = to
-      this.$store.commit(`${this.moduleName}/clearMessages`)
-      this.$store.dispatch(`${this.moduleName}/get`).then(() => this.scrollTo(0))
+      this.updateRoute({
+        query: {
+          logs: JSON.stringify({
+            filter: this.filter || undefined,
+            from: from / 1000,
+            to: to / 1000
+          })
+        }
+      })
     },
     paginationPrevChangeHandler () {
       this.$store.dispatch(`${this.moduleName}/getPrevPage`)
@@ -326,7 +365,7 @@ export default {
       this.hasNewMessages = null
       const now = Date.now(),
         from = new Date(now).setHours(0, 0, 0, 0),
-        to = from + 86399999
+        to = from + 86399999.999
       this.from = from
       this.to = to
       this.$store.commit(`${this.moduleName}/clearMessages`)
@@ -390,16 +429,16 @@ export default {
       this.currentLimit = this.limit
       if (this.cid) { this.$store.commit(`${this.moduleName}/setCid`, this.cid) }
       if (this.item) {
-        let from = Math.floor(this.$route.query.from * 1000),
-          to = Math.floor(this.$route.query.to * 1000),
+        let from = this.$route.query.from && this.$route.query.from * 1000,
+          to = this.$route.query.to && this.$route.query.to * 1000,
           routeConfig = this.$route.query.logs
         if (routeConfig) {
           try {
             routeConfig = JSON.parse(routeConfig)
             if (routeConfig.filter) { this.filter = routeConfig.filter }
             if (routeConfig.from && routeConfig.to) {
-              from = Math.floor(routeConfig.from * 1000)
-              to = Math.floor(routeConfig.to * 1000)
+              from = routeConfig.from * 1000
+              to = routeConfig.to * 1000
             }
           } catch (e) {}
         }
@@ -415,6 +454,16 @@ export default {
           await this.getMessages()
         }
       }
+      this.updateRoute({
+        query: {
+          logs: JSON.stringify({
+            filter: this.filter || undefined,
+            from: this.from / 1000,
+            to: this.to / 1000
+          })
+        }
+      }, true)
+      this.isInit = true
     }
   },
   watch: {
@@ -428,6 +477,9 @@ export default {
     },
     cid () {
       this.changeCid()
+    },
+    $route (route) {
+      this.processRoute({ logs: this.processQuery }, route)
     }
   },
   created () {
@@ -451,7 +503,7 @@ export default {
     this.connectHandler !== undefined && Vue.connector.socket.off('connect', this.connectHandler)
     this.$store.commit(`${this.moduleName}/clear`)
   },
-  mixins: [ItemMixin],
+  mixins: [ItemMixin, routerProcess],
   components: {
     VirtualScrollList,
     EmptyPane,

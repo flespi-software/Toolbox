@@ -1,5 +1,7 @@
 import { date } from 'quasar'
+import get from 'lodash/get'
 import JsonTree from '../JsonTree.vue'
+import ObjectView from '../ObjectView'
 /*
 <widgets
   ref="logsView"
@@ -24,6 +26,25 @@ export default {
     }
   },
   computed: {
+    fieldsLogsMetaData () {
+      const schema = get(this.$refs, 'logs.cols', undefined)
+      let result = {}
+      if (schema) {
+        const cols = Object.values(schema.enum)
+        const activeCols = get(this.$refs, 'logs.$refs.scrollList.activeCols', []).reduce((res, col) => {
+          res[col.name] = true
+          return res
+        }, {})
+        if (cols) {
+          result = cols.reduce((result, col) => {
+            result[col.name] = { ...col }
+            result[col.name].display = activeCols[col.name] || false
+            return result
+          }, {})
+        }
+      }
+      return result
+    },
     logsWidgetsViewConfig () {
       const log = this.widgetsViewedLog
       let config = {}
@@ -33,6 +54,14 @@ export default {
             title: 'log object',
             description: log['x-flespi-description'],
             wrapper: JsonTree,
+            data: log
+          },
+          object: {
+            title: 'Fields',
+            description: log['x-flespi-description'],
+            wrapper: ObjectView,
+            meta: this.fieldsLogsMetaData,
+            action: this.logsWidgetActionHandler,
             data: log
           }
         }
@@ -94,6 +123,20 @@ export default {
     },
     prevWidgetLog () {
       this.$refs.logs.prevSelect()
+    },
+    logsWidgetActionHandler ({ type, data }) {
+      const list = get(this.$refs.logs.$refs, 'scrollList', undefined)
+      if (!list) { return }
+      switch (type) {
+        case 'col-add': {
+          list.addCustomColumnHandler(data)
+          break
+        }
+        case 'col-remove': {
+          list.removeCustomColumnHandler(data)
+          break
+        }
+      }
     }
   }
 }

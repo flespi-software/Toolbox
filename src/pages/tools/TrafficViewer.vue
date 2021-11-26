@@ -122,6 +122,7 @@ export default {
       isItemsInitStart: false,
       filter: '',
       prevEntity: null,
+      prevRoute: null,
       isIntegration: this.$q.platform.within.iframe
     }
   },
@@ -204,7 +205,11 @@ export default {
       this.$refs.messages.unselect()
     },
     viewLogsHandler () {
-      this.$router.push(`/channels/${this.active}`).catch(err => err)
+      if (this.prevEntity === 'channels' && this.prevRoute && this.prevRoute.params.id === this.active) {
+        this.$router.push(this.prevRoute).catch(err => err)
+      } else {
+        this.$router.push(`/channels/${this.active}`).catch(err => err)
+      }
     },
     setActiveDevice (device) {
       this.activeDevice = device
@@ -236,7 +241,11 @@ export default {
         })
     },
     goToDevice () {
-      this.$router.push(`/devices/${this.relatedDeviceId}`).catch(err => err)
+      if (this.prevEntity === 'devices' && this.prevRoute && this.prevRoute.params.id === this.relatedDeviceId) {
+        this.$router.push(this.prevRoute).catch(err => err)
+      } else {
+        this.$router.push(`/devices/${this.relatedDeviceId}`).catch(err => err)
+      }
     },
     init () {
       const entity = 'tools/traffic'
@@ -259,6 +268,7 @@ export default {
   },
   beforeRouteEnter (to, from, next) {
     next(vm => {
+      vm.prevRoute = from
       vm.prevEntity = from.meta.moduleName
     })
   },
@@ -281,13 +291,6 @@ export default {
       const currentItem = this.items.filter(item => item.id === val)[0] || {}
       if (val) {
         this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: 'tools/traffic' }, value: currentItem.id })
-        if (this.activeDevice) {
-          this.$router.push(`/tools/traffic/${val}/ident/${this.activeDevice.ident}`).catch(err => err)
-        } else {
-          this.$router.push(`/tools/traffic/${val}`).catch(err => err)
-        }
-      } else {
-        this.$router.push('/tools/traffic').catch(err => err)
       }
     }
   },

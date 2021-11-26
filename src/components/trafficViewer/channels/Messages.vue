@@ -11,7 +11,7 @@
           class="flex flex-center"
           :date="dateRange"
           :theme="theme"
-          @save="dateRangeChangeHandler"
+          @save="dateRangeChange"
         />
       </q-toolbar>
       <div v-if="loadingFlag && itemsCount > 0" class="absolute-bottom-right absolute-top-left" style="overflow: hidden; top: 50px;">
@@ -60,6 +60,7 @@ import EmptyPane from '../../EmptyPane'
 import MessageSkeleton from '../MessageSkeleton'
 import range from 'lodash/range'
 import ExportModal from '../ExportModal'
+import routerProcess from '../../../mixins/routerProcess'
 
 export default {
   props: [
@@ -82,7 +83,8 @@ export default {
       needAutoScroll: true,
       selected: [],
       scrollerScrollTop: 0,
-      activeConnectionId: null
+      activeConnectionId: null,
+      isInit: false
     }
   },
   computed: {
@@ -174,6 +176,14 @@ export default {
           }
         })
     },
+    dateRangeChange (range) {
+      this.updateRoute({
+        query: {
+          from: range[0] / 1000,
+          to: range[1] / 1000
+        }
+      })
+    },
     clearSelected () {
       this.selected = []
     },
@@ -197,6 +207,7 @@ export default {
         this.currentScrollTop = offset
       }
       const scrollerElement = get(this.$refs, 'scroller.$el', undefined)
+      if (!scrollerElement) { return false }
       const offsetAll = scrollerElement.scrollHeight - scrollerElement.clientHeight
       const verticalDirection = this.getScrollDirection(offset)
       const scrollOffset = offsetAll * 0.1
@@ -337,6 +348,13 @@ export default {
       if (this.to > Date.now()) {
         await this.$store.dispatch(`${this.moduleName}/pollingGetMessages`)
       }
+      this.updateRoute({
+        query: {
+          from: this.from / 1000,
+          to: this.to / 1000
+        }
+      }, true)
+      this.isInit = true
     }
   },
   watch: {
@@ -345,6 +363,13 @@ export default {
     },
     limit (limit) {
       this.currentLimit = limit
+    },
+    $route (route) {
+      const from = route.query.from * 1000,
+        to = route.query.to * 1000
+      if (from && to && (this.dateRange[0] !== from || this.dateRange[1] !== to)) {
+        this.dateRangeChangeHandler([from, to])
+      }
     }
   },
   created () {
@@ -366,6 +391,7 @@ export default {
     this.to = 0
     this.from = 0
   },
+  mixins: [routerProcess],
   components: { MessagesListItem, VirtualList, EmptyPane, MessageSkeleton, DateRangeModal, ExportModal }
 }
 </script>

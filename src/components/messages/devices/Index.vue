@@ -41,20 +41,21 @@ import EmptyPane from '../../EmptyPane'
 import MessagesListItem from './MessagesListItem.vue'
 import get from 'lodash/get'
 import actions from '../../../mixins/actions'
+import routerProcess from '../../../mixins/routerProcess'
 
 export default {
   props: [
     'item',
     'activeId',
     'limit',
-    'config',
-    'needRestoreSettings'
+    'config'
   ],
   data () {
     return {
       listItem: MessagesListItem,
       moduleName: this.config.vuexModuleName,
       autoscroll: true,
+      isInit: false,
       i18n: {
         'Columns by schema': 'Columns by protocol'
       }
@@ -249,12 +250,44 @@ export default {
     resetParams () {
       this.$refs.scrollList.resetParams()
     },
+    processQuery (params) {
+      if (!this.isInit) { return false }
+      if (params) {
+        try {
+          params = JSON.parse(params)
+          let needUpdate = false
+          if (
+            (!this.filter && !!params.filter) ||
+            (!!this.filter && !params.filter) ||
+            (this.filter && params.filter && this.filter !== params.filter)
+          ) {
+            if (this.realtimeEnabled) { this.$store.dispatch(`${this.moduleName}/unsubscribePooling`) }
+            this.filter = params.filter || null
+            needUpdate = true
+          }
+          if (this.from !== params.from * 1000 || this.to !== params.to * 1000) {
+            this.from = params.from * 1000
+            this.to = params.to * 1000
+            needUpdate = true
+          }
+          if (needUpdate) {
+            this.$store.commit(`${this.moduleName}/clearMessages`)
+            this.$store.dispatch(`${this.moduleName}/get`)
+          }
+        } catch (e) {}
+      }
+    },
     filterChangeHandler (val) {
       if (this.filter !== val) {
-        if (this.realtimeEnabled) { this.$store.dispatch(`${this.moduleName}/unsubscribePooling`) }
-        this.filter = val
-        this.$store.commit(`${this.moduleName}/clearMessages`)
-        this.getMessages()
+        this.updateRoute({
+          query: {
+            messages: JSON.stringify({
+              filter: val || undefined,
+              from: this.from / 1000,
+              to: this.to / 1000
+            })
+          }
+        })
       }
     },
     updateColsHandler (cols) {
@@ -264,10 +297,15 @@ export default {
       const from = range[0],
         to = range[1]
       if (this.from === from && this.to === to) { return false }
-      this.from = from
-      this.to = to
-      this.$store.commit(`${this.moduleName}/clearMessages`)
-      this.$store.dispatch(`${this.moduleName}/get`).then(() => this.scrollTo(0))
+      this.updateRoute({
+        query: {
+          messages: JSON.stringify({
+            filter: this.filter || undefined,
+            from: from / 1000,
+            to: to / 1000
+          })
+        }
+      })
     },
     paginationPrevChangeHandler () {
       this.$store.dispatch(`${this.moduleName}/getPrevPage`)
@@ -339,7 +377,7 @@ export default {
       this.hasNewMessages = null
       const now = Date.now(),
         from = new Date(now).setHours(0, 0, 0, 0),
-        to = from + 86399999
+        to = from + 86399999.999
       this.from = from
       this.to = to
       this.$store.commit(`${this.moduleName}/clearMessages`)
@@ -404,25 +442,17 @@ export default {
         this.$store.commit(`${this.moduleName}/clear`)
       }
       this.currentLimit = this.limit
-      let filter = get(this.$store.state.sessionSettings, 'savedFilter', '')
-      if (filter) {
-        if (this.needRestoreSettings) {
-          filter = get(filter, `devices.${this.activeId}`, '')
-          this.filter = filter
-        }
-        this.$store.commit('setToolboxSessionSettings', { savedFilter: undefined })
-      }
       if (this.activeId) {
-        const from = Math.floor(this.$route.query.from * 1000),
-          to = Math.floor(this.$route.query.to * 1000),
+        let from = this.$route.query.from && this.$route.query.from * 1000,
+          to = this.$route.query.to && this.$route.query.to * 1000,
           routeConfig = this.$route.query.messages
         if (routeConfig) {
           try {
             routeConfig = JSON.parse(routeConfig)
             if (routeConfig.filter) { this.filter = routeConfig.filter }
             if (routeConfig.from && routeConfig.to) {
-              from = Math.floor(routeConfig.from * 1000)
-              to = Math.floor(routeConfig.to * 1000)
+              from = routeConfig.from * 1000
+              to = routeConfig.to * 1000
             }
           } catch (e) {}
         }
@@ -437,6 +467,16 @@ export default {
           await this.getMessages()
         }
       }
+      this.updateRoute({
+        query: {
+          messages: JSON.stringify({
+            filter: this.filter || undefined,
+            from: this.from / 1000,
+            to: this.to / 1000
+          })
+        }
+      }, true)
+      this.isInit = true
     }
   },
   watch: {
@@ -445,6 +485,9 @@ export default {
     },
     limit (limit) {
       this.currentLimit = limit
+    },
+    $route (route) {
+      this.processRoute({ messages: this.processQuery }, route)
     }
   },
   created () {
@@ -468,7 +511,7 @@ export default {
     this.connectHandler !== undefined && Vue.connector.socket.off('connect', this.connectHandler)
     this.$store.commit(`${this.moduleName}/clear`)
   },
-  mixins: [actions],
+  mixins: [actions, routerProcess],
   components: { VirtualScrollList, EmptyPane }
 }
 </script>

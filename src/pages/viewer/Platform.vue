@@ -54,7 +54,7 @@
           <template v-slot:option="scope">
             <q-item
               v-bind="scope.itemProps"
-              @click="active = scope.opt.id"
+              @click="updateActive(scope.opt.id)"
               v-on="scope.itemEvents"
               :class="{'text-grey-8': scope.opt.deleted}"
               class="q-pa-xs"
@@ -114,6 +114,7 @@ import Widgets from '../../components/widgets/Widgets'
 import { mapState } from 'vuex'
 import EntitiesToolbar from '../../components/EntitiesToolbar'
 import init from '../../mixins/entitiesInit'
+import routerProcess from '../../mixins/routerProcess'
 import get from 'lodash/get'
 
 export default {
@@ -125,7 +126,7 @@ export default {
     'config',
     'settings'
   ],
-  mixins: [init, MainWidgetsMixin, LogsWidgetsMixin],
+  mixins: [init, MainWidgetsMixin, LogsWidgetsMixin, routerProcess],
   data () {
     return {
       entityName: 'platform',
@@ -229,23 +230,30 @@ export default {
         .onCancel(() => {})
     },
     clearActive () {
-      this.active = null
+      this.updateActive(null)
+    },
+    updateActive (id) {
+      this.updateRoute({name: this.entityName, params: { id }}, !this.active)
     },
     init () {
       const entity = 'platform',
         activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined),
         idFromRoute = this.$route.params && this.$route.params.id ? Number(this.$route.params.id) : null
       this.isInit = true
-      if (idFromRoute) {
-        if (this.itemsCollection[idFromRoute]) {
-          this.active = idFromRoute
-        } else {
-          this.active = this.myAccount.id
-        }
+      let id = null
+      if (idFromRoute && this.itemsCollection[idFromRoute]) {
+        id = idFromRoute
       } else if (activeFromLocaleStorage && this.itemsCollection[activeFromLocaleStorage]) {
-        this.active = activeFromLocaleStorage
-      } else {
-        this.active = this.myAccount.id
+        id = activeFromLocaleStorage
+      } else if (
+        (idFromRoute && !this.itemsCollection[idFromRoute]) ||
+        (activeFromLocaleStorage && !this.itemsCollection[activeFromLocaleStorage])
+      ) {
+        this.clearActive()
+      }
+      if (id) {
+        this.active = id
+        this.updateRoute({ name: this.entityName, params: { id } }, true)
       }
       this.$emit('inited')
     },
@@ -280,9 +288,6 @@ export default {
       const currentItem = this.itemsCollection[val] || {}
       if (val) {
         this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: 'platform' }, value: currentItem.id })
-        this.$router.push(`/platform/${val}`).catch(err => err)
-      } else {
-        this.$router.push('/platform').catch(err => err)
       }
     }
   },

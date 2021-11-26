@@ -36,6 +36,7 @@ import actions from '../../mixins/actions'
 import { copyToClipboard } from 'quasar'
 import EmptyPane from '../EmptyPane'
 import MessagesListItem from './DevicesMessagesListItem.vue'
+import routerProcess from '../../mixins/routerProcess'
 
 export default {
   props: [
@@ -54,6 +55,7 @@ export default {
       actions: this.config.actions,
       autoscroll: true,
       moduleName: this.config.vuexModuleName,
+      isInit: false,
       i18n: {
         'Columns by schema': 'Columns by protocol'
       }
@@ -241,12 +243,35 @@ export default {
     resetParams () {
       this.$refs.scrollList.resetParams()
     },
+    processQuery (params) {
+      if (!this.isInit) { return false }
+      try {
+        params = params ? JSON.parse(params) : {}
+        let needUpdate = false
+        if (
+          (!this.filter && !!params.filter) ||
+          (!!this.filter && !params.filter) ||
+          (this.filter && params.filter && this.filter !== params.filter)
+        ) {
+          if (this.realtimeEnabled) { this.$store.dispatch(`${this.moduleName}/unsubscribePooling`) }
+          this.filter = params.filter || null
+          needUpdate = true
+        }
+        if (needUpdate) {
+          this.$store.commit(`${this.moduleName}/clearMessages`)
+          this.getMessages()
+        }
+      } catch (e) {}
+    },
     filterChangeHandler (val) {
       if (this.filter !== val) {
-        if (this.realtimeEnabled) { this.$store.dispatch(`${this.moduleName}/unsubscribePooling`) }
-        this.filter = val
-        this.$store.commit(`${this.moduleName}/clearMessages`)
-        this.getMessages()
+        this.updateRoute({
+          query: {
+            messages: val ? JSON.stringify({
+            filter: val
+          }) : undefined
+          }
+        })
       }
     },
     updateColsHandler (cols) {
@@ -421,6 +446,14 @@ export default {
           if (routeConfig.filter) { this.filter = routeConfig.filter }
         } catch (e) {}
       }
+      this.updateRoute({
+        query: {
+          messages: this.filter ? JSON.stringify({
+            filter: this.filter
+          }) : undefined
+        }
+      }, true)
+      this.isInit = true
     }
   },
   watch: {
@@ -435,6 +468,11 @@ export default {
     },
     interval () {
       this.showMessagesByInterval()
+    },
+    $route (route) {
+      this.processRoute({
+        messages: this.processQuery,
+      }, route)
     }
   },
   created () {
@@ -458,7 +496,7 @@ export default {
     this.connectHandler !== undefined && Vue.connector.socket.off('connect', this.connectHandler)
     this.$store.commit(`${this.moduleName}/clear`)
   },
-  mixins: [actions],
+  mixins: [actions, routerProcess],
   components: { VirtualScrollList, EmptyPane }
 }
 </script>

@@ -2,7 +2,7 @@
   <q-page>
     <q-resize-observer @resize="onResizePage" />
     <entities-toolbar
-      :item="selectedItem" :ratio="ratio" :actions="actions" @change-ratio="changeRatioHandler"
+      :item="selectedItem" :ratio="ratio" :actions="actions" @change-ratio="updateRatio"
     >
       <div class="flex" :class="{'middle-modificator': !active}" slot="selects">
         <q-select
@@ -58,7 +58,7 @@
           <template v-slot:option="scope" v-if="filteredItems.length">
             <q-item
               v-bind="scope.itemProps"
-              @click="active = scope.opt.id"
+              @click="updateActive(scope.opt.id)"
               v-on="scope.itemEvents"
               :class="{'text-grey-8': scope.opt.deleted}"
               class="q-pa-xs"
@@ -114,7 +114,6 @@
         @action-select="data => messageWidgetsActions('select', data)"
         :item="selectedItem"
         :activeId="active"
-        :needRestoreSettings="needRestoreSettings"
         :isEnabled="!!+size[1]"
         :limit="limit"
         :config="messagesConfig"
@@ -168,7 +167,19 @@ import { mapState, mapActions } from 'vuex'
 import EntitiesToolbar from '../../components/EntitiesToolbar'
 import get from 'lodash/get'
 import init from '../../mixins/entitiesInit'
+import routerProcess from '../../mixins/routerProcess'
 import cloneDeep from 'lodash/cloneDeep'
+
+const ratioNames = {
+  100: 'logs',
+  50: 'both',
+  0: 'messages'
+}
+const ratioValues = {
+  logs: 100,
+  both: 50,
+  messages: 0
+}
 
 export default {
   props: [
@@ -179,7 +190,7 @@ export default {
     'config',
     'settings'
   ],
-  mixins: [init, MainWidgetsMixin, LogsWidgetsMixin, MessageWidgetsMixin],
+  mixins: [init, MainWidgetsMixin, LogsWidgetsMixin, MessageWidgetsMixin, routerProcess],
   data () {
     return {
       entityName: 'channels',
@@ -188,19 +199,16 @@ export default {
       isInit: false,
       isItemsInit: false,
       isItemsInitStart: false,
-      needShowGetDeletedAction: true,
-      needRestoreSettings: false
+      needShowGetDeletedAction: true
     }
   },
   computed: {
     ...mapState({
-      isEmptyMessages (state) {
-        return this.config.messages && state[this.config.messages.vuexModuleName] && !state[this.config.messages.vuexModuleName].messages.length && this.ratio !== 100
+      hasMessages (state) {
+        return this.config.messages && !!state[this.config.messages.vuexModuleName] && !!state[this.config.messages.vuexModuleName].messages.length && this.ratio !== 100
       },
-      isEmptyData (state) {
-        const hasntMessages = this.isEmptyMessages,
-          hasntLogs = this.config.logs && state[this.config.logs.vuexModuleName] && state[this.config.logs.vuexModuleName].messages && !state[this.config.logs.vuexModuleName].messages.length && this.ratio !== 0
-        return hasntMessages && hasntLogs
+      hasLogs (state) {
+        return this.config.logs && !!state[this.config.logs.vuexModuleName] && state[this.config.logs.vuexModuleName].messages && !!state[this.config.logs.vuexModuleName].messages.length && this.ratio !== 0
       },
       tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
       protocols (state) { return state.channelsProtocols },
@@ -229,11 +237,14 @@ export default {
       }
     }),
     logsConfig () {
-      const config = this.config.logs
+      const config = cloneDeep(this.config.logs)
       if (this.isTrafficViewerSupported) {
-        config.itemSettings.needTrafficRoute = true
-      } else {
-        config.itemSettings.needTrafficRoute = false
+        config.actions.push({
+          icon: 'mdi-download-network-outline',
+          label: 'View traffic',
+          classes: '',
+          type: 'traffic'
+        })
       }
       return config
     },
@@ -317,7 +328,7 @@ export default {
           label: 'Clear',
           icon: 'mdi-playlist-remove',
           handler: this.clearHandler,
-          condition: !this.isEmptyData
+          condition: this.hasMessages || this.hasLogs
         }
       ]
     },
@@ -344,11 +355,9 @@ export default {
     ...mapActions(['getDeleted']),
     hexViewHandler () {
       this.$router.push(`/tools/hex/${this.active}`).catch(err => err)
-      this.saveSessionMessageFilter()
     },
     trafficViewHandler () {
       this.$router.push(`/tools/traffic/${this.active}`).catch(err => err)
-      this.saveSessionMessageFilter()
     },
     toHexHandler ({ content }) {
       const ident = content.ident,
@@ -365,7 +374,6 @@ export default {
           }
         }).catch(err => err)
       }
-      this.saveSessionMessageFilter()
     },
     toTrafficHandler ({ content }) {
       const ident = this.protocolFeatures.shared_connection || !content.ident ? 'unidentified' : content.ident,
@@ -374,13 +382,6 @@ export default {
         timeStart = timeEnd - 10
       if (ident) {
         this.$router.push({ path: `/tools/traffic/${this.active}/ident/${ident}`, query: { from: timeStart, to: timeEnd, highlight: timestamp } }).catch(err => err)
-      }
-      this.saveSessionMessageFilter()
-    },
-    saveSessionMessageFilter () {
-      const filter = get(this.$store.state, `${this.config.messages.vuexModuleName}.filter`, '')
-      if (filter) {
-        this.$store.commit('setToolboxSessionSettings', { savedFilter: { [this.entityName]: { [this.active]: filter } } })
       }
     },
     clearHandler () {
@@ -411,7 +412,10 @@ export default {
       this.selectReset()
     },
     clearActive () {
-      this.active = null
+      this.updateActive(null)
+    },
+    updateActive (id) {
+      this.updateRoute({name: this.entityName, params: { id }}, !this.active)
     },
     deletedHandler () {
       this.changeRatioHandler(100)
@@ -421,28 +425,30 @@ export default {
         activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined),
         idFromRoute = this.$route.params && this.$route.params.id ? Number(this.$route.params.id) : null
       const viewMode = this.$route.query.view_mode
+      let ratio = 50
       if (viewMode) {
-        let ratio = 50
-        if (viewMode === 'messages') {
-          ratio = 0
-        } else if (viewMode === 'logs') {
-          ratio = 100
-        }
+        ratio = ratioValues[viewMode]
         this.$emit('update:settings', { type: 'ENTITY_VIEW_SETTINGS_CHANGE', opt: { entity: this.entityName }, value: { ratio } })
       }
       this.isInit = true
-      if (idFromRoute) {
-        if (this.itemsCollection[idFromRoute]) {
-          this.active = idFromRoute
-        } else {
-          this.active = null
-        }
+      let id = null
+      if (idFromRoute && this.itemsCollection[idFromRoute]) {
+        id = idFromRoute
       } else if (activeFromLocaleStorage && this.itemsCollection[activeFromLocaleStorage]) {
-        this.active = activeFromLocaleStorage
+        id = activeFromLocaleStorage
+      } else if (
+        (idFromRoute && !this.itemsCollection[idFromRoute]) ||
+        (activeFromLocaleStorage && !this.itemsCollection[activeFromLocaleStorage])
+      ) {
+        this.clearActive()
       }
       // deleted item logic
       if (this.selectedItem && this.selectedItem.deleted) {
         this.deletedHandler()
+      }
+      if (id) {
+        this.active = id
+        this.updateRoute({ name: this.entityName, params: { id }, query: { view_mode: ratioNames[ratio] } }, true)
       }
       this.$emit('inited')
     },
@@ -474,6 +480,11 @@ export default {
       this.$refs.messagesView.resize(size)
       this.$refs.logsView.resize(size)
     },
+    updateRatio (r) {
+      this.updateRoute({
+        query: { view_mode: ratioNames[r] }
+      })
+    },
     changeRatioHandler (r) {
       this.ratioWidgetsModify(r)
       this.$emit('update:settings', { type: 'ENTITY_VIEW_SETTINGS_CHANGE', opt: { entity: this.entityName }, value: { ratio: r } })
@@ -487,13 +498,6 @@ export default {
       })
     }
   },
-  beforeRouteEnter (to, from, next) {
-    next(vm => {
-      if (from.meta.moduleName === 'trafficViewer' || from.meta.moduleName === 'hexViewer') {
-        vm.needRestoreSettings = true
-      }
-    })
-  },
   watch: {
     $route (route) {
       if (route.params && route.params.id) {
@@ -506,15 +510,13 @@ export default {
       } else if (route.params && !route.params.id) {
         this.active = null
       }
+      this.processRoute({ view_mode: (name) => this.changeRatioHandler(ratioValues[name]) }, route)
       this.clearWidgetsState()
     },
     active (val) {
       const currentItem = this.itemsCollection[val] || {}
       if (val) {
         this.$emit('update:settings', { type: 'ENTITY_CHANGE', opt: { entity: this.entityName }, value: currentItem.id })
-        this.$router.push(`/channels/${val}`).catch(err => err)
-      } else {
-        this.$router.push('/channels').catch(err => err)
       }
       if (currentItem.deleted) {
         this.deletedHandler()
