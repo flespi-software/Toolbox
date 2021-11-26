@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.12.1] - 2020-11-26
+[fix] integrated router logic
 ### [1.12.0] - 2020-11-25
 [feature] main params migrated to router
 [feature] fields widgets view to logs

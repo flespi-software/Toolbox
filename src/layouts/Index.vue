@@ -66,6 +66,7 @@ import dist from '../../package.json'
 import LeftMenu from '../components/Menu'
 import Dash from '../components/Dash'
 import Settings from '../components/Settings.vue'
+import cloneDeep from 'lodash/cloneDeep'
 
 export default {
   data () {
@@ -265,7 +266,7 @@ export default {
         }
         Vue.connector.socket.off('connect', routeProcessIndex)
       })
-      if (route.query.token) {
+      if (route.query.token && !this.token) {
         this.initConnection({ token: route.query.token })
       } else if (!this.token) { // if not logged in
         Vue.connector.socket.off('connect', routeProcessIndex)
