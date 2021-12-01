@@ -57,6 +57,7 @@ export default {
         case 320:
         case 334:
         case 404:
+        case 405:
         case 422:
         case 432:
         case 503:

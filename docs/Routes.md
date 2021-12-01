@@ -43,3 +43,14 @@
 /#/tools/traffic/<b>ID</b>/ident/<b>IDENT</b>?from=<b>UTC_TIMESTAMP</b>&to=<b>UTC_TIMESTAMP</b>
 ### DeviceTraffic
 /#/tools/device-traffic/<b>ID</b>?from=<b>UTC_TIMESTAMP</b>&to=<b>UTC_TIMESTAMP</b>
+
+Also we have system route query params:
+| Param | Description | Example |
+|---|---|---|
+|token|Flespi token| FlespiToken XXXXXXXXXXXXXXXXXX |
+|noselect| Hide pick ability on entities select | all; devices,channels |
+|fullscreen| Hide top toolbar | true |
+|mode| Toolbox mode | integration |
+|group| Activate only some group | platform;hub;mqtt;storage |
+Example:
+/#/?token=XXXXXXXXXXXXXX&noselect=devices&fullscreen=1&group=hub

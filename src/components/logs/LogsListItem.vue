@@ -128,6 +128,7 @@ export default {
         case 402:
         case 403:
         case 404:
+        case 405:
         case 410:
         case 411:
         case 412:
