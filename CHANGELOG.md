@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.12.3] - 2020-12-02
+[feature] field widget sorted names
 ### [1.12.2] - 2020-12-01
 [feature] new log code
 ### [1.12.1] - 2020-11-26

@@ -41,6 +41,7 @@
 </template>
 
 <script>
+const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'})
 export default {
   props: ['data', 'meta'],
   data () {
@@ -50,7 +51,7 @@ export default {
   },
   computed: {
     filteredObject () {
-      return Object.keys(this.data).reduce((acc, key) => {
+      return Object.keys(this.data).sort(collator.compare).reduce((acc, key) => {
         if (key.indexOf(this.search) !== -1) {
           acc[key] = this.data[key]
         }
