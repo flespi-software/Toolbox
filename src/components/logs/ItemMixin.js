@@ -40,6 +40,7 @@ export default {
         case 331:
         case 332:
         case 333:
+        case 406:
         case 411:
         case 412:
         case 502:
