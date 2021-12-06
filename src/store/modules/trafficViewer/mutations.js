@@ -5,10 +5,14 @@ function clearDevices (state) { state.devices = [] }
 function setDevices (state, devices) { state.devices = devices }
 function setMessages (state, messages) { state.messages = messages }
 function setMessagesAppend (state, messages) {
-  state.messages.splice(state.messages.length, 0, ...messages)
+  if (messages.length) {
+    state.messages.splice(state.messages.length, 0, ...messages)
+  }
 }
 function setMessagesPrepend (state, messages) {
-  state.messages.splice(0, 0, ...messages)
+  if (messages.length) {
+    state.messages.splice(0, 0, ...messages)
+  }
 }
 function setTo (state, to) { state.to = to }
 function setFrom (state, from) { state.from = from }

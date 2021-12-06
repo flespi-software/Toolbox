@@ -32,11 +32,10 @@
             :itemHeight="itemHeight"
             :selected="selected.includes(index)"
             :view="view"
-            :highlight="highligtedConnection[index]"
             @action="actionHandler"
             @item-click="messageClickHandler"
-            @mouseenter.native="activeConnectionId = item.conn"
-            @mouseleave.native="activeConnectionId = null"
+            @mouseenter.native="highlightConn(item.conn)"
+            @mouseleave.native="highlightConn(null)"
           />
         </VirtualList>
       </template>
@@ -49,6 +48,7 @@
 <script>
 import VirtualList from 'vue-virtual-scroll-list'
 import get from 'lodash/get'
+import throttle from 'lodash/throttle'
 import { DateRangeModal } from 'qvirtualscroll'
 import { copyToClipboard } from 'quasar'
 import MessagesListItem from '../MessagesListItem.vue'
@@ -57,6 +57,7 @@ import MessageSkeleton from '../MessageSkeleton'
 import range from 'lodash/range'
 import ExportModal from '../ExportModal'
 import routerProcess from '../../../mixins/routerProcess'
+import highlightMixin from '../highlightConnMixin'
 
 export default {
   props: [
@@ -77,7 +78,6 @@ export default {
       needAutoScroll: true,
       selected: [],
       scrollerScrollTop: 0,
-      activeConnectionId: null,
       isInit: false
     }
   },
@@ -142,16 +142,6 @@ export default {
     loadingFlag () {
       const state = this.$store.state
       return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
-    },
-    highligtedConnection () {
-      let indexes = {}
-      if (this.activeConnectionId) {
-        indexes = this.messages.reduce((res, message, index) => {
-          if (message.conn === this.activeConnectionId) { res[index] = true }
-          return res
-        }, {})
-      }
-      return indexes
     }
   },
   methods: {
@@ -232,9 +222,9 @@ export default {
         this.currentScrollTop = offset
       }
       if (verticalDirection && (verticalDirection === 'top' || verticalDirection === 'none') && offset < scrollOffset) {
-        this.getMessagesPrev()
+        this.debouncedGetMessagesPrev()
       } else if (verticalDirection && (verticalDirection === 'bottom' || verticalDirection === 'none') && offset + scrollOffset >= offsetAll) {
-        this.getMessagesNext()
+        this.debouncedGetMessagesNext()
       }
     },
     getMessagesPrev () {
@@ -378,6 +368,8 @@ export default {
     }
   },
   created () {
+    this.debouncedGetMessagesPrev = throttle(this.getMessagesPrev, 2000, { trailing: false })
+    this.debouncedGetMessagesNext = throttle(this.getMessagesNext, 2000, { trailing: false })
     this.init()
   },
   mounted () {
@@ -391,12 +383,13 @@ export default {
     }
   },
   destroyed () {
+    this.highlightConn(null)
     this.$store.dispatch(`${this.moduleName}/removePollingGetMessages`)
     this.$store.commit(`${this.moduleName}/clearMessages`)
     this.to = 0
     this.from = 0
   },
-  mixins: [routerProcess],
+  mixins: [routerProcess, highlightMixin],
   components: { MessagesListItem, VirtualList, EmptyPane, MessageSkeleton, DateRangeModal, ExportModal }
 }
 </script>

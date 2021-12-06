@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.12.5] - 2020-12-06
+[rebase] traffic-viewer optimizations
 ### [1.12.4] - 2020-12-06
 [add] log code
 ### [1.12.3] - 2020-12-02
