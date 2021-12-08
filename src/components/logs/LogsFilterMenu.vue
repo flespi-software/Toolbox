@@ -46,7 +46,10 @@ const baseEvents = events.codesByEntities.base,
     13: 'device is blocked',
     14: 'authentication failed',
     15: 'device associated with the connection was created, changed or deleted',
-    16: 'channel rejected connection due to IP addresses whitelist mismatch'
+    16: 'channel rejected connection due to IP addresses whitelist mismatch',
+    17: 'connection is closed by inactivity timeout',
+    18: 'unsupported protocol part',
+    19: 'protocol mismatch'
   }
 
 export default {

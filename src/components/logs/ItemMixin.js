@@ -97,13 +97,16 @@ export default {
             case 2:
             case 12:
             case 15:
-            case 16: { return 'grey-6' }
+            case 16:
+            case 17:
+            case 19: { return 'grey-6' }
             case 4:
             case 5:
             case 6:
             case 11:
             case 13:
-            case 14: { return 'red' }
+            case 14:
+            case 18: { return 'red' }
             case 7:
             case 8:
             case 9:

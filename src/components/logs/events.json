@@ -94,6 +94,8 @@
     "15": "device associated with the connection was created, changed or deleted",
     "16": "channel rejected connection due to IP addresses whitelist mismatch",
     "17": "connection is closed by inactivity timeout",
+    "18": "unsupported protocol part",
+    "19": "protocol mismatch",
     "128": "Unspecified error",
     "129": "Malformed Packet",
     "130": "Protocol Error",
