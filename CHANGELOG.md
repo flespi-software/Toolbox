@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.12.7] - 2020-12-08
+[fix] error report link generating
 ### [1.12.6] - 2020-12-08
 [add] new close codes
 ### [1.12.5] - 2020-12-06

@@ -305,7 +305,7 @@ export default {
           const timestamp = Math.floor(content.timestamp)
           let from = timestamp - 10
           let to = timestamp + 2
-          let url = `${window.location.href}`
+          let url = `${window.location.href.split('?')[0]}`
           if (this.entityName === 'devices') {
             from = timestamp - 120
             to = timestamp + 2
