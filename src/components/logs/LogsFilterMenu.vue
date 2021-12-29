@@ -67,12 +67,14 @@ export default {
   },
   methods: {
     add (name, code) {
-      const filter = this.filter ? `(${this.filter})||${name}==${code}` : `${name}==${code}`
+      // const filter = this.filter ? `(${this.filter})||${name}==${code}` : `${name}==${code}`
+      const filter = `${name}==${code}`
       this.$emit('update', filter)
     },
     addComplex (mainName, mainCode, extName, extCode) {
       const event = `${mainName}==${mainCode}&&${extName}==${extCode}`
-      const filter = this.filter ? `(${this.filter})||(${event})` : event
+      // const filter = this.filter ? `(${this.filter})||(${event})` : event
+      const filter = event
       this.$emit('update', filter)
     }
   }

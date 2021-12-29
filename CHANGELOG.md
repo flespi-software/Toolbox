@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.12.8] - 2020-12-29
+[rebase] logs filter helper replace value
+[fix] login open url
+[update] packages
 ### [1.12.7] - 2020-12-08
 [fix] error report link generating
 ### [1.12.6] - 2020-12-08

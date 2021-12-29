@@ -112,8 +112,7 @@ export default {
         this.logIn(sessionStorageRegion)
       }
     },
-    openWindow (url, title) {
-      title = title || 'auth'
+    openWindow (url, title = 'auth') {
       const w = 500, h = 600
       const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : screen.left
       const dualScreenTop = window.screenTop !== undefined ? window.screenTop : screen.top
