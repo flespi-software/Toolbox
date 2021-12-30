@@ -31,16 +31,16 @@ export default {
       const schema = get(this.$refs, `${this.intervalsWidgetsRefName}.cols`, undefined)
       const cols = Object.values(schema.enum)
       const activeCols = get(this.$refs, `${this.intervalsWidgetsRefName}.$refs.scrollList.activeCols`, []).reduce((res, col) => {
-        res[col.name] = true
+        res[col.name] = { ...col, display: true }
         return res
       }, {})
       let result = {}
       if (cols) {
         result = cols.reduce((result, col) => {
-          result[col.name] = { ...col }
-          result[col.name].display = activeCols[col.name] || false
+          result[col.name] = { ...col, display: !!activeCols[col.name] }
           return result
         }, {})
+        result = { ...activeCols, ...result }
       }
       return result
     },

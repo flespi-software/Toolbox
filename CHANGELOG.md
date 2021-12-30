@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.12.9] - 2020-12-30
+[fix] scroll table header
+[fix] editing cols from side panel
 ### [1.12.8] - 2020-12-29
 [rebase] logs filter helper replace value
 [fix] login open url
