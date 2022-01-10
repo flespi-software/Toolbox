@@ -43,6 +43,8 @@
     "332": "device command processed",
     "333": "device command expired",
     "334": "device command sent",
+    "350": "plugin processing status",
+    "351": "plugin processing error",
     "401": "stream connected successfully",
     "402": "stream has lost connection",
     "403": "stream failed to deliver messages",

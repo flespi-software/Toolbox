@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.12.10] - 2021-01-10
+[add] logs codes
 ### [1.12.9] - 2020-12-30
 [fix] scroll table header
 [fix] editing cols from side panel
