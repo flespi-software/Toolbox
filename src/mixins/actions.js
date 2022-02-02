@@ -32,11 +32,12 @@ export default {
       )
         .onOk((data) => {
           const moduleState = this.$store.state[this.moduleName]
+          const colsSchema = moduleState.cols
+          const cols = colsSchema.schemas[colsSchema.activeSchema].cols.filter(col => !col.__dest).map(col => col.name)
           this.isFileCsvLoading = true
+          params.fields = cols.join(',')
           this.$store.dispatch(`${this.moduleName}/getMessages`, params)
             .then(messages => {
-              const colsSchema = moduleState.cols
-              const cols = colsSchema.schemas[colsSchema.activeSchema].cols.filter(col => !col.__dest).map(col => col.name)
               if (data.includes('needFormat')) {
                 messages.forEach(message => {
                   Object.keys(message).forEach(name => {
