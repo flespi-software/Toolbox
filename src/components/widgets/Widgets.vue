@@ -19,13 +19,13 @@
       <q-tab-panel v-for="(item, key) in config" :name="key" :key="`tab-pane-${key}`" v-show="tabModel === key">
         <div v-if="item.description">
           <div style="font-size: 1rem; width: calc(100% - 35px)" class="text-center text-bold q-mb-sm text-white" :class="[item.data['x-flespi-color']]" v-html="item.description"></div>
-          <q-btn class="absolute" style="top: 5px; right: 5px;" color="grey-1" flat dense icon="mdi-content-copy" @click="copyMessageHandler({content: getData(item.data)})">
+          <q-btn class="absolute" style="top: 5px; right: 5px;" color="grey-1" flat dense icon="mdi-content-copy" @click="copyMessageHandler({content: item.data})">
             <q-tooltip>Copy data</q-tooltip>
           </q-btn>
         </div>
-        <component v-if="item.wrapper && typeof item.wrapper === 'object'" :is="item.wrapper" :ref="key" :data="item.data && getData(item.data)" :meta="item.meta" @action="data => { item.action && item.action(data) }" :inverted="inverted"/>
-        <component v-else-if="item.wrapper && typeof item.wrapper === 'string'" :is="item.wrapper" :ref="key" :class="{'text-white': inverted !== undefined}">{{getData(item.data)}}</component>
-        <div v-else :class="{'text-white': inverted !== undefined}" :ref="key">{{getData(item.data)}}</div>
+        <component v-if="item.wrapper && typeof item.wrapper === 'object'" :is="item.wrapper" :ref="key" :data="item.data" :meta="item.meta" @action="data => { item.action && item.action(data) }" :inverted="inverted"/>
+        <component v-else-if="item.wrapper && typeof item.wrapper === 'string'" :is="item.wrapper" :ref="key" :class="{'text-white': inverted !== undefined}">{{item.data}}</component>
+        <div v-else :class="{'text-white': inverted !== undefined}" :ref="key">{{item.data}}</div>
       </q-tab-panel>
     </div>
     <div class="widget-window__actions">
@@ -56,17 +56,6 @@ export default {
     }
   },
   methods: {
-    getData (data) {
-      if (typeof data === 'string') {
-        return data
-      } else {
-        return Object.keys(data).reduce((result, key) => {
-          if (key === 'x-flespi-description' || key === 'x-flespi-color') { return result }
-          result[key] = data[key]
-          return result
-        }, {})
-      }
-    },
     ref (name) { return get(this.$refs[name], 0, undefined) },
     show () { this.visible = true },
     hide () { this.visible = false },

@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.12.12] - 2021-02-03
+[fix] csv optimize request for channels
 ### [1.12.11] - 2021-02-02
 [fix] csv optimize request
 ### [1.12.10] - 2021-01-10

@@ -1,5 +1,5 @@
 <template>
-  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}" @click="itemClickHandler(index, clearItem)">
+  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}" @click="itemClickHandler(index, item)">
     <div
       class="cursor-pointer"
       :class="[item['x-flespi-status'] ? 'missed-items' : '', highlighted ? 'bg-purple-9' : '', selected ? 'bg-white-opasity' : highlightLevel ? `text-${highlightType}-${highlightLevel}` : '']"
@@ -82,7 +82,6 @@ export default {
       }
       Object.keys(this.item).forEach((propName) => {
         if (!vals[propName]) {
-          if (propName.indexOf('x-flespi') !== -1) { return false }
           if (propName.indexOf('image.bin.') !== -1) {
             vals.etc.value += `${propName}: <binary image>`
           } else {
@@ -91,15 +90,6 @@ export default {
         }
       })
       return vals
-    },
-    clearItem () {
-      return Object.keys(this.item).reduce((result, key) => {
-        if (key.indexOf('x-flespi') !== -1) {
-          return result
-        }
-        result[key] = this.item[key]
-        return result
-      }, {})
     }
   },
   methods: {

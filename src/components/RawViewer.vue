@@ -14,9 +14,9 @@
             <q-tab-panel v-for="(item, key) in config" :name="key" :key="`tab-pane-${key}`">
               <template v-if="item.data">
                 <div style="font-size: 1.1rem" class="text-center q-mb-sm text-white" :class="[item.data['x-flespi-color']]" v-if="item.description">{{item.description}}</div>
-                <component v-if="item.wrapper && typeof item.wrapper === 'object'" :is="item.wrapper" :data="getData(item.data)" :inverted="inverted"/>
-                <component v-else-if="item.wrapper && typeof item.wrapper === 'string'" :is="item.wrapper" :class="{'text-white': inverted !== undefined}">{{getData(item.data)}}</component>
-                <div v-else :class="{'text-white': inverted !== undefined}">{{getData(item.data)}}</div>
+                <component v-if="item.wrapper && typeof item.wrapper === 'object'" :is="item.wrapper" :data="item.data" :inverted="inverted"/>
+                <component v-else-if="item.wrapper && typeof item.wrapper === 'string'" :is="item.wrapper" :class="{'text-white': inverted !== undefined}">{{item.data}}</component>
+                <div v-else :class="{'text-white': inverted !== undefined}">{{item.data}}</div>
               </template>
             </q-tab-panel>
           </q-tab-panels>
@@ -63,17 +63,6 @@ export default {
         return !!this.config[element].data
       })
       this.tabModel = hasData ? Object.keys(this.config)[index] : Object.keys(this.config)[0] ? Object.keys(this.config)[index] : ''
-    },
-    getData (data) {
-      if (typeof data === 'string') {
-        return data
-      } else {
-        return Object.keys(data).reduce((result, key) => {
-          if (key === 'x-flespi-description' || key === 'x-flespi-color') { return result }
-          result[key] = data[key]
-          return result
-        }, {})
-      }
     }
   }
 }

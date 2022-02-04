@@ -202,7 +202,8 @@ export default {
             {
               from: this.begin,
               to: this.end
-            }
+            },
+            'intervals'
           ),
           condition: this.messages.length,
           tooltip: 'Save messages to CSV',
@@ -386,15 +387,6 @@ export default {
         this.scrollTo(scrollToIndex)
       }
     },
-    clearMessage (message) {
-      return Object.keys(message).reduce((result, key) => {
-        if (key.indexOf('x-flespi') !== -1) {
-          return result
-        }
-        result[key] = message[key]
-        return result
-      }, {})
-    },
     nextSelect () {
       if (this.selected.length) {
         const lastIndex = this.selected.slice(-1)[0]
@@ -402,7 +394,7 @@ export default {
         const message = this.messages[newIndex]
         if (message) {
           this.selected = [newIndex]
-          const content = this.clearMessage(message)
+          const content = message
           this.$emit('action-select', {
             index: newIndex,
             content,
@@ -420,7 +412,7 @@ export default {
         const message = this.messages[newIndex]
         if (message) {
           this.selected = [newIndex]
-          const content = this.clearMessage(message)
+          const content = message
           this.$emit('action-select', {
             index: newIndex,
             content,

@@ -1,5 +1,5 @@
 <template>
-  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}" @click="itemClickHandler(index, clearItem)">
+  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}" @click="itemClickHandler(index, item)">
     <div
       class="cursor-pointer"
       :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, boxSizing: 'border-box'}"
@@ -21,7 +21,7 @@
             <q-icon v-if="item.address === 'local'" name="mdi-content-save-outline"  title="address: local"/>
           </template>
           <q-icon name="mdi-alert-outline" v-if="prop.name === 'event_code' && !!item['error_text']"><q-tooltip><pre class="q-ma-none">{{item['error_text']}}</pre></q-tooltip></q-icon>
-          <q-icon name="mdi-bug" v-if="prop.name === 'event_code' && isErrorType && isIntegration" @click.stop.native="clickHandler(index, 'error-report', clearItem)"><q-tooltip>Report error to chat</q-tooltip></q-icon>
+          <q-icon name="mdi-bug" v-if="prop.name === 'event_code' && isErrorType && isIntegration" @click.stop.native="clickHandler(index, 'error-report', item)"><q-tooltip>Report error to chat</q-tooltip></q-icon>
           <a @click.stop="" target="_blank" class="text-green" v-if="item.event_code === 901 && prop.name === 'name'" :href="`${$flespiCDN}/file/${item.uuid}`">
             {{getLogValueOfProp(prop, item)}}
           </a>
@@ -75,7 +75,6 @@ export default {
           key === 'error_code' ||
           key === 'send_code' ||
           key === 'address' ||
-          key.indexOf('x-flespi') !== -1 ||
           key === 'uuid'
         ) { return acc }
         acc += `${key}: ${JSON.stringify(this.item[key])}; `
@@ -160,9 +159,6 @@ export default {
     description () {
       return this.getLogDescriptionByItem(this.item)
     },
-    clearItem () {
-      return this.getLogClearItem(this.item)
-    }
   },
   methods: {
     hasInCols (prop) {
@@ -175,8 +171,14 @@ export default {
       openURL(this.eventLinkMore)
     },
     itemClickHandler (index, content) {
-      content['x-flespi-description'] = `<div style="font-size: 1.1rem">${content.event_code}: ${this.getLogDescriptionByItem(content)}</div><div style="font-size: .9rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}</div>`
-      content['x-flespi-color'] = `text-${this.getLogItemColor(content.event_code)}`
+      Object.defineProperty(content, 'x-flespi-description', {
+        value: `<div style="font-size: 1.1rem">${content.event_code}: ${this.getLogDescriptionByItem(content)}</div><div style="font-size: .9rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}</div>`,
+        enumerable: false
+      })
+      Object.defineProperty(content, 'x-flespi-color', {
+        value: `text-${this.getLogItemColor(content.event_code)}`,
+        enumerable: false
+      })
       this.$emit('item-click', { index, content })
     }
   }

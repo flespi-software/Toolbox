@@ -2,10 +2,10 @@ import events from './events.json'
 import { date } from 'quasar'
 export default {
   methods: {
-    getLogItemColor (code, closeCode, sendCode, responseСode) {
+    getLogItemColor (code, closeCode, sendCode, responseCode) {
       sendCode = sendCode || (this.item ? this.item.send_code : 0)
       closeCode = closeCode || (this.item ? this.item.close_code : 0)
-      responseСode = responseСode || (this.item ? this.item.response_code : 0)
+      responseCode = responseCode || (this.item ? this.item.response_code : 0)
       switch (code) {
         case 1:
         case 100:
@@ -117,9 +117,9 @@ export default {
           }
         }
         case 1000: {
-          if (responseСode === 200) {
+          if (responseCode === 200) {
             return 'grey-6'
-          } else if (responseСode === 500) {
+          } else if (responseCode === 500) {
             return 'red'
           } else {
             return 'yellow'
@@ -151,15 +151,6 @@ export default {
         res += blockedCodes[item.blocked] ? ` (${blockedCodes[item.blocked]})` : ` (blocked: ${item.blocked})`
       }
       return res
-    },
-    getLogClearItem (item) {
-      return Object.keys(item).reduce((result, key) => {
-        if (key.indexOf('x-flespi') !== -1) {
-          return result
-        }
-        result[key] = item[key]
-        return result
-      }, {})
     },
     getLogValueOfProp (prop, item) {
       let res = prop.custom ? JSON.stringify(item[prop.name]) : item[prop.name]

@@ -7,7 +7,7 @@ export default {
     }
   },
   methods: {
-    async exportCsv (params, { from, to }) {
+    async exportCsv (params, { from, to }, source) {
       this.$q.dialog(
         {
           title: 'Export CSV',
@@ -35,9 +35,19 @@ export default {
           const colsSchema = moduleState.cols
           const cols = colsSchema.schemas[colsSchema.activeSchema].cols.filter(col => !col.__dest).map(col => col.name)
           this.isFileCsvLoading = true
-          params.fields = cols.join(',')
+          if (source === 'devices' || source === 'intervals') {
+            params.fields = cols.join(',')
+          }
           this.$store.dispatch(`${this.moduleName}/getMessages`, params)
             .then(messages => {
+              if (!messages || !messages.length) {
+                this.$q.notify({
+                  type: 'negative',
+                  message: `Messages are empty or file is too big.`,
+                  position: 'bottom-right'
+                })
+                return false
+              }
               if (data.includes('needFormat')) {
                 messages.forEach(message => {
                   Object.keys(message).forEach(name => {

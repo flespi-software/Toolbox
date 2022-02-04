@@ -1,5 +1,5 @@
 <template>
-  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}" @click="event => itemClickHandler(index, clearItem, event)">
+  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}" @click="event => itemClickHandler(index, item, event)">
     <div
       class="cursor-pointer"
       :class="[item['x-flespi-status'] ? 'missed-items' : '', selected ? 'bg-white-opasity' : highlightLevel ? `text-${highlightType}-${highlightLevel}` : '']"
@@ -92,15 +92,6 @@ export default {
         }
       })
       return vals
-    },
-    clearItem () {
-      return Object.keys(this.item).reduce((result, key) => {
-        if (key.indexOf('x-flespi') !== -1) {
-          return result
-        }
-        result[key] = this.item[key]
-        return result
-      }, {})
     }
   },
   methods: {
