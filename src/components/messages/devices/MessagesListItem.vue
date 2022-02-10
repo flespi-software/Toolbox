@@ -103,7 +103,7 @@ export default {
       let value = item[propName]
       if (propName.match(/timestamp$/)) {
         value = date.formatDate(value * 1000, 'DD/MM/YYYY HH:mm:ss')
-      } else if (propName.indexOf('image.bin.') !== -1) {
+      } else if (propName.indexOf('image.bin.') !== -1 && value) {
         value = '<binary image>'
       } else if (typeof value !== 'string') {
         value = JSON.stringify(value)

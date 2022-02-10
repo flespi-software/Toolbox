@@ -74,6 +74,13 @@
     "603": "device parameters were changed in the calculator",
     "604": "device was blocked by calculator",
     "605": "device was unblocked by calculator",
+    "606": "device was unblocked by calculator",
+    "607": "device was unblocked by calculator",
+    "608": "device was unblocked by calculator",
+    "609": "device was unblocked by calculator",
+    "610": "device was unblocked by calculator",
+    "611": "device was unblocked by calculator",
+    "612": "device was unblocked by calculator",
     "700": "container size has been changed",
     "900": "cdn size has been changed",
     "1000": "REST API Request"
@@ -281,7 +288,7 @@
     "streams": [401,402,403,404,405,406,410,411,412,420,422,430,432],
     "mqtt": [500,501,502,503,504,510,511,512,520,521],
     "platform": [600, 1000],
-    "calcs": [601,602,603,604,605],
+    "calcs": [601,602,603,604,605,606,607,608,609,610,611,612],
     "containers": [700],
     "cdns": [900]
   }

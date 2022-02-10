@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.12.13] - 2021-02-10
+[feature] new logs codes
+[fix] image table value
 ### [1.12.12] - 2021-02-03
 [fix] csv optimize request for channels
 ### [1.12.11] - 2021-02-02

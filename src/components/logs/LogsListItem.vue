@@ -149,7 +149,14 @@ export default {
         case 602:
         case 603:
         case 604:
-        case 605: { return `${host}/docs/#/gw/!/calcs` }
+        case 605:
+        case 606:
+        case 607:
+        case 608:
+        case 609:
+        case 610:
+        case 611:
+        case 612: { return `${host}/docs/#/gw/!/calcs` }
         case 700: { return `${host}/docs/#/storage/!/containers` }
         case 800: { return `${host}/docs/#/storage/!/abques` }
         case 900: { return `${host}/docs/#/storage/!/cdns` }

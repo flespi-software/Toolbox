@@ -24,6 +24,9 @@ export default {
         case 510:
         case 601:
         case 605:
+        case 606:
+        case 608:
+        case 610:
           return 'green'
         case 2:
         case 3:
@@ -49,6 +52,9 @@ export default {
         case 600:
         case 603:
         case 604:
+        case 607:
+        case 609:
+        case 611:
         case 900:
           return 'yellow'
         case 113:
@@ -84,6 +90,7 @@ export default {
         case 402:
         case 403:
         case 501:
+        case 612:
           return 'red'
         case 201: {
           if (sendCode < 0) {
@@ -156,7 +163,7 @@ export default {
       let res = prop.custom ? JSON.stringify(item[prop.name]) : item[prop.name]
       if (prop.name === 'event_code') {
         res = this.getLogDescriptionByItem(item)
-      } else if (prop.name === 'timestamp') {
+      } else if (prop.name === 'timestamp' || prop.name === 'interval_begin' || prop.name === 'interval_end') {
         res = date.formatDate(item[prop.name] * 1000, 'DD/MM/YYYY HH:mm:ss')
       } else if (prop.name === 'host') {
         res = item.host || item.source || ''

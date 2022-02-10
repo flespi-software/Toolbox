@@ -105,7 +105,7 @@ export default {
       if (propName.match(/timestamp$/)) {
         value = date.formatDate(value * 1000, 'DD/MM/YYYY HH:mm:ss')
       }
-      if (propName.indexOf('image.bin.') !== -1) {
+      if (propName.indexOf('image.bin.') !== -1 && value) {
         value = '<binary image>'
       }
       if (typeof value !== 'string') {

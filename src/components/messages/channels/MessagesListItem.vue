@@ -104,7 +104,7 @@ export default {
     getValueOfProp (prop, item) {
       const propName = prop.name
       let value = item[propName]
-      if (propName.indexOf('image.bin.') !== -1) {
+      if (propName.indexOf('image.bin.') !== -1 && value) {
         value = '<binary image>'
       } else if (propName.indexOf('proxy.event') !== -1) {
         value = value === 0 ? 'data received' : value === 1 ? 'connected' : 'disconnect'

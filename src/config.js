@@ -313,6 +313,24 @@ export default {
           width: 150,
           display: true,
           description: "Connected device's address (source) or IP address from which HTTP request was received (host)"
+        },
+        {
+          name: 'interval_id',
+          width: 150,
+          display: true,
+          description: "Interval ID"
+        },
+        {
+          name: 'interval_begin',
+          width: 150,
+          display: true,
+          description: "Interval begin timestamp"
+        },
+        {
+          name: 'interval_end',
+          width: 150,
+          display: true,
+          description: "Interval end timestamp"
         }
       ],
       actions: [
