@@ -24,9 +24,8 @@ export default {
         case 510:
         case 601:
         case 605:
-        case 606:
         case 608:
-        case 610:
+        case 609:
           return 'green'
         case 2:
         case 3:
@@ -52,9 +51,8 @@ export default {
         case 600:
         case 603:
         case 604:
+        case 606:
         case 607:
-        case 609:
-        case 611:
         case 900:
           return 'yellow'
         case 113:
@@ -73,6 +71,9 @@ export default {
         case 520:
         case 521:
         case 602:
+        case 610:
+        case 611:
+        case 612:
         case 700:
         case 800:
           return 'grey-6'
@@ -90,7 +91,6 @@ export default {
         case 402:
         case 403:
         case 501:
-        case 612:
           return 'red'
         case 201: {
           if (sendCode < 0) {
