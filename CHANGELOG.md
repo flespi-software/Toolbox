@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.12.16] - 2021-02-11
+[rebase] logs colors
 ### [1.12.15] - 2021-02-11
 [rebase] logs colors
 ### [1.12.14] - 2021-02-10

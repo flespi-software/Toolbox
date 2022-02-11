@@ -22,8 +22,6 @@ export default {
         case 430:
         case 500:
         case 510:
-        case 601:
-        case 605:
         case 608:
         case 609:
           return 'green'
@@ -49,8 +47,11 @@ export default {
         case 504:
         case 511:
         case 600:
+        case 601:
+        case 602:
         case 603:
         case 604:
+        case 605:
         case 606:
         case 607:
         case 900:
@@ -70,7 +71,6 @@ export default {
         case 512:
         case 520:
         case 521:
-        case 602:
         case 610:
         case 611:
         case 612:
