@@ -118,6 +118,13 @@ export default {
       this.activateWidgetWindow('messagesView')
     },
     messageWidgetsActions (type, data) {
+      if (Array.isArray(data.content) && data.content.length !== 1) {
+        this.isWidgetsMessageActive = false
+        return false
+      }
+
+      data.content = data.content[0]
+
       const isActive = this.isWidgetsMessageActive
       const view = this.$refs.messagesView
       switch (type) {

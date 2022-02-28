@@ -136,6 +136,12 @@ export default {
       this.activateWidgetWindow('intervalsView')
     },
     intervalWidgetsActions (type, data) {
+      if (Array.isArray(data.content) && data.content.length !== 1) {
+        this.isWidgetsIntervalsActive = false
+        return false
+      }
+
+      data.content = data.content[0]
       const isActive = this.isWidgetsMessageActive
       this.setWidgetsIntervalView(data)
       const view = this.$refs.intervalsView

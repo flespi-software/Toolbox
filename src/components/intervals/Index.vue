@@ -2,6 +2,7 @@
   <div>
     <virtual-scroll-list
       ref="scrollList"
+      :class="{'non-selectable': selectionMode}"
       :cols="cols"
       :actions="actions"
       :panelActions="panelActions"
@@ -17,6 +18,7 @@
       :i18n="i18n"
       :item="listItem"
       :itemprops="getItemsProps"
+      @click.native="tableClickHandler"
       @action="actionHandler"
       @change-filter="filterChangeHandler"
       @change-date-range="dateRangeChangeHandler"
@@ -36,6 +38,9 @@ import MessagesListItem from './MessagesListItem.vue'
 import EmptyPane from '../EmptyPane'
 import actions from '../../mixins/actions'
 import routerProcess from '../../mixins/routerProcess'
+import { ACTION_MODE_MULTI, ACTION_MODE_SINGLE } from '../../config'
+import testExpressionsMixin from '../../mixins/testExpressionsMixin'
+import multiselectMixin from '../../mixins/multiselectMixin'
 
 export default {
   props: [
@@ -213,25 +218,22 @@ export default {
     }
   },
   methods: {
+    tableClickHandler (event) {
+      if (!event.target.closest('.list-item--click-control')) {
+        this.selected = []
+        this.$emit('action-view-data', { index: -1, content: [] })
+      }
+    },
     getItemsProps (index, data) {
       const item = this.messages[index]
       data.key = item['x-flespi-message-key']
+      data.class = 'list-item list-item--click-control'
       data.props.etcVisible = this.etcVisible
       data.props.actionsVisible = this.actionsVisible
       data.props.selected = this.selected.includes(index)
+      data.props.actions = () => this.getItemPropsActions(item, data)
       data.props.highlighted = (this.viewedInterval && item.id === this.viewedInterval.id) ||
         (this.interval && item.begin >= this.interval.begin && item.end <= this.interval.end)
-      if (this.routesFields.some(field => !!item[field.name])) {
-        data.props.actions = [
-          ...data.props.actions,
-          {
-            icon: 'mdi-map',
-            label: 'Show on map',
-            classes: '',
-            type: 'map'
-          }
-        ]
-      }
       if (!data.on) { data.on = {} }
       data.on.action = this.actionHandler
       data.on['item-click'] = this.viewMessagesAndShowInMessagesHandler
@@ -239,6 +241,27 @@ export default {
         this.autoscroll = false
         return this.listItem.methods.getValueOfProp(col.data, row.data)
       }
+    },
+    getItemPropsActions (item, data) {
+      const selectMode = this.selected.length > 1 ? ACTION_MODE_MULTI : ACTION_MODE_SINGLE
+      const actions = [...this.config.actions.filter(action => action.mode === selectMode)]
+      if (selectMode === ACTION_MODE_SINGLE) {
+        if (this.routesFields.some(field => !!item[field.name])) {
+          actions.push({
+            icon: 'mdi-map',
+            label: 'Show on map',
+            classes: '',
+            type: 'map'
+          })
+        }
+      }
+      actions.push({
+        icon: 'mdi-function',
+        label: 'Test expression',
+        classes: '',
+        type: 'expression'
+      })
+      return actions
     },
     resetParams () {
       this.$refs.scrollList.resetParams()
@@ -294,18 +317,28 @@ export default {
       this.dateRangeChange(range)
     },
     actionHandler ({ index, type, content }) {
-      this.selected = [index]
+      if (this.selected.length > 1) {
+        content = this.selected.map(index => this.messages[index])
+      }
       switch (type) {
         case 'view': {
-          this.viewMessagesHandler({ index, content, entity: this.item })
+          this.itemClickHandler({ index, content, entity: this.item })
           break
         }
         case 'copy': {
           this.copyMessageHandler({ index, content, entity: this.item })
           break
         }
+        case 'expression': {
+          this.showExprTest(
+            this.$store.state.token,
+            this.cols.schemas[this.cols.activeSchema].cols,
+            this.selected.map(index => this.messages[index])
+          )
+          break
+        }
         default: {
-          this.$emit(`action-${type}`, { index, content, entity: this.item })
+          this.$emit(`action-${type}`, { index, content: [content], entity: this.item })
           break
         }
       }
@@ -314,13 +347,18 @@ export default {
       this.autoscroll = true
       this.$refs.scrollList.scrollTo(this.messages.length - 1)
     },
-    viewMessagesAndShowInMessagesHandler ({ index, content }) {
-      this.viewMessagesHandler({ index, content, entity: this.item })
-      this.inMessagesHandler({ index, content })
+    viewMessagesAndShowInMessagesHandler ({ index, content, event }) {
+      this.itemClickHandler({ index, content, entity: this.item, event })
+      if (this.selected.length === 1) {
+        this.inMessagesHandler({ index, content })
+      } else {
+        this.inMessagesHandler({ index, content: undefined })
+      }
     },
-    viewMessagesHandler ({ index, content }) {
-      this.selected = [index]
-      this.$emit('action-view-data', { index, content, entity: this.item })
+    itemClickHandler ({ index, content, entity, event }) {
+      this.selected = this.multiselectProcess({index, event, selected: this.selected})
+      const messages = this.selected.map(index => this.messages[index])
+      this.$emit('action-view-data', { index, content: messages, entity })
     },
     inMessagesHandler ({ index, content }) {
       this.viewedInterval = content
@@ -352,8 +390,7 @@ export default {
     normalizeSelected (messages) {
       if (this.selected && this.selected.length && !this.viewedInterval) {
         const selectedIndex = this.selected[0]
-        const message = messages[selectedIndex]
-        this.viewMessagesHandler({ index: selectedIndex, content: message, entity: this.item })
+        this.$emit('action-view-data', { index: selectedIndex, content: messages, entity: this.item })
       }
     },
     scrollTo (index) {
@@ -397,7 +434,7 @@ export default {
           const content = message
           this.$emit('action-select', {
             index: newIndex,
-            content,
+            content: [content],
             entity: this.item
           })
           this.inMessagesHandler({ index: newIndex, content })
@@ -415,7 +452,7 @@ export default {
           const content = message
           this.$emit('action-select', {
             index: newIndex,
-            content,
+            content: [content],
             entity: this.item
           })
           this.inMessagesHandler({ index: newIndex, content })
@@ -514,7 +551,7 @@ export default {
     this.$store.commit(`${this.moduleName}/setActive`, null)
     this.$store.commit(`${this.moduleName}/setActiveDevice`, null)
   },
-  mixins: [actions, routerProcess],
+  mixins: [actions, routerProcess, testExpressionsMixin, multiselectMixin],
   components: { VirtualScrollList, EmptyPane }
 }
 </script>

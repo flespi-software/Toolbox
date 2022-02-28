@@ -2,6 +2,7 @@
   <div>
     <virtual-scroll-list
       ref="scrollList"
+      :class="{'non-selectable': selectionMode}"
       :cols="cols"
       :actions="actions"
       :items="messages"
@@ -17,6 +18,7 @@
       :item="listItem"
       :itemprops="getItemsProps"
       :has-new-messages="hasNewMessages"
+      @click.native="tableClickHandler"
       @action="actionHandler"
       @change-filter="filterChangeHandler"
       @scroll-top="paginationPrevChangeHandler"
@@ -42,6 +44,9 @@ import LogsListItem from './LogsListItem.vue'
 import LogsFilterMenu from './LogsFilterMenu.vue'
 import EmptyPane from '../EmptyPane'
 import routerProcess from '../../mixins/routerProcess'
+import { ACTION_MODE_MULTI, ACTION_MODE_SINGLE } from '../../config'
+import testExpressionsMixin from '../../mixins/testExpressionsMixin'
+import multiselectMixin from '../../mixins/multiselectMixin'
 
 export default {
   props: [
@@ -180,20 +185,39 @@ export default {
     }
   },
   methods: {
+    tableClickHandler (event) {
+      if (!event.target.closest('.list-item--click-control')) {
+        this.selected = []
+        this.$emit('view-log-message', [])
+      }
+    },
     getItemsProps (index, data) {
       const item = this.messages[index]
       data.key = item['x-flespi-message-key']
+      data.class = 'list-item list-item--click-control'
       data.props.etcVisible = this.etcVisible
       data.props.actionsVisible = this.actionsVisible
       data.props.itemSettings = this.itemSettings
       data.props.selected = this.selected.includes(index)
+      data.props.actions = () => this.getItemPropsActions(item, data)
       if (!data.on) { data.on = {} }
       data.on.action = this.actionHandler
-      data.on['item-click'] = this.viewMessagesHandler
+      data.on['item-click'] = this.itemClickHandler
       data.dataHandler = (col, row, data) => {
         this.autoscroll = false
         return this.getLogValueOfProp(col.data, row.data)
       }
+    },
+    getItemPropsActions (item, data) {
+      const selectMode = this.selected.length > 1 ? ACTION_MODE_MULTI : ACTION_MODE_SINGLE
+      const actions = [...this.config.actions.filter(action => action.mode === selectMode)]
+      actions.push({
+        icon: 'mdi-function',
+        label: 'Test expression',
+        classes: '',
+        type: 'expression'
+      })
+      return actions
     },
     async getMessages () {
       if (this.to <= Date.now()) {
@@ -287,10 +311,12 @@ export default {
         })
     },
     actionHandler ({ index, type, content }) {
-      this.selected = [index]
+      if (this.selected.length > 1) {
+        content = this.selected.map(index => this.messages[index])
+      }
       switch (type) {
         case 'view': {
-          this.viewMessagesHandler({ index, content })
+          this.itemClickHandler({ index, content })
           break
         }
         case 'copy': {
@@ -299,6 +325,14 @@ export default {
         }
         case 'traffic': {
           this.$emit('to-traffic', { index, content })
+          break
+        }
+        case 'expression': {
+          this.showExprTest(
+            this.$store.state.token,
+            this.cols.schemas[this.cols.activeSchema].cols,
+            this.selected.map(index => this.messages[index])
+          )
           break
         }
         case 'error-report': {
@@ -374,9 +408,10 @@ export default {
     actionToNewMessagesHide () {
       this.hasNewMessages = null
     },
-    viewMessagesHandler ({ index, content }) {
-      this.selected = [index]
-      this.$emit('view-log-message', content)
+    itemClickHandler ({ index, content, event }) {
+      this.selected = this.multiselectProcess({index, event, selected: this.selected})
+      const messages = this.selected.map(index => this.messages[index])
+      this.$emit('view-log-message', messages)
     },
     async changeCid () {
       await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active entity */
@@ -421,7 +456,7 @@ export default {
         })
         this.$emit('action-select', {
           index: index,
-          content
+          content: content
         })
         this.scrollTo(index)
       }
@@ -509,7 +544,7 @@ export default {
     this.connectHandler !== undefined && Vue.connector.socket.off('connect', this.connectHandler)
     this.$store.commit(`${this.moduleName}/clear`)
   },
-  mixins: [ItemMixin, routerProcess],
+  mixins: [ItemMixin, routerProcess, testExpressionsMixin, multiselectMixin],
   components: {
     VirtualScrollList,
     EmptyPane,

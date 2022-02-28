@@ -1,5 +1,5 @@
 <template>
-  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}" @click="itemClickHandler(index, item)">
+  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}" @click="event => itemClickHandler(index, item, event)">
     <div
       class="cursor-pointer"
       :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, boxSizing: 'border-box'}"
@@ -177,7 +177,7 @@ export default {
     linkMoreClickHandler () {
       openURL(this.eventLinkMore)
     },
-    itemClickHandler (index, content) {
+    itemClickHandler (index, content, event) {
       Object.defineProperty(content, 'x-flespi-description', {
         value: `<div style="font-size: 1.1rem">${content.event_code}: ${this.getLogDescriptionByItem(content)}</div><div style="font-size: .9rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}</div>`,
         enumerable: false
@@ -186,7 +186,7 @@ export default {
         value: `text-${this.getLogItemColor(content.event_code)}`,
         enumerable: false
       })
-      this.$emit('item-click', { index, content })
+      this.$emit('item-click', { index, content, event })
     }
   }
 }

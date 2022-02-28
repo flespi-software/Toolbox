@@ -1,5 +1,5 @@
 <template>
-  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}" @click="itemClickHandler(index, item)">
+  <div :style="{height: `${itemHeight}px`, width: `${rowWidth}px`}" @click="event => itemClickHandler(index, item, event)">
     <div
       class="cursor-pointer"
       :class="[item['x-flespi-status'] ? 'missed-items' : '', selected ? 'bg-white-opasity' : highlightLevel ? `text-${highlightType}-${highlightLevel}` : '']"
@@ -95,8 +95,8 @@ export default {
     clickHandler (index, type, content) {
       this.$emit('action', { index, type, content })
     },
-    itemClickHandler (index, content) {
-      this.$emit('item-click', { index, content })
+    itemClickHandler (index, content, event) {
+      this.$emit('item-click', { index, content, event })
     },
     getValueOfProp (prop, item) {
       const propName = prop.name

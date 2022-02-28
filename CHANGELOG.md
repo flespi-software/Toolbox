@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.13.0] - 2021-02-28
+[feature] expressions testing tool integrated
+[update] calcs cols config
+[fix] init with dates
 ### [1.12.16] - 2021-02-11
 [rebase] logs colors
 ### [1.12.15] - 2021-02-11

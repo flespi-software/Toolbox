@@ -1,4 +1,6 @@
 const locale = new Date().toString().match(/([-+][0-9]+)\s/)[1]
+export const ACTION_MODE_SINGLE = 1,
+  ACTION_MODE_MULTI = 2
 export default {
   platform: {
     label: 'Platform',
@@ -55,6 +57,14 @@ export default {
           icon: 'mdi-content-copy',
           label: 'Copy log object',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'copy'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log objects',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
           type: 'copy'
         }
       ],
@@ -161,6 +171,14 @@ export default {
           icon: 'mdi-content-copy',
           label: 'Copy log object',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'copy'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log objects',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
           type: 'copy'
         }
       ],
@@ -190,6 +208,14 @@ export default {
           icon: 'mdi-content-save',
           label: 'Copy message',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'copy'
+        },
+        {
+          icon: 'mdi-content-save',
+          label: 'Copy messages',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
           type: 'copy'
         }
       ],
@@ -255,6 +281,14 @@ export default {
           icon: 'mdi-content-copy',
           label: 'Copy log object',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'copy'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log objects',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
           type: 'copy'
         }
       ],
@@ -315,6 +349,12 @@ export default {
           description: "Connected device's address (source) or IP address from which HTTP request was received (host)"
         },
         {
+          name: 'device_id',
+          width: 150,
+          display: true,
+          description: "Device ID"
+        },
+        {
           name: 'interval_id',
           width: 150,
           display: true,
@@ -338,6 +378,14 @@ export default {
           icon: 'mdi-content-copy',
           label: 'Copy log object',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'copy'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log objects',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
           type: 'copy'
         }
       ],
@@ -457,6 +505,14 @@ export default {
           icon: 'mdi-content-copy',
           label: 'Copy log object',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'copy'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log objects',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
           type: 'copy'
         }
       ],
@@ -478,9 +534,9 @@ export default {
         label: 'Messages not found',
         sublabel: 'If you expect to see the device messages here',
         hints: [
-          { html: "Make sure the respective physical tracker correctly points to the proper channel’s <span class='text-bold'>IP:port</span> and is currently sending messages." },
+          { html: "Make sure the respective physical tracker correctly points to the proper channel`s <span class='text-bold'>IP:port</span> and is currently sending messages." },
           { html: "Make sure you specified the correct device <span class='text-bold'>ident</span> and picked the proper <span class='text-bold'>device type</span>." },
-          { html: "Check the <span class='text-bold'>messages TTL</span> in the device settings — if it’s set to 0, messages will not show." },
+          { html: "Check the <span class='text-bold'>messages TTL</span> in the device settings — if it`s set to 0, messages will not show." },
           { html: "Pick a specific date and time using the <span class='text-bold'>date/time picker</span> on the top right." },
           { html: "Narrow down the search by specifying the desired parameter values in the <span class='text-bold'>filter control</span>." }
         ]
@@ -490,13 +546,22 @@ export default {
           icon: 'mdi-content-copy',
           label: 'Copy message',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
           type: 'copy'
         },
         {
           icon: 'mdi-information-outline',
           label: 'Show message',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
           type: 'show'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy messages',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
+          type: 'copy'
         }
       ],
       viewConfig: {
@@ -548,13 +613,22 @@ export default {
           icon: 'mdi-content-copy',
           label: 'Copy interval',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
           type: 'copy'
         },
         {
           icon: 'mdi-information-outline',
           label: 'Show interval',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
           type: 'show'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy intervals',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
+          type: 'copy'
         }
       ],
       viewConfig: {
@@ -584,13 +658,22 @@ export default {
           icon: 'mdi-content-copy',
           label: 'Copy interval',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
           type: 'copy'
         },
         {
           icon: 'mdi-information-outline',
           label: 'Show interval',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
           type: 'show'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy intervals',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
+          type: 'copy'
         }
       ],
       viewConfig: {
@@ -609,13 +692,22 @@ export default {
           icon: 'mdi-content-copy',
           label: 'Copy message',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
           type: 'copy'
         },
         {
           icon: 'mdi-information-outline',
           label: 'Show message',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
           type: 'show'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy messages',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
+          type: 'copy'
         }
       ],
       viewConfig: {
@@ -709,6 +801,14 @@ export default {
           icon: 'mdi-content-copy',
           label: 'Copy log object',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'copy'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log objects',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
           type: 'copy'
         }
       ],
@@ -792,6 +892,14 @@ export default {
           icon: 'mdi-content-copy',
           label: 'Copy log object',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'copy'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log objects',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
           type: 'copy'
         }
       ],
@@ -856,6 +964,14 @@ export default {
           icon: 'mdi-content-copy',
           label: 'Copy log object',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'copy'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log objects',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
           type: 'copy'
         }
       ],
@@ -930,6 +1046,14 @@ export default {
           icon: 'mdi-content-copy',
           label: 'Copy log object',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'copy'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log objects',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
           type: 'copy'
         }
       ],
@@ -1012,6 +1136,14 @@ export default {
           icon: 'mdi-content-copy',
           label: 'Copy log object',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'copy'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log objects',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
           type: 'copy'
         }
       ],

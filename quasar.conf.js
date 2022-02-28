@@ -136,7 +136,7 @@ module.exports = function (ctx) {
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
     devServer: {
-      https: true,
+      https: false,
       port: 7007,
       open: 'Google Chrome' // opens browser window automatically
     },

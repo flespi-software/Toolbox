@@ -169,6 +169,7 @@ import get from 'lodash/get'
 import init from '../../mixins/entitiesInit'
 import routerProcess from '../../mixins/routerProcess'
 import cloneDeep from 'lodash/cloneDeep'
+import { ACTION_MODE_SINGLE } from '../../config'
 
 const ratioNames = {
   100: 'logs',
@@ -242,6 +243,7 @@ export default {
         config.actions.push({
           icon: 'mdi-download-network-outline',
           label: 'View traffic',
+          mode: ACTION_MODE_SINGLE,
           classes: '',
           type: 'traffic'
         })
@@ -255,6 +257,7 @@ export default {
           icon: 'mdi-matrix',
           label: 'View in hex',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
           type: 'hex'
         })
       } else if (this.isTrafficViewerSupported) {
@@ -262,6 +265,7 @@ export default {
           icon: 'mdi-download-network-outline',
           label: 'View traffic',
           classes: '',
+          mode: ACTION_MODE_SINGLE,
           type: 'traffic'
         })
       }

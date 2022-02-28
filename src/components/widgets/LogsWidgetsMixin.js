@@ -106,6 +106,12 @@ export default {
   },
   methods: {
     viewWidgetsLogHandler (content) {
+      if (Array.isArray(content) && content.length !== 1) {
+        this.isWidgetsLogsActive = false
+        return false
+      }
+      content = content[0]
+
       this.widgetsViewedLog = content
       if (this.beforeEnableWidgetByPane) {
         this.beforeEnableWidgetByPane('logs')

@@ -2,6 +2,7 @@
   <div>
     <virtual-scroll-list
       ref="scrollList"
+      :class="{'non-selectable': selectionMode}"
       :cols="cols"
       :actions="config.actions"
       :panelActions="panelActions"
@@ -18,6 +19,7 @@
       :i18n="i18n"
       :itemprops="getItemsProps"
       :has-new-messages="hasNewMessages"
+      @click.native="tableClickHandler"
       @action="actionHandler"
       @change-filter="filterChangeHandler"
       @scroll-top="paginationPrevChangeHandler"
@@ -42,6 +44,9 @@ import MessagesListItem from './MessagesListItem.vue'
 import get from 'lodash/get'
 import actions from '../../../mixins/actions'
 import routerProcess from '../../../mixins/routerProcess'
+import { ACTION_MODE_MULTI, ACTION_MODE_SINGLE } from '../../../config'
+import testExpressionsMixin from '../../../mixins/testExpressionsMixin'
+import multiselectMixin from '../../../mixins/multiselectMixin'
 
 export default {
   props: [
@@ -192,47 +197,62 @@ export default {
     }
   },
   methods: {
+    tableClickHandler (event) {
+      if (!event.target.closest('.list-item--click-control')) {
+        this.selected = []
+        this.$emit('action-view-data', { index: -1, content: [] })
+      }
+    },
     getItemsProps (index, data) {
       const item = this.messages[index]
       data.key = item['x-flespi-message-key']
+      data.class = 'list-item list-item--click-control'
       data.props.etcVisible = this.etcVisible
       data.props.actionsVisible = this.actionsVisible
       data.props.selected = this.selected.includes(index)
-      if (item['position.latitude'] && item['position.longitude']) {
-        data.props.actions = [
-          ...data.props.actions,
-          {
-            icon: 'mdi-map',
-            label: 'Show on map',
-            classes: '',
-            type: 'map'
-          }
-        ]
-      }
-      Object.keys(item).some(name => {
-        const hasImage = item[name] &&
-          (item[name].toString().match(/^data:image\/(?:gif|png|jpeg|bmp|webp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}/) ||
-          name.indexOf('image.bin.') === 0)
-        if (hasImage) {
-          data.props.actions = [
-            ...data.props.actions,
-            {
-              icon: 'mdi-image-outline',
-              label: 'Show image',
-              classes: '',
-              type: 'image'
-            }
-          ]
-        }
-        return hasImage
-      })
+      data.props.actions = () => this.getItemPropsActions(item, data)
       if (!data.on) { data.on = {} }
       data.on.action = this.actionHandler
-      data.on['item-click'] = this.viewMessagesHandler
+      data.on['item-click'] = this.itemClickHandler
       data.dataHandler = (col, row, data) => {
         this.autoscroll = false
         return this.listItem.methods.getValueOfProp(col.data, row.data)
       }
+    },
+    getItemPropsActions (item, data) {
+      const selectMode = this.selected.length > 1 ? ACTION_MODE_MULTI : ACTION_MODE_SINGLE
+      const actions = [...this.config.actions.filter(action => action.mode === selectMode)]
+      if (selectMode === ACTION_MODE_SINGLE) {
+        if (item['position.latitude'] && item['position.longitude']) {
+          actions.push({
+            icon: 'mdi-map',
+            label: 'Show on map',
+            classes: '',
+            type: 'map'
+          })
+        }
+        Object.keys(item).some(name => {
+          const hasImage = item[name] &&
+            (item[name].toString().match(/^data:image\/(?:gif|png|jpeg|bmp|webp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}/) ||
+            name.indexOf('image.bin.') === 0)
+          if (hasImage) {
+            actions.push({
+              icon: 'mdi-image-outline',
+              label: 'Show image',
+              classes: '',
+              type: 'image'
+            })
+          }
+          return hasImage
+        })
+      }
+      actions.push({
+        icon: 'mdi-function',
+        label: 'Test expression',
+        classes: '',
+        type: 'expression'
+      })
+      return actions
     },
     scrollTo (index) {
       this.$nextTick(() => this.$refs.scrollList && this.$refs.scrollList.scrollTo(index))
@@ -326,25 +346,36 @@ export default {
         })
     },
     actionHandler ({ index, type, content }) {
-      this.selected = [index]
+      if (this.selected.length > 1) {
+        content = this.selected.map(index => this.messages[index])
+      }
       switch (type) {
         case 'view': {
-          this.viewMessagesHandler({ index, content })
+          this.itemClickHandler({ index, content })
           break
         }
         case 'copy': {
           this.copyMessageHandler({ index, content })
           break
         }
+        case 'expression': {
+          this.showExprTest(
+            this.$store.state.token,
+            this.cols.schemas[this.cols.activeSchema].cols,
+            this.selected.map(index => this.messages[index])
+          )
+          break
+        }
         default: {
-          this.$emit(`action-${type}`, { index, content })
+          this.$emit(`action-${type}`, { index, content: [content] })
           break
         }
       }
     },
-    viewMessagesHandler ({ index, content }) {
-      this.selected = [index]
-      this.$emit('action-view-data', { index, content })
+    itemClickHandler ({ index, content, event }) {
+      this.selected = this.multiselectProcess({index, event, selected: this.selected})
+      const messages = this.selected.map(index => this.messages[index])
+      this.$emit('action-view-data', { index, content: messages })
     },
     copyMessageHandler ({ index, content }) {
       copyToClipboard(JSON.stringify(content)).then((e) => {
@@ -401,7 +432,7 @@ export default {
           this.selected = [newIndex]
           this.$emit('action-select', {
             index: newIndex,
-            content: message
+            content: [message]
           })
           this.scrollTo(newIndex)
         }
@@ -416,7 +447,7 @@ export default {
           this.selected = [newIndex]
           this.$emit('action-select', {
             index: newIndex,
-            content: message
+            content: [message]
           })
           this.scrollTo(newIndex)
         }
@@ -503,7 +534,7 @@ export default {
     this.connectHandler !== undefined && Vue.connector.socket.off('connect', this.connectHandler)
     this.$store.commit(`${this.moduleName}/clear`)
   },
-  mixins: [actions, routerProcess],
+  mixins: [actions, routerProcess, testExpressionsMixin, multiselectMixin],
   components: { VirtualScrollList, EmptyPane }
 }
 </script>
