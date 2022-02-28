@@ -35,7 +35,7 @@ export default {
   data () {
     return {
       postkey: 'expression-test',
-      path: 'https://flespi.io/exprtool/#/expr',
+      path: `${this.$authHost}/exprtool/#/expr`,
       eventsHandlers: {
         ready: this.ready
       }
