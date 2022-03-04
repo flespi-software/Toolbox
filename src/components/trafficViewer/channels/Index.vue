@@ -157,7 +157,6 @@ export default {
   },
   destroyed () {
     this.$store.commit(`${this.moduleName}/clean`)
-    this.$store.dispatch(`${this.moduleName}/removePollingGetDevices`)
     this.$store.unregisterModule(this.moduleName)
   },
   watch: {

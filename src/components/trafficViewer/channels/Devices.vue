@@ -157,6 +157,9 @@ export default {
   mounted () {
     this.resetParams()
   },
+  beforeDestroy() {
+    this.$store.dispatch(`${this.moduleName}/removePollingGetDevices`)
+  },
   components: { VirtualList, DeviceListItem, EmptyPane, DeviceSkeleton }
 }
 </script>

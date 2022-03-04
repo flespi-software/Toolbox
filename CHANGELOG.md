@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.13.2] - 2021-03-04
+[fix] unsubscribe connection check after traffic deinit
 ### [1.13.1] - 2021-02-28
 [fix] expression testing tool url
 ### [1.13.0] - 2021-02-28
