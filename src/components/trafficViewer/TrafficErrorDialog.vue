@@ -1,0 +1,82 @@
+<template>
+  <q-dialog ref="dialog" @hide="onDialogHide" full-width full-height>
+    <q-card class="bg-grey-9">
+      <q-card-section style="height: 50px;" class="bg-grey-8 q-pa-sm text-white text-h5">
+        <span>Error traffic</span>
+        <q-btn color="green" class="float-right" icon="mdi-download-network-outline" label="Open traffic viewer" @click="onOKClick" />
+      </q-card-section>
+      <q-card-section class="q-pa-none scroll" style="height: calc(100% - 102px)">
+        <hex-viewer
+          v-if="hex"
+          class="hex-error-viewer"
+          :hex="hex"
+          :view="view"
+          :highlights="highlights"
+        />
+      </q-card-section>
+      <q-card-actions align="right" class="bg-grey-8">
+        <q-btn flat color="white" label="Cancel" @click="onCancelClick" />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+</template>
+
+<script>
+import HexViewer from "../HexViewer.vue"
+import convert from '../../mixins/convert'
+export default {
+  name: 'TrafficErrorDialog',
+  components: { HexViewer },
+  props: {
+    data: Array,
+    error: {
+      type: Object,
+      default: () => ({})
+    }
+  },
+  data () {
+    const highlights = []
+    if (this.error) {
+      const error = this.error
+      highlights.push({
+        type: 'error',
+        start: error.packet_start + error.field_start,
+        end: error.packet_start + error.field_boundary,
+        text: error.text
+      })
+    }
+    return {
+      hex: this.data.reduce((res, data) => {
+        return res + this.getHex(data)
+      }, ''),
+      view: 'hex',
+      highlights,
+      errorText: this.error.text
+    }
+  },
+  methods: {
+    getHex (data) {
+      return convert.methods.base64ToHex(data)
+    },
+    show () {
+      this.$refs.dialog.show()
+    },
+    hide () {
+      this.$refs.dialog.hide()
+    },
+
+    onDialogHide () {
+      this.$emit('hide')
+    },
+
+    onOKClick () {
+      this.$emit('ok')
+      this.hide()
+    },
+
+    onCancelClick () {
+      this.hide()
+    }
+  }
+}
+</script>

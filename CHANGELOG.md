@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.14.0] - 2021-03-17
+[feature] traffic error tool
+[feature] hex viewer highlights
+[fix] scroll time intervals
 ### [1.13.2] - 2021-03-04
 [fix] unsubscribe connection check after traffic deinit
 ### [1.13.1] - 2021-02-28

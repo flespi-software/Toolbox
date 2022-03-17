@@ -96,6 +96,7 @@
         @view-log-message="viewWidgetsLogHandler"
         @action-select="data => widgetsViewedLog = data.content"
         @to-traffic="toTrafficHandler"
+        @to-error-traffic="toErrorTrafficHandler"
         :config="logsConfig"
       />
       <messages
@@ -177,6 +178,7 @@ import routerProcess from '../../mixins/routerProcess'
 import get from 'lodash/get'
 import cloneDeep from 'lodash/cloneDeep'
 import { ACTION_MODE_SINGLE } from '../../config'
+import TrafficErrorDialog from '../../components/trafficViewer/TrafficErrorDialog.vue'
 
 const ratioNames = {
   100: 'logs',
@@ -419,11 +421,47 @@ export default {
     trafficViewHandler () {
       this.$router.push(`/tools/device-traffic/${this.active}`).catch(err => err)
     },
+    toErrorTrafficHandler ({ content }) {
+      const transportType = { tcp: 2, udp: 130 }
+      let timestamp = content['server.timestamp'] || content.timestamp
+      let to = timestamp + 1, from = to - 10
+      let error
+      if (content.error_text && content.traffic) {
+        timestamp = content.traffic.timestamp
+        from = timestamp
+        to = content.timestamp
+        error = { ...content.traffic, text: content.error_text }
+      }
+      this.$connector.gw.getDevicesPackets(this.active, { data: { from, to, filter: `type=${transportType[content.transport]}` } })
+        .then((resp) => {
+          const messages = get(resp, 'data.result', [])
+          const data = messages.map((message) => message.data )
+          if (data) {
+            this.$q.dialog({
+              component: TrafficErrorDialog,
+              parent: this,
+              data,
+              error
+            }).onOk(() => {
+              this.toTrafficHandler({ content })
+            }).onCancel(() => {})
+          } else {
+            this.$q.notify({
+              message: 'Traffic is empty',
+              type: 'negative'
+            })
+          }
+        })
+    },
     toTrafficHandler ({ content }) {
       const timestamp = content['server.timestamp'] || content.timestamp,
-        timeEnd = timestamp + 1,
-        timeStart = timeEnd - 10
-      this.$router.push({ path: `/tools/device-traffic/${this.active}`, query: { from: timeStart, to: timeEnd, highlight: timestamp } }).catch(err => err)
+        to = timestamp + 1,
+        from = to - 10,
+        highlight = timestamp,
+        query = {
+          to, from, highlight
+        }
+      this.$router.push({ path: `/tools/device-traffic/${this.active}`, query }).catch(err => err)
     },
     init () {
       const entity = this.entityName,

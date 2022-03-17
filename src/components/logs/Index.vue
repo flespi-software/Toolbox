@@ -211,6 +211,14 @@ export default {
     getItemPropsActions (item, data) {
       const selectMode = this.selected.length > 1 ? ACTION_MODE_MULTI : ACTION_MODE_SINGLE
       const actions = [...this.config.actions.filter(action => action.mode === selectMode)]
+      if (item.error_text && item.traffic) {
+        actions.push({
+          icon: 'mdi-alert-outline',
+          label: 'Error traffic',
+          classes: '',
+          type: 'to-error-traffic'
+        })
+      }
       actions.push({
         icon: 'mdi-function',
         label: 'Test expression',
@@ -325,6 +333,10 @@ export default {
         }
         case 'traffic': {
           this.$emit('to-traffic', { index, content })
+          break
+        }
+        case 'to-error-traffic': {
+          this.$emit('to-error-traffic', { index, content })
           break
         }
         case 'expression': {

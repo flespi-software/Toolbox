@@ -22,6 +22,11 @@
       </q-list>
     </q-menu>
     <div class="text-white hex-viewer" :style="{wordBreak: view === 'text' ? 'break-all' : ''}" v-if="hex" @click="selectAllHandler" @mouseover="wrapperMouseOverHandler">
+      <q-popup-proxy v-if="highlightIndex > -1" :target="`.highlighted.byte-${highlightIndex}`" :value="true" no-parent-event>
+        <div class="bg-grey-8 q-pa-xs text-caption">
+          <pre v-for="textModel in highlightTexts" :key="textModel.text" class="q-ma-none text-white">{{textModel.text}}</pre>
+        </div>
+      </q-popup-proxy>
       <template v-if="view === 'hex'">
         <div class="hex-viewer__addresses">
           <div v-for="address in addresses" :key='address'>{{address.toString(16).padStart(7, 0).toUpperCase()}}</div>
@@ -33,7 +38,7 @@
               @mousedown="event => startSelectionHandler(event, row, index)"
               @mouseup="event => endSelectionHandler(event, row, index)"
               class="q-pr-xs q-pl-xs q-mt-sm q-mb-sm"
-              :class="{'selected': (selected.includes((row * 16) + index)), '--active': (active === (row * 16) + index) || (start === end === ((row * 16) + index))}"
+              :class="getClassesByByteIndex((row * 16) + index)"
               v-for="(byte, index) in byte16"
               :key="`${row}${index}${byte}`"
             >{{byte}}</span>
@@ -46,7 +51,7 @@
               @mousedown="event => startSelectionHandler(event, row, index)"
               @mouseup="event => endSelectionHandler(event, row, index)"
               class="q-pr-xs q-pl-xs q-mt-sm q-mb-sm hex-char"
-              :class="{ 'selected': (selected.includes((row * 16) + index)), '--active': (active === (row * 16) + index) || (start === end === ((row * 16) + index))}"
+              :class="getClassesByByteIndex((row * 16) + index)"
               v-for="(byte, index) in byte16"
               :key="`${row}${index}${byte}`"
             >{{replaceByteWithDot(byte)}}</span>
@@ -60,7 +65,10 @@
           @mousedown="event => startSelectionHandler(event, null, index)"
           @mouseup="event => endSelectionHandler(event, null, index)"
           class="q-mt-sm q-mb-sm text-char"
-          :class="{ 'selected': (selected.includes(index)), '--active': (active === index) || (start === end === index), 'raw-hex-data': isEmptySymbol(byte)}"
+          :class="{
+            ...getClassesByByteIndex(index),
+            'raw-hex-data': isEmptySymbol(byte)
+          }"
           :key="`${index}${byte}`"
         >{{replaceByteWithMnemo(byte)}}<br v-if="byte === '0A'"/></span>
       </template>
@@ -79,10 +87,13 @@
     padding 0 2px
   .hex-char, .text-char
     white-space pre
-  .selected
+  .selected--basic
     color rgb(51, 51, 51)
     background-color rgba(255, 255, 255, 0.7)
-  .--active
+  .selected--error
+    color rgb(51, 51, 51)
+    background-color rgba(244, 67, 54, 0.7)
+  .selected--hovered
     color rgb(51, 51, 51)
     background-color rgba(255, 255, 255, 0.4)
   .hex-viewer
@@ -108,24 +119,75 @@
 </style>
 
 <script>
+import get from 'lodash/get'
+/*
+  highlight = {
+    start: number,
+    end: number,
+    type: 'error'|'warning'|'basic',
+    text: string
+  }
+*/
 import hexProcessing from '../mixins/hexProcessing'
+
 export default {
   name: 'HexViewer',
-  props: ['hex', 'view'],
+  props: {
+    hex: String,
+    view: String,
+    highlights: {
+      type: Array,
+      default: () => ([])
+    }
+  },
   data () {
+    const highlightIndex = get(this.highlights[0], 'start', -1)
     return {
-      active: -1,
+      hovered: -1,
       start: -1,
       end: -1,
       selectionMode: false,
       timer: 0,
-      clicks: 0
+      clicks: 0,
+      highlightIndex
     }
   },
   computed: {
     bytesArray () { return this.getBytesArray(this.hex, this.view) },
     addresses () { return this.getAddresses(this.hex) },
-    selected () { return this.getSelected(this.start, this.end) }
+    selected () { return this.getSelected(this.start, this.end) },
+    highlighted () {
+      return this.highlights.reduce((highlights, highlight) => {
+        const range = this.getSelected(highlight.start, highlight.end)
+        const res = highlights[highlight.type]
+        range.forEach(index => {
+          if (!res[index]) {
+            res[index] = []
+          }
+          res[index].push(highlight.text)
+        })
+        return highlights
+      }, {
+        error: {},
+        warning: {},
+        basic: {}
+      })
+    },
+    highlightTexts () {
+      const texts = []
+      if (this.highlights.length) {
+        const hovered = this.highlightIndex
+        const types = ['error', 'warning', 'basic']
+        types.forEach((type) => {
+          if (this.highlighted[type][hovered]) {
+            this.highlighted[type][hovered].forEach(text => {
+              texts.push({ text, type })
+            })
+          }
+        })
+      }
+      return texts
+    }
   },
   watch: {
     hex () {
@@ -135,6 +197,16 @@ export default {
   },
   mixins: [hexProcessing],
   methods: {
+    getClassesByByteIndex (index) {
+      const classes = {
+        'selected--basic': this.selected.includes(index),
+        'highlighted': this.highlighted.error[index] || this.highlighted.warning[index],
+        'selected--error': this.highlighted.error[index],
+        'selected--hovered': (this.hovered === index) || (this.start === this.end === index),
+        [`byte-${index}`]: true
+      }
+      return classes
+    },
     clearSelectedHandler (e) {
       if (e.target.isEqualNode(this.$refs.wrapper) && !this.selectionMode) {
         this.start = -1
@@ -159,7 +231,19 @@ export default {
       if (this.selectionMode) {
         this.end = row ? (row * 16) + col : col
       } else {
-        this.active = row ? (row * 16) + col : col
+        this.hovered = row ? (row * 16) + col : col
+        this.setHighlightIndex(this.hovered)
+      }
+    },
+    setHighlightIndex (index) {
+      if (
+        this.highlighted.error[index] ||
+        this.highlighted.warning[index] ||
+        this.highlighted.basic[index]
+      ) {
+        this.highlightIndex = index
+      } else {
+        this.highlightIndex = -1
       }
     },
     selectAllHandler () {
@@ -176,7 +260,8 @@ export default {
       }
     },
     mouseLeaveHandler () {
-      this.active = -1
+      this.hovered = -1
+      this.highlightIndex = -1
       if (this.selectionMode && this.$q.platform.is.desktop) {
         this.end = this.hex.match(/.{1,2}/g).length - 1
       }

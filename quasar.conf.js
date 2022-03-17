@@ -81,7 +81,8 @@ module.exports = function (ctx) {
         'QTimeline',
         'QTimelineEntry',
         'QRadio',
-        'QSpinner'
+        'QSpinner',
+        'QPopupProxy'
       ],
 
       directives: [

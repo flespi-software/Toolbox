@@ -102,6 +102,7 @@
         @view-log-message="viewWidgetsLogHandler"
         @action-select="data => widgetsViewedLog = data.content"
         @to-traffic="toTrafficHandler"
+        @to-error-traffic="toErrorTrafficHandler"
       />
       <messages
         ref="messages"
@@ -169,6 +170,7 @@ import get from 'lodash/get'
 import init from '../../mixins/entitiesInit'
 import routerProcess from '../../mixins/routerProcess'
 import cloneDeep from 'lodash/cloneDeep'
+import TrafficErrorDialog from '../../components/trafficViewer/TrafficErrorDialog.vue'
 import { ACTION_MODE_SINGLE } from '../../config'
 
 const ratioNames = {
@@ -379,13 +381,55 @@ export default {
         }).catch(err => err)
       }
     },
+    toErrorTrafficHandler ({ content }) {
+      const transportType = { tcp: 2, udp: 130 }
+      const ident = this.protocolFeatures.shared_connection || !content.ident ? 'unidentified' : content.ident
+      let timestamp = content['server.timestamp'] || content.timestamp
+      let to = timestamp + 1, from = to - 10
+      let error
+      if (content.error_text && content.traffic) {
+        timestamp = content.traffic.timestamp
+        from = timestamp
+        to = content.timestamp
+        error = { ...content.traffic, text: content.error_text }
+      }
+      this.$connector.gw.getChannelsIdentsPackets(this.active, ident, { data: { from, to, filter: `type=${transportType[content.transport]}` } })
+        .then((resp) => {
+          const messages = get(resp, 'data.result', [])
+          const data = messages.map((message) => message.data )
+          if (data) {
+            this.$q.dialog({
+              component: TrafficErrorDialog,
+              parent: this,
+              data,
+              error
+            }).onOk(() => {
+              this.toTrafficHandler({ content })
+            }).onCancel(() => {})
+          } else {
+            this.$q.notify({
+              message: 'Traffic is empty',
+              type: 'negative'
+            })
+          }
+        })
+    },
     toTrafficHandler ({ content }) {
       const ident = this.protocolFeatures.shared_connection || !content.ident ? 'unidentified' : content.ident,
         timestamp = content['server.timestamp'] || content.timestamp,
-        timeEnd = timestamp + 1,
-        timeStart = timeEnd - 10
+        to = timestamp + 1,
+        from = to - 10,
+        highlight = timestamp,
+        query = {
+          from,
+          to,
+          highlight
+        }
       if (ident) {
-        this.$router.push({ path: `/tools/traffic/${this.active}/ident/${ident}`, query: { from: timeStart, to: timeEnd, highlight: timestamp } }).catch(err => err)
+        this.$router.push({
+          path: `/tools/traffic/${this.active}/ident/${ident}`,
+          query
+        }).catch(err => err)
       }
     },
     clearHandler () {

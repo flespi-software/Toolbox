@@ -323,6 +323,7 @@ export default {
       if (this.device && !this.$store.state[this.moduleName].ident) {
         this.$store.commit(`${this.moduleName}/setIdent`, this.device.ident)
       }
+      const error = this.$route.query.error && JSON.parse(this.$route.query.error)
       const from = this.$route.query.from * 1000,
         to = this.$route.query.to * 1000,
         selectTime = this.$route.query.highlight || from

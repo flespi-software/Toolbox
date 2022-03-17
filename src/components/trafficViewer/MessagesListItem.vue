@@ -13,7 +13,10 @@
     <q-item-section side class="">
       <small :class="[`text-grey-${selected ? 5 : 7}`]">{{eventsDesc[item.type]}}</small>
       <div>
-        <small class="rounded-borders q-px-xs text-white bg-amber-8">{{item.conn}}</small>
+        <small class="rounded-borders q-px-xs text-white bg-amber-8">
+          {{item.conn.toString().slice(0,2)}}
+          <q-tooltip>{{item.conn}}</q-tooltip>
+        </small>
         <small class="rounded-borders q-mx-xs q-px-xs text-white" :class="{'bg-blue': transport === 'tcp', 'bg-pink-4': transport === 'udp', 'bg-green-9': transport === 'http', 'bg-purple-9': transport === 'mqtt'}">{{transport}}</small>
         <q-icon class="q-ml-xs" size="1.2rem" :color="eventsColors[item.type]" :name="eventIcons[item.type]"/>
       </div>
