@@ -4,6 +4,7 @@
       <q-card-section style="height: 50px;" class="bg-grey-8 q-pa-sm text-white text-h5">
         <span>Error traffic</span>
         <q-btn color="green" class="float-right" icon="mdi-download-network-outline" label="Open traffic viewer" @click="onOKClick" />
+        <q-btn color="white" flat class="float-right q-mr-xs" :label="view === 'hex' ? 'View as text' : 'View as hex'" @click="changeMode" />
       </q-card-section>
       <q-card-section class="q-pa-none scroll" style="height: calc(100% - 102px)">
         <hex-viewer
@@ -55,6 +56,9 @@ export default {
     }
   },
   methods: {
+    changeMode () {
+      this.view = this.view === 'hex' ? 'text' : 'hex'
+    },
     getHex (data) {
       return convert.methods.base64ToHex(data)
     },

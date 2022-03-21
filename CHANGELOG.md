@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.14.1] - 2021-03-21
+[feature] change view mode in error traffic dialog
+[feature] open error traffic by error icon and widget action click
 ### [1.14.0] - 2021-03-17
 [feature] traffic error tool
 [feature] hex viewer highlights

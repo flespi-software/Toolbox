@@ -214,7 +214,7 @@ export default {
       if (item.error_text && item.traffic) {
         actions.push({
           icon: 'mdi-alert-outline',
-          label: 'Error traffic',
+          label: 'View error traffic',
           classes: '',
           type: 'to-error-traffic'
         })

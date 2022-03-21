@@ -22,6 +22,9 @@
           <q-btn class="absolute" style="top: 5px; right: 5px;" color="grey-1" flat dense icon="mdi-content-copy" @click="copyMessageHandler({content: item.data})">
             <q-tooltip>Copy data</q-tooltip>
           </q-btn>
+          <q-btn v-if="item.descriptionAction" class="absolute" style="top: 38px; right: 5px;" :color="item.descriptionAction.color" flat dense :icon="item.descriptionAction.icon" @click="item.descriptionAction.handler({type: 'to-error-traffic', data: item.data})">
+            <q-tooltip>{{item.descriptionAction.title}}</q-tooltip>
+          </q-btn>
         </div>
         <component v-if="item.wrapper && typeof item.wrapper === 'object'" :is="item.wrapper" :ref="key" :data="item.data" :meta="item.meta" @action="data => { item.action && item.action(data) }" :inverted="inverted"/>
         <component v-else-if="item.wrapper && typeof item.wrapper === 'string'" :is="item.wrapper" :ref="key" :class="{'text-white': inverted !== undefined}">{{item.data}}</component>

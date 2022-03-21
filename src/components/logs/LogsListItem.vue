@@ -20,7 +20,7 @@
             <q-icon v-if="item.address === 'sms'" name="mdi-email-outline"  title="address: sms"/>
             <q-icon v-if="item.address === 'local'" name="mdi-content-save-outline"  title="address: local"/>
           </template>
-          <q-icon name="mdi-alert-outline" v-if="prop.name === 'event_code' && !!item['error_text']"><q-tooltip><pre class="q-ma-none">{{item['error_text']}}</pre></q-tooltip></q-icon>
+          <q-icon name="mdi-alert-outline" v-if="prop.name === 'event_code' && !!item['error_text']" @click.stop.native="clickHandler(index, 'to-error-traffic', item)"><q-tooltip><pre class="q-ma-none">{{item['error_text']}}</pre></q-tooltip></q-icon>
           <q-icon name="mdi-bug" v-if="prop.name === 'event_code' && isErrorType && isIntegration" @click.stop.native="clickHandler(index, 'error-report', item)"><q-tooltip>Report error to chat</q-tooltip></q-icon>
           <a @click.stop="" target="_blank" class="text-green" v-if="item.event_code === 901 && prop.name === 'name'" :href="`${$flespiCDN}/file/${item.uuid}`">
             {{getLogValueOfProp(prop, item)}}

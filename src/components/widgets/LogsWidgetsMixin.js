@@ -54,7 +54,14 @@ export default {
             title: 'log object',
             description: log['x-flespi-description'],
             wrapper: JsonTree,
-            data: log
+            data: log,
+            descriptionAction: log.traffic ? {
+              handler: this.logsWidgetDescriptionActionHandler,
+              type: 'to-error-traffic',
+              title: 'View error traffic',
+              icon: 'mdi-alert-outline',
+              color: 'red'
+            } : undefined
           },
           object: {
             title: 'Fields',
@@ -141,6 +148,13 @@ export default {
         case 'col-remove': {
           list.removeCustomColumnHandler(data)
           break
+        }
+      }
+    },
+    logsWidgetDescriptionActionHandler ({ type, data }) {
+      switch (type) {
+        case 'to-error-traffic': {
+          this.toErrorTrafficHandler({ content: data })
         }
       }
     }
