@@ -37,19 +37,23 @@ export default {
   },
   data () {
     const highlights = []
+    let hex = this.data.reduce((res, data) => {
+      return res + this.getHex(data)
+    }, '')
     if (this.error) {
       const error = this.error
       highlights.push({
         type: 'error',
-        start: error.packet_start + error.field_start,
-        end: error.packet_start + error.field_boundary,
+        start: error.field_start,
+        end: error.field_boundary,
         text: error.text
       })
+      if (error.packet_start) {
+        hex = hex.slice(error.packet_start*2)
+      }
     }
     return {
-      hex: this.data.reduce((res, data) => {
-        return res + this.getHex(data)
-      }, ''),
+      hex,
       view: 'hex',
       highlights,
       errorText: this.error.text
