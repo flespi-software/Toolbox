@@ -1,5 +1,6 @@
 import { mapActions } from 'vuex'
 import get from 'lodash/get'
+import isEqual from 'lodash/isEqual'
 
 const loadedEntities = {}
 function getMainEntity (entity, routeId, lsId, flag, dest) {
@@ -150,6 +151,8 @@ export default {
       fromId = from.params && from.params.id ? JSON.parse(from.params.id) : null,
       uninit = [],
       init = []
+    /* needn`t process if query updated only */
+    if (toEntity === fromEntity && isEqual(to.params, from.params)) { return next() }
     if (toEntity === fromEntity) {
       if (toId) {
         switch (toEntity) {

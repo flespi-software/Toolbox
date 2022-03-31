@@ -559,7 +559,6 @@ export default {
         this.active = null
       }
       this.processRoute({ view_mode: (name) => this.changeRatioHandler(ratioValues[name]) }, route)
-      this.clearWidgetsState()
     },
     active (val) {
       const currentItem = this.itemsCollection[val] || {}

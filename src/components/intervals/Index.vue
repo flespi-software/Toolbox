@@ -19,6 +19,7 @@
       :item="listItem"
       :itemprops="getItemsProps"
       @click.native="tableClickHandler"
+      @scroll="scrollHandler"
       @action="actionHandler"
       @change-filter="filterChangeHandler"
       @change-date-range="dateRangeChangeHandler"
@@ -62,6 +63,7 @@ export default {
       moduleName: this.config.vuexModuleName,
       autoscroll: true,
       isInit: false,
+      scrollTimestamp: undefined,
       viewedInterval: null,
       actions: this.config.actions,
       i18n: {
@@ -286,15 +288,30 @@ export default {
         }
       } catch (e) {}
     },
+    scrollHandler ({ event, data }) {
+      const index = Math.floor(data.start + ((data.end - data.start) / 4))
+      const message = this.messages[index]
+      const timestamp = message.timestamp
+      this.scrollTimestamp = timestamp
+      this.updateRoute({
+        query: {
+          [this.routeParamName]: JSON.stringify({
+            filter: this.filter || undefined,
+            scroll: this.scrollTimestamp
+          })
+        }
+      })
+    },
     filterChangeHandler (val) {
       if (this.filter !== val) {
         this.updateRoute({
-          query: {
-            [this.routeParamName]: val ? JSON.stringify({
-            filter: val
-          }) : undefined
-          }
-        })
+        query: {
+          [this.routeParamName]: JSON.stringify({
+            filter: val || undefined,
+            scroll: this.scrollTimestamp
+          })
+        }
+      })
       }
     },
     updateColsHandler (cols) {
@@ -482,6 +499,9 @@ export default {
         try {
           routeConfig = JSON.parse(routeConfig)
           if (routeConfig.filter) { this.filter = routeConfig.filter }
+          if (routeConfig.scroll) {
+            this.scrollTimestamp = routeConfig.scroll
+          }
         } catch (e) {}
       }
       if (this.isSecondary) {
@@ -499,11 +519,16 @@ export default {
         await this.$store.dispatch(`${this.moduleName}/get`)
         await this.$store.dispatch(`${this.moduleName}/pollingGet`)
       }
+      if (this.scrollTimestamp) {
+        const scrollIndex = this.messages.findIndex((message) => { return message.timestamp === this.scrollTimestamp })
+        this.scrollTo(scrollIndex)
+      }
       this.updateRoute({
         query: {
-          [this.routeParamName]: this.filter ? JSON.stringify({
-            filter: this.filter
-          }) : undefined
+          [this.routeParamName]: JSON.stringify({
+            filter: this.filter || undefined,
+            scroll: this.scrollTimestamp
+          })
         }
       }, true)
       this.isInit = true

@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.14.3] - 2021-03-31
+[feature] scroll panels persist by router
 ### [1.14.2] - 2021-03-22
 [fix] error traffic show logic packet only
 ### [1.14.1] - 2021-03-21

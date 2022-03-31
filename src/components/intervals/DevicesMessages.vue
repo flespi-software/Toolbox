@@ -19,6 +19,7 @@
       :item="listItem"
       :itemprops="getItemsProps"
       @click.native="tableClickHandler"
+      @scroll="scrollHandler"
       @action="actionHandler"
       @change-filter="filterChangeHandler"
       @scroll-top="paginationPrevChangeHandler"
@@ -59,6 +60,7 @@ export default {
       viewConfig: this.config.viewConfig,
       actions: this.config.actions,
       autoscroll: true,
+      scrollTimestamp: undefined,
       moduleName: this.config.vuexModuleName,
       isInit: false,
       i18n: {
@@ -253,6 +255,20 @@ export default {
     scrollToWithSavePadding (index) {
       this.$nextTick(() => this.$refs.scrollList && this.$refs.scrollList.scrollToWithSavePadding(index))
     },
+    scrollHandler ({ event, data }) {
+      const index = Math.floor(data.start + ((data.end - data.start) / 4))
+      const message = this.messages[index]
+      const timestamp = message.timestamp
+      this.scrollTimestamp = timestamp
+      this.updateRoute({
+          query: {
+            messages: JSON.stringify({
+              filter: this.filter || undefined,
+              scroll: this.scrollTimestamp
+            })
+          }
+        })
+    },
     async getMessages () {
       if (this.to <= Date.now()) {
         await this.$store.dispatch(`${this.moduleName}/get`)
@@ -288,9 +304,10 @@ export default {
       if (this.filter !== val) {
         this.updateRoute({
           query: {
-            messages: val ? JSON.stringify({
-            filter: val
-          }) : undefined
+            messages: JSON.stringify({
+              filter: val || undefined,
+              scroll: this.scrollTimestamp
+            })
           }
         })
       }
@@ -454,6 +471,36 @@ export default {
         }
       }
     },
+    async getMessagesStartedBy (startTimestamp) {
+      startTimestamp = startTimestamp * 1000
+      const currentMessagesParams = {
+        from: startTimestamp / 1000,
+        to: startTimestamp / 1000,
+        filter: this.filter || undefined,
+        count: this.currentLimit
+      }
+      const currentMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, currentMessagesParams)
+      const beforeMessagesParams = {
+        from: this.from / 1000,
+        to: (startTimestamp - 0.001) / 1000,
+        reverse: true,
+        filter: this.filter || undefined,
+        count: (this.currentLimit / 2) - currentMessages.length
+      }
+      const afterMessagesParams = {
+        from: (startTimestamp + 0.001) / 1000,
+        to: this.to / 1000,
+        filter: this.filter || undefined,
+        count: (this.currentLimit / 2) - currentMessages.length
+      }
+      const beforeMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, beforeMessagesParams)
+      const afterMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, afterMessagesParams)
+      const messages = [...beforeMessages.reverse(), ...currentMessages, ...afterMessages]
+      this.$store.commit(`${this.moduleName}/limiting`, { type: 'init', count: messages.length })
+      this.$store.commit(`${this.moduleName}/setHistoryMessages`, messages)
+      const scrollIndex = beforeMessages.length
+      this.scrollTo(scrollIndex)
+    },
     async init () {
       if (!this.$store.state[this.moduleName]) {
         this.$store.registerModule(this.moduleName, devicesMessagesModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
@@ -461,19 +508,29 @@ export default {
         this.$store.commit(`${this.moduleName}/clear`)
       }
       this.currentLimit = this.limit
-      if (this.activeId) { this.active = this.activeId }
       let routeConfig = this.$route.query.messages
       if (routeConfig) {
         try {
           routeConfig = JSON.parse(routeConfig)
           if (routeConfig.filter) { this.filter = routeConfig.filter }
+          if (routeConfig.scroll) {
+            this.scrollTimestamp = routeConfig.scroll
+          }
         } catch (e) {}
+      }
+      this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
+      await this.$store.dispatch(`${this.moduleName}/getCols`, { etc: true })
+      if (this.scrollTimestamp) {
+        await this.getMessagesStartedBy(this.scrollTimestamp)
+      } else {
+        await this.getMessages()
       }
       this.updateRoute({
         query: {
-          messages: this.filter ? JSON.stringify({
-            filter: this.filter
-          }) : undefined
+          messages: JSON.stringify({
+            filter: this.filter || undefined,
+            scroll: this.scrollTimestamp
+          })
         }
       }, true)
       this.isInit = true

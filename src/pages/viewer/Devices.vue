@@ -569,7 +569,6 @@ export default {
       } else if (route.params && !route.params.id) {
         this.active = null
       }
-      this.clearWidgetsState()
       this.processRoute({ view_mode: (name) => this.changeRatioHandler(ratioValues[name]) }, route)
     },
     active (val, old) {

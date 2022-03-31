@@ -199,7 +199,7 @@
         :config="config.messages"
       />
       <intervals
-        v-else-if="isInit && relatedDataMode"
+        v-else-if="isInit && relatedDataMode && relatedCalcId"
         ref="relatedIntervals"
         @action-view-data="data => intervalWidgetsActions('object', { ...data, refName: 'relatedIntervals' })"
         @action-map="data => intervalWidgetsActions('track', { ...data, refName: 'relatedIntervals' })"
@@ -271,6 +271,8 @@ export default {
   ],
   mixins: [init, MainWidgetsMixin, MessageWidgetsMixin, IntervalsWidgetsMixin, routerProcess],
   data () {
+    const from = this.$route.query.from * 1000,
+          to = this.$route.query.to * 1000
     return {
       entityName: 'intervals',
       calcFilter: '',
@@ -285,7 +287,7 @@ export default {
       deviceBlocked: false,
       calcsBlocked: false,
       viewedInterval: null,
-      dateRange: [0, 0],
+      dateRange: [from, to],
       blocked: '',
       relatedDataMode: DEVICE_SOURCE,
       prevRoute: null,

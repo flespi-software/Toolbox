@@ -19,6 +19,7 @@
       :itemprops="getItemsProps"
       :has-new-messages="hasNewMessages"
       @click.native="tableClickHandler"
+      @scroll="scrollHandler"
       @action="actionHandler"
       @change-filter="filterChangeHandler"
       @scroll-top="paginationPrevChangeHandler"
@@ -65,6 +66,7 @@ export default {
       i18n: {
         'Messages not found': 'Log entries not found'
       },
+      scrollTimestamp: undefined,
       viewConfig: this.config.viewConfig,
       actions: this.config.actions,
       moduleName: this.config.vuexModuleName,
@@ -241,6 +243,22 @@ export default {
     scrollToWithSavePadding (index) {
       this.$nextTick(() => this.$refs.scrollList && this.$refs.scrollList.scrollToWithSavePadding(index))
     },
+    scrollHandler ({ event, data }) {
+      const index = Math.floor(data.start + ((data.end - data.start) / 4))
+      const message = this.messages[index]
+      const timestamp = message.timestamp
+      this.scrollTimestamp = timestamp
+      this.updateRoute({
+        query: {
+          logs: JSON.stringify({
+            filter: this.filter || undefined,
+            from: this.from / 1000,
+            to: this.to / 1000,
+            scroll: this.scrollTimestamp
+          })
+        }
+      })
+    },
     resetParams () {
       this.$refs.scrollList.resetParams()
     },
@@ -278,7 +296,8 @@ export default {
             logs: JSON.stringify({
               filter: val || undefined,
               from: this.from / 1000,
-              to: this.to / 1000
+              to: this.to / 1000,
+              scroll: this.scrollTimestamp
             })
           }
         })
@@ -296,7 +315,8 @@ export default {
           logs: JSON.stringify({
             filter: this.filter || undefined,
             from: from / 1000,
-            to: to / 1000
+            to: to / 1000,
+            scroll: this.scrollTimestamp
           })
         }
       })
@@ -473,6 +493,36 @@ export default {
         this.scrollTo(index)
       }
     },
+    async getMessagesStartedBy (startTimestamp) {
+      startTimestamp = startTimestamp * 1000
+      const currentMessagesParams = {
+        from: startTimestamp / 1000,
+        to: startTimestamp / 1000,
+        filter: this.filter || undefined,
+        count: this.currentLimit
+      }
+      const currentMessages = await this.$store.dispatch(`${this.moduleName}/getLogs`, currentMessagesParams)
+      const beforeMessagesParams = {
+        from: this.from / 1000,
+        to: (startTimestamp - 0.001) / 1000,
+        reverse: true,
+        filter: this.filter || undefined,
+        count: (this.currentLimit / 2) - currentMessages.length
+      }
+      const afterMessagesParams = {
+        from: (startTimestamp + 0.001) / 1000,
+        to: this.to / 1000,
+        filter: this.filter || undefined,
+        count: (this.currentLimit / 2) - currentMessages.length
+      }
+      const beforeMessages = await this.$store.dispatch(`${this.moduleName}/getLogs`, beforeMessagesParams)
+      const afterMessages = await this.$store.dispatch(`${this.moduleName}/getLogs`, afterMessagesParams)
+      const messages = [...beforeMessages.reverse(), ...currentMessages, ...afterMessages]
+      this.$store.commit(`${this.moduleName}/limiting`, { type: 'init', count: messages.length })
+      this.$store.commit(`${this.moduleName}/setHistoryMessages`, messages)
+      const scrollIndex = beforeMessages.length
+      this.scrollTo(scrollIndex)
+    },
     async init () {
       if (!this.$store.state[this.moduleName]) {
         this.$store.registerModule(this.moduleName, logsModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
@@ -493,6 +543,9 @@ export default {
               from = routeConfig.from * 1000
               to = routeConfig.to * 1000
             }
+            if (routeConfig.scroll) {
+              this.scrollTimestamp = routeConfig.scroll
+            }
           } catch (e) {}
         }
         this.$store.commit(`${this.moduleName}/setOrigin`, this.originByPattern)
@@ -501,7 +554,11 @@ export default {
         if (from && to) {
           this.from = from
           this.to = to
-          await this.getMessages()
+          if (this.scrollTimestamp) {
+            await this.getMessagesStartedBy(this.scrollTimestamp)
+          } else {
+            await this.getMessages()
+          }
         } else {
           await this.$store.dispatch(`${this.moduleName}/initTime`)
           await this.getMessages()
@@ -512,7 +569,8 @@ export default {
           logs: JSON.stringify({
             filter: this.filter || undefined,
             from: this.from / 1000,
-            to: this.to / 1000
+            to: this.to / 1000,
+            scroll: this.scrollTimestamp
           })
         }
       }, true)
