@@ -150,7 +150,15 @@ export default {
       set (val) {
         if (val && val.length) { this.autoscroll = false }
         this.$store.commit(`${this.moduleName}/setSelected`, val)
+        this.updateSelectedRoute(this.selectedMessagesTimestamps)
       }
+    },
+    selectedMessagesTimestamps () {
+      let messages = undefined
+      if (this.selected.length) {
+        messages = this.selected.map(index => this.messages[index].timestamp)
+      }
+      return messages
     },
     realtimeEnabled () {
       return this.$store.state[this.moduleName].realtimeEnabled
@@ -248,16 +256,10 @@ export default {
       const message = this.messages[index]
       const timestamp = message.timestamp
       this.scrollTimestamp = timestamp
-      this.updateRoute({
-        query: {
-          logs: JSON.stringify({
-            filter: this.filter || undefined,
-            from: this.from / 1000,
-            to: this.to / 1000,
-            scroll: this.scrollTimestamp
-          })
-        }
-      })
+      this.updateMessagesRoute({}, true)
+    },
+    updateSelectedRoute (selected) {
+      this.updateMessagesRoute({ selected })
     },
     resetParams () {
       this.$refs.scrollList.resetParams()
@@ -291,16 +293,7 @@ export default {
     },
     filterChangeHandler (val) {
       if (this.filter !== val) {
-        this.updateRoute({
-          query: {
-            logs: JSON.stringify({
-              filter: val || undefined,
-              from: this.from / 1000,
-              to: this.to / 1000,
-              scroll: this.scrollTimestamp
-            })
-          }
-        })
+        this.updateMessagesRoute({ filter: val || undefined })
       }
     },
     updateColsHandler (cols) {
@@ -310,15 +303,9 @@ export default {
       const from = range[0],
         to = range[1]
       if (this.from === from && this.to === to) { return false }
-      this.updateRoute({
-        query: {
-          logs: JSON.stringify({
-            filter: this.filter || undefined,
-            from: from / 1000,
-            to: to / 1000,
-            scroll: this.scrollTimestamp
-          })
-        }
+      this.updateMessagesRoute({
+        from: from / 1000,
+        to: to / 1000
       })
     },
     paginationPrevChangeHandler () {
@@ -523,6 +510,31 @@ export default {
       const scrollIndex = beforeMessages.length
       this.scrollTo(scrollIndex)
     },
+    routeConfigProcess (routeConfig) {
+      const res = {}
+      if (routeConfig) {
+        try {
+          routeConfig = JSON.parse(routeConfig)
+          if (routeConfig.filter) { res.filter = routeConfig.filter }
+          if (routeConfig.from && routeConfig.to) {
+            res.from = routeConfig.from * 1000
+            res.to = routeConfig.to * 1000
+          } else if (this.$route.query.from && this.$route.query.to) {
+            res.from = this.$route.query.from * 1000
+            res.to = this.$route.query.to * 1000
+          }
+          if (routeConfig.scroll) {
+            this.scrollTimestamp = routeConfig.scroll
+            res.initTimestamp = routeConfig.scroll
+          }
+          if (routeConfig.selected) {
+            res.selected = routeConfig.selected
+            res.initTimestamp = routeConfig.selected[0]
+          }
+        } catch (e) {}
+      }
+      return res
+    },
     async init () {
       if (!this.$store.state[this.moduleName]) {
         this.$store.registerModule(this.moduleName, logsModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
@@ -532,30 +544,23 @@ export default {
       this.currentLimit = this.limit
       if (this.cid) { this.$store.commit(`${this.moduleName}/setCid`, this.cid) }
       if (this.item) {
-        let from = this.$route.query.from && this.$route.query.from * 1000,
-          to = this.$route.query.to && this.$route.query.to * 1000,
-          routeConfig = this.$route.query.logs
-        if (routeConfig) {
-          try {
-            routeConfig = JSON.parse(routeConfig)
-            if (routeConfig.filter) { this.filter = routeConfig.filter }
-            if (routeConfig.from && routeConfig.to) {
-              from = routeConfig.from * 1000
-              to = routeConfig.to * 1000
-            }
-            if (routeConfig.scroll) {
-              this.scrollTimestamp = routeConfig.scroll
-            }
-          } catch (e) {}
-        }
+        let {
+          from,
+          to,
+          filter,
+          initTimestamp,
+          selected
+        } = this.routeConfigProcess(this.$route.query.logs)
+
+        this.filter = filter
         this.$store.commit(`${this.moduleName}/setOrigin`, this.originByPattern)
         this.$store.commit(`${this.moduleName}/setItemDeletedStatus`, (this.item && this.item.deleted))
         await this.$store.dispatch(`${this.moduleName}/getCols`, this.config.cols)
         if (from && to) {
           this.from = from
           this.to = to
-          if (this.scrollTimestamp) {
-            await this.getMessagesStartedBy(this.scrollTimestamp)
+          if (initTimestamp) {
+            await this.getMessagesStartedBy(initTimestamp)
           } else {
             await this.getMessages()
           }
@@ -563,18 +568,33 @@ export default {
           await this.$store.dispatch(`${this.moduleName}/initTime`)
           await this.getMessages()
         }
+        this.initSelectedByTimestamps(selected)
       }
-      this.updateRoute({
-        query: {
-          logs: JSON.stringify({
-            filter: this.filter || undefined,
-            from: this.from / 1000,
-            to: this.to / 1000,
-            scroll: this.scrollTimestamp
-          })
-        }
-      }, true)
+      this.updateMessagesRoute({}, true)
       this.isInit = true
+    },
+    initSelectedByTimestamps (selected) {
+      if (selected) {
+        const { indexes, messages } = this.messages.reduce((res, message, index) => {
+          if (selected.includes(message.timestamp)) {
+            res.messages.push(message)
+            res.indexes.push(index)
+          }
+          return res
+        }, {indexes: [], messages: []})
+        this.selected = indexes
+        this.$emit('view-log-message', messages)
+      }
+    },
+    updateMessagesRoute (patch = {}, rewrite = false) {
+      const messagesParams = {...{
+        filter: this.filter || undefined,
+        from: this.from / 1000,
+        to: this.to / 1000,
+        scroll: this.scrollTimestamp,
+        selected: this.selectedMessagesTimestamps
+      }, ...patch}
+      this.updateRoute({  query: { logs: JSON.stringify(messagesParams) } }, rewrite)
     }
   },
   watch: {

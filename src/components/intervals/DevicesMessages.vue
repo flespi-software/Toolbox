@@ -156,7 +156,15 @@ export default {
       set (val) {
         if (val && val.length) { this.autoscroll = false }
         this.$store.commit(`${this.moduleName}/setSelected`, val)
+        this.updateSelectedRoute(this.selectedMessagesTimestamps)
       }
+    },
+    selectedMessagesTimestamps () {
+      let messages = undefined
+      if (this.selected.length) {
+        messages = this.selected.map(index => this.messages[index].timestamp)
+      }
+      return messages
     },
     loadingFlag () {
       const state = this.$store.state
@@ -260,14 +268,10 @@ export default {
       const message = this.messages[index]
       const timestamp = message.timestamp
       this.scrollTimestamp = timestamp
-      this.updateRoute({
-          query: {
-            messages: JSON.stringify({
-              filter: this.filter || undefined,
-              scroll: this.scrollTimestamp
-            })
-          }
-        })
+      this.updateMessagesRoute({}, true)
+    },
+    updateSelectedRoute (selected) {
+      this.updateMessagesRoute({ selected })
     },
     async getMessages () {
       if (this.to <= Date.now()) {
@@ -302,14 +306,7 @@ export default {
     },
     filterChangeHandler (val) {
       if (this.filter !== val) {
-        this.updateRoute({
-          query: {
-            messages: JSON.stringify({
-              filter: val || undefined,
-              scroll: this.scrollTimestamp
-            })
-          }
-        })
+        this.updateMessagesRoute({ filter: val || undefined })
       }
     },
     updateColsHandler (cols) {
@@ -501,6 +498,29 @@ export default {
       const scrollIndex = beforeMessages.length
       this.scrollTo(scrollIndex)
     },
+    routeConfigProcess (routeConfig) {
+      const res = {
+        needInitMessages: true
+      }
+      if (routeConfig) {
+        try {
+          routeConfig = JSON.parse(routeConfig)
+          if (routeConfig.filter) { res.filter = routeConfig.filter }
+          if (routeConfig.scroll) {
+            this.scrollTimestamp = routeConfig.scroll
+            res.initTimestamp = routeConfig.scroll
+          }
+          if (routeConfig.selected) {
+            res.selected = routeConfig.selected
+            res.initTimestamp = routeConfig.selected[0]
+          }
+          if (this.$route.query.intervals && this.$route.query.intervals.indexOf('selected') !== -1) {
+            res.needInitMessages = false
+          }
+        } catch (e) {}
+      }
+      return res
+    },
     async init () {
       if (!this.$store.state[this.moduleName]) {
         this.$store.registerModule(this.moduleName, devicesMessagesModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
@@ -508,32 +528,49 @@ export default {
         this.$store.commit(`${this.moduleName}/clear`)
       }
       this.currentLimit = this.limit
-      let routeConfig = this.$route.query.messages
-      if (routeConfig) {
-        try {
-          routeConfig = JSON.parse(routeConfig)
-          if (routeConfig.filter) { this.filter = routeConfig.filter }
-          if (routeConfig.scroll) {
-            this.scrollTimestamp = routeConfig.scroll
-          }
-        } catch (e) {}
-      }
+      let {
+        filter,
+        initTimestamp,
+        selected,
+        needInitMessages
+      } = this.routeConfigProcess(this.$route.query.messages)
+
+      this.filter = filter
       this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
       await this.$store.dispatch(`${this.moduleName}/getCols`, { etc: true })
-      if (this.scrollTimestamp) {
-        await this.getMessagesStartedBy(this.scrollTimestamp)
+
+      if (needInitMessages) {
+        if (initTimestamp) {
+        await this.getMessagesStartedBy(initTimestamp)
       } else {
         await this.getMessages()
       }
-      this.updateRoute({
-        query: {
-          messages: JSON.stringify({
-            filter: this.filter || undefined,
-            scroll: this.scrollTimestamp
-          })
-        }
-      }, true)
+      this.initSelectedByTimestamps(selected)
+      }
+
+      this.updateMessagesRoute({}, true)
       this.isInit = true
+    },
+    initSelectedByTimestamps (selected) {
+      if (selected) {
+        const { indexes, messages } = this.messages.reduce((res, message, index) => {
+          if (selected.includes(message.timestamp)) {
+            res.messages.push(message)
+            res.indexes.push(index)
+          }
+          return res
+        }, {indexes: [], messages: []})
+        this.selected = indexes
+        this.$emit('action-view-data', { index: indexes[indexes.length - 1], content: messages })
+      }
+    },
+    updateMessagesRoute (patch = {}, rewrite = false) {
+      const messagesParams = {...{
+        filter: this.filter || undefined,
+        scroll: this.scrollTimestamp,
+        selected: this.selectedMessagesTimestamps
+      }, ...patch}
+      this.updateRoute({  query: { messages: JSON.stringify(messagesParams) } }, rewrite)
     }
   },
   watch: {

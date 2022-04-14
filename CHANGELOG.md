@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.14.4] - 2021-04-14
+[feature] messages selection persist by routing
 ### [1.14.3] - 2021-03-31
 [feature] scroll panels persist by router
 ### [1.14.2] - 2021-03-22
