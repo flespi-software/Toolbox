@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.14.5] - 2021-04-19
+[fix] highlight traffic packets with all connections type
 ### [1.14.4] - 2021-04-14
 [feature] messages selection persist by routing
 ### [1.14.3] - 2021-03-31
