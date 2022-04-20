@@ -1,5 +1,5 @@
 <template>
-  <q-dialog :maximized="$q.platform.is.mobile" ref="modal" :no-esc-dismiss="loadingFlag" :no-backdrop-dismiss="loadingFlag">
+  <q-dialog :maximized="$q.platform.is.mobile" ref="modal" :no-esc-dismiss="loadingFlag" :no-backdrop-dismiss="loadingFlag" no-route-dismiss>
     <q-card class="bg-grey-9" :style="{minWidth: $q.platform.is.mobile ? '100%' : '310px', height: $q.platform.is.mobile ? '100%' : 'auto'}">
       <q-card-section :style="{height: 'calc(100% - 54px)'}" class="q-pa-sm">
         <date-range-picker

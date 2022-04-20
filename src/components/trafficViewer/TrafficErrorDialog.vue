@@ -1,5 +1,5 @@
 <template>
-  <q-dialog ref="dialog" @hide="onDialogHide" full-width full-height>
+  <q-dialog ref="dialog" @hide="onDialogHide" full-width full-height no-route-dismiss>
     <q-card class="bg-grey-9">
       <q-card-section style="height: 50px;" class="bg-grey-8 q-pa-sm text-white text-h5">
         <span>Error traffic</span>

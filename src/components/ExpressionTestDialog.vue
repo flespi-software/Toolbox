@@ -1,5 +1,5 @@
 <template>
-  <q-dialog ref="dialog" @hide="onDialogHide" full-width full-height>
+  <q-dialog ref="dialog" @hide="onDialogHide" full-width full-height no-route-dismiss>
     <q-card class="q-dialog-plugin bg-grey-9">
       <q-card-section class="q-pa-none" style="height: calc(100% - 52px)">
         <expressions-test-viewer
