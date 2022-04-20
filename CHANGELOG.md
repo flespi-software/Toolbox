@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.14.6] - 2021-04-20
+[rebase] traffic viewer: selection messages logic (tcp/another)
 ### [1.14.5] - 2021-04-19
 [fix] highlight traffic packets with all connections type
 ### [1.14.4] - 2021-04-14

@@ -315,8 +315,28 @@ export default {
     exportModalOpen () { this.$refs.export.show() },
     highlightIncoming (timestamp) {
       const isTypeDataReceive = (type) => type === 2 || type === 130 || type === 66 || type === 34
-      const incomingMessageIndex = this.messages.findIndex(message => isTypeDataReceive(message.type))
-      const incomingMessageIndexEnd = this.messages.findIndex(message => isTypeDataReceive(message.type) && Math.floor(message.timestamp) === Math.floor(timestamp)) // Math.floor((this.to / 1000) - 1)) getting timestamp in seconds for related entity
+      const { incomingMessageIndex, incomingMessageIndexEnd } = this.messages.reduce((result, message, index) => {
+        if (isTypeDataReceive(message.type)) {
+          if (result.incomingMessageIndex === -1) {
+            result.incomingMessageIndex = index
+          }
+          // find first message index for tcp only
+          if (
+            message.type === 2 &&
+            Math.floor(message.timestamp) === Math.floor(timestamp) &&
+            result.incomingMessageIndexEnd === -1
+          ) {
+            result.incomingMessageIndexEnd = index
+          }
+          if (
+            message.type != 2 &&
+            Math.floor(message.timestamp) === Math.floor(timestamp)
+          ) {
+            result.incomingMessageIndexEnd = index
+          }
+        }
+        return result
+      }, { incomingMessageIndex: -1, incomingMessageIndexEnd: -1 })
       if (incomingMessageIndexEnd > -1) {
         this.messageClickHandler({ index: incomingMessageIndexEnd, event: {} })
       } else if (incomingMessageIndex > -1) {
