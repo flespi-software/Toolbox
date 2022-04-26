@@ -27,7 +27,8 @@ export default {
             items: [
               { label: 'Format timestamps', value: 'needFormat', color: 'primary' }
             ]
-          }
+          },
+          noRouteDismiss: true
         }
       )
         .onOk((data) => {

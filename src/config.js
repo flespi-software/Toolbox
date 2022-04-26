@@ -1029,6 +1029,12 @@ export default {
           description: 'session client id'
         },
         {
+          name: 'topic',
+          width: 150,
+          display: true,
+          description: 'session topic'
+        },
+        {
           name: 'published',
           width: 80,
           display: true,

@@ -12,7 +12,7 @@
           </q-toolbar-title>
           <q-btn v-if="errors.length" @click="clearNotificationCounter" small flat round icon="notifications">
             <q-chip v-if="newNotificationCounter" color="red" size="xs" class="absolute-top-right q-ma-none text-white">{{newNotificationCounter}}</q-chip>
-            <q-menu fit ref="popoverError">
+            <q-menu fit ref="popoverError" no-route-dismiss>
               <q-list style="max-height: 200px" separator class="scroll q-py-none">
                 <q-item
                   v-for="(error, index) in errors"
@@ -172,7 +172,8 @@ export default {
         message: 'Do you really want to exit?',
         color: 'grey-9',
         cancel: true,
-        ok: true
+        ok: true,
+        noRouteDismiss: true
       }).onOk(() => { this.reset() })
         .onCancel(() => {})
     },

@@ -67,6 +67,7 @@ export default {
         config.object = {
           title: 'Fields',
           description,
+          default: true,
           wrapper: ObjectView,
           meta: this.fieldsDevicesMetaData,
           action: this.messagesWidgetActionHandler,
@@ -140,9 +141,6 @@ export default {
         }
         case 'object': {
           this.setWidgetsMessageView(data.content)
-          if (!isActive) {
-            view.setTab('object')
-          }
           break
         }
         case 'select': {

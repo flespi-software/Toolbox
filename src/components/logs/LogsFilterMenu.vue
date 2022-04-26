@@ -1,7 +1,7 @@
 <template>
   <q-btn color="white" icon="mdi-filter-variant" flat dense rounded>
     <q-tooltip>Filter by event type</q-tooltip>
-    <q-menu anchor="top right" self="top right" content-class="bg-grey-9">
+    <q-menu anchor="top right" self="top right" content-class="bg-grey-9" no-route-dismiss>
       <div class="q-py-sm" style="max-width: 400px; max-height: calc(50vh - 50px)">
         <div class="text-white text-weight-bold q-ml-sm">Basic</div>
         <div v-for="item in baseOptions" :key="item.value" class="filter-menu__item q-pl-sm cursor-pointer" @click="add('event_code', item.value)">

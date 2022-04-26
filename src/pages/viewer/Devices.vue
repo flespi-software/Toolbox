@@ -390,7 +390,8 @@ export default {
         title: 'Confirm',
         message: 'Do you really want to clear all data from the panes?',
         ok: true,
-        cancel: true
+        cancel: true,
+        noRouteDismiss: true
       }).onOk(() => {
         this.$store.commit(`${this.config.messages.vuexModuleName}/clearMessages`)
         this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`)
@@ -441,7 +442,8 @@ export default {
               component: TrafficErrorDialog,
               parent: this,
               data,
-              error
+              error,
+              noRouteDismiss: true
             }).onOk(() => {
               this.toTrafficHandler({ content })
             }).onCancel(() => {})

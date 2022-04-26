@@ -6,11 +6,11 @@
     :style="{ zIndex: isFullScreen ? 5 : active ? 3 : 2 }"
     :controls="controls"
     :view-model="$q.platform.is.desktop && $q.screen.width > 500 ? viewModel : fullScreenModel"
-    @close="$emit('input', false), $emit('close')"
+    @close="closeHandler"
     @dragging="$emit('active')"
     @change-view-model="changeViewModelHandler"
   >
-    <q-tabs v-model="tabModel" @input="prevTab = undefined" class="text-white" :dense="!isModified" :style="{ width: isModified ? 'calc(100% - 66px)' : $q.platform.is.mobile ? 'calc(100% - 33px)' : '', height: isModified ? '50px' : '' }" outside-arrows>
+    <q-tabs :value="tabModel" @input="setTab" class="text-white" :dense="!isModified" :style="{ width: isModified ? 'calc(100% - 66px)' : $q.platform.is.mobile ? 'calc(100% - 33px)' : '', height: isModified ? '50px' : '' }" outside-arrows>
       <template v-for="(item, key) in config">
         <q-tab :name="key" :label="item.title" :key="`tab-${key}`" color="grey-9" :icon="item.titleIcon"/>
       </template>
@@ -43,12 +43,13 @@
 import WidgetWindow from './WidgetFloatWindow'
 import { copyToClipboard } from 'quasar'
 import get from 'lodash/get'
+import routerProcess from '../../mixins/routerProcess'
 export default {
   props: ['config', 'inverted', 'value', 'actions', 'active', 'controls', 'viewModel'],
   data () {
     return {
       prevTab: undefined,
-      tabModel: Object.keys(this.config)[0],
+      tabModel: null,
       visible: false,
       isModified: false,
       isFullScreen: false,
@@ -58,11 +59,18 @@ export default {
       }
     }
   },
+  computed: {
+    tabNames () { return Object.keys(this.config) }
+  },
   methods: {
     ref (name) { return get(this.$refs[name], 0, undefined) },
     show () { this.visible = true },
     hide () { this.visible = false },
-    setTab (name) { this.tabModel = name },
+    setTab (name) {
+      this.prevTab = undefined
+      this.tabModel = name
+      this.updateRoute({  query: { widget_tab: name } })
+    },
     minimizeHandler (data) {
       this.isModified = !!data
     },
@@ -76,9 +84,13 @@ export default {
     },
     escHandler (evt) {
       if (evt.keyCode === 27 && this.active) {
-        this.$emit('input', false)
-        this.$emit('close')
+        this.closeHandler()
       }
+    },
+    closeHandler () {
+      this.$emit('input', false)
+      this.$emit('close')
+      this.updateRoute({  query: { widget_tab: undefined } })
     },
     resize (size) {
       this.wrapperSize = size
@@ -103,6 +115,15 @@ export default {
         this.$emit('change-view-model', model)
       }
     },
+    getDefaultTab () {
+      let defaultTabName = this.tabNames[0]
+      this.tabNames.forEach((name) => {
+        if (this.config[name].default) {
+          defaultTabName = name
+        }
+      })
+      return defaultTabName
+    },
     copyMessageHandler ({ index, content }) {
       copyToClipboard(JSON.stringify(content)).then((e) => {
         this.$q.notify({
@@ -122,6 +143,7 @@ export default {
     }
   },
   components: { WidgetWindow },
+  mixins: [routerProcess],
   watch: {
     value (value) { this.visible = value },
     config (config) {
@@ -131,16 +153,18 @@ export default {
       }
       if (!config[this.tabModel]) {
         this.prevTab = this.tabModel
-        this.tabModel = Object.keys(config)[0]
+        this.setTab(this.getDefaultTab())
       }
     },
     viewModel (model) { this.changeViewModelHandler(model) }
   },
   created () {
+    let activeTabName = this.$route.query.widget_tab || this.getDefaultTab()
     if (this.viewModel) {
       this.changeViewModelHandler(this.viewModel)
     }
     window.addEventListener('keyup', this.escHandler)
+    this.setTab(activeTabName)
   },
   destroyed () {
     window.removeEventListener('keyup', this.escHandler)

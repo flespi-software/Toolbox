@@ -216,7 +216,8 @@ export default {
         title: 'Confirm',
         message: 'Do you really want to clear all data from the panes?',
         ok: true,
-        cancel: true
+        cancel: true,
+        noRouteDismiss: true
       }).onOk(() => {
         this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`)
         if (this.isWidgetsLogsActive) {

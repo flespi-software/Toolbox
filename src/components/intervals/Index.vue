@@ -474,21 +474,19 @@ export default {
         }
       }
     },
-    routeConfigProcess (routeConfig) {
+    routeConfigProcess (routeConfig = {}) {
       const res = {}
-      if (routeConfig) {
-        try {
-          routeConfig = JSON.parse(routeConfig)
-          if (routeConfig.filter) { res.filter = routeConfig.filter }
-          if (routeConfig.scroll) {
-            this.scrollTimestamp = routeConfig.scroll
-            res.initTimestamp = routeConfig.scroll
-          }
-          if (routeConfig.selected) {
-            res.selected = routeConfig.selected
-            res.initTimestamp = routeConfig.selected[0]
-          }
-        } catch (e) {}
+      try {
+        routeConfig = JSON.parse(routeConfig)
+      } catch (e) {}
+      if (routeConfig.filter) { res.filter = routeConfig.filter }
+      if (routeConfig.scroll) {
+        this.scrollTimestamp = routeConfig.scroll
+        res.initTimestamp = routeConfig.scroll
+      }
+      if (routeConfig.selected) {
+        res.selected = routeConfig.selected
+        res.initTimestamp = routeConfig.selected[0]
       }
       return res
     },

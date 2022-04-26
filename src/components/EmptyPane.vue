@@ -8,7 +8,7 @@
       </div>
     </div>
     <template v-else >
-      <q-dialog v-model="dialogModel">
+      <q-dialog v-model="dialogModel" no-route-dismiss>
         <div class="row text-white q-pa-md bg-grey-9">
           <div class="text-grey-4 col-12 q-px-sm" style="font-size: .9rem;">{{config.sublabel}}</div>
           <div class="q-pa-sm" :class="hint.wclass || [ 'col-6', 'col-sm-3' ]" v-for="(hint, i) in config.hints" :key="i">

@@ -435,7 +435,8 @@ export default {
         title: 'Confirm',
         message: 'Do you really want to clear all connections?',
         ok: true,
-        cancel: true
+        cancel: true,
+        noRouteDismiss: true
       }).onOk(() => { this.$store.commit(`${this.moduleName}/clearMessages`) })
         .onCancel(() => {})
     },

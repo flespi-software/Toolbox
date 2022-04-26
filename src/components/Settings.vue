@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="opened" persistent>
+  <q-dialog v-model="opened" persistent no-route-dismiss>
     <q-card style="min-width: 350px" class="bg-grey-9 text-white">
       <q-card-section>
         <div class="text-h6">Settings</div>

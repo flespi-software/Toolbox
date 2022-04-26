@@ -359,15 +359,10 @@ export default {
           let from = timestamp - 10
           let to = timestamp + 2
           let url = `${window.location.href.split('?')[0]}`
-          if (this.entityName === 'devices') {
-            from = timestamp - 120
-            to = timestamp + 2
-            url += `?from=${from}&to=${to}`
-          }
+          from = timestamp - 120
+          to = timestamp + 2
+          url += `?from=${from}&to=${to}&logs=${encodeURI(JSON.stringify({scroll: content.timestamp,selected: [content.timestamp]}))}`
           if (this.entityName === 'channels') {
-            from = timestamp - 120
-            to = timestamp + 2
-            url += `?from=${from}&to=${to}`
             if (content.ident) {
               url += `&messages=${encodeURI(JSON.stringify({filter: `ident="${content.ident}"`}))}`
             }
@@ -510,28 +505,26 @@ export default {
       const scrollIndex = beforeMessages.length
       this.scrollTo(scrollIndex)
     },
-    routeConfigProcess (routeConfig) {
+    routeConfigProcess (routeConfig = {}) {
       const res = {}
-      if (routeConfig) {
-        try {
-          routeConfig = JSON.parse(routeConfig)
-          if (routeConfig.filter) { res.filter = routeConfig.filter }
-          if (routeConfig.from && routeConfig.to) {
-            res.from = routeConfig.from * 1000
-            res.to = routeConfig.to * 1000
-          } else if (this.$route.query.from && this.$route.query.to) {
-            res.from = this.$route.query.from * 1000
-            res.to = this.$route.query.to * 1000
-          }
-          if (routeConfig.scroll) {
-            this.scrollTimestamp = routeConfig.scroll
-            res.initTimestamp = routeConfig.scroll
-          }
-          if (routeConfig.selected) {
-            res.selected = routeConfig.selected
-            res.initTimestamp = routeConfig.selected[0]
-          }
-        } catch (e) {}
+      try {
+        routeConfig = JSON.parse(routeConfig)
+      } catch (e) {}
+      if (routeConfig.filter) { res.filter = routeConfig.filter }
+      if (routeConfig.from && routeConfig.to) {
+        res.from = routeConfig.from * 1000
+        res.to = routeConfig.to * 1000
+      } else if (this.$route.query.from && this.$route.query.to) {
+        res.from = this.$route.query.from * 1000
+        res.to = this.$route.query.to * 1000
+      }
+      if (routeConfig.scroll) {
+        this.scrollTimestamp = routeConfig.scroll
+        res.initTimestamp = routeConfig.scroll
+      }
+      if (routeConfig.selected) {
+        res.selected = routeConfig.selected
+        res.initTimestamp = routeConfig.selected[0]
       }
       return res
     },

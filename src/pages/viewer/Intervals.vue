@@ -150,7 +150,7 @@
       </div>
       <div v-else>
         <q-btn flat icon="mdi-dots-vertical" color="white" v-if="hasActiveActions">
-          <q-menu>
+          <q-menu no-route-dismiss>
             <q-list>
               <template v-for="(action, index) in actions">
                 <q-item v-close-popup v-if="action.condition" clickable @click="action.handler" :key="index">

@@ -1,5 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.14.8] - 2021-04-26
+[feature] widgets router state save
+[feature] extended bug-report link
+[fix] autoclose menu and funcional dialogs
+[fix] init by global router params
 ### [1.14.7] - 2021-04-20
 [fix] autoclose dialogs
 ### [1.14.6] - 2021-04-20

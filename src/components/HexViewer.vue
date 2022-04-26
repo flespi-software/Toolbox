@@ -1,6 +1,6 @@
 <template>
   <div @click="clearSelectedHandler" ref="wrapper">
-    <q-menu context-menu>
+    <q-menu context-menu no-route-dismiss>
       <q-list style="min-width: 100px" class="bg-grey-8 text-white">
         <div class="q-pa-sm">
           <div style="font-size: .8rem">Copy as</div>

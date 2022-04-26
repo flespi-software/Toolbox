@@ -498,26 +498,24 @@ export default {
       const scrollIndex = beforeMessages.length
       this.scrollTo(scrollIndex)
     },
-    routeConfigProcess (routeConfig) {
+    routeConfigProcess (routeConfig = {}) {
       const res = {
         needInitMessages: true
       }
-      if (routeConfig) {
-        try {
-          routeConfig = JSON.parse(routeConfig)
-          if (routeConfig.filter) { res.filter = routeConfig.filter }
-          if (routeConfig.scroll) {
-            this.scrollTimestamp = routeConfig.scroll
-            res.initTimestamp = routeConfig.scroll
-          }
-          if (routeConfig.selected) {
-            res.selected = routeConfig.selected
-            res.initTimestamp = routeConfig.selected[0]
-          }
-          if (this.$route.query.intervals && this.$route.query.intervals.indexOf('selected') !== -1) {
-            res.needInitMessages = false
-          }
-        } catch (e) {}
+      try {
+        routeConfig = JSON.parse(routeConfig)
+      } catch (e) {}
+      if (routeConfig.filter) { res.filter = routeConfig.filter }
+      if (routeConfig.scroll) {
+        this.scrollTimestamp = routeConfig.scroll
+        res.initTimestamp = routeConfig.scroll
+      }
+      if (routeConfig.selected) {
+        res.selected = routeConfig.selected
+        res.initTimestamp = routeConfig.selected[0]
+      }
+      if (this.$route.query.intervals && this.$route.query.intervals.indexOf('selected') !== -1) {
+        res.needInitMessages = false
       }
       return res
     },

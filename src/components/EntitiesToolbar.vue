@@ -43,7 +43,7 @@
           <q-icon size="1.5rem" name="mdi-dots-vertical"/>
           <q-spinner class="absolute-bottom-right" color="white" size=".7rem" />
         </template>
-        <q-menu>
+        <q-menu no-route-dismiss>
           <q-list dark class="bg-grey-7">
             <q-item v-close-popup v-if="!item.deleted && ratio !== undefined">
               <q-btn-toggle

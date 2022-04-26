@@ -13,7 +13,8 @@ export default {
         parent: this,
         data: messages,
         columns: activeCols,
-        token: token
+        token: token,
+        noRouteDismiss: true
       })
     }
   }

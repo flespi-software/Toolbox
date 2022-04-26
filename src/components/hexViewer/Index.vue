@@ -29,7 +29,7 @@
         </q-btn>
         <q-btn color="white" flat dense icon="mdi-export-variant">
           <q-tooltip>Export packets</q-tooltip>
-          <q-menu>
+          <q-menu no-route-dismiss>
             <q-list style="min-width: 150px" class="bg-grey-8 text-white">
               <div class="q-pa-sm">
                 <div style="font-size: .8rem">Copy selected packets as</div>
