@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.14.9] - 2021-04-27
+[fix] scroll optimizations
 ### [1.14.8] - 2021-04-26
 [feature] widgets router state save
 [feature] extended bug-report link

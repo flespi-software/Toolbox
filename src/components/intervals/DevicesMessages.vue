@@ -35,6 +35,7 @@
 <script>
 import { VirtualScrollList, devicesMessagesModule } from 'qvirtualscroll'
 import Vue from 'vue'
+import debounce from 'lodash/debounce'
 import actions from '../../mixins/actions'
 import { copyToClipboard } from 'quasar'
 import EmptyPane from '../EmptyPane'
@@ -591,6 +592,7 @@ export default {
     }
   },
   created () {
+    this.updateMessagesRoute = debounce(this.updateMessagesRoute, 500, { trailing: true })
     this.init()
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
       this.$store.commit(`${this.moduleName}/setOffline`)

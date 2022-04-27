@@ -42,7 +42,7 @@ import Vue from 'vue'
 import { copyToClipboard } from 'quasar'
 import EmptyPane from '../../EmptyPane'
 import MessagesListItem from './MessagesListItem.vue'
-import get from 'lodash/get'
+import debounce from 'lodash/debounce'
 import actions from '../../../mixins/actions'
 import routerProcess from '../../../mixins/routerProcess'
 import { ACTION_MODE_MULTI, ACTION_MODE_SINGLE } from '../../../config'
@@ -590,6 +590,7 @@ export default {
     }
   },
   created () {
+    this.updateMessagesRoute = debounce(this.updateMessagesRoute, 500, { trailing: true })
     this.init()
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
       this.$store.commit(`${this.moduleName}/setOffline`)

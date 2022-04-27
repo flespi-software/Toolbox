@@ -34,6 +34,7 @@
 <script>
 import { VirtualScrollList, intervalsModule } from 'qvirtualscroll'
 import Vue from 'vue'
+import debounce from 'lodash/debounce'
 import { copyToClipboard } from 'quasar'
 import MessagesListItem from './MessagesListItem.vue'
 import EmptyPane from '../EmptyPane'
@@ -586,6 +587,7 @@ export default {
     }
   },
   created () {
+    this.updateMessagesRoute = debounce(this.updateMessagesRoute, 500, { trailing: true })
     this.init()
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
       this.$store.commit(`${this.moduleName}/setOffline`)

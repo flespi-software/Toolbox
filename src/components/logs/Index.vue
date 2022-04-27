@@ -38,6 +38,7 @@
 
 <script>
 import { date, copyToClipboard } from 'quasar'
+import debounce from 'lodash/debounce'
 import { VirtualScrollList, logsModule } from 'qvirtualscroll'
 import ItemMixin from './ItemMixin'
 import Vue from 'vue'
@@ -607,6 +608,7 @@ export default {
     }
   },
   created () {
+    this.updateMessagesRoute = debounce(this.updateMessagesRoute, 500, { trailing: true })
     this.init()
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
       this.$store.commit(`${this.moduleName}/setOffline`)
