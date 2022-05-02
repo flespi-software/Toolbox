@@ -1,163 +1,59 @@
-import events from './events.json'
 import { date } from 'quasar'
+export const COLORS = {
+  alert: 'red',
+  info: 'grey-6',
+  notice: 'green',
+  warning: 'yellow'
+}
 export default {
+  computed: {
+    logsObject () {
+      return this.$store.state.logsObject
+    }
+  },
   methods: {
-    getLogItemColor (code, closeCode, sendCode, responseCode) {
-      sendCode = sendCode || (this.item ? this.item.send_code : 0)
-      closeCode = closeCode || (this.item ? this.item.close_code : 0)
-      responseCode = responseCode || (this.item ? this.item.response_code : 0)
-      switch (code) {
-        case 1:
-        case 100:
-        case 101:
-        case 110:
-        case 200:
-        case 202:
-        case 300:
-        case 312:
-        case 330:
-        case 401:
-        case 410:
-        case 420:
-        case 430:
-        case 500:
-        case 510:
-        case 608:
-        case 609:
-          return 'green'
-        case 2:
-        case 3:
-        case 4:
-        case 21:
-        case 111:
-        case 112:
-        case 302:
-        case 303:
-        case 311:
-        case 314:
-        case 315:
-        case 321:
-        case 331:
-        case 332:
-        case 333:
-        case 406:
-        case 411:
-        case 412:
-        case 502:
-        case 504:
-        case 511:
-        case 600:
-        case 601:
-        case 602:
-        case 603:
-        case 604:
-        case 605:
-        case 606:
-        case 607:
-        case 900:
-          return 'yellow'
-        case 113:
-        case 115:
-        case 317:
-        case 310:
-        case 320:
-        case 334:
-        case 350:
-        case 404:
-        case 405:
-        case 422:
-        case 432:
-        case 503:
-        case 512:
-        case 520:
-        case 521:
-        case 610:
-        case 611:
-        case 612:
-        case 700:
-        case 800:
-          return 'grey-6'
-        case 20:
-        case 103:
-        case 114:
-        case 203:
-        case 204:
-        case 304:
-        case 313:
-        case 316:
-        case 322:
-        case 323:
-        case 351:
-        case 402:
-        case 403:
-        case 501:
-          return 'red'
-        case 201: {
-          if (sendCode < 0) {
-            return 'red'
-          } else {
-            return 'green'
-          }
-        }
-        case 301:
-        case 102: {
-          switch (closeCode) {
-            case 3: { return 'green' }
-            case 2:
-            case 12:
-            case 15:
-            case 16:
-            case 17:
-            case 19: { return 'grey-6' }
-            case 4:
-            case 5:
-            case 6:
-            case 11:
-            case 13:
-            case 14:
-            case 18: { return 'red' }
-            case 7:
-            case 8:
-            case 9:
-            case 10: { return 'yellow' }
-            default: { return 'grey-6' }
-          }
-        }
-        case 1000: {
-          if (responseCode === 200) {
-            return 'grey-6'
-          } else if (responseCode === 500) {
-            return 'red'
-          } else {
-            return 'yellow'
-          }
-        }
-        default:
-          return 'grey-6'
+    getLogItemColor (code, extCode) {
+      const logMeta = this.logsObject.codes[code]
+      let color = COLORS[logMeta.severity]
+      if (extCode) {
+        console.log()
+        color = COLORS[logMeta.extra_codes[extCode].severity] || color
       }
+      return color
     },
     getLogDescriptionByItem (item) {
-      const types = events.types,
-        closeCodes = events.closeCodes,
-        errorCodes = events.errorCodes,
-        sendCodes = events.sendCodes,
-        blockedCodes = events.blockedCodes
-      let res = types[item.event_code] ? `${types[item.event_code]}` : item.event_code
-      if (item.close_code) {
-        res += closeCodes[item.close_code] ? ` (${closeCodes[item.close_code]})` : ` (close: ${item.close_code})`
+      const logMeta = this.getLogMeta(item)
+
+      let description = logMeta.description
+      if (item[logMeta.extraName]) {
+        description += logMeta.extraData && logMeta.extraData.description ?
+        ` (${logMeta.extraData.description})` :
+        ` (${logMeta.extraName}: ${item[logMeta.extraName]})`
       }
-      if (item.error_code) {
-        res += errorCodes[item.event_code] && errorCodes[item.event_code][item.error_code]
-          ? ` (${errorCodes[item.event_code][item.error_code]})`
-          : ` (error: ${item.error_code})`
+
+      return description
+    },
+    getLogMeta (log) {
+      const logObject = this.logsObject.codes[log.event_code]
+      const extraName = logObject.extra_name
+      let extraData = undefined
+      if (logObject.extra_name && log[extraName]) {
+        const extData = logObject.extra_codes[log[extraName]]
+        extraData = {
+          ...extData,
+          color: COLORS[extData.severity]
+        }
       }
-      if (item.send_code) {
-        res += sendCodes[item.send_code] ? ` (${sendCodes[item.send_code]})` : ` (send: ${item.send_code})`
+      return {
+        code: logObject.code,
+        description: logObject.description,
+        doc: logObject.doc,
+        entity: logObject.entity,
+        color: COLORS[logObject.severity],
+        extraName,
+        extraData
       }
-      if (item.blocked) {
-        res += blockedCodes[item.blocked] ? ` (${blockedCodes[item.blocked]})` : ` (blocked: ${item.blocked})`
-      }
-      return res
+
     },
     getLogValueOfProp (prop, item) {
       let res = prop.custom ? JSON.stringify(item[prop.name]) : item[prop.name]

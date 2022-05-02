@@ -14,8 +14,8 @@
               <span :class="[`text-${getLogItemColor(item.value)}`]">{{item.label}}</span>
             </div>
             <div v-if="item.value === 102 || item.value === 301" :key="item.value + 'close'">
-              <div v-for="(closeItem, key) in closeCodes" :key="closeItem" class="filter-menu__item q-pl-lg cursor-pointer" @click="addComplex('event_code', item.value, 'close_code', key)">
-                <span :class="[`text-${getLogItemColor(item.value, +key)}`]">{{closeItem}}</span>
+              <div v-for="(closeItem, index) in closeCodes" :key="index" class="filter-menu__item q-pl-lg cursor-pointer" @click="addComplex('event_code', item.value, 'close_code', closeItem.code)">
+                <span :class="[`text-${getLogItemColor(item.value, closeItem.code)}`]">{{closeItem.description}}</span>
               </div>
             </div>
           </template>
@@ -26,43 +26,39 @@
 </template>
 
 <script>
-import events from './events.json'
 import ItemMixin from './ItemMixin'
 
-const baseEvents = events.codesByEntities.base,
-  titles = events.types,
-  closeCodes = {
-    2: 'connection closed by tracking device',
-    3: 'connection successfully processed and closed',
-    4: 'received data violates channel\'s protocol',
-    5: 'internal error',
-    6: 'data parsing error',
-    7: 'connection closed due to server maintenance',
-    8: 'protocol implementation updated',
-    9: 'channel\'s parameters changed',
-    10: 'connection closed upon user\'s request',
-    11: 'outgoing connection failed',
-    12: 'current connection closed because of ident collision',
-    13: 'device is blocked',
-    14: 'authentication failed',
-    15: 'device associated with the connection was created, changed or deleted',
-    16: 'channel rejected connection due to IP addresses whitelist mismatch',
-    17: 'connection is closed by inactivity timeout',
-    18: 'unsupported protocol part',
-    19: 'protocol mismatch'
-  }
+export const CLOSE_CODES = {
+    2: true,
+    3: true,
+    4: true,
+    5: true,
+    6: true,
+    7: true,
+    8: true,
+    9: true,
+    10: true,
+    11: true,
+    12: true,
+    13: true,
+    14: true,
+    15: true,
+    16: true,
+    17: true,
+    18: true,
+    19: true
+}
 
 export default {
   props: ['filter', 'entity'],
   mixins: [ItemMixin],
   data () {
-    const entityEvents = events.codesByEntities[this.entity]
     return {
-      baseEvents,
-      entityEvents,
-      baseOptions: baseEvents.map(code => ({ label: titles[code], value: code })),
-      entityOptions: entityEvents.map(code => ({ label: titles[code], value: code })),
-      closeCodes
+      baseEvents: [],
+      entityEvents: [],
+      baseOptions: [],
+      entityOptions: [],
+      closeCodes: []
     }
   },
   methods: {
@@ -77,6 +73,15 @@ export default {
       const filter = event
       this.$emit('update', filter)
     }
+  },
+  created () {
+    const logsObject = this.$store.state.logsObject
+    this.baseEvents = logsObject.entities.base
+    this.entityEvents = logsObject.entities[this.entity]
+    this.baseOptions = this.baseEvents.map(code => ({ label: logsObject.codes[code].description, value: code }))
+    this.entityOptions = this.entityEvents.map(code => ({ label: logsObject.codes[code].description, value: code }))
+    const DEVICE_LOG_CODE_WITH_ERRORS = 102
+    this.closeCodes = Object.values(logsObject.codes[DEVICE_LOG_CODE_WITH_ERRORS].extra_codes).filter(closeCode => CLOSE_CODES[closeCode.code])
   }
 }
 </script>

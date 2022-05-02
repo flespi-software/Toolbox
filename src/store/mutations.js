@@ -251,6 +251,10 @@ function setToolboxSessionSettings (state, data) {
   SessionStorage.set(`toolbox-session-settings[${window.name || 'default'}]`, sessionSettings)
 }
 
+function setLogsObject (state, logsObject) {
+  state.logsObject = logsObject
+}
+
 export default {
   reqStart,
   setItems,
@@ -271,5 +275,6 @@ export default {
   setToolboxSettings,
   clearToolboxSettings,
   setRegions,
-  setToolboxSessionSettings
+  setToolboxSessionSettings,
+  setLogsObject
 }

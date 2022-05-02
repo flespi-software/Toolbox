@@ -329,6 +329,22 @@ async function initConnection ({ state, commit }, { region, token }) {
   }
 }
 
+async function initLogsObject ({ state, commit }) {
+  try {
+    if (typeof state.isLoading !== 'undefined') {
+      Vue.set(state, 'isLoading', true)
+    }
+    const logsObjectReq = await Vue.connector.http.external(`${Vue.prototype.$flespiServer}/codes/log`)
+    const logsObject = get(logsObjectReq, 'data.result[0]', {})
+    commit('setLogsObject', logsObject)
+  } catch (e) {
+    commit('reqFailed', e)
+    if (typeof state.isLoading !== 'undefined') {
+      Vue.set(state, 'isLoading', false)
+    }
+  }
+}
+
 export default {
   getItems,
   unsubscribeItems,
@@ -337,5 +353,6 @@ export default {
   getEntities,
   removeEntities,
   getRegions,
-  initConnection
+  initConnection,
+  initLogsObject
 }

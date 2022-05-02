@@ -31,7 +31,7 @@
       @update-cols="updateColsHandler"
     >
       <empty-pane slot="empty" :config="config.emptyState"/>
-      <logs-filter-menu slot="filter-append" :filter="filter" :entity="entityName" @update="filterChangeHandler"/>
+      <logs-filter-menu v-if="isInit" slot="filter-append" :filter="filter" :entity="entityName" @update="filterChangeHandler"/>
     </virtual-scroll-list>
   </div>
 </template>
@@ -263,7 +263,7 @@ export default {
       this.updateMessagesRoute({ selected })
     },
     resetParams () {
-      this.$refs.scrollList.resetParams()
+      this.$refs.scrollList && this.$refs.scrollList.resetParams()
     },
     processQuery (params) {
       if (!this.isInit) { return false }
@@ -461,12 +461,13 @@ export default {
       if (message) {
         this.selected = [index]
         const content = message
+        const extCode = content.close_code || content.send_code || content.response_code
         Object.defineProperty(content, 'x-flespi-description', {
           value: `<div style="font-size: 1.1rem">${content.event_code}: ${this.getLogDescriptionByItem(content)}</div><div style="font-size: .9rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}</div>`,
           enumerable: false
         })
         Object.defineProperty(content, 'x-flespi-color', {
-          value: `text-${this.getLogItemColor(content.event_code, content.close_code, content.send_code, content.response_code)}`,
+          value: `text-${this.getLogItemColor(content.event_code, extCode)}`,
           enumerable: false
         })
         this.$emit('action-select', {
@@ -534,6 +535,9 @@ export default {
         this.$store.registerModule(this.moduleName, logsModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
       } else {
         this.$store.commit(`${this.moduleName}/clear`)
+      }
+      if (!this.$store.state.logsObject) {
+        await this.$store.dispatch('initLogsObject')
       }
       this.currentLimit = this.limit
       if (this.cid) { this.$store.commit(`${this.moduleName}/setCid`, this.cid) }
