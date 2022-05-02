@@ -461,13 +461,12 @@ export default {
       if (message) {
         this.selected = [index]
         const content = message
-        const extCode = content.close_code || content.send_code || content.response_code
         Object.defineProperty(content, 'x-flespi-description', {
           value: `<div style="font-size: 1.1rem">${content.event_code}: ${this.getLogDescriptionByItem(content)}</div><div style="font-size: .9rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}</div>`,
           enumerable: false
         })
         Object.defineProperty(content, 'x-flespi-color', {
-          value: `text-${this.getLogItemColor(content.event_code, extCode)}`,
+          value: `text-${this.getLogItemColorByLogEntry(content)}`,
           enumerable: false
         })
         this.$emit('action-select', {

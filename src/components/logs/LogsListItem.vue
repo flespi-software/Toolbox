@@ -81,7 +81,7 @@ export default {
         return acc
       }, '') || '*Empty*'
     },
-    color () { return `text-${this.getLogItemColor(this.item.event_code)}` },
+    color () { return `text-${this.getLogItemColorByLogEntry(this.item)}` },
     isErrorType () {
       return this.color === 'text-red'
     },
@@ -109,7 +109,7 @@ export default {
         enumerable: false
       })
       Object.defineProperty(content, 'x-flespi-color', {
-        value: `text-${this.getLogItemColor(content.event_code)}`,
+        value: `text-${this.getLogItemColorByLogEntry(content)}`,
         enumerable: false
       })
       this.$emit('item-click', { index, content, event })

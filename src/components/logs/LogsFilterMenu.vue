@@ -5,17 +5,17 @@
       <div class="q-py-sm" style="max-width: 400px; max-height: calc(50vh - 50px)">
         <div class="text-white text-weight-bold q-ml-sm">Basic</div>
         <div v-for="item in baseOptions" :key="item.value" class="filter-menu__item q-pl-sm cursor-pointer" @click="add('event_code', item.value)">
-          <span :class="[`text-${getLogItemColor(item.value)}`]">{{item.label}}</span>
+          <span :class="[`text-${getLogItemColorByCodes(item.value)}`]">{{item.label}}</span>
         </div>
         <div v-if="entityOptions.length">
           <div class="text-white text-weight-bold q-mt-xs q-ml-sm">Specific for {{entity}}</div>
           <template v-for="item in entityOptions">
             <div :key="item.value" class="filter-menu__item q-pl-sm cursor-pointer" @click="add('event_code', item.value)">
-              <span :class="[`text-${getLogItemColor(item.value)}`]">{{item.label}}</span>
+              <span :class="[`text-${getLogItemColorByCodes(item.value)}`]">{{item.label}}</span>
             </div>
             <div v-if="item.value === 102 || item.value === 301" :key="item.value + 'close'">
               <div v-for="(closeItem, index) in closeCodes" :key="index" class="filter-menu__item q-pl-lg cursor-pointer" @click="addComplex('event_code', item.value, 'close_code', closeItem.code)">
-                <span :class="[`text-${getLogItemColor(item.value, closeItem.code)}`]">{{closeItem.description}}</span>
+                <span :class="[`text-${getLogItemColorByCodes(item.value, closeItem.code)}`]">{{closeItem.description}}</span>
               </div>
             </div>
           </template>

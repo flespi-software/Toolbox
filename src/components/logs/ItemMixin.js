@@ -12,12 +12,20 @@ export default {
     }
   },
   methods: {
-    getLogItemColor (code, extCode) {
+    getLogItemColorByCodes (code, extCode) {
       const logMeta = this.logsObject.codes[code]
       let color = COLORS[logMeta.severity]
       if (extCode) {
-        console.log()
         color = COLORS[logMeta.extra_codes[extCode].severity] || color
+      }
+      return color
+    },
+    getLogItemColorByLogEntry (log) {
+      const logMeta = this.logsObject.codes[log.event_code]
+      let color = COLORS[logMeta.severity]
+      const extraName = logMeta.extra_name
+      if (extraName && log[extraName]) {
+        color = COLORS[logMeta.extra_codes[log[extraName]].severity] || color
       }
       return color
     },

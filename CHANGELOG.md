@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.14.11] - 2021-05-02
+[fix] log severity calculation
 ### [1.14.10] - 2021-05-02
 [feature] getting logs object
 ### [1.14.9] - 2021-04-27
