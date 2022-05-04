@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.14.12] - 2021-05-04
+[fix] router update on highload data
 ### [1.14.11] - 2021-05-02
 [fix] log severity calculation
 ### [1.14.10] - 2021-05-02

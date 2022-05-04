@@ -594,7 +594,7 @@ export default {
     }
   },
   created () {
-    this.updateMessagesRoute = debounce(this.updateMessagesRoute, 500, { trailing: true })
+    this.debouncedUpdateMessagesRoute = debounce(this.updateMessagesRoute, 500, { trailing: true, maxWait: 1000 })
     this.init()
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
       this.$store.commit(`${this.moduleName}/setOffline`)
