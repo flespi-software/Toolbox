@@ -213,8 +213,7 @@ export default {
       data.props.actionsVisible = this.actionsVisible
       data.props.selected = this.selected.includes(index)
       data.props.actions = () => this.getItemPropsActions(item, data)
-      const itemTimestamp = Math.floor(item.timestamp)
-      data.props.highlighted = this.interval && itemTimestamp >= this.interval.begin && itemTimestamp <= this.interval.end
+      data.props.highlighted = this.interval && item.timestamp >= this.interval.begin && item.timestamp <= this.interval.end
       if (!data.on) { data.on = {} }
       data.on.action = this.actionHandler
       data.on['item-click'] = this.itemClickHandler
@@ -269,7 +268,7 @@ export default {
       const message = this.messages[index]
       const timestamp = message.timestamp
       this.scrollTimestamp = timestamp
-      this.updateMessagesRoute({}, true)
+      this.debouncedUpdateMessagesRoute({}, true)
     },
     updateSelectedRoute (selected) {
       this.updateMessagesRoute({ selected })
@@ -347,13 +346,13 @@ export default {
         this.scrollTo(existMessageIndex - 1)
       } else {
         this.$store.state[this.moduleName].messages = []
-        const intervalMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.begin, to: interval.end + 0.999999, count: this.limit })
+        const intervalMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.begin, to: interval.end, count: this.limit })
         const count = Math.ceil((this.limit - intervalMessages.length) / 2)
         let scrollToIndex = 0
         if (intervalMessages.length < this.limit) {
           const paddingMessages = await Promise.all([
             this.$store.dispatch(`${this.moduleName}/getMessages`, { from: this.from / 1000, to: interval.begin - 0.000001, count, reverse: true }),
-            this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.end + 1, to: this.to / 1000, count })
+            this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.end + 0.000001, to: this.to / 1000, count })
           ])
           const prevMsgs = paddingMessages[0].reverse(),
             nextMsgs = paddingMessages[1]
@@ -535,6 +534,7 @@ export default {
       } = this.routeConfigProcess(this.$route.query.messages)
 
       this.filter = filter
+      this.dateRangeChangeHandler(this.dateRange)
       this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
       await this.$store.dispatch(`${this.moduleName}/getCols`, { etc: true })
 
@@ -592,7 +592,7 @@ export default {
     }
   },
   created () {
-    this.updateMessagesRoute = debounce(this.updateMessagesRoute, 500, { trailing: true, maxWait: 1000 })
+    this.debouncedUpdateMessagesRoute = debounce(this.updateMessagesRoute, 500, { trailing: true, maxWait: 1000 })
     this.init()
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
       this.$store.commit(`${this.moduleName}/setOffline`)

@@ -302,7 +302,7 @@ export default {
       const message = this.messages[index]
       const timestamp = message.timestamp
       this.scrollTimestamp = timestamp
-      this.updateMessagesRoute({}, true)
+      this.debouncedUpdateMessagesRoute({}, true)
     },
     updateSelectedRoute (selected) {
       this.updateMessagesRoute({ selected })
@@ -587,7 +587,7 @@ export default {
     }
   },
   created () {
-    this.updateMessagesRoute = debounce(this.updateMessagesRoute, 500, { trailing: true, maxWait: 1000 })
+    this.debouncedUpdateMessagesRoute = debounce(this.updateMessagesRoute, 500, { trailing: true, maxWait: 1000 })
     this.init()
     this.offlineHandler = Vue.connector.socket.on('offline', () => {
       this.$store.commit(`${this.moduleName}/setOffline`)

@@ -271,7 +271,7 @@ export default {
       const message = this.messages[index]
       const timestamp = message['server.timestamp']
       this.scrollTimestamp = timestamp
-      this.updateMessagesRoute({}, true)
+      this.debouncedUpdateMessagesRoute({}, true)
     },
     updateSelectedRoute (selected) {
       this.updateMessagesRoute({ selected })
