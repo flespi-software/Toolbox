@@ -24,7 +24,9 @@
     <div class="text-white hex-viewer" :style="{wordBreak: view === 'text' ? 'break-all' : ''}" v-if="hex" @click="selectAllHandler" @mouseover="wrapperMouseOverHandler">
       <q-popup-proxy v-if="highlightIndex > -1" :target="`.highlighted.byte-${highlightIndex}`" :value="true" no-parent-event>
         <div class="bg-grey-8 q-pa-xs text-caption">
-          <pre v-for="textModel in highlightTexts" :key="textModel.text" class="q-ma-none text-white">{{textModel.text}}</pre>
+          <pre v-for="textModel in highlightTexts" :key="textModel.text" class="q-ma-none text-white text-pre">
+            {{textModel.text}}
+          </pre>
         </div>
       </q-popup-proxy>
       <template v-if="view === 'hex'">
@@ -78,6 +80,9 @@
 </template>
 
 <style lang="stylus">
+  .text-pre
+    white-space pre-wrap
+    word-break break-word
   .raw-hex-data
     font-size 0.8rem
     font-family initial

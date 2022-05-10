@@ -14,6 +14,9 @@
           :view="view"
           :highlights="highlights"
         />
+        <div v-else class="text-white text-h3 text-center q-mt-lg">
+          There is no traffic or traffic has expired
+        </div>
       </q-card-section>
       <q-card-actions align="right" class="bg-grey-8">
         <q-btn flat color="white" label="Cancel" @click="onCancelClick" />

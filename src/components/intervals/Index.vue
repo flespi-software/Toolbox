@@ -3,6 +3,7 @@
     <virtual-scroll-list
       ref="scrollList"
       :class="{'non-selectable': selectionMode}"
+      name="IntervalsVirtualScroll"
       :cols="cols"
       :actions="actions"
       :panelActions="panelActions"

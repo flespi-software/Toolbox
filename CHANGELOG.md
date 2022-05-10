@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.14.14] - 2021-05-10
+[fix] error tooltip adaptive
+[fix] ratio update
+[rebase] scroll debug logs
 ### [1.14.13] - 2021-05-06
 [fix] highlight related messages
 [fix] init time intervals messages

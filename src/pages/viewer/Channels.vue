@@ -536,16 +536,18 @@ export default {
       })
     },
     changeRatioHandler (r) {
-      this.ratioWidgetsModify(r)
-      this.$emit('update:settings', { type: 'ENTITY_VIEW_SETTINGS_CHANGE', opt: { entity: this.entityName }, value: { ratio: r } })
-      this.$nextTick(() => {
-        if (+this.size[0] && this.active) {
-          this.$refs.logs.resetParams()
-        }
-        if (+this.size[1] && this.active) {
-          this.$refs.messages.resetParams()
-        }
-      })
+      if (this.ratio !== r) {
+        this.ratioWidgetsModify(r)
+        this.$emit('update:settings', { type: 'ENTITY_VIEW_SETTINGS_CHANGE', opt: { entity: this.entityName }, value: { ratio: r } })
+        this.$nextTick(() => {
+          if (+this.size[0] && this.active) {
+            this.$refs.logs.resetParams()
+          }
+          if (+this.size[1] && this.active) {
+            this.$refs.messages.resetParams()
+          }
+        })
+      }
     }
   },
   watch: {

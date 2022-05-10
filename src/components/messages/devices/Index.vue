@@ -3,6 +3,7 @@
     <virtual-scroll-list
       ref="scrollList"
       :class="{'non-selectable': selectionMode}"
+      name="MessagesVirtualScroll"
       :cols="cols"
       :actions="config.actions"
       :panelActions="panelActions"

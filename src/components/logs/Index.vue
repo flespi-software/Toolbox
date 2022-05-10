@@ -3,6 +3,7 @@
     <virtual-scroll-list
       ref="scrollList"
       :class="{'non-selectable': selectionMode}"
+      name="LogsVirtualScroll"
       :cols="cols"
       :actions="actions"
       :items="messages"
