@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.14.15] - 2021-05-11
+[fix] error tooltip view
+[fix] menu hide logic
 ### [1.14.14] - 2021-05-10
 [fix] error tooltip adaptive
 [fix] ratio update

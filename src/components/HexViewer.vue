@@ -22,13 +22,11 @@
       </q-list>
     </q-menu>
     <div class="text-white hex-viewer" :style="{wordBreak: view === 'text' ? 'break-all' : ''}" v-if="hex" @click="selectAllHandler" @mouseover="wrapperMouseOverHandler">
-      <q-popup-proxy v-if="highlightIndex > -1" :target="`.highlighted.byte-${highlightIndex}`" :value="true" no-parent-event>
+      <q-menu v-if="highlightIndex > -1" :target="`.highlighted.byte-${highlightIndex}`" :value="true" no-parent-event no-route-dismiss>
         <div class="bg-grey-8 q-pa-xs text-caption">
-          <pre v-for="textModel in highlightTexts" :key="textModel.text" class="q-ma-none text-white text-pre">
-            {{textModel.text}}
-          </pre>
+          <pre v-for="textModel in highlightTexts" :key="textModel.text" class="q-ma-none text-white text-pre">{{textModel.text}}</pre>
         </div>
-      </q-popup-proxy>
+      </q-menu>
       <template v-if="view === 'hex'">
         <div class="hex-viewer__addresses">
           <div v-for="address in addresses" :key='address'>{{address.toString(16).padStart(7, 0).toUpperCase()}}</div>
