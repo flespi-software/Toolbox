@@ -72,6 +72,7 @@ async function getItems ({ state, commit }, payload) {
         // init getting channels-protocols name
         if (entity === 'channels' && !state.channelsProtocols) {
           const protocolsResp = await Vue.connector.gw.getChannelProtocols('all', { fields: 'name,id,features' })
+          commit('reqStart', { endpoint: 'getChannelProtocols' })
           const protocols = protocolsResp.data.result.reduce((result, protocol) => {
             result[protocol.id] = protocol
             return result
@@ -81,6 +82,7 @@ async function getItems ({ state, commit }, payload) {
         // init getting streams-protocols name
         if (entity === 'streams' && !state.streamsProtocols) {
           const protocolsResp = await Vue.connector.gw.getStreamProtocols('all', { fields: 'name,id' })
+          commit('reqStart', { endpoint: 'getStreamProtocols' })
           const protocols = protocolsResp.data.result.reduce((result, protocol) => {
             result[protocol.id] = protocol
             return result
@@ -140,6 +142,7 @@ async function getItems ({ state, commit }, payload) {
               (value, topic, packet) => fieldModeHandler(value, topic, packet, subsIds)
           }
         subsIds = await Vue.connector.socket.subscribe(params)
+        Vue.$logger.info(`subscribe: ${params}`)
         Vue.set(state, writePath, items)
         return subsIds
       } catch (e) {
@@ -162,6 +165,7 @@ async function unsubscribeItems ({ state, commit }, payload) {
       origin = `${originBase}/${id || '+'}`
     }
     try {
+      Vue.$logger.info(`unsubscribe: ${origin}`)
       return await Vue.connector.socket.unsubscribe(origin)
     } catch (e) {
       commit('reqFailed', e)
@@ -214,6 +218,7 @@ async function getDeleted ({ state, commit }, entity) {
               `type=${itemTypes[entity]}`,
               { fields: 'data' }
             )
+            commit('reqStart', { endpoint: 'getDeleted', type: `type=${itemTypes[entity]}` })
             const deletedData = deletedResp.data
             if (deletedData.errors) {
               deletedData.errors.forEach((error) => {

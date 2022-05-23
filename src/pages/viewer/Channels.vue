@@ -103,6 +103,7 @@
         @action-select="data => widgetsViewedLog = data.content"
         @to-traffic="toTrafficHandler"
         @to-error-traffic="toErrorTrafficHandler"
+        @action-timeSync="timeLogsSyncHandler"
       />
       <messages
         ref="messages"
@@ -113,6 +114,7 @@
         @action-show="data => messageWidgetsActions('show', data)"
         @action-image="data => messageWidgetsActions('image', data)"
         @action-select="data => messageWidgetsActions('select', data)"
+        @action-timeSync="timeMessagesSyncHandler"
         :item="selectedItem"
         :activeId="active"
         :isEnabled="!!+size[1]"
@@ -250,6 +252,15 @@ export default {
           type: 'traffic'
         })
       }
+      if (this.ratio === 50) {
+        config.actions.push({
+          icon: 'mdi-swap-vertical',
+          label: 'Show on messages',
+          classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'timeSync'
+        })
+      }
       return config
     },
     messagesConfig () {
@@ -269,6 +280,15 @@ export default {
           classes: '',
           mode: ACTION_MODE_SINGLE,
           type: 'traffic'
+        })
+      }
+      if (this.ratio === 50) {
+        config.actions.push({
+          icon: 'mdi-swap-vertical',
+          label: 'Show on logs',
+          classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'timeSync'
         })
       }
       return config
@@ -380,6 +400,22 @@ export default {
           }
         }).catch(err => err)
       }
+    },
+    timeMessagesSyncHandler (data) {
+      if (this.ratio !== 50) {
+        this.updateRatio(50)
+      }
+      this.$nextTick(() => {
+        this.$refs.logs.timeSync(data)
+      })
+    },
+    timeLogsSyncHandler (data) {
+      if (this.ratio !== 50) {
+        this.updateRatio(50)
+      }
+      this.$nextTick(() => {
+        this.$refs.messages.timeSync(data)
+      })
     },
     toErrorTrafficHandler ({ content }) {
       const transportType = { tcp: 2, udp: 130 }

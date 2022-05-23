@@ -270,16 +270,21 @@ export default {
     scrollHandler ({ event, data }) {
       const index = Math.floor(data.start + ((data.end - data.start) / 4))
       const message = this.messages[index]
-      const timestamp = message['server.timestamp']
-      this.scrollTimestamp = timestamp
-      this.debouncedUpdateMessagesRoute({}, true)
+      if (message) {
+        const timestamp = message['server.timestamp']
+        this.scrollTimestamp = timestamp
+        this.debouncedUpdateMessagesRoute({}, true)
+      }
     },
     updateSelectedRoute (selected) {
       this.updateMessagesRoute({ selected })
     },
-    async getMessages () {
-      if (this.to <= Date.now()) {
-        await this.$store.dispatch(`${this.moduleName}/get`)
+    async getMessages (initTimestamp) {
+      if (this.to <= Date.now() || initTimestamp) {
+        await this.$store.dispatch(`${this.moduleName}/get`, initTimestamp)
+        if (initTimestamp) {
+          this.scrollToTimestamp(initTimestamp)
+        }
       } else {
         await this.$store.dispatch(`${this.moduleName}/getHistory`, 1000)
         this.scrollTo(this.messages.length - 1)
@@ -290,6 +295,10 @@ export default {
     },
     scrollToWithSavePadding (index) {
       this.$nextTick(() => this.$refs.scrollList && this.$refs.scrollList.scrollToWithSavePadding(index))
+    },
+    scrollToTimestamp (timestamp) {
+      const scrollIndex = this.messages.findIndex((message) => timestamp <= message['server.timestamp'])
+      this.scrollTo(scrollIndex)
     },
     resetParams () {
       this.$refs.scrollList.resetParams()
@@ -374,6 +383,15 @@ export default {
             this.cols.schemas[this.cols.activeSchema].cols,
             this.selected.map(index => this.messages[index])
           )
+          break
+        }
+        case 'timeSync': {
+          this.$emit(`action-${type}`, {
+            index,
+            content,
+            from: this.from,
+            to: this.to
+          })
           break
         }
         default: {
@@ -468,35 +486,13 @@ export default {
         this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
       }
     },
-    async getMessagesStartedBy (startTimestamp) {
-      startTimestamp = startTimestamp * 1000
-      const currentMessagesParams = {
-        from: startTimestamp / 1000,
-        to: startTimestamp / 1000,
-        filter: this.filter || undefined,
-        count: this.currentLimit
-      }
-      const currentMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, currentMessagesParams)
-      const beforeMessagesParams = {
-        from: this.from / 1000,
-        to: (startTimestamp - 0.001) / 1000,
-        reverse: true,
-        filter: this.filter || undefined,
-        count: (this.currentLimit / 2) - currentMessages.length
-      }
-      const afterMessagesParams = {
-        from: (startTimestamp + 0.001) / 1000,
-        to: this.to / 1000,
-        filter: this.filter || undefined,
-        count: (this.currentLimit / 2) - currentMessages.length
-      }
-      const beforeMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, beforeMessagesParams)
-      const afterMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, afterMessagesParams)
-      const messages = [...beforeMessages.reverse(), ...currentMessages, ...afterMessages]
-      this.$store.commit(`${this.moduleName}/limiting`, { type: 'init', count: messages.length })
-      this.$store.commit(`${this.moduleName}/setHistoryMessages`, messages)
-      const scrollIndex = beforeMessages.length
-      this.scrollTo(scrollIndex)
+    timeSync (data) {
+      const timestamp = data.content.timestamp
+      const from = data.from
+      const to = data.to
+      this.from = from
+      this.to = to
+      this.getMessages(timestamp);
     },
     routeConfigProcess (routeConfig = {}) {
       const res = {}
@@ -545,11 +541,7 @@ export default {
         if (from && to) {
           this.from = from
           this.to = to
-          if (initTimestamp) {
-            await this.getMessagesStartedBy(initTimestamp)
-          } else {
-            await this.getMessages()
-          }
+          await this.getMessages(initTimestamp)
         } else {
           await this.$store.dispatch(`${this.moduleName}/initTime`)
           await this.getMessages()

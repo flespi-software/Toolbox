@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.15.0] - 2021-05-23
+[feature] show on logs/messages
+[feature] system toolbox logs part 1
 ### [1.14.15] - 2021-05-11
 [fix] error tooltip view
 [fix] menu hide logic

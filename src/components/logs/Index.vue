@@ -239,9 +239,12 @@ export default {
       })
       return actions
     },
-    async getMessages () {
-      if (this.to <= Date.now()) {
-        await this.$store.dispatch(`${this.moduleName}/get`)
+    async getMessages (initTimestamp) {
+      if (this.to <= Date.now() || initTimestamp) {
+        await this.$store.dispatch(`${this.moduleName}/get`, initTimestamp)
+        if (initTimestamp) {
+          this.scrollToTimestamp(initTimestamp)
+        }
       } else {
         await this.$store.dispatch(`${this.moduleName}/getHistory`, 1000)
         this.scrollTo(this.messages.length - 1)
@@ -253,12 +256,18 @@ export default {
     scrollToWithSavePadding (index) {
       this.$nextTick(() => this.$refs.scrollList && this.$refs.scrollList.scrollToWithSavePadding(index))
     },
+    scrollToTimestamp (timestamp) {
+      const scrollIndex = this.messages.findIndex((message) => timestamp <= message.timestamp)
+      this.$nextTick(() => this.$refs.scrollList && this.$refs.scrollList.scrollTo(scrollIndex))
+    },
     scrollHandler ({ event, data }) {
       const index = Math.floor(data.start + ((data.end - data.start) / 4))
       const message = this.messages[index]
-      const timestamp = message.timestamp
-      this.scrollTimestamp = timestamp
-      this.debouncedUpdateMessagesRoute({}, true)
+      if (message) {
+        const timestamp = message.timestamp
+        this.scrollTimestamp = timestamp
+        this.debouncedUpdateMessagesRoute({}, true)
+      }
     },
     updateSelectedRoute (selected) {
       this.updateMessagesRoute({ selected })
@@ -300,6 +309,14 @@ export default {
     },
     updateColsHandler (cols) {
       this.cols = cols
+    },
+    timeSync (data) {
+      const timestamp = data.content['server.timestamp']
+      const from = data.from
+      const to = data.to
+      this.from = from
+      this.to = to
+      this.getMessages(timestamp);
     },
     dateRangeChangeHandler (range) {
       const from = range[0],
@@ -346,6 +363,15 @@ export default {
         }
         case 'to-error-traffic': {
           this.$emit('to-error-traffic', { index, content })
+          break
+        }
+        case 'timeSync': {
+          this.$emit(`action-${type}`, {
+            index,
+            content,
+            from: this.from,
+            to: this.to
+          })
           break
         }
         case 'expression': {
@@ -477,36 +503,6 @@ export default {
         this.scrollTo(index)
       }
     },
-    async getMessagesStartedBy (startTimestamp) {
-      startTimestamp = startTimestamp * 1000
-      const currentMessagesParams = {
-        from: startTimestamp / 1000,
-        to: startTimestamp / 1000,
-        filter: this.filter || undefined,
-        count: this.currentLimit
-      }
-      const currentMessages = await this.$store.dispatch(`${this.moduleName}/getLogs`, currentMessagesParams)
-      const beforeMessagesParams = {
-        from: this.from / 1000,
-        to: (startTimestamp - 0.001) / 1000,
-        reverse: true,
-        filter: this.filter || undefined,
-        count: (this.currentLimit / 2) - currentMessages.length
-      }
-      const afterMessagesParams = {
-        from: (startTimestamp + 0.001) / 1000,
-        to: this.to / 1000,
-        filter: this.filter || undefined,
-        count: (this.currentLimit / 2) - currentMessages.length
-      }
-      const beforeMessages = await this.$store.dispatch(`${this.moduleName}/getLogs`, beforeMessagesParams)
-      const afterMessages = await this.$store.dispatch(`${this.moduleName}/getLogs`, afterMessagesParams)
-      const messages = [...beforeMessages.reverse(), ...currentMessages, ...afterMessages]
-      this.$store.commit(`${this.moduleName}/limiting`, { type: 'init', count: messages.length })
-      this.$store.commit(`${this.moduleName}/setHistoryMessages`, messages)
-      const scrollIndex = beforeMessages.length
-      this.scrollTo(scrollIndex)
-    },
     routeConfigProcess (routeConfig = {}) {
       const res = {}
       try {
@@ -558,7 +554,7 @@ export default {
           this.from = from
           this.to = to
           if (initTimestamp) {
-            await this.getMessagesStartedBy(initTimestamp)
+            await this.getMessages(initTimestamp)
           } else {
             await this.getMessages()
           }

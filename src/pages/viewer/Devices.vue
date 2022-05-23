@@ -97,6 +97,7 @@
         @action-select="data => widgetsViewedLog = data.content"
         @to-traffic="toTrafficHandler"
         @to-error-traffic="toErrorTrafficHandler"
+        @action-timeSync="timeLogsSyncHandler"
         :config="logsConfig"
       />
       <messages
@@ -107,6 +108,7 @@
         @action-image="data => messageWidgetsActions('image', data)"
         @action-select="data => messageWidgetsActions('select', data)"
         @action-traffic="data => messageWidgetsActions('traffic', data)"
+        @action-timeSync="timeMessagesSyncHandler"
         :item="selectedItem"
         :activeId="active"
         :isEnabled="!!+size[1]"
@@ -271,6 +273,15 @@ export default {
           mode: ACTION_MODE_SINGLE,
           type: 'traffic'
         })
+        if (this.ratio === 50) {
+        config.actions.push({
+          icon: 'mdi-swap-vertical',
+          label: 'Show on messages',
+          classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'timeSync'
+        })
+      }
       }
       return config
     },
@@ -322,6 +333,15 @@ export default {
           classes: '',
           mode: ACTION_MODE_SINGLE,
           type: 'traffic'
+        })
+      }
+      if (this.ratio === 50) {
+        config.actions.push({
+          icon: 'mdi-swap-vertical',
+          label: 'Show on logs',
+          classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'timeSync'
         })
       }
       return config
@@ -454,6 +474,22 @@ export default {
             })
           }
         })
+    },
+    timeMessagesSyncHandler (data) {
+      if (this.ratio !== 50) {
+        this.updateRatio(50)
+      }
+      this.$nextTick(() => {
+        this.$refs.logs.timeSync(data)
+      })
+    },
+    timeLogsSyncHandler (data) {
+      if (this.ratio !== 50) {
+        this.updateRatio(50)
+      }
+      this.$nextTick(() => {
+        this.$refs.messages.timeSync(data)
+      })
     },
     toTrafficHandler ({ content }) {
       const timestamp = content['server.timestamp'] || content.timestamp,

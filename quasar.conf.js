@@ -11,7 +11,8 @@ module.exports = function (ctx) {
       'i18n',
       'flespi-io',
       'icomoon',
-      'integrationBus'
+      'integrationBus',
+      'logger'
     ],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css

@@ -4,16 +4,11 @@ import isEqual from 'lodash/isEqual'
 import intersection from 'lodash/intersection'
 import sortBy from 'lodash/sortBy'
 
-function reqStart (state) {
-  if (DEV) {
-    console.log('Start Request')
-  }
+function reqStart (state, params) {
+  Vue.$logger.info(`reqStart: ${params}`)
 }
 function reqFailed (state, payload) {
-  if (DEV) {
-    console.log('Failed Request')
-    console.log(payload)
-  }
+  Vue.$logger.info(`reqFailed: ${payload}`)
   if (payload.response && payload.response.status) {
     switch (payload.response.status) {
       case 0: {
@@ -71,6 +66,7 @@ function setToken (state, val) {
   Vue.connector.token = `FlespiToken ${token}`
   Vue.set(state, 'token', token)
   clearErrors(state)
+  Vue.$logger.info(`setToken: ${val}`)
 }
 function clearToken (state) {
   setToolboxSessionSettings(state, { token: undefined })
@@ -80,6 +76,7 @@ function clearToken (state) {
   Object.keys(state.config).forEach((entity) => {
     Vue.set(state.config[entity], 'isDrawable', false)
   })
+  Vue.$logger.info(`clearToken`)
 }
 
 function setConfig (state, config) {
