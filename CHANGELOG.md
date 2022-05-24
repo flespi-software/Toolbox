@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.15.1] - 2021-05-24
+[fix] setup cid
 ### [1.15.0] - 2021-05-23
 [feature] show on logs/messages
 [feature] system toolbox logs part 1
