@@ -526,6 +526,7 @@ export default {
       } else {
         this.$store.commit(`${this.moduleName}/clear`)
       }
+      this.$store.commit(`${this.moduleName}/setSortBy`, 'timestamp')
       this.currentLimit = this.limit
       let {
         filter,

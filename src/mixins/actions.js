@@ -36,9 +36,7 @@ export default {
           const colsSchema = moduleState.cols
           const cols = colsSchema.schemas[colsSchema.activeSchema].cols.filter(col => !col.__dest).map(col => col.name)
           this.isFileCsvLoading = true
-          if (source === 'devices' || source === 'intervals') {
-            params.fields = cols.join(',')
-          }
+          params.fields = cols.join(',')
           this.$store.dispatch(`${this.moduleName}/getMessages`, params)
             .then(messages => {
               if (!messages || !messages.length) {

@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import { mapActions } from 'vuex'
 import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
@@ -23,6 +24,7 @@ export default {
   beforeRouteEnter (to, from, next) {
     const toEntity = to.meta.moduleName
     let fromEntity = from.meta.moduleName
+    Vue.$logger.info(`beforeRouteEnter: ${from.path} ======> ${to.path}`)
     next(vm => {
       if (toEntity !== fromEntity || !fromEntity) {
         let entity = toEntity
@@ -145,6 +147,7 @@ export default {
     })
   },
   beforeRouteUpdate (to, from, next) {
+    Vue.$logger.info(`beforeRouteUpdate: ${from.path} ======> ${to.path}`)
     const toEntity = to.meta.moduleName,
       fromEntity = from.meta.moduleName,
       toId = to.params && to.params.id ? JSON.parse(to.params.id) : null,
@@ -200,6 +203,7 @@ export default {
       .then(next)
   },
   beforeRouteLeave (to, from, next) {
+    Vue.$logger.info(`beforeRouteLeave: ${from.path} ======> ${to.path}`)
     let fromEntity = from.meta.moduleName,
       toEntity = to.meta.moduleName
     const promises = []

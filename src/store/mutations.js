@@ -5,10 +5,10 @@ import intersection from 'lodash/intersection'
 import sortBy from 'lodash/sortBy'
 
 function reqStart (state, params) {
-  Vue.$logger.info(`reqStart: ${params}`)
+  Vue.$logger.info(`reqStart: ${JSON.stringify(params)}`)
 }
 function reqFailed (state, payload) {
-  Vue.$logger.info(`reqFailed: ${payload}`)
+  Vue.$logger.info(`reqFailed: ${JSON.stringify(payload)}`)
   if (payload.response && payload.response.status) {
     switch (payload.response.status) {
       case 0: {
@@ -44,6 +44,7 @@ function deleteItem (state, { id, mode, source }) {
   } else {
     Vue.set(source[id], 'deleted', true)
   }
+  Vue.$logger.info(`deleteItem: ${JSON.stringify({ id, mode, source })}`)
 }
 function setItems (state, { items, entity }) {
   Vue.set(state, entity, items)
@@ -94,6 +95,7 @@ function addError (state, message) {
   })
   state.newNotificationCounter++
   state.errors.push(message)
+  Vue.$logger.info(message)
 }
 
 function clearErrors (state) {
@@ -102,6 +104,8 @@ function clearErrors (state) {
 
 function setTokenInfo (state, tokenInfo) {
   Vue.set(state, 'tokenInfo', tokenInfo)
+
+  Vue.$logger.info(`tokenInfo: ${JSON.stringify(tokenInfo)}`)
 
   switch (tokenInfo.access.type) {
     // standart token
@@ -199,6 +203,7 @@ function getToolboxSettings (state) {
   /* end migration */
   settings = { entities: settings.entities, viewSettings: settings.viewSettings }
   state.settings = settings || {}
+  Vue.$logger.info(`getToolboxSettings: ${JSON.stringify(settings)}`)
 }
 
 function setToolboxSettings (state, { type, opt, value }) {
@@ -223,6 +228,7 @@ function setToolboxSettings (state, { type, opt, value }) {
   LocalStorage.set('flespi-toolbox-settings', settings)
   settings = { entities: settings.entities, viewSettings: settings.viewSettings }
   state.settings = settings
+  Vue.$logger.info(`setToolboxSettings: ${JSON.stringify(settings)}`)
 }
 
 function clearToolboxSettings (state) {
@@ -245,6 +251,7 @@ function setToolboxSessionSettings (state, data) {
     }
   }
   Vue.set(state, 'sessionSettings', sessionSettings)
+  Vue.$logger.info(`setToolboxSessionSettings: ${JSON.stringify(sessionSettings)}`)
   SessionStorage.set(`toolbox-session-settings[${window.name || 'default'}]`, sessionSettings)
 }
 

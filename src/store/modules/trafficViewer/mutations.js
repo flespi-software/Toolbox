@@ -1,3 +1,5 @@
+import Vue from 'vue'
+
 function setLimit (state, limit) { state.limit = limit }
 function setActive (state, active) { state.active = active }
 function clearMessages (state) { state.messages = [] }
@@ -26,7 +28,12 @@ function clean (state) {
   state.active = null
   state.ident = null
 }
-function reqFailed (state, e) {}
+function reqStart (state, payload) {
+  Vue.$logger.info(`[trafficViewer]reqStart: ${JSON.stringify(payload)}`)
+}
+function reqFailed (state, e) {
+  Vue.$logger.info(`[trafficViewer]reqFailed: ${JSON.stringify(e)}`)
+}
 export default {
   setLimit,
   setActive,
@@ -41,5 +48,6 @@ export default {
   setFrom,
   setDeviceFilter,
   setIdent,
-  reqFailed
+  reqFailed,
+  reqStart
 }

@@ -72,7 +72,7 @@ async function getItems ({ state, commit }, payload) {
         // init getting channels-protocols name
         if (entity === 'channels' && !state.channelsProtocols) {
           const protocolsResp = await Vue.connector.gw.getChannelProtocols('all', { fields: 'name,id,features' })
-          commit('reqStart', { endpoint: 'getChannelProtocols' })
+          commit('reqStart', { endpoint: 'getChannelProtocols', ids: 'all', data: { fields: 'name,id,features' }})
           const protocols = protocolsResp.data.result.reduce((result, protocol) => {
             result[protocol.id] = protocol
             return result
@@ -142,7 +142,7 @@ async function getItems ({ state, commit }, payload) {
               (value, topic, packet) => fieldModeHandler(value, topic, packet, subsIds)
           }
         subsIds = await Vue.connector.socket.subscribe(params)
-        Vue.$logger.info(`subscribe: ${params}`)
+        Vue.$logger.info(`subscribe: ${JSON.stringify(params)}`)
         Vue.set(state, writePath, items)
         return subsIds
       } catch (e) {

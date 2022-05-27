@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.15.2] - 2021-05-27
+[feature] system toolbox logs part 2
+[feature] device rt messages sort
+[rebase] init messages by timestamp
 ### [1.15.1] - 2021-05-24
 [fix] setup cid
 ### [1.15.0] - 2021-05-23

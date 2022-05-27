@@ -9,7 +9,10 @@ function getFromTo (val) {
 async function initTime ({ state, commit }) {
   let timestamp = Date.now()
   try {
-    const resp = await Vue.connector.gw.getDevicesPackets(state.active, { data: { count: 1, reverse: true } })
+    const params = { data: { count: 1, reverse: true } }
+    const resp = await Vue.connector.gw.getDevicesPackets(state.active, params)
+    Vue.$logger.info(`[deviceTraffic]getMessages`)
+    commit('reqStart', { endpoint: 'getDevicesPackets', ids: state.active, params })
     timestamp = get(resp, 'data.result[0].timestamp', Math.floor(Date.now() / 1000))
     timestamp = Math.round(timestamp * 1000)
   } catch (e) {}
@@ -24,7 +27,10 @@ async function getMessages ({ state, commit }) {
   try {
     const now = Date.now()
     const to = state.to > now ? now : state.to
-    const resp = await Vue.connector.gw.getDevicesPackets(state.active, { data: { from: state.from / 1000, to: to / 1000, count: state.limit } })
+    const params = { data: { from: state.from / 1000, to: to / 1000, count: state.limit } }
+    const resp = await Vue.connector.gw.getDevicesPackets(state.active, params)
+    Vue.$logger.info(`[deviceTraffic]getMessages`)
+    commit('reqStart', { endpoint: 'getDevicesPackets', ids: state.active, params })
     const messages = get(resp, 'data.result', [])
     commit('setMessages', messages)
   } catch (e) {
@@ -42,7 +48,10 @@ async function getMessagesTail ({ state, commit }) {
   try {
     const now = Date.now()
     const to = state.to > now ? now : state.to
-    const resp = await Vue.connector.gw.getDevicesPackets(state.active, { data: { count: state.limit, reverse: true, from: state.from / 1000, to: to / 1000 } })
+    const params = { data: { count: state.limit, reverse: true, from: state.from / 1000, to: to / 1000 } }
+    const resp = await Vue.connector.gw.getDevicesPackets(state.active, params)
+    Vue.$logger.info(`[deviceTraffic]getMessagesTail`)
+    commit('reqStart', { endpoint: 'getDevicesPackets', ids: state.active, params })
     const messages = get(resp, 'data.result', [])
     messages.reverse()
     commit('setMessages', messages)
@@ -60,7 +69,10 @@ async function getMessagesNext ({ state, commit }) {
   let messages = []
   try {
     const from = state.messages[state.messages.length - 1].timestamp + 0.000001
-    const resp = await Vue.connector.gw.getDevicesPackets(state.active, { data: { count: state.limit, from, to: state.to / 1000 } })
+    const params = { data: { count: state.limit, from, to: state.to / 1000 } }
+    const resp = await Vue.connector.gw.getDevicesPackets(state.active, params)
+    Vue.$logger.info(`[deviceTraffic]getMessagesNext`)
+    commit('reqStart', { endpoint: 'getDevicesPackets', ids: state.active, params })
     messages = get(resp, 'data.result', [])
     commit('setMessagesAppend', messages)
   } catch (e) {
@@ -76,7 +88,10 @@ async function getMessagesPrev ({ state, commit }) {
   let messages = []
   try {
     const to = state.messages[0].timestamp - 0.000001
-    const resp = await Vue.connector.gw.getDevicesPackets(state.active, { data: { count: state.limit, from: state.from / 1000, to, reverse: true } })
+    const params = { data: { count: state.limit, from: state.from / 1000, to, reverse: true } }
+    const resp = await Vue.connector.gw.getDevicesPackets(state.active, params)
+    Vue.$logger.info(`[deviceTraffic]getMessagesPrev`)
+    commit('reqStart', { endpoint: 'getDevicesPackets', ids: state.active, params })
     messages = get(resp, 'data.result', [])
     messages.reverse()
     commit('setMessagesPrepend', messages)
@@ -92,7 +107,10 @@ function pollingGetMessages ({ state, commit }) {
     try {
       const from = state.messages[state.messages.length - 1].timestamp + 0.000001
       const to = Math.ceil(Date.now() / 1000)
-      const resp = await Vue.connector.gw.getDevicesPackets(state.active, { data: { from, to } })
+      const params = { data: { from, to } }
+      const resp = await Vue.connector.gw.getDevicesPackets(state.active, params)
+      Vue.$logger.info(`[deviceTraffic]pollingGetMessages`)
+      commit('reqStart', { endpoint: 'getDevicesPackets', ids: state.active, params })
       const messages = get(resp, 'data.result', [])
       commit('setMessagesAppend', messages)
     } catch (e) {
@@ -105,11 +123,15 @@ function removePollingGetMessages ({ state, commit }) {
   clearInterval(mesagesPollingId)
   mesagesPollingId = 0
   state.messagePolling = false
+  Vue.$logger.info(`[deviceTraffic]removePollingGetMessages`)
 }
 async function getExportData ({ state }, { from, to }) {
   let messages = []
   try {
-    const resp = await Vue.connector.gw.getDevicesPackets(state.active, { data: { from, to } })
+    const params = { data: { from, to } }
+    const resp = await Vue.connector.gw.getDevicesPackets(state.active, params)
+    Vue.$logger.info(`[deviceTraffic]getExportData`)
+    commit('reqStart', { endpoint: 'getDevicesPackets', ids: state.active, params })
     messages = get(resp, 'data.result', [])
   } catch (e) {}
   return messages
