@@ -175,10 +175,12 @@ async function getDevicePreview ({ state }, device) {
     Vue.$logger.info(`[trafficViewer]getDevicePreview`)
     commit('reqStart', { endpoint: 'getChannelsIdentsPackets', ids: state.active, ident: device.ident, params })
     messages = get(resp, 'data.result', [])
-  } catch (e) {}
+  } catch (e) {
+    commit('reqFailed', e)
+  }
   return messages
 }
-async function getExportData ({ state }, { from, to }) {
+async function getExportData ({ state, commit }, { from, to }) {
   let messages = []
   try {
     const params = { data: { from, to } }
@@ -186,7 +188,10 @@ async function getExportData ({ state }, { from, to }) {
     Vue.$logger.info(`[trafficViewer]getExportData`)
     commit('reqStart', { endpoint: 'getChannelsIdentsPackets', ids: state.active, ident: state.ident, params })
     messages = get(resp, 'data.result', [])
-  } catch (e) {}
+    console.log(messages);
+  } catch (e) {
+    commit('reqFailed', e)
+  }
   return messages
 }
 export default {

@@ -125,7 +125,7 @@ function removePollingGetMessages ({ state, commit }) {
   state.messagePolling = false
   Vue.$logger.info(`[deviceTraffic]removePollingGetMessages`)
 }
-async function getExportData ({ state }, { from, to }) {
+async function getExportData ({ state, commit }, { from, to }) {
   let messages = []
   try {
     const params = { data: { from, to } }
@@ -133,7 +133,9 @@ async function getExportData ({ state }, { from, to }) {
     Vue.$logger.info(`[deviceTraffic]getExportData`)
     commit('reqStart', { endpoint: 'getDevicesPackets', ids: state.active, params })
     messages = get(resp, 'data.result', [])
-  } catch (e) {}
+  } catch (e) {
+    commit('reqFailed', e)
+  }
   return messages
 }
 export default {

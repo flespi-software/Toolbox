@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.15.3] - 2021-05-27
+[fix] logs on failed requests
 ### [1.15.2] - 2021-05-27
 [feature] system toolbox logs part 2
 [feature] device rt messages sort
