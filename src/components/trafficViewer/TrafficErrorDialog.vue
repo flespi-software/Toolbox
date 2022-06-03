@@ -45,15 +45,17 @@ export default {
     }, '')
     if (this.error) {
       const error = this.error
-      highlights.push({
+      const errorHighlight = {
         type: 'error',
         start: error.field_start,
         end: error.field_boundary,
         text: error.text
-      })
+      }
       if (error.packet_start) {
         hex = hex.slice(error.packet_start*2)
       }
+      errorHighlight.end = error.field_boundary || hex.length - 1
+      highlights.push(errorHighlight)
     }
     return {
       hex,
