@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.15.5] - 2021-06-03
+[fix] hex highlight range
 ### [1.15.4] - 2021-06-03
 [fix] error hex highlight
 ### [1.15.3] - 2021-05-27

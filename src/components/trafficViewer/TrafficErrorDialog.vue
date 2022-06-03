@@ -54,7 +54,7 @@ export default {
       if (error.packet_start) {
         hex = hex.slice(error.packet_start*2)
       }
-      errorHighlight.end = error.field_boundary || hex.length - 1
+      errorHighlight.end = error.field_boundary === -1 || error.field_boundary === undefined ? hex.length - 1 : error.field_boundary
       highlights.push(errorHighlight)
     }
     return {
