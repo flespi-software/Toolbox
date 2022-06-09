@@ -418,6 +418,7 @@ export default {
       })
     },
     toErrorTrafficHandler ({ content }) {
+      if (!this.isTrafficViewerSupported) { return }
       const transportType = { tcp: 2, udp: 130 }
       const ident = this.protocolFeatures.shared_connection || !content.ident ? 'unidentified' : content.ident
       let timestamp = content['server.timestamp'] || content.timestamp

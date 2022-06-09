@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.15.6] - 2021-06-09
+[fix] change intervals widget tab
 ### [1.15.5] - 2021-06-03
 [fix] hex highlight range
 ### [1.15.4] - 2021-06-03
@@ -783,7 +785,7 @@ All notable changes to this project will be documented in this file.
 [fix] copy content in hexViewer in raw mode
 ### [0.10.1] - 2018-09-27
 [fix] get more messages button duplicated
-[fix] hexViewer symbols <0x20 and >0x7f
+[fix] hexViewer symbols 020 and >0x7f
 ### [0.10.0] - 2018-09-26
 [feature] rebased hex viewer
 [feature] time selector added to channels messages

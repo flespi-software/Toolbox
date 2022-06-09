@@ -142,7 +142,7 @@ export default {
       }
 
       data.content = data.content[0]
-      const isActive = this.isWidgetsMessageActive
+      const isActive = this.isWidgetsIntervalsActive
       this.setWidgetsIntervalView(data)
       const view = this.$refs.intervalsView
       switch (type) {

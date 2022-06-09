@@ -443,6 +443,7 @@ export default {
       this.$router.push(`/tools/device-traffic/${this.active}`).catch(err => err)
     },
     toErrorTrafficHandler ({ content }) {
+      if (!this.needTrafficRoute) { return }
       const transportType = { tcp: 2, udp: 130 }
       let timestamp = content['server.timestamp'] || content.timestamp
       let to = timestamp + 1, from = to - 10
