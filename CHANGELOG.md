@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.15.7] - 2021-06-17
+[feature] arrow keys scrolling
 ### [1.15.6] - 2021-06-09
 [fix] change intervals widget tab
 ### [1.15.5] - 2021-06-03
