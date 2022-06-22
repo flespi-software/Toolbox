@@ -1,6 +1,6 @@
 {
   "name": "toolbox",
-  "version": "1.15.7",
+  "version": "1.15.8",
   "description": "Flespi ToolboX",
   "productName": "ToolboX",
   "capacitorId": "",
@@ -19,7 +19,7 @@
     "flespi-io-js": "github:flespi-software/flespi-io-js",
     "json2csv": "^5.0.5",
     "lodash": "^4.17.21",
-    "quasar": "^1.18.10",
+    "quasar": "^1.19.0",
     "qvirtualscroll": "github:flespi-software/QVirtualScroll",
     "vue-draggable-resizable": "^2.3.0",
     "vue-i18n": "^8.24.4",
