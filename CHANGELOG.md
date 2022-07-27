@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.15.11] - 2021-07-27
+[fix] hotkeys
 ### [1.15.10] - 2021-07-27
 [feature] arrows up/down in tables
 ### [1.15.9] - 2021-07-07
