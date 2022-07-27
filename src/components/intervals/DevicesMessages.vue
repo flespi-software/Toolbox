@@ -27,6 +27,8 @@
       @scroll-bottom="paginationNextChangeHandler"
       @action-to-bottom="actionToBottomHandler"
       @update-cols="updateColsHandler"
+      @arrowup="arrowUpHandler"
+      @arrowdown="arrowDownHandler"
     >
       <empty-pane slot="empty" :config="config.emptyState"/>
     </virtual-scroll-list>
@@ -59,7 +61,6 @@ export default {
     return {
       listItem: MessagesListItem,
       theme: this.config.theme,
-      viewConfig: this.config.viewConfig,
       actions: this.config.actions,
       autoscroll: true,
       scrollTimestamp: undefined,
@@ -197,6 +198,9 @@ export default {
           async: this.isFileCsvLoading
         }
       ]
+    },
+    viewConfig () {
+      return Object.assign(this.config.viewConfig, { needKeysProcess: !!this.selected.length })
     }
   },
   methods: {
@@ -572,7 +576,31 @@ export default {
         selected: this.selectedMessagesTimestamps
       }, ...patch}
       this.updateRoute({  query: { messages: JSON.stringify(messagesParams) } }, rewrite)
-    }
+    },
+    arrowDownHandler () {
+      const index = this.selected.slice(-1)[0] + 1
+      const content = this.messages[index]
+      if (content) {
+        const payload = {
+          type: 'view',
+          content: [content],
+          index
+        }
+        this.actionHandler(payload)
+      }
+    },
+    arrowUpHandler () {
+      const index = this.selected[0] - 1
+      const content = this.messages[index]
+      if (content) {
+        const payload = {
+          type: 'view',
+          content: [content],
+          index
+        }
+        this.actionHandler(payload)
+      }
+    },
   },
   watch: {
     activeId (val) {

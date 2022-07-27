@@ -9,7 +9,7 @@
       :panelActions="panelActions"
       :items="messages"
       :dateRange="dateRange"
-      :viewConfig="config.viewConfig"
+      :viewConfig="viewConfig"
       :filter="filter"
       :theme="config.theme"
       :title="'Messages'"
@@ -31,6 +31,8 @@
       @action-to-bottom="actionToBottomHandler"
       @action-to-new-messages="actionToNewMessages"
       @action-to-new-messages-hide="actionToNewMessagesHide"
+      @arrowup="arrowUpHandler"
+      @arrowdown="arrowDownHandler"
     >
       <empty-pane slot="empty" :config="config.emptyState"/>
     </virtual-scroll-list>
@@ -207,6 +209,9 @@ export default {
     },
     needAutoscroll () {
       return this.realtimeEnabled && !this.selected.length && this.autoscroll
+    },
+    viewConfig () {
+      return Object.assign(this.config.viewConfig, { needKeysProcess: !!this.selected.length })
     }
   },
   methods: {
@@ -573,7 +578,31 @@ export default {
         selected: this.selectedMessagesTimestamps
       }, ...patch}
       this.updateRoute({  query: { messages: JSON.stringify(messagesParams) } }, rewrite)
-    }
+    },
+    arrowDownHandler () {
+      const index = this.selected.slice(-1)[0] + 1
+      const content = this.messages[index]
+      if (content) {
+        const payload = {
+          type: 'view',
+          content: [content],
+          index
+        }
+        this.actionHandler(payload)
+      }
+    },
+    arrowUpHandler () {
+      const index = this.selected[0] - 1
+      const content = this.messages[index]
+      if (content) {
+        const payload = {
+          type: 'view',
+          content: [content],
+          index
+        }
+        this.actionHandler(payload)
+      }
+    },
   },
   watch: {
     activeId (val) {

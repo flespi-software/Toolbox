@@ -30,6 +30,8 @@
       @action-to-new-messages="actionToNewMessages"
       @action-to-new-messages-hide="actionToNewMessagesHide"
       @update-cols="updateColsHandler"
+      @arrowup="arrowUpHandler"
+      @arrowdown="arrowDownHandler"
     >
       <empty-pane slot="empty" :config="config.emptyState"/>
       <logs-filter-menu v-if="isInit" slot="filter-append" :filter="filter" :entity="entityName" @update="filterChangeHandler"/>
@@ -69,7 +71,6 @@ export default {
         'Messages not found': 'Log entries not found'
       },
       scrollTimestamp: undefined,
-      viewConfig: this.config.viewConfig,
       actions: this.config.actions,
       moduleName: this.config.vuexModuleName,
       autoscroll: true,
@@ -194,6 +195,9 @@ export default {
     },
     needAutoscroll () {
       return this.realtimeEnabled && !this.selected.length && this.autoscroll
+    },
+    viewConfig () {
+      return Object.assign(this.config.viewConfig, { needKeysProcess: !!this.selected.length })
     }
   },
   methods: {
@@ -589,7 +593,31 @@ export default {
         selected: this.selectedMessagesTimestamps
       }, ...patch}
       this.updateRoute({  query: { logs: JSON.stringify(messagesParams) } }, rewrite)
-    }
+    },
+    arrowDownHandler () {
+      const index = this.selected.slice(-1)[0] + 1
+      const content = this.messages[index]
+      if (content) {
+        const payload = {
+          type: 'view',
+          content: [content],
+          index
+        }
+        this.actionHandler(payload)
+      }
+    },
+    arrowUpHandler () {
+      const index = this.selected[0] - 1
+      const content = this.messages[index]
+      if (content) {
+        const payload = {
+          type: 'view',
+          content: [content],
+          index
+        }
+        this.actionHandler(payload)
+      }
+    },
   },
   watch: {
     item (item, prev) {

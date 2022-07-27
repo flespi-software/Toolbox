@@ -40,6 +40,12 @@ export default {
           description: "Connected device's address (source) or IP address from which HTTP request was received (host)"
         },
         {
+          name: 'app',
+          width: 150,
+          display: true,
+          description: "Request app"
+        },
+        {
           name: 'method',
           width: 150,
           display: true,

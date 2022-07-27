@@ -26,6 +26,8 @@
       @change-date-range="dateRangeChangeHandler"
       @update-cols="updateColsHandler"
       @action-to-bottom="actionToBottomHandler"
+      @arrowup="arrowUpHandler"
+      @arrowdown="arrowDownHandler"
     >
       <empty-pane slot="empty" :config="config.emptyState"/>
     </virtual-scroll-list>
@@ -59,7 +61,6 @@ export default {
     return {
       listItem: MessagesListItem,
       theme: this.config.theme,
-      viewConfig: this.config.viewConfig,
       isSecondary: this.config.mode === 'secondary',
       routeParamName: this.config.mode === 'secondary' ? 'related_intervals' : 'intervals',
       moduleName: this.config.vuexModuleName,
@@ -227,6 +228,9 @@ export default {
           async: this.isFileCsvLoading
         }
       ]
+    },
+    viewConfig () {
+      return Object.assign(this.config.viewConfig, { needKeysProcess: !!this.selected.length })
     }
   },
   methods: {
@@ -423,7 +427,7 @@ export default {
         const intervalMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.begin, to: interval.end + 0.999999, count: this.limit })
         const count = Math.ceil((this.limit - intervalMessages.length) / 2)
         let scrollToIndex = 0
-        if (intervalMessages.length < this.limit) {
+        if (intervalMessages.length < this.limit) {ep
           const paddingMessages = await Promise.all([
             this.$store.dispatch(`${this.moduleName}/getMessages`, { from: this.from / 1000, to: interval.begin - 0.000001, count, reverse: true }),
             this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.end + 1, to: this.to / 1000, count })
@@ -563,7 +567,31 @@ export default {
         selected: this.selectedMessagesTimestamps
       }, ...patch}
       this.updateRoute({  query: { [this.routeParamName]: JSON.stringify(messagesParams) } }, rewrite)
-    }
+    },
+    arrowDownHandler () {
+      const index = this.selected.slice(-1)[0] + 1
+      const content = this.messages[index]
+      if (content) {
+        const payload = {
+          type: 'view',
+          content,
+          index
+        }
+        this.viewMessagesAndShowInMessagesHandler(payload)
+      }
+    },
+    arrowUpHandler () {
+      const index = this.selected[0] - 1
+      const content = this.messages[index]
+      if (content) {
+        const payload = {
+          type: 'view',
+          content,
+          index
+        }
+        this.viewMessagesAndShowInMessagesHandler(payload)
+      }
+    },
   },
   watch: {
     activeId (val) {
