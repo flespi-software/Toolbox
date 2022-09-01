@@ -196,6 +196,9 @@ export default {
     hex () {
       this.start = -1
       this.end = -1
+    },
+    selected (val) {
+      this.$emit('selectedBytes', this.start !== -1 && this.end !== -1 ? this.getContent('hex', this.hex, this.view, val) : '')
     }
   },
   mixins: [hexProcessing],
@@ -254,12 +257,17 @@ export default {
       if (this.clicks === 1) {
         this.timer = setTimeout(() => {
           this.clicks = 0
-        }, 700)
+        }, 500)
       } else {
         clearTimeout(this.timer)
         this.clicks = 0
-        this.start = 0
-        this.end = this.hex.match(/.{1,2}/g).length - 1
+        if (this.selected.length === 0) {
+          this.start = 0
+          this.end = this.hex.match(/.{1,2}/g).length - 1
+        } else{
+          this.start = -1
+          this.end = -1
+        }
       }
     },
     mouseLeaveHandler () {

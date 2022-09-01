@@ -1,97 +1,100 @@
 # Changelog
 All notable changes to this project will be documented in this file.
-### [1.15.11] - 2021-07-27
+### [1.15.12] - 2022-07-27
+[fix] limit hex viewer render
+[feature] added hex-viewer converter
+### [1.15.11] - 2022-07-27
 [fix] hotkeys
-### [1.15.10] - 2021-07-27
+### [1.15.10] - 2022-07-27
 [feature] arrows up/down in tables
-### [1.15.9] - 2021-07-07
+### [1.15.9] - 2022-07-07
 [feature] flespiApp setting
-### [1.15.8] - 2021-06-22
+### [1.15.8] - 2022-06-22
 [update] packages
-### [1.15.7] - 2021-06-17
+### [1.15.7] - 2022-06-17
 [feature] arrow keys scrolling
-### [1.15.6] - 2021-06-09
+### [1.15.6] - 2022-06-09
 [fix] change intervals widget tab
-### [1.15.5] - 2021-06-03
+### [1.15.5] - 2022-06-03
 [fix] hex highlight range
-### [1.15.4] - 2021-06-03
+### [1.15.4] - 2022-06-03
 [fix] error hex highlight
-### [1.15.3] - 2021-05-27
+### [1.15.3] - 2022-05-27
 [fix] logs on failed requests
-### [1.15.2] - 2021-05-27
+### [1.15.2] - 2022-05-27
 [feature] system toolbox logs part 2
 [feature] device rt messages sort
 [rebase] init messages by timestamp
-### [1.15.1] - 2021-05-24
+### [1.15.1] - 2022-05-24
 [fix] setup cid
-### [1.15.0] - 2021-05-23
+### [1.15.0] - 2022-05-23
 [feature] show on logs/messages
 [feature] system toolbox logs part 1
-### [1.14.15] - 2021-05-11
+### [1.14.15] - 2022-05-11
 [fix] error tooltip view
 [fix] menu hide logic
-### [1.14.14] - 2021-05-10
+### [1.14.14] - 2022-05-10
 [fix] error tooltip adaptive
 [fix] ratio update
 [rebase] scroll debug logs
-### [1.14.13] - 2021-05-06
+### [1.14.13] - 2022-05-06
 [fix] highlight related messages
 [fix] init time intervals messages
 [fix] filter enter
-### [1.14.12] - 2021-05-04
+### [1.14.12] - 2022-05-04
 [fix] router update on highload data
-### [1.14.11] - 2021-05-02
+### [1.14.11] - 2022-05-02
 [fix] log severity calculation
-### [1.14.10] - 2021-05-02
+### [1.14.10] - 2022-05-02
 [feature] getting logs object
-### [1.14.9] - 2021-04-27
+### [1.14.9] - 2022-04-27
 [fix] scroll optimizations
-### [1.14.8] - 2021-04-26
+### [1.14.8] - 2022-04-26
 [feature] widgets router state save
 [feature] extended bug-report link
 [fix] autoclose menu and funcional dialogs
 [fix] init by global router params
-### [1.14.7] - 2021-04-20
+### [1.14.7] - 2022-04-20
 [fix] autoclose dialogs
-### [1.14.6] - 2021-04-20
+### [1.14.6] - 2022-04-20
 [rebase] traffic viewer: selection messages logic (tcp/another)
-### [1.14.5] - 2021-04-19
+### [1.14.5] - 2022-04-19
 [fix] highlight traffic packets with all connections type
-### [1.14.4] - 2021-04-14
+### [1.14.4] - 2022-04-14
 [feature] messages selection persist by routing
-### [1.14.3] - 2021-03-31
+### [1.14.3] - 2022-03-31
 [feature] scroll panels persist by router
-### [1.14.2] - 2021-03-22
+### [1.14.2] - 2022-03-22
 [fix] error traffic show logic packet only
-### [1.14.1] - 2021-03-21
+### [1.14.1] - 2022-03-21
 [feature] change view mode in error traffic dialog
 [feature] open error traffic by error icon and widget action click
-### [1.14.0] - 2021-03-17
+### [1.14.0] - 2022-03-17
 [feature] traffic error tool
 [feature] hex viewer highlights
 [fix] scroll time intervals
-### [1.13.2] - 2021-03-04
+### [1.13.2] - 2022-03-04
 [fix] unsubscribe connection check after traffic deinit
-### [1.13.1] - 2021-02-28
+### [1.13.1] - 2022-02-28
 [fix] expression testing tool url
-### [1.13.0] - 2021-02-28
+### [1.13.0] - 2022-02-28
 [feature] expressions testing tool integrated
 [update] calcs cols config
 [fix] init with dates
-### [1.12.16] - 2021-02-11
+### [1.12.16] - 2022-02-11
 [rebase] logs colors
-### [1.12.15] - 2021-02-11
+### [1.12.15] - 2022-02-11
 [rebase] logs colors
-### [1.12.14] - 2021-02-10
+### [1.12.14] - 2022-02-10
 [fix] logs descriptions list
-### [1.12.13] - 2021-02-10
+### [1.12.13] - 2022-02-10
 [feature] new logs codes
 [fix] image table value
-### [1.12.12] - 2021-02-03
+### [1.12.12] - 2022-02-03
 [fix] csv optimize request for channels
-### [1.12.11] - 2021-02-02
+### [1.12.11] - 2022-02-02
 [fix] csv optimize request
-### [1.12.10] - 2021-01-10
+### [1.12.10] - 2022-01-10
 [add] logs codes
 ### [1.12.9] - 2020-12-30
 [fix] scroll table header

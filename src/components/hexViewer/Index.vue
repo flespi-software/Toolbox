@@ -53,11 +53,28 @@
         </q-btn>
       </q-toolbar>
       <hex-viewer
-        v-if="activeConnection && !loadingFlag"
-        :style="{height: `calc(100vh - ${isVisibleToolbar ? activeConnection ? '150px' : '100px' : '100px'})`, position: 'relative', overflow: 'auto'}"
+        v-if="activeConnection && !loadingFlag && hex"
+        :style="{height: `calc(100vh - ${(isVisibleToolbar ? activeConnection ? 150 : 100 : 100) + (converter ? 17 : 0)}px)`, marginTop: `${converter ? 17 : 0}px)`, position: 'relative', overflow: 'auto'}"
         :hex="hex"
         :view="typeOfHexView"
+        @selectedBytes="convertSelectedBytes"
       />
+      <div v-if="converter" class=" text-white text-bold q-px-xs row" style="font-family: 'PT Mono', monospace;background: rgba(0,0,0,.8);">
+        <template v-if="selectedbytes.length <= 256">
+          <small class="col-2 ellipsis q-pr-md">
+            <span class="text-yellow">HEX({{selectedbytes.length / 2}}):</span> {{selectedbytes}}
+          </small>
+          <small class="col ellipsis q-pr-md">
+            <span class="text-yellow">Dec:</span> {{parseInt(selectedbytes, 16)}}
+          </small>
+          <small class="col ellipsis q-pr-md">
+            <span class="text-yellow">BIN:</span> {{hex2bin(selectedbytes)}}
+          </small>
+        </template>
+        <template v-else>
+          <small>Too big to convert</small>
+        </template>
+      </div>
       <div v-else-if="$q.platform.is.desktop && connectionPreview" class="q-pa-md" style="overflow: hidden; max-height: calc(100vh - 100px);">
         <q-timeline layout="loose" color="white" dark>
           <message-preview-item v-for="(message, index) in connectionPreview.messages.slice(0, 20)" :key="index" :message="message" :view="typeOfHexView"/>
@@ -85,6 +102,8 @@ export default {
   props: ['active', 'activeDevice', 'isVisibleToolbar', 'config'],
   data () {
     return {
+      selectedbytes: '',
+      converter: false,
       connectionPreview: null,
       typeOfHexView: 'hex',
       selectedMessages: '',
@@ -103,12 +122,21 @@ export default {
     },
     hex () {
       if (this.selectedMessages && this.activeConnection) {
-        return this.selectedMessages.reduce((hex, message) => {
+        let result = this.selectedMessages.reduce((hex, message) => {
           hex += message['proxy.payload.hex'] || ''
           return hex
         }, '')
+        if (result.length > 100000) {
+          result = result.substring(0, 10000)
+          this.$q.notify({
+            type: 'warning',
+            message: 'Render limited to 10 000 characters',
+            timeout: 5000
+          })
+        }
+        return result
       }
-      return false
+      return ''
     }
   },
   methods: {
@@ -156,6 +184,17 @@ export default {
       this.activeConnection = null
       this.selectedMessages = ''
       this.$emit('change-active-device', null)
+    },
+    convertSelectedBytes (bytes) {
+      if (bytes) {
+        this.selectedbytes = bytes
+        this.converter = true
+      } else {
+        this.converter = false
+      }
+    },
+    hex2bin(hex){
+      return (parseInt(hex, 16).toString(2)).padStart(8, '0');
     }
   },
   watch: {

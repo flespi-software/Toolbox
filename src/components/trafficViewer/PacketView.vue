@@ -1,35 +1,56 @@
 <template>
-  <div class="traffic-viewer__packets q-pa-sm" v-if="packets && packets.length">
-    <div v-for="(batch, index) in batches" :key="index" style="min-width: 820px;">
-      <div class="packets__separator" :style="{backgroundColor: bgDataColors[batch.type]}" v-if="batches[index - 1]"></div>
-      <div class="packet__header text-center" :style="{backgroundColor: bgDataColors[batch.type]}">
-        <span class="rounded-borders text-white full-height">
-          <q-icon size="1rem" :color="eventsColors[batch.type]" :name="eventIcons[batch.type]" style="vertical-align: text-bottom;"/>
-          <span class="text-uppercase text-white">{{eventsDesc[batch.type]}}</span>
-          (
-          <span class="text-white" :class="{'q-mr-sm': batch.size}" style="font-size: .8rem">{{date.formatDate(batch.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss.SSS')}}</span>
-          <span v-if="batch.size" class="q-mr-sm text-white" style="font-size: .8rem">size: {{batch.size}}B</span>
-          <small
-            v-if="batch.transport"
-            class="rounded-borders q-px-xs text-white"
-            :class="{'bg-blue': batch.transport === 'tcp', 'bg-pink-4': batch.transport === 'udp', 'bg-green-9': batch.transport === 'http', 'bg-purple-9': batch.transport === 'mqtt'}"
-            style="vertical-align: middle;"
-          >
-            {{batch.transport}}
-          </small>
-          )
-        </span>
-      </div>
-      <hex-viewer
-        :style="{backgroundColor: bgDataColors[batch.type]}"
-        v-if="batch.data"
-        :hex="batch.data"
-        :view="view"
-      />
-      <div class="packets__separator" :style="{backgroundColor: bgDataColors[batch.type]}" v-if="batches[index + 1]"></div>
-      <div class="packets__missing" v-if="getNeedMissing(index)">
-        <div class="missing__up"></div>
-        <div class="missing__down"></div>
+  <div v-if="packets && packets.length">
+
+    <div v-if="converter" class="absolute-bottom text-white text-bold q-px-xs row" style="font-family: 'PT Mono', monospace;background: rgba(0,0,0,.8);">
+      <template v-if="selectedbytes.length <= 256">
+        <small class="col-2 ellipsis q-pr-md">
+          <span class="text-yellow">HEX({{selectedbytes.length / 2}}):</span> {{selectedbytes}}
+        </small>
+        <small class="col ellipsis q-pr-md">
+          <span class="text-yellow">Dec:</span> {{parseInt(selectedbytes, 16)}}
+        </small>
+        <small class="col ellipsis q-pr-md">
+          <span class="text-yellow">BIN:</span> {{hex2bin(selectedbytes)}}
+        </small>
+      </template>
+      <template v-else>
+        Too big to convert
+      </template>
+    </div>
+    <div class="traffic-viewer__packets q-pa-sm scroll" :style="`height: ${converter ? 'calc(100% - 17px)' : 'height:100%'};margin-bottom:17px;`">
+      <div v-for="(batch, index) in batches" :key="index" style="min-width: 820px;">
+        <div class="packets__separator" :style="{backgroundColor: bgDataColors[batch.type]}" v-if="batches[index - 1]"></div>
+        <div class="packet__header text-center" :style="{backgroundColor: bgDataColors[batch.type]}">
+          <span class="rounded-borders text-white full-height">
+            <q-icon size="1rem" :color="eventsColors[batch.type]" :name="eventIcons[batch.type]" style="vertical-align: text-bottom;"/>
+            <span class="text-uppercase text-white">{{eventsDesc[batch.type]}}</span>
+            (
+            <span class="text-white" :class="{'q-mr-sm': batch.size}" style="font-size: .8rem">{{date.formatDate(batch.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss.SSS')}}</span>
+            <span v-if="batch.size" class="q-mr-sm text-white" style="font-size: .8rem">size: {{batch.size}}B</span>
+            <small
+              v-if="batch.transport"
+              class="rounded-borders q-px-xs text-white"
+              :class="{'bg-blue': batch.transport === 'tcp', 'bg-pink-4': batch.transport === 'udp', 'bg-green-9': batch.transport === 'http', 'bg-purple-9': batch.transport === 'mqtt'}"
+              style="vertical-align: middle;"
+            >
+              {{batch.transport}}
+            </small>
+            )
+          </span>
+        </div>
+        <hex-viewer
+          :style="{backgroundColor: bgDataColors[batch.type]}"
+          v-if="batch.data"
+          :hex="batch.data"
+          :view="view"
+          @selectedBytes="convertSelectedBytes"
+        />
+        <div class="packets__separator" :style="{backgroundColor: bgDataColors[batch.type]}" v-if="batches[index + 1]"></div>
+        <div class="packets__missing" v-if="getNeedMissing(index)">
+          <div class="missing__up"></div>
+          <div class="missing__down"></div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -45,6 +66,8 @@ export default {
   data () {
     return {
       date,
+      selectedbytes: '',
+      converter: false,
       transports: {
         2: 'tcp',
         66: 'http',
@@ -143,6 +166,17 @@ export default {
       const current = this.batches[batchIndex]
       const nextBatch = this.batches[batchIndex + 1]
       return nextBatch && current.index[current.index.length - 1] + 1 < nextBatch.index[0]
+    },
+    convertSelectedBytes (bytes) {
+      if (bytes) {
+        this.selectedbytes = bytes
+        this.converter = true
+      } else {
+        this.converter = false
+      }
+    },
+    hex2bin(hex){
+      return (parseInt(hex, 16).toString(2)).padStart(8, '0');
     }
   },
   mixins: [convertMixin],
