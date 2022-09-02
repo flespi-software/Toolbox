@@ -1,23 +1,6 @@
 <template>
   <div v-if="packets && packets.length">
-
-    <div v-if="converter" class="absolute-bottom text-white text-bold q-px-xs row" style="font-family: 'PT Mono', monospace;background: rgba(0,0,0,.8);">
-      <template v-if="selectedbytes.length <= 256">
-        <small class="col-2 ellipsis q-pr-md">
-          <span class="text-yellow">HEX({{selectedbytes.length / 2}}):</span> {{selectedbytes}}
-        </small>
-        <small class="col ellipsis q-pr-md">
-          <span class="text-yellow">Dec:</span> {{parseInt(selectedbytes, 16)}}
-        </small>
-        <small class="col ellipsis q-pr-md">
-          <span class="text-yellow">BIN:</span> {{hex2bin(selectedbytes)}}
-        </small>
-      </template>
-      <template v-else>
-        Too big to convert
-      </template>
-    </div>
-    <div class="traffic-viewer__packets q-pa-sm scroll" :style="`height: ${converter ? 'calc(100% - 17px)' : 'height:100%'};margin-bottom:17px;`">
+    <div class="traffic-viewer__packets q-pa-sm scroll" :style="`height: ${converter ? 'calc(100% - 17px)' : 'height:100%'};`">
       <div v-for="(batch, index) in batches" :key="index" style="min-width: 820px;">
         <div class="packets__separator" :style="{backgroundColor: bgDataColors[batch.type]}" v-if="batches[index - 1]"></div>
         <div class="packet__header text-center" :style="{backgroundColor: bgDataColors[batch.type]}">
@@ -50,15 +33,16 @@
           <div class="missing__up"></div>
           <div class="missing__down"></div>
         </div>
-
       </div>
     </div>
+    <HexConverter v-if="converter" :hex="selectedbytes" />
   </div>
   <div v-else style="text-align: center; color: #9e9e9e; font-size: 3rem; padding-top: 40px;" >Select packets</div>
 </template>
 
 <script>
 import HexViewer from '../HexViewer'
+import HexConverter from '../widgets/HexConverter'
 import convertMixin from '../../mixins/convert'
 import { date } from 'quasar'
 export default {
@@ -174,13 +158,10 @@ export default {
       } else {
         this.converter = false
       }
-    },
-    hex2bin(hex){
-      return (parseInt(hex, 16).toString(2)).padStart(8, '0');
     }
   },
   mixins: [convertMixin],
-  components: { HexViewer }
+  components: { HexViewer, HexConverter }
 }
 </script>
 <style lang="stylus">

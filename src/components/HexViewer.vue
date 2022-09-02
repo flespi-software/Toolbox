@@ -37,7 +37,7 @@
               @mouseover="setActiveHandler(row, index)"
               @mousedown="event => startSelectionHandler(event, row, index)"
               @mouseup="event => endSelectionHandler(event, row, index)"
-              class="q-pr-xs q-pl-xs q-mt-sm q-mb-sm"
+              class="q-pr-xs q-pl-xs q-pt-xs q-pb-xs"
               :class="getClassesByByteIndex((row * 16) + index)"
               v-for="(byte, index) in byte16"
               :key="`${row}${index}${byte}`"
@@ -50,7 +50,7 @@
               @mouseover="setActiveHandler(row, index)"
               @mousedown="event => startSelectionHandler(event, row, index)"
               @mouseup="event => endSelectionHandler(event, row, index)"
-              class="q-pr-xs q-pl-xs q-mt-sm q-mb-sm hex-char"
+              class="q-pr-xs q-pl-xs q-pt-xs q-pb-xs hex-char"
               :class="getClassesByByteIndex((row * 16) + index)"
               v-for="(byte, index) in byte16"
               :key="`${row}${index}${byte}`"
@@ -92,7 +92,7 @@
     white-space pre
   .selected--basic
     color rgb(51, 51, 51)
-    background-color rgba(255, 255, 255, 0.7)
+    background-color rgba(255, 255, 255, 0.7) !important
   .selected--error
     color rgb(51, 51, 51)
     background-color rgba(244, 67, 54, 0.7)
@@ -105,6 +105,7 @@
     width 820px
     font-family 'PT Mono',monospace
     font-size 14.5px
+    line-height 24px
     user-select none
     cursor default
     font-variant normal
@@ -261,7 +262,7 @@ export default {
       } else {
         clearTimeout(this.timer)
         this.clicks = 0
-        if (this.selected.length === 0) {
+        if (this.selected.length <= 1) {
           this.start = 0
           this.end = this.hex.match(/.{1,2}/g).length - 1
         } else{

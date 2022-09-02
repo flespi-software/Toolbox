@@ -59,6 +59,18 @@
         :view="typeOfHexView"
         @selectedBytes="convertSelectedBytes"
       />
+      <div v-else-if="$q.platform.is.desktop && connectionPreview" class="q-pa-md" style="overflow: hidden; max-height: calc(100vh - 100px);">
+        <q-timeline layout="loose" color="white" dark>
+          <message-preview-item v-for="(message, index) in connectionPreview.messages.slice(0, 20)" :key="index" :message="message" :view="typeOfHexView"/>
+        </q-timeline>
+      </div>
+      <div style="text-align: center; color: #9e9e9e; font-size: 3rem; padding-top: 40px;" v-else>
+        <div>Select connection</div>
+        <q-icon name="mdi-arrow-down-bold-outline" size="3rem"/>
+        <div>Find message</div>
+        <q-icon name="mdi-arrow-down-bold-outline" size="3rem"/>
+        <div>Analyze data</div>
+      </div>
       <div v-if="converter" class=" text-white text-bold q-px-xs row" style="font-family: 'PT Mono', monospace;background: rgba(0,0,0,.8);">
         <template v-if="selectedbytes.length <= 256">
           <small class="col-2 ellipsis q-pr-md">
@@ -74,18 +86,6 @@
         <template v-else>
           <small>Too big to convert</small>
         </template>
-      </div>
-      <div v-else-if="$q.platform.is.desktop && connectionPreview" class="q-pa-md" style="overflow: hidden; max-height: calc(100vh - 100px);">
-        <q-timeline layout="loose" color="white" dark>
-          <message-preview-item v-for="(message, index) in connectionPreview.messages.slice(0, 20)" :key="index" :message="message" :view="typeOfHexView"/>
-        </q-timeline>
-      </div>
-      <div style="text-align: center; color: #9e9e9e; font-size: 3rem; padding-top: 40px;" v-else>
-        <div>Select connection</div>
-        <q-icon name="mdi-arrow-down-bold-outline" size="3rem"/>
-        <div>Find message</div>
-        <q-icon name="mdi-arrow-down-bold-outline" size="3rem"/>
-        <div>Analyze data</div>
       </div>
     </div>
   </div>

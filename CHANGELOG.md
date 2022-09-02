@@ -1,6 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
-### [1.15.12] - 2022-07-27
+### [1.15.13] - 2022-09-02
+[feature] hex-viewer more powerful converter
+### [1.15.12] - 2022-09-01
 [fix] limit hex viewer render
 [feature] added hex-viewer converter
 ### [1.15.11] - 2022-07-27
