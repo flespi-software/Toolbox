@@ -105,7 +105,7 @@
     width 820px
     font-family 'PT Mono',monospace
     font-size 14.5px
-    line-height 24px
+    line-height 22px
     user-select none
     cursor default
     font-variant normal
@@ -114,12 +114,18 @@
     .hex-viewer__addresses
       width 80px
       display inline-block
+      div
+        overflow hidden
     .hex-viewer__value
       width 420px
       display inline-block
+      div
+        overflow hidden
     .hex-viewer__text
       width: 300px
       display inline-block
+      div
+        overflow hidden
 </style>
 
 <script>
