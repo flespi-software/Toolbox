@@ -54,71 +54,97 @@ export default {
       converter: false,
       transports: {
         2: 'tcp',
+        3: 'tcp',
+
         66: 'http',
         67: 'http',
+
         130: 'udp',
-        3: 'tcp',
         131: 'udp',
+
         32: 'mqtt',
         33: 'mqtt',
         34: 'mqtt',
-        35: 'mqtt'
+        35: 'mqtt',
+
+        258: 'custom',
+        259: 'custom'
       },
       eventsColors: {
         0: 'green',
         32: 'green',
+
         1: 'red',
         33: 'red',
+
         2: 'purple',
         130: 'purple',
         66: 'purple',
         34: 'purple',
+        258: 'purple',
+
         3: 'yellow',
         67: 'yellow',
         131: 'yellow',
-        35: 'yellow'
+        35: 'yellow',
+        259: 'yellow'
       },
       eventsDesc: {
         0: 'Connect',
         32: 'Connect',
+
         1: 'Disconnect',
         33: 'Disconnect',
+
         2: 'Data received',
         130: 'Data received',
         66: 'Data received',
         34: 'Data received',
+        258: 'Data received',
+
         3: 'Data sent',
         67: 'Data sent',
         131: 'Data sent',
-        35: 'Data sent'
+        35: 'Data sent',
+        259: 'Data sent'
       },
       eventIcons: {
         0: 'mdi-lan-connect',
         32: 'mdi-lan-connect',
+
         1: 'mdi-lan-disconnect',
         33: 'mdi-lan-disconnect',
-        2: 'mdi-arrow-right-thick',
-        130: 'mdi-arrow-right-thick',
-        66: 'mdi-arrow-right-thick',
-        34: 'mdi-arrow-right-thick',
-        3: 'mdi-arrow-left-thick',
-        67: 'mdi-arrow-left-thick',
-        35: 'mdi-arrow-left-thick',
-        131: 'mdi-arrow-left-thick'
+
+        2: 'mdi-arrow-left-thick',
+        130: 'mdi-arrow-left-thick',
+        66: 'mdi-arrow-left-thick',
+        34: 'mdi-arrow-left-thick',
+        258: 'mdi-arrow-left-thick',
+
+        3: 'mdi-arrow-right-thick',
+        67: 'mdi-arrow-right-thick',
+        35: 'mdi-arrow-right-thick',
+        131: 'mdi-arrow-right-thick',
+        259: 'mdi-arrow-right-thick'
       },
       bgDataColors: {
         0: 'rgba(76, 175, 80, 0.4)',
         32: 'rgba(76, 175, 80, 0.4)',
+
         1: 'rgba(244, 67, 54, 0.4)',
         33: 'rgba(244, 67, 54, 0.4)',
+
         2: 'rgba(156, 39, 176, 0.4)',
         130: 'rgba(156, 39, 176, 0.4)',
         34: 'rgba(156, 39, 176, 0.4)',
         66: 'rgba(156, 39, 176, 0.4)',
+        258: 'rgba(156, 39, 176, 0.4)',
+
         3: 'rgba(255, 235, 59, 0.4)',
         67: 'rgba(255, 235, 59, 0.4)',
         35: 'rgba(255, 235, 59, 0.4)',
-        131: 'rgba(255, 235, 59, 0.4)'
+        131: 'rgba(255, 235, 59, 0.4)',
+        259: 'rgba(255, 235, 59, 0.4)'
       }
     }
   },
