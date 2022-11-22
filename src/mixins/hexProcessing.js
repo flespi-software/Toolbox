@@ -30,11 +30,22 @@ export default {
     getHeader (packet) {
       const eventsDesc = {
         0: 'Connect',
+        32: 'Connect',
+
         1: 'Disconnect',
+        33: 'Disconnect',
+
         2: 'Data received',
         130: 'Data received',
+        66: 'Data received',
+        34: 'Data received',
+        258: 'Data received',
+
         3: 'Data sent',
-        131: 'Data sent'
+        67: 'Data sent',
+        131: 'Data sent',
+        35: 'Data sent',
+        259: 'Data sent'
       }
       let header = ''
       header += eventsDesc[packet.type]
