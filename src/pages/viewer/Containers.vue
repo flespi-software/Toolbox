@@ -2,7 +2,7 @@
   <q-page>
     <q-resize-observer @resize="onResizePage" />
     <entities-toolbar
-      :item="selectedItem" :actions="actions"
+      :item="selectedItem" :actions="actions" :ratio="ratio" @change-ratio="updateRatio"
     >
       <div style="max-width: 50%" :class="{'middle-modificator': !active}" slot="selects">
         <q-select
@@ -75,23 +75,59 @@
         </q-select>
       </div>
     </entities-toolbar>
+    <div v-if="isInit && active">
     <logs
       ref="logs"
-      v-if="isInit && active"
       :item="selectedItem"
       :limit="limit"
       originPattern="storage/containers/:id"
       :entity-name="entityName"
       :isEnabled="true"
       :config="config.logs"
-      :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', ...panelsWidgetsStyle}"
+      :style="[{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, panelsWidgetsStyle]"
       @view-log-message="viewWidgetsLogHandler"
       @action-select="data => widgetsViewedLog = data.content"
+      @action-timeSync="timeLogsSyncHandler"
     />
+      <!-- :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', ...panelsWidgetsStyle}" -->
+      <messages
+        ref="messages"
+        @action-view-data="data => { messageWidgetsActions('object', data) }"
+        @action-map="data => messageWidgetsActions('position', data)"
+        @action-show="data => messageWidgetsActions('show', data)"
+        @action-image="data => messageWidgetsActions('image', data)"
+        @action-select="data => messageWidgetsActions('select', data)"
+        @action-traffic="data => messageWidgetsActions('traffic', data)"
+        @action-timeSync="timeMessagesSyncHandler"
+        :item="selectedItem"
+        :activeId="active"
+        :isEnabled="!!+size[1]"
+        :limit="limit"
+        v-if="+size[1]"
+        :style="[{height: `calc(${size[1]}vh - ${+size[0] ? isVisibleToolbar ? '50px' : '25px' : isVisibleToolbar ? '100px' : '50px'})`, position: 'relative'}, panelsWidgetsStyle]"
+        :config="messagesConfig"
+      />
+
+        <!-- @action-timeSync="timeMessagesSyncHandler" -->
+    </div>
     <div v-if="!items.length && isItemsInit" class="text-center text-grey-3 q-mt-lg">
       <div style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Containers not found'}}</div>
       <!-- <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/> -->
     </div>
+    <widgets
+      ref="messagesView"
+      :active="activeWidgetWindow === 'messagesView'"
+      v-model="isWidgetsMessageActive"
+      :config="messageWidgetsViewConfigContainers"
+      :actions="widgetsHandleActions"
+      :controls="widgetWindowControls"
+      :view-model="widgetsViewModel.logs"
+      @change-view-model="data => widgetsChangeViewModelHandler(entityName, 'logs', data)"
+      @active="activateWidgetWindow('messagesView')"
+      @close="closeMessageWidgetsHandler"
+      @next="nextWidgetsMessage"
+      @prev="prevWidgetsMessage"
+    />
     <widgets
       ref="logsView"
       :active="activeWidgetWindow === 'logsView'"
@@ -111,6 +147,8 @@
 
 <script>
 import logs from '../../components/logs/Index.vue'
+import messages from '../../components/messages/containers/Index.vue'
+import MessageWidgetsMixin from '../../components/widgets/MessageWidgetsMixin'
 import MainWidgetsMixin from '../../components/widgets/MainWidgetsMixin'
 import LogsWidgetsMixin from '../../components/widgets/LogsWidgetsMixin'
 import Widgets from '../../components/widgets/Widgets'
@@ -119,6 +157,20 @@ import init from '../../mixins/entitiesInit'
 import EntitiesToolbar from '../../components/EntitiesToolbar'
 import routerProcess from '../../mixins/routerProcess'
 import get from 'lodash/get'
+import cloneDeep from 'lodash/cloneDeep'
+import { ACTION_MODE_SINGLE } from '../../config'
+import ObjectView from '../../components/ObjectView'
+
+const ratioNames = {
+  100: 'logs',
+  50: 'both',
+  0: 'messages'
+}
+const ratioValues = {
+  logs: 100,
+  both: 50,
+  messages: 0
+}
 
 export default {
   props: [
@@ -129,7 +181,7 @@ export default {
     'config',
     'settings'
   ],
-  mixins: [init, MainWidgetsMixin, LogsWidgetsMixin, routerProcess],
+  mixins: [init, MainWidgetsMixin, LogsWidgetsMixin, MessageWidgetsMixin, routerProcess],
   data () {
     return {
       entityName: 'containers',
@@ -143,6 +195,12 @@ export default {
   },
   computed: {
     ...mapState({
+      hasMessages (state) {
+        return this.config.messages && !!state[this.config.messages.vuexModuleName] && !!state[this.config.messages.vuexModuleName].messages.length && this.ratio !== 100
+      },
+      hasLogs (state) {
+        return this.config.logs && !!state[this.config.logs.vuexModuleName] && state[this.config.logs.vuexModuleName].messages && !!state[this.config.logs.vuexModuleName].messages.length && this.ratio !== 0
+      },
       isEmptyMessages (state) {
         return state[this.config.logs.vuexModuleName] ? !state[this.config.logs.vuexModuleName].messages.length : false
       },
@@ -188,13 +246,57 @@ export default {
       const item = this.itemsCollection[this.active] || null
       return item
     },
+    size () {
+      return [this.ratio, 100 - this.ratio]
+    },
+    messageWidgetsViewConfigContainers () {
+      const content = this.widgetsViewedMessage
+      let obj = this.messageWidgetsViewConfig
+      if (content && obj) {
+        delete obj.object
+        const description = `${content.ident ? `<div style="font-size: 1.1rem">${content.ident}</div>` : ''}${content.timestamp ? `<div style="font-size: .8rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}</div>` : ''}`
+        obj.params = {
+          title: 'Params',
+          description,
+          default: true,
+          wrapper: ObjectView,
+          meta: this.fieldsDevicesMetaData,
+          action: this.messagesWidgetActionHandler,
+          data: content.params
+        }
+      }
+      return obj
+    },
+    messagesConfig () {
+      const config = cloneDeep(this.config.messages)
+      // if (this.needTrafficRoute) {
+      //   config.actions.push({
+      //     icon: 'mdi-download-network-outline',
+      //     label: 'View traffic',
+      //     classes: '',
+      //     mode: ACTION_MODE_SINGLE,
+      //     type: 'traffic'
+      //   })
+      // }
+
+      if (this.ratio === 50) {
+        config.actions.push({
+          icon: 'mdi-swap-vertical',
+          label: 'Show on logs',
+          classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'timeSync'
+        })
+      }
+      return config
+    },
     actions () {
       return [
         {
           label: 'Clear',
           icon: 'mdi-playlist-remove',
           handler: this.clearHandler,
-          condition: !this.isEmptyMessages
+          condition: this.hasMessages || this.hasLogs
         }
       ]
     },
@@ -207,6 +309,9 @@ export default {
         if (isRightSide) { style.left = '300px' }
       }
       return style
+    },
+    ratio () {
+      return get(this.settings.viewSettings, `${this.entityName}.ratio`, 50)
     }
   },
   methods: {
@@ -219,10 +324,14 @@ export default {
         cancel: true,
         noRouteDismiss: true
       }).onOk(() => {
+        this.$store.commit(`${this.config.messages.vuexModuleName}/clearMessages`)
         this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`)
         if (this.isWidgetsLogsActive) {
           this.isWidgetsLogsActive = false
           this.closeLogsWidgetsHandler()
+        } else if (this.isWidgetsMessageActive) {
+          this.isWidgetsMessageActive = false
+          this.closeMessageWidgetsHandler()
         }
       })
         .onCancel(() => {})
@@ -242,6 +351,12 @@ export default {
       const entity = this.entityName,
         activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined),
         idFromRoute = this.$route.params && this.$route.params.id ? Number(this.$route.params.id) : null
+      const viewMode = this.$route.query.view_mode
+      let ratio = 50
+      if (viewMode) {
+        ratio = ratioValues[viewMode]
+        this.$emit('update:settings', { type: 'ENTITY_VIEW_SETTINGS_CHANGE', opt: { entity: this.entityName }, value: { ratio } })
+      }
       this.isInit = true
       let id = null
       if (idFromRoute && this.itemsCollection[idFromRoute]) {
@@ -256,23 +371,78 @@ export default {
       }
       if (id) {
         this.active = id
-        this.updateRoute({ name: this.entityName, params: { id } }, true)
+        this.updateRoute({ name: this.entityName, params: { id }, query: { view_mode: ratioNames[ratio] } }, true)
       }
       this.$emit('inited')
     },
     clearWidgetsState () {
+      this.isWidgetsMessageActive = false
       this.isWidgetsLogsActive = false
       this.activeWidgetWindow = undefined
+      this.widgetsViewedMessage = null
       this.widgetsViewedLog = null
     },
-    onResizePage (size) {
-      this.$refs.logsView.resize(size)
+    timeLogsSyncHandler (data) {
+      if (this.ratio !== 50) {
+        this.updateRatio(50)
+      }
+      this.$nextTick(() => {
+        this.$refs.messages.timeSync(data)
+      })
+    },
+    timeMessagesSyncHandler (data) {
+      if (this.ratio !== 50) {
+        this.updateRatio(50)
+      }
+      this.$nextTick(() => {
+        this.$refs.logs.timeSync(data)
+      })
     },
     beforeEnableWidgetByPane (entity) {
-      if (!this.widgetStyle.left && !this.isWidgetsLogsActive && !this.widgetsViewModel.logs) {
+      if (!this.widgetStyle.left && !this.isWidgetsMessageActive && !this.isWidgetsLogsActive && !this.widgetsViewModel.logs) {
         this.$nextTick(() => this.widgetsChangeViewModelHandler(this.entityName, 'logs', { type: 'minimized', to: 'left' }))
       }
-    }
+      switch (entity) {
+        case 'messages': {
+          this.isWidgetsLogsActive = false
+          this.closeLogsWidgetsHandler()
+          break
+        }
+        case 'logs': {
+          this.isWidgetsMessageActive = false
+          this.closeMessageWidgetsHandler()
+          break
+        }
+      }
+    },
+    onResizePage (size) {
+      this.$refs.messagesView.resize(size)
+      this.$refs.logsView.resize(size)
+    },
+    updateRatio (r) {
+      this.updateRoute({
+        query: { view_mode: ratioNames[r] }
+      })
+    },
+    changeRatioHandler (r) {
+      if (this.ratio !== r) {
+        this.ratioWidgetsModify(r)
+        this.$emit('update:settings', { type: 'ENTITY_VIEW_SETTINGS_CHANGE', opt: { entity: this.entityName }, value: { ratio: r } })
+        this.$nextTick(() => {
+          if (+this.size[0] && this.active) {
+            this.$refs.logs.resetParams()
+          }
+          if (+this.size[1] && this.active) {
+            this.$refs.messages.resetParams()
+          }
+        })
+      }
+    } // ,
+    // beforeEnableWidgetByPane (entity) {
+    //   if (!this.widgetStyle.left && !this.isWidgetsLogsActive && !this.widgetsViewModel.logs) {
+    //     this.$nextTick(() => this.widgetsChangeViewModelHandler(this.entityName, 'logs', { type: 'minimized', to: 'left' }))
+    //   }
+    // }
   },
   watch: {
     $route (route) {
@@ -286,6 +456,7 @@ export default {
       } else if (route.params && !route.params.id) {
         this.active = null
       }
+      this.processRoute({ view_mode: (name) => this.changeRatioHandler(ratioValues[name]) }, route)
     },
     active (val) {
       const currentItem = this.itemsCollection[val] || {}
@@ -294,7 +465,7 @@ export default {
       }
     }
   },
-  components: { logs, EntitiesToolbar, Widgets }
+  components: { logs, messages, EntitiesToolbar, Widgets }
 }
 </script>
 <style lang="stylus" scoped>

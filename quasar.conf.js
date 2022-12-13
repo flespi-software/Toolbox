@@ -98,7 +98,8 @@ module.exports = function (ctx) {
         'Notify',
         'Dialog',
         'LocalStorage',
-        'SessionStorage'
+        'SessionStorage',
+        'Platform'
       ],
       config: {
         screen: {

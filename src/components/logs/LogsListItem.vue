@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { date, openURL } from 'quasar'
+import { date, openURL, Platform } from 'quasar'
 import ItemMixin from './ItemMixin'
 
 export default {
@@ -54,7 +54,7 @@ export default {
   data () {
     return {
       date,
-      isIntegration: this.$q.platform.within.iframe
+      isIntegration: Platform.within.iframe
     }
   },
   computed: {

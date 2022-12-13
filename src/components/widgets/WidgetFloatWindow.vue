@@ -7,13 +7,13 @@
     :x="x" :y="y" :w="width" :h="height" :min-width="100" :min-height="100"
     @resizing="resizeHandler" @dragging="draggingHandler"
   >
-    <div class="widget__header" :style="{height: `${headerHeight}px`}" v-show="!isMinimized && !isMaximized">
-      <q-icon @mousedown.stop.prevent.native="closeHandler" name="mdi-close" class="float-right cursor-pointer" color="white"/>
-      <q-icon @mousedown.stop.prevent.native="maximizeHandler(), calculateViewModel()" :name="isMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" class="float-right cursor-pointer" color="white"/>
-      <q-icon v-if="controls.minimizeLeft" @mousedown.stop.prevent.native="minimizeHandler('left'), calculateViewModel()" name="mdi-arrow-collapse-right" class="float-right cursor-pointer" color="white"/>
-      <q-icon v-if="controls.minimizeRight" @mousedown.stop.prevent.native="minimizeHandler('right'), calculateViewModel()" name="mdi-arrow-collapse-left" class="float-right cursor-pointer" color="white"/>
+    <div class="widget__header" :style="{height: `${headerHeight}px`}" v-show="!isMinimized && !isMaximized" @dblclick.stop="maximizeHandler()">
+      <q-icon @click.stop.prevent.native="closeHandler" name="mdi-close" class="float-right cursor-pointer" color="white"/>
+      <q-icon @click.stop.prevent.native="maximizeHandler(), calculateViewModel()" :name="isMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" class="float-right cursor-pointer" color="white"/>
+      <q-icon v-if="controls.minimizeLeft" @click.stop.prevent.native="minimizeHandler('left'), calculateViewModel()" name="mdi-arrow-collapse-right" class="float-right cursor-pointer" color="white"/>
+      <q-icon v-if="controls.minimizeRight" @click.stop.prevent.native="minimizeHandler('right'), calculateViewModel()" name="mdi-arrow-collapse-left" class="float-right cursor-pointer" color="white"/>
     </div>
-    <div :style="styles" class="widget__content widget--drag-stop relative-position">
+    <div :style="styles" class="widget__content relative-position" :class="[isMinimized || isMaximized ? 'widget--drag-stop' : '']">
       <slot name="default"></slot>
     </div>
     <div class="widget__custom-controls widget--drag-stop" v-if="isMinimized || isMaximized" :style="{ top: isMaximized ? '3px' : '' }">
@@ -201,6 +201,12 @@ export default {
       if (this.isMaximized) {
         this.isMaximized = false
       }
+      if (this.x < 0) {
+        this.x = 0
+      }
+      if (this.y < 0) {
+        this.y = 0
+      }
       this.x = left
       this.y = top
       this.$emit('dragging')
@@ -213,8 +219,8 @@ export default {
       } else if (model.type === 'maximized' && !this.isMaximized) {
         this.maximizeHandler()
       } else if (model.type === 'windowed') {
-        this.x = model.x
-        this.y = model.y
+        this.x = model.x < 0 ? 0 : model.x
+        this.y = model.y < 0 ? 0 : model.y
         this.width = model.width
         this.height = model.height
       }

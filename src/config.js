@@ -929,7 +929,8 @@ export default {
       name: 'containers',
       methods: ['GET'],
       submodules: [
-        { name: 'logs', methods: ['GET'] }
+        { name: 'logs', methods: ['GET'] },
+        { name: 'messages', methods: ['GET'] }
       ]
     }],
     isDrawable: false,
@@ -976,6 +977,53 @@ export default {
         {
           icon: 'mdi-content-copy',
           label: 'Copy log objects',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
+          type: 'copy'
+        }
+      ],
+      viewConfig: {
+        needShowFilter: true,
+        needShowDateRange: true
+      },
+      theme: {
+        color: 'white',
+        bgColor: 'grey-9',
+        contentInverted: true,
+        controlsInverted: true
+      }
+    },
+    messages: {
+      vuexModuleName: 'containersMessages',
+      emptyState: {
+        label: 'Messages not found',
+        sublabel: 'If you expect to see the device messages here',
+        hints: [
+          { html: "Make sure the respective physical tracker correctly points to the proper channel`s <span class='text-bold'>IP:port</span> and is currently sending messages." },
+          { html: "Make sure you specified the correct device <span class='text-bold'>ident</span> and picked the proper <span class='text-bold'>device type</span>." },
+          { html: "Check the <span class='text-bold'>messages TTL</span> in the device settings — if it`s set to 0, messages will not show." },
+          { html: "Pick a specific date and time using the <span class='text-bold'>date/time picker</span> on the top right." },
+          { html: "Narrow down the search by specifying the desired parameter values in the <span class='text-bold'>filter control</span>." }
+        ]
+      },
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy message',
+          classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'copy'
+        },
+        {
+          icon: 'mdi-information-outline',
+          label: 'Show message',
+          classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'show'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy messages',
           classes: '',
           mode: ACTION_MODE_MULTI,
           type: 'copy'
