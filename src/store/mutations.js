@@ -138,7 +138,7 @@ function setTokenInfo (state, tokenInfo) {
         if (acl.uri === 'gw' || acl.uri === 'storage') {
           if (acl.methods.includes('GET')) {
             let entities = []
-            if (acl.uri === 'gw') entities = ['channels', 'calcs', 'intervals', 'plugins', 'devices', 'streams', 'modems', 'protocols']
+            if (acl.uri === 'gw') entities = ['channels', 'calcs', 'intervals', 'plugins', 'devices', 'groups', 'streams', 'modems', 'protocols']
             if (acl.uri === 'storage') entities = ['containers', 'cdns']
             entities.forEach((entity) => {
               if (result[entity]) { return }
@@ -191,7 +191,7 @@ function getToolboxSettings (state) {
   if (!settings) {
     settings = { entities: {} }
     const entities = settings.entities
-    const entityNames = ['devices', 'channels', 'calcs', 'intervals', 'plugins', 'streams', 'modems', 'containers', 'cdns', 'tools/hex', 'tools/traffic', 'platform', 'mqtt']
+    const entityNames = ['devices', 'channels', 'calcs', 'intervals', 'plugins', 'groups', 'streams', 'modems', 'containers', 'cdns', 'tools/hex', 'tools/traffic', 'platform', 'mqtt']
     entityNames.forEach(name => {
       const value = LocalStorage.getItem(name)
       if (value) {

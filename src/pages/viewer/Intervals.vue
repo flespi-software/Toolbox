@@ -140,7 +140,7 @@
       <div v-if="$q.platform.is.desktop" class="flex justify-end" :style="{width: `${actions.length * 72}px`}">
         <template v-for="(action, index) in actions">
           <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp" :key="index" v-if="action.condition">
-            <q-btn :title="action.label" class="on-left cursor-pointer pull-right text-center rounded-borders q-px-xs q-py-none text-white" @click="action.handler" flat dense style="width: 60px">
+            <q-btn :title="action.label" class="on-left cursor-pointer pull-right text-center rounded-borders q-px-xs q-py-none text-white" @click="action.handler" flat dense style="max-width: 60px">
               <q-icon size="1.5rem" :name="action.icon"/>
               <div style="font-size: .7rem; line-height: .7rem">{{action.label}}</div>
               <q-tooltip v-if="action.desc">{{action.desc}}</q-tooltip>
@@ -256,6 +256,8 @@ import Widgets from '../../components/widgets/Widgets'
 import { mapState, mapActions, mapMutations } from 'vuex'
 import init from '../../mixins/entitiesInit'
 import routerProcess from '../../mixins/routerProcess'
+
+import Vue from 'vue'
 
 const DEVICE_SOURCE = false,
   CALC_SOURCE = true
@@ -377,6 +379,13 @@ export default {
     },
     actions () {
       return [
+        {
+          label: 'Sync intervals',
+          icon: 'mdi-table-sync',
+          handler: this.recalculateIntervals,
+          condition: !!this.active && !!this.activeCalcId,
+          desc: 'Recalculate intervals for selected period'
+        },
         {
           label: this.relatedDataMode ? 'Messages' : 'Intervals',
           icon: this.relatedDataMode ? 'mdi-card-text-outline' : 'mdi-card-bulleted-outline',
@@ -507,6 +516,24 @@ export default {
     },
     clearActiveCalc () {
       this.setActiveCalc(null)
+    },
+    recalculateIntervals () {
+      this.$q.dialog({
+        title: 'Warning!',
+        message: 'Recalculate intervals for selected period?',
+        color: 'white',
+        class: 'text-white bg-red',
+        cancel: true,
+        ok: 'Recalculate',
+        noRouteDismiss: true
+      }).onOk(async () => {
+        if (this.dateRange.length === 2) {
+          const data = { from: this.dateRange[0] / 1000, to: this.dateRange[1] / 1000 }
+          await Vue.connector.http.post(`/gw/calcs/${this.activeCalcId}/devices/${this.active}/recalculate`, data).then((response) => {}, (response) => {})
+          setTimeout(() => this.$refs.intervals.refresh(), 1000)
+        }
+      })
+      //
     },
     goBackDevice () {
       if (this.prevEntity === 'devices' && this.prevRoute && this.prevRoute.params.id === this.active) {

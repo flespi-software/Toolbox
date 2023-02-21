@@ -213,6 +213,31 @@ export default {
     }
   },
   methods: {
+    sliceToChunks(arr, msgcnt) {
+      const res = [];
+      for (let i = 0; i < arr.length; i += msgcnt) {
+        const chunk = arr.slice(i, i + msgcnt);
+        res.push(chunk);
+      }
+      return res;
+    },
+    registerMessages (messages) {
+      this.$q.dialog({
+        title: 'Warning!',
+        message: 'Re-registering a message may cause subsequent changes in plugin fields (that may lead to data loss or corruption) and re-sending messages via assigned streams.',
+        color: 'white',
+        class: 'text-white bg-red',
+        cancel: true,
+        ok: 'Register',
+        noRouteDismiss: true
+      }).onOk(() => {
+        messages = this.sliceToChunks(messages, 1000)
+        messages.forEach(async (m) => {
+          await Vue.connector.http.post(`/gw/devices/${this.activeId}/messages`, m).then((response) => {}, (response) => {})
+        })
+        setTimeout(() => this.refresh(), 1000)
+      })
+    },
     tableClickHandler (event) {
       if (!event.target.closest('.list-item--click-control')) {
         this.selected = []
@@ -267,6 +292,12 @@ export default {
         label: 'Test expression',
         classes: '',
         type: 'expression'
+      })
+      actions.push({
+        icon: 'mdi-redo-variant',
+        label: 'Re-register messages',
+        classes: '',
+        type: 'registermessages'
       })
       return actions
     },
@@ -384,6 +415,12 @@ export default {
           this.showExprTest(
             this.$store.state.token,
             this.cols.schemas[this.cols.activeSchema].cols,
+            this.selected.map(index => this.messages[index])
+          )
+          break
+        }
+        case 'registermessages': {
+          this.registerMessages(
             this.selected.map(index => this.messages[index])
           )
           break
@@ -519,6 +556,20 @@ export default {
         res.initTimestamp = routeConfig.selected[0]
       }
       return res
+    },
+    async refresh () {
+       if (this.activeId) {
+        let {
+          initTimestamp
+        } = this.routeConfigProcess(this.$route.query.messages)
+
+        // if (initTimestamp) {
+        //   await this.getMessages(initTimestamp)
+        // } else {
+        await this.getMessages()
+        this.scrollToTimestamp(this.scrollTimestamp)
+        // }
+      }
     },
     async init () {
       if (!this.$store.state[this.moduleName]) {

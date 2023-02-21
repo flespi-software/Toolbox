@@ -582,6 +582,85 @@ export default {
       }
     }
   },
+  groups: {
+    label: 'Groups',
+    icon: 'mdi-folder-table',
+    type: 'viewer',
+    acl: [{
+      name: 'groups',
+      methods: ['GET'],
+      submodules: [
+        { name: 'logs', methods: ['GET'] }
+      ]
+    }],
+    isDrawable: false,
+    logs: {
+      vuexModuleName: 'groupsLogs',
+      emptyState: {
+        label: 'Log entries not found',
+        sublabel: 'If you expect to see the log records here',
+        hints: [
+          { html: "Pick a specific date and time using the <span class='text-bold'>date/time picker</span> on the top right." },
+          { html: "Narrow down the search by specifying the desired parameter values in the <span class='text-bold'>filter control</span>." }
+        ]
+      },
+      cols: [
+        {
+          name: 'timestamp',
+          width: 165,
+          display: true,
+          description: 'Log event time',
+          addition: `${locale.slice(0, 3)}:${locale.slice(3)}`
+        },
+        {
+          name: 'event_code',
+          title: 'event',
+          width: 450,
+          display: true,
+          description: 'Log event code and description'
+        },
+        {
+          name: 'host',
+          width: 115,
+          display: true,
+          description: 'IP address from which HTTP request was received'
+        },
+        {
+          name: 'token_id',
+          title: 'token',
+          width: 80,
+          display: true,
+          description: 'Token'
+        }
+      ],
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log object',
+          classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'copy'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log objects',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
+          type: 'copy'
+        }
+      ],
+      viewConfig: {
+        needShowFilter: true,
+        needShowDateRange: true
+      },
+      theme: {
+        color: 'white',
+        bgColor: 'grey-9',
+        contentInverted: true,
+        controlsInverted: true
+      }
+    }
+  },
   intervals: {
     label: 'Intervals',
     icon: 'mdi-set-center',
@@ -997,11 +1076,11 @@ export default {
       vuexModuleName: 'containersMessages',
       emptyState: {
         label: 'Messages not found',
-        sublabel: 'If you expect to see the device messages here',
+        sublabel: 'If you expect to see the container messages here',
         hints: [
-          { html: "Make sure the respective physical tracker correctly points to the proper channel`s <span class='text-bold'>IP:port</span> and is currently sending messages." },
-          { html: "Make sure you specified the correct device <span class='text-bold'>ident</span> and picked the proper <span class='text-bold'>device type</span>." },
-          { html: "Check the <span class='text-bold'>messages TTL</span> in the device settings — if it`s set to 0, messages will not show." },
+          // { html: "Make sure the respective physical tracker correctly points to the proper channel`s <span class='text-bold'>IP:port</span> and is currently sending messages." },
+          // { html: "Make sure you specified the correct device <span class='text-bold'>ident</span> and picked the proper <span class='text-bold'>device type</span>." },
+          // { html: "Check the <span class='text-bold'>messages TTL</span> in the device settings — if it`s set to 0, messages will not show." },
           { html: "Pick a specific date and time using the <span class='text-bold'>date/time picker</span> on the top right." },
           { html: "Narrow down the search by specifying the desired parameter values in the <span class='text-bold'>filter control</span>." }
         ]

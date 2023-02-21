@@ -320,6 +320,12 @@ export default {
     updateColsHandler (cols) {
       this.cols = cols
     },
+    refresh () {
+      this.$emit('change:date-range', [ this.begin, this.end ])
+      this.viewedInterval = null
+      this.$store.commit(`${this.moduleName}/clearMessages`)
+      this.$store.dispatch(`${this.moduleName}/get`)
+    },
     dateRangeChange (range) {
       const begin = range[0],
         end = range[1]

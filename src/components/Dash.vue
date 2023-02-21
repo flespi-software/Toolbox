@@ -22,6 +22,7 @@ export default {
         platform: '/platform',
         channels: '/channels',
         devices: '/devices',
+        groups: '/groups',
         streams: '/streams',
         modems: '/modems',
         calcs: '/calcs',

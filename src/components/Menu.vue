@@ -34,6 +34,14 @@
               <div>{{config.devices.label}}</div>
             </q-item-section>
           </q-item>
+          <q-item v-if="entities.includes('groups')" to='/groups' class="col-6" active-class="bg-grey-6">
+            <q-item-section class="text-center text-white">
+              <div>
+                <q-icon :name="config.groups.icon" size="2.6em"/>
+              </div>
+              <div>{{config.groups.label}}</div>
+            </q-item-section>
+          </q-item>
           <q-item v-if="entities.includes('streams')" to='/streams' class="col-6" active-class="bg-grey-6">
             <q-item-section class="text-center text-white">
               <div>

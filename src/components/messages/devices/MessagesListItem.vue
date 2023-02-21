@@ -38,23 +38,29 @@ export default {
   data () {
     let highlightLevel = 0,
       highlightType = ''
-    if (this.item.timestamp < this.item['server.timestamp'] - 1800) { // >30min
-      highlightType = 'grey'
-      highlightLevel = 7
-    } else if (this.item.timestamp < this.item['server.timestamp'] - 600) { // 10-30min
-      highlightType = 'grey'
-      highlightLevel = 6
-    } else if (this.item.timestamp < this.item['server.timestamp'] - 120) { // 2-10min
-      highlightType = 'grey'
-      highlightLevel = 5
-    } else if (this.item.timestamp - 1800 > this.item['server.timestamp']) { // >30min
-      highlightType = 'orange'
-      highlightLevel = 10
-    } else if (this.item.timestamp - 60 > this.item['server.timestamp']) { // 1-30min
-      highlightType = 'orange'
-      highlightLevel = 7
-    } else if (this.item.timestamp - 1 > this.item['server.timestamp']) { // < 1sec-1min
-      highlightType = 'orange'
+    if(this.item['server.timestamp']) {
+      if (this.item.timestamp < this.item['server.timestamp'] - 1800) { // >30min
+        highlightType = 'grey'
+        highlightLevel = 7
+      } else if (this.item.timestamp < this.item['server.timestamp'] - 600) { // 10-30min
+        highlightType = 'grey'
+        highlightLevel = 6
+      } else if (this.item.timestamp < this.item['server.timestamp'] - 120) { // 2-10min
+        highlightType = 'grey'
+        highlightLevel = 5
+      } else if (this.item.timestamp - 1800 > this.item['server.timestamp']) { // >30min
+        highlightType = 'orange'
+        highlightLevel = 10
+      } else if (this.item.timestamp - 60 > this.item['server.timestamp']) { // 1-30min
+        highlightType = 'orange'
+        highlightLevel = 7
+      } else if (this.item.timestamp - 1 > this.item['server.timestamp']) { // < 1sec-1min
+        highlightType = 'orange'
+        highlightLevel = 4
+      }
+    }
+    if (this.item['rest.timestamp']) {
+      highlightType = 'blue'
       highlightLevel = 4
     }
     return {

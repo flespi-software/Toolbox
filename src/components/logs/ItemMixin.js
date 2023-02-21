@@ -22,7 +22,7 @@ export default {
     getLogItemColorByLogEntry (log) {
       const logMeta = this.logsObject.codes[log.event_code]
       let color = COLORS[logMeta?.severity]
-      const extraName = logMeta.extra_name
+      const extraName = logMeta?.extra_name
       if (extraName && log[extraName]) {
         color = COLORS[logMeta.extra_codes[log[extraName]]?.severity] || color
       }

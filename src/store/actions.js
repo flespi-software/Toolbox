@@ -7,6 +7,7 @@ const origins = {
     channels: '/gw/channels/:id',
     calcs: '/gw/calcs/:id',
     plugins: '/gw/plugins/:id',
+    groups: '/gw/groups/:id',
     streams: '/gw/streams/:id',
     modems: '/gw/modems/:id',
     containers: '/storage/containers/:id',
@@ -19,6 +20,7 @@ const origins = {
     channels: ['id', 'name', 'deleted', 'protocol_id', 'uri'],
     calcs: ['id', 'name', 'deleted', 'counters', 'selectors', 'messages_source'],
     plugins: ['id', 'name', 'deleted'],
+    groups: ['id', 'name', 'deleted'],
     streams: ['id', 'name', 'deleted', 'configuration', 'protocol_id'],
     modems: ['id', 'name', 'deleted', 'configuration'],
     containers: ['id', 'name', 'deleted'],
@@ -196,6 +198,7 @@ async function removeEntities (store, payload) {
 const itemTypes = {
   devices: 11,
   channels: 9,
+  groups: 31,
   streams: 12,
   calcs: 13,
   plugins: 25,
@@ -339,8 +342,8 @@ async function initLogsObject ({ state, commit }) {
     if (typeof state.isLoading !== 'undefined') {
       Vue.set(state, 'isLoading', true)
     }
-    const logsObjectReq = await Vue.connector.http.external(`${Vue.prototype.$flespiServer}/codes/log`)
-    const logsObject = get(logsObjectReq, 'data.result[0]', {})
+    const logsObjectReq = await Vue.connector.http.external(`${Vue.prototype.$flespiServer}/const/values?names=toolbox%2Fcodes`)
+    const logsObject = get(logsObjectReq, 'data.result[0]["toolbox/codes"]', {})
     commit('setLogsObject', logsObject)
   } catch (e) {
     commit('reqFailed', e)

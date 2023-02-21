@@ -35,7 +35,7 @@
       <q-drawer side="left" v-model="sides.left" :content-class="{'bg-grey-7':true}" v-if="isVisibleToolbar && !dashMode">
         <left-menu :config="config" :entities="renderEntities" :entity="entity"/>
       </q-drawer>
-      <q-page-container class="bg-grey-9">
+      <q-page-container class="bg-grey-9 no-scroll">
         <router-view
           ref='main'
           v-if="configByEntity && isInit"
@@ -83,7 +83,7 @@ export default {
       toolboxMode: undefined,
       connectFlag: false,
       isTabsVisible: true,
-      entityByGroup: ['platform', 'channels', 'devices', 'streams', 'calcs', 'intervals', 'plugins', 'hexViewer', 'trafficViewer', 'deviceTraffic', 'modems', 'containers', 'cdns', 'mqtt', 'mqttClient'],
+      entityByGroup: ['platform', 'channels', 'devices', 'groups', 'streams', 'calcs', 'intervals', 'plugins', 'hexViewer', 'trafficViewer', 'deviceTraffic', 'modems', 'containers', 'cdns', 'mqtt', 'mqttClient'],
       isNeedSelect: true,
       entityInited: false,
       isInit: Vue.connector.socket.connected()
@@ -195,6 +195,7 @@ export default {
             case 'hub': {
               result.push('channels')
               result.push('devices')
+              result.push('groups')
               result.push('streams')
               result.push('intervals')
               result.push('calcs')
