@@ -493,7 +493,7 @@ export default {
         this.selected = [index]
         const content = message
         Object.defineProperty(content, 'x-flespi-description', {
-          value: `<div style="font-size: 1.1rem">${content.event_code}: ${this.getLogDescriptionByItem(content)}</div><div style="font-size: .9rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}</div>`,
+          value: `<div style="font-size: 1.1rem">${content.event_code}: ${this.getLogDescriptionByItem(content)}</div><div style="font-size: .9rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss (Z)')}</div>`,
           enumerable: false
         })
         Object.defineProperty(content, 'x-flespi-color', {

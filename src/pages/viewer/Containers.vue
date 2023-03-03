@@ -255,7 +255,7 @@ export default {
       let obj = this.messageWidgetsViewConfig
       if (content && obj) {
         delete obj.object
-        const description = `${content.ident ? `<div style="font-size: 1.1rem">${content.ident}</div>` : ''}${content.timestamp ? `<div style="font-size: .8rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}</div>` : ''}`
+        const description = `${content.ident ? `<div style="font-size: 1.1rem">${content.ident}</div>` : ''}${content.timestamp ? `<div style="font-size: .8rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss (Z)')}</div>` : ''}`
         obj.params = {
           title: 'Params',
           description,

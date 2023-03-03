@@ -3,7 +3,7 @@
     <q-item-section>
       <q-item-label header class="q-pa-none text-white connection__peer">{{peer}}</q-item-label>
       <q-item-label class="ellipsis text-grey-6" style="font-size: 0.7rem" caption>{{ident}}</q-item-label>
-      <q-item-label class="ellipsis text-grey-6" caption>{{date.formatDate(timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')}}</q-item-label>
+      <q-item-label class="ellipsis text-grey-6" caption>{{date.formatDate(timestamp * 1000, 'DD/MM/YYYY HH:mm:ss (Z)')}}</q-item-label>
     </q-item-section>
     <q-item-section side>
       {{`${count} events`}}

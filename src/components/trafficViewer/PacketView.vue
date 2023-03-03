@@ -8,7 +8,7 @@
             <q-icon size="1rem" :color="eventsColors[batch.type]" :name="eventIcons[batch.type]" style="vertical-align: text-bottom;"/>
             <span class="text-uppercase text-white">{{eventsDesc[batch.type]}}</span>
             (
-            <span class="text-white" :class="{'q-mr-sm': batch.size}" style="font-size: .8rem">{{date.formatDate(batch.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss.SSS')}}</span>
+            <span class="text-white" :class="{'q-mr-sm': batch.size}" style="font-size: .8rem">{{date.formatDate(batch.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss.SSS (Z)')}}</span>
             <span v-if="batch.size" class="q-mr-sm text-white" style="font-size: .8rem">size: {{batch.size}}B</span>
             <small
               v-if="batch.transport"

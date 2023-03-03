@@ -151,7 +151,7 @@ export default {
       header += eventsDesc[packet['proxy.event']]
       header += `[${info}]`
       header += '('
-      header += date.formatDate(packet.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss')
+      header += date.formatDate(packet.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss (Z)')
       if (packet['proxy.payload.hex']) {
         header += ` size: ${packet['proxy.payload.size']}B`
       }

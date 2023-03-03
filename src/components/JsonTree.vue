@@ -12,7 +12,7 @@
       </div>
       <div v-else>
         <span :class="[theme.label]">{{key}}</span><span :class="{'text-white': inverted !== undefined}"> : </span>
-        <pre class="json-tree__field-value" :class="{[theme.typeNumberOrBool]: typeof value === 'number' || typeof value === 'boolean', [theme.typeString]: typeof value === 'string', [theme.typeEmpty]: typeof value === 'undefined' || value === null }">{{JSON.stringify(value)}}</pre>
+        <pre class="json-tree__field-value" :class="{[theme.typeNumberOrBool]: typeof value === 'number' || typeof value === 'boolean', [theme.typeString]: typeof value === 'string', [theme.typeEmpty]: typeof value === 'undefined' || value === null }" :title="key.indexOf('timestamp') >= 0 && typeof value === 'number' ? formatDate(value * 1000, 'DD/MM/YYYY HH:mm:ss'): ''">{{JSON.stringify(value)}}</pre>
       </div>
     </div>
     <span :class="{'text-white': inverted !== undefined}">{{Array.isArray(data) ? ']' : '}'}}</span>
@@ -21,6 +21,7 @@
 
 <script>
 import Vue from 'vue'
+import { date } from 'quasar'
 export default {
   name: 'json-tree',
   props: {
@@ -62,7 +63,8 @@ export default {
   methods: {
     toggle (index) {
       Vue.set(this.showObj, index, !this.showObj[index])
-    }
+    },
+    formatDate: date.formatDate
   }
 }
 </script>
