@@ -113,6 +113,19 @@ export default {
           if (marker) {
             map.autobounds(true).addNamedMarkers([marker])
           }
+          if (content['position.lbs.latitude'] && content['position.lbs.longitude']) {
+            const lbsmarker = {
+              lbsmessage: {
+                latlng: [
+                  content['position.lbs.latitude'],
+                  content['position.lbs.longitude']
+                ],
+                color: '#09f',
+                label: 'LBS Position'
+              }
+            }
+            map.addNamedMarker(lbsmarker)
+          }
           map.send()
         }
       })

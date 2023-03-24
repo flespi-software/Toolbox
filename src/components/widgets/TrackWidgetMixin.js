@@ -17,6 +17,7 @@ export default {
     return {
       isWidgetsTrackActive: false,
       trackWidgetMessageMarker: undefined,
+      trackWidgetLBSMessageMarker: undefined,
       trackWidgetConfig: {
         track: {
           title: 'Track',
@@ -47,7 +48,7 @@ export default {
         map.addPoints(track)
       }
       if (marker) {
-        map.addNamedMarkers({ position: marker, ...this.trackWidgetMessageMarker })
+        map.addNamedMarkers({ position: marker, ...this.trackWidgetMessageMarker, ...this.trackWidgetLBSMessageMarker })
       }
       map.send()
       this.activateWidgetWindow('track')
@@ -71,11 +72,31 @@ export default {
         }
         this.trackWidgetMessageMarker = marker
         map.addNamedMarker(marker)
+
+        if (content['position.lbs.latitude'] && content['position.lbs.longitude']) {
+          const lbsmarker = {
+            lbsmessage: {
+              latlng: [
+                content['position.lbs.latitude'],
+                content['position.lbs.longitude']
+              ],
+              color: '#09f',
+              label: 'LBS Position'
+            }
+          }
+          this.trackWidgetLBSMessageMarker = lbsmarker
+          map.addNamedMarker(lbsmarker)
+        }
       } else {
+        this.trackWidgetLBSMessageMarker = undefined
         this.trackWidgetMessageMarker = undefined
       }
       map.send()
     },
-    closeWidgetsHandler () {}
+    closeWidgetsHandler () {},
+    trackWidgetClear () {
+      this.trackWidgetLBSMessageMarker = undefined
+      this.trackWidgetMessageMarker = undefined
+    }
   }
 }

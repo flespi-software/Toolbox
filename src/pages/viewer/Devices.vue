@@ -233,7 +233,8 @@ export default {
         const messages = this.config && this.config.messages && state[this.config.messages.vuexModuleName]
             ? state[this.config.messages.vuexModuleName].messages
             : [],
-          track = []
+          track = [],
+          lbstrack = []
         for (let i = 0; i < messages.length; i++) {
           const message = messages[i]
           if (!!message['position.latitude'] && !!message['position.longitude']) {
@@ -242,6 +243,14 @@ export default {
                 lat: message['position.latitude'],
                 lon: message['position.longitude'],
                 dir: message['position.direction']
+              }
+            )
+          }
+          if (!!message['position.lbs.latitude'] && !!message['position.lbs.longitude']) {
+            lbstrack.push(
+              {
+                lat: message['position.lbs.latitude'],
+                lon: message['position.lbs.longitude']
               }
             )
           }
@@ -620,6 +629,7 @@ export default {
       if (currentItem.deleted) {
         this.deletedHandler()
       }
+      this.trackWidgetClear()
     }
   },
   components: { logs, messages, Widgets, EntitiesToolbar }
