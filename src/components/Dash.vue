@@ -24,6 +24,7 @@ export default {
         devices: '/devices',
         groups: '/groups',
         streams: '/streams',
+        webhooks: '/webhooks',
         modems: '/modems',
         calcs: '/calcs',
         plugins: '/plugins',

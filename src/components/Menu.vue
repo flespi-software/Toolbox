@@ -8,6 +8,14 @@
         {{config.platform.label}}
       </q-item-section>
     </q-item>
+    <q-item v-if="entities.includes('platform')" to='/webhooks' active-class="bg-grey-6 text-white">
+      <q-item-section avatar>
+        <q-icon :name="config.webhooks.icon" color="white"/>
+      </q-item-section>
+      <q-item-section class="text-white">
+        {{config.webhooks.label}}
+      </q-item-section>
+    </q-item>
     <q-expansion-item
       v-if="entities.includes('channels') || entities.includes('devices') || entities.includes('streams') || entities.includes('modems')"
       group="menu"

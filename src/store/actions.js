@@ -10,6 +10,7 @@ const origins = {
     groups: '/gw/groups/:id',
     streams: '/gw/streams/:id',
     modems: '/gw/modems/:id',
+    webhooks: '/platform/webhooks/:id',
     containers: '/storage/containers/:id',
     cdns: '/storage/cdns/:id',
     tasks: '/gw/calcs/:calc/devices/:device',
@@ -22,6 +23,7 @@ const origins = {
     plugins: ['id', 'name', 'deleted'],
     groups: ['id', 'name', 'deleted'],
     streams: ['id', 'name', 'deleted', 'configuration', 'protocol_id'],
+    webhooks: ['id', 'name', 'deleted', 'configuration'],
     modems: ['id', 'name', 'deleted', 'configuration'],
     containers: ['id', 'name', 'deleted'],
     cdns: ['id', 'name', 'deleted'],
@@ -203,6 +205,7 @@ const itemTypes = {
   calcs: 13,
   plugins: 25,
   modems: 10,
+  webhooks: 36,
   containers: 6,
   cdns: 7
 }
