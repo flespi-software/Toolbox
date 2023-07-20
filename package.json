@@ -1,6 +1,6 @@
 {
   "name": "toolbox",
-  "version": "1.19.1",
+  "version": "1.20.0",
   "description": "Flespi ToolboX",
   "productName": "ToolboX",
   "capacitorId": "",
@@ -14,8 +14,8 @@
     "deploy": "rm -rf dist && npm run build && rm -rf deploy && mkdir deploy && cp -R dist/spa/* misc CNAME LICENSE package.json deploy && cp README.md deploy/README.md && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rgit@git.gurtam.net:flespi/frontend/toolbox.git && rm -rf deploy && git push github gh-pages"
   },
   "dependencies": {
-    "@quasar/extras": "^1.10.7",
-    "core-js": "^3.14.0",
+    "@quasar/extras": "^1.16.5",
+    "core-js": "^3.31.1",
     "datetimerangepicker": "github:flespi-software/DateTimeRangePicker",
     "flespi-io-js": "github:flespi-software/flespi-io-js",
     "json2csv": "^5.0.5",
