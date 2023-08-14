@@ -592,10 +592,10 @@ export default {
         this.ratioWidgetsModify(r)
         this.$emit('update:settings', { type: 'ENTITY_VIEW_SETTINGS_CHANGE', opt: { entity: this.entityName }, value: { ratio: r } })
         this.$nextTick(() => {
-          if (+this.size[0] && this.active) {
+          if (+this.size[0] && this.active && this.$refs.logs) {
             this.$refs.logs.resetParams()
           }
-          if (+this.size[1] && this.active) {
+          if (+this.size[1] && this.active && this.$refs.messages) {
             this.$refs.messages.resetParams()
           }
         })

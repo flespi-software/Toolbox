@@ -16,6 +16,22 @@
         {{config.webhooks.label}}
       </q-item-section>
     </q-item>
+    <q-item v-if="entities.includes('platform')" to='/realms' active-class="bg-grey-6 text-white">
+      <q-item-section avatar>
+        <q-icon :name="config.realms.icon" color="white"/>
+      </q-item-section>
+      <q-item-section class="text-white">
+        {{config.realms.label}}
+      </q-item-section>
+    </q-item>
+    <q-item v-if="entities.includes('platform')" to='/grants' active-class="bg-grey-6 text-white">
+      <q-item-section avatar>
+        <q-icon :name="config.grants.icon" color="white"/>
+      </q-item-section>
+      <q-item-section class="text-white">
+        {{config.grants.label}}
+      </q-item-section>
+    </q-item>
     <q-expansion-item
       v-if="entities.includes('channels') || entities.includes('devices') || entities.includes('streams') || entities.includes('modems')"
       group="menu"

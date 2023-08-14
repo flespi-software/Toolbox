@@ -79,7 +79,7 @@ export default {
     this.baseEvents = logsObject.entities.base
     this.entityEvents = logsObject.entities[this.entity]
     this.baseOptions = this.baseEvents.map(code => ({ label: logsObject.codes[code].description, value: code }))
-    this.entityOptions = this.entityEvents.map(code => ({ label: logsObject.codes[code].description, value: code }))
+    this.entityOptions = this.entityEvents ? this.entityEvents.map(code => ({ label: logsObject.codes[code].description, value: code })) : []
     const DEVICE_LOG_CODE_WITH_ERRORS = 102
     this.closeCodes = Object.values(logsObject.codes[DEVICE_LOG_CODE_WITH_ERRORS].extra_codes).filter(closeCode => CLOSE_CODES[closeCode.code])
   }

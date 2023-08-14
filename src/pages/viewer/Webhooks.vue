@@ -18,7 +18,7 @@
           :disable="!isNeedSelect"
           :hide-dropdown-icon="!isNeedSelect"
           popup-content-class="items__popup"
-          :popup-content-style="{height: `${((filteredItems.length > 6 ? 6 : filteredItems.length) * 60) + (needShowGetDeletedAction && tokenType === 1 ? 77 : 48) + (filteredItems.length ? 0 : 4)}px`}"
+          :popup-content-style="{height: `${((filteredItems.length > 6 ? 6 : filteredItems.length) * 48) + (needShowGetDeletedAction && tokenType === 1 ? 77 : 48) + (filteredItems.length ? 0 : 4)}px`}"
           @filter="(filter, update) => filterItems(entityName, filter, update)"
         >
           <div slot="before-options" class="bg-dark q-pa-xs select__filter">
@@ -66,7 +66,7 @@
             >
               <q-item-section>
                 <q-item-label header class="ellipsis overflow-hidden q-pa-xs">{{scope.opt.name || '&lt;noname&gt;'}}</q-item-label>
-                <q-item-label class="q-pa-none q-mt-none" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{(scope.opt.configuration && scope.opt.configuration.source_addr) || '&lt;no address&gt;'}}</small></q-item-label>
+                <!-- <q-item-label class="q-pa-none q-mt-none" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{(scope.opt.configuration && scope.opt.configuration.source_addr) || '&lt;no address&gt;'}}</small></q-item-label> -->
                 <q-item-label class="q-pa-none q-mt-none" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{(scope.opt.configuration && scope.opt.configuration.uri) || '&lt;no uri&gt;'}}</small></q-item-label>
               </q-item-section>
               <q-item-section side>

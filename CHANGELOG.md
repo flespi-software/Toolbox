@@ -1,5 +1,28 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.20.2] - 2023-08-14
+[feature] stream traffic
+[feature] realm logs
+[feature] grant logs
+### [1.18.2] - 2023-03-28
+[feature] webhook logs module added
+### [1.18.2] - 2023-03-24
+[feature] LBS track
+### [1.18.1] - 2023-03-03
+[feature] jsontree timestamp formatted title
+[feature] added timezones for formatted time
+### [1.18.0] - 2023-02-21
+[feature] group logs
+[feature] device re-register messages
+[feature] sync (recalculate) intervals button
+[refactor] new toolbox codes api
+[fix] container messages ratio
+### [1.16.0] - 2022-12-13
+[feature] container messages
+### [1.15.15] - 2022-11-22
+[fix] hexviewer copy payload
+### [1.15.14] - 2022-09-23
+[feature] new transport type
 ### [1.15.13] - 2022-09-02
 [feature] hex-viewer more powerful converter
 ### [1.15.12] - 2022-09-01

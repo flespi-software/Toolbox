@@ -4,7 +4,7 @@
     <entities-toolbar
       :item="selectedItem" :actions="actions"
     >
-      <div class="flex" :class="{'middle-modificator': !active}" slot="selects">
+      <div style="max-width: 50%" :class="{'middle-modificator': !active}" slot="selects">
         <q-select
           ref="itemSelect"
           class="items__select"
@@ -13,7 +13,7 @@
           :options="filteredItems"
           filled
           :loading="isItemsInitStart && !isItemsInit"
-          :label="active ? 'Stream' : 'SELECT STREAM'"
+          :label="active ? 'Realms' : 'SELECT REALM'"
           dark hide-bottom-space dense color="white"
           :disable="!isNeedSelect"
           :hide-dropdown-icon="!isNeedSelect"
@@ -47,7 +47,7 @@
             >
               <q-item-section>
                 <q-item-label header class="ellipsis overflow-hidden q-pa-none text-white">{{selectedItem.name || '&lt;noname&gt;'}}</q-item-label>
-                <q-item-label class="q-pa-none q-mt-none text-white ellipsis" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{!selectedItem.protocol_id ? selectedItem.configuration.protocol : protocols[selectedItem.protocol_id].name}}</small></q-item-label>
+                <!-- <q-item-label class="q-pa-none q-mt-none text-white ellipsis" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{(selectedItem.configuration && selectedItem.configuration.uri) || '&lt;no uri&gt;'}}</small></q-item-label> -->
               </q-item-section>
               <q-item-section class="text-white" side>
                 <q-item-label v-if="selectedItem.deleted" class="q-pa-none text-right"><small class="cheap-modifier">DELETED</small></q-item-label>
@@ -66,7 +66,8 @@
             >
               <q-item-section>
                 <q-item-label header class="ellipsis overflow-hidden q-pa-xs">{{scope.opt.name || '&lt;noname&gt;'}}</q-item-label>
-                <q-item-label class="q-pa-none q-mt-none" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{!scope.opt.protocol_id ? scope.opt.configuration.protocol : protocols[scope.opt.protocol_id].name}}</small></q-item-label>
+                <!-- <q-item-label class="q-pa-none q-mt-none" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{(scope.opt.configuration && scope.opt.configuration.source_addr) || '&lt;no address&gt;'}}</small></q-item-label>
+                <q-item-label class="q-pa-none q-mt-none" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{(scope.opt.configuration && scope.opt.configuration.uri) || '&lt;no uri&gt;'}}</small></q-item-label> -->
               </q-item-section>
               <q-item-section side>
                 <q-item-label v-if="scope.opt.deleted" class="q-pa-xs text-right"><small class="cheap-modifier cheap-modifier--item" :class="{'cheap-modifier--mobile': $q.platform.is.mobile}">DELETED</small></q-item-label>
@@ -75,12 +76,6 @@
             </q-item>
           </template>
         </q-select>
-        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp" v-if="$q.platform.is.desktop && selectedItem && !selectedItem.deleted">
-          <q-btn title="Traffic hex payload" class="on-right pull-right text-center rounded-borders q-px-xs q-py-none text-white" @click="trafficViewHandler" flat dense style="width: 50px;">
-            <q-icon size="1.5rem" color="white" name="mdi-download-network-outline"/>
-            <div style="font-size: .7rem; line-height: .7rem">Traffic</div>
-          </q-btn>
-        </transition>
       </div>
     </entities-toolbar>
     <logs
@@ -88,16 +83,16 @@
       v-if="isInit && active"
       :item="selectedItem"
       :limit="limit"
-      originPattern="gw/streams/:id"
+      originPattern="platform/realms/:id"
       :entity-name="entityName"
       :isEnabled="true"
       :config="config.logs"
-      :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', ...panelsWidgetsStyle}"
+      :style="{ height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', ...panelsWidgetsStyle }"
       @view-log-message="viewWidgetsLogHandler"
       @action-select="data => widgetsViewedLog = data.content"
     />
     <div v-if="!items.length && isItemsInit" class="text-center text-grey-3 q-mt-lg">
-      <div style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Streams not found'}}</div>
+      <div style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Realms not found'}}</div>
       <q-btn v-if="!isLoading && needShowGetDeletedAction && tokenType === 1" class="q-mt-sm" @click="getDeletedHandler" icon="mdi-download" label="see deleted"/>
     </div>
     <widgets
@@ -140,13 +135,13 @@ export default {
   mixins: [init, MainWidgetsMixin, LogsWidgetsMixin, routerProcess],
   data () {
     return {
-      entityName: 'streams',
-      filter: '',
+      entityName: 'realms',
       active: null,
       isInit: false,
       isItemsInit: false,
       isItemsInitStart: false,
-      needShowGetDeletedAction: true
+      needShowGetDeletedAction: true,
+      filter: ''
     }
   },
   computed: {
@@ -156,9 +151,8 @@ export default {
       },
       tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
       itemsCollection (state) {
-        return state.streams || {}
-      },
-      protocols (state) { return state.streamsProtocols }
+        return state.realms || {}
+      }
     }),
     items () {
       return Object.values(this.itemsCollection)
@@ -247,10 +241,6 @@ export default {
     updateActive (id) {
       this.updateRoute({name: this.entityName, params: { id }}, !this.active)
     },
-
-    trafficViewHandler () {
-      this.$router.push(`/tools/stream-traffic/${this.active}`).catch(err => err)
-    },
     init () {
       const entity = this.entityName,
         activeFromLocaleStorage = get(this.settings, `entities[${entity}]`, undefined),
@@ -292,7 +282,7 @@ export default {
       if (route.params && route.params.id) {
         const id = Number(route.params.id)
         if (this.itemsCollection[id]) {
-          this.active = Number(route.params.id)
+          this.active = id
         } else if (this.isInit) {
           this.active = null
         }

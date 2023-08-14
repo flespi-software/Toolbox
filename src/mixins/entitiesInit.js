@@ -50,6 +50,20 @@ export default {
               }
               break
             }
+            case 'streams': {
+              if (fromEntity === 'streamTraffic') { fromEntity = 'streams' }
+              if (entity !== fromEntity) {
+                getMainEntity(entity, idFromRoute, idFromLS, vm.isNeedSelect, promises)
+              }
+              break
+            }
+            case 'streamTraffic': {
+              entity = 'streams'
+              if (entity !== fromEntity) {
+                getMainEntity(entity, idFromRoute, idFromLS, vm.isNeedSelect, promises)
+              }
+              break
+            }
             case 'calcs': {
               if (fromEntity === 'intervals') { fromEntity = 'calcs' }
               if (idFromRoute) {
@@ -221,6 +235,13 @@ export default {
         }
         case 'deviceTraffic': {
           fromEntity = 'devices'
+          if (fromEntity !== toEntity) {
+            promises.push(this.isNeedSelect && this.isItemsInit ? { entity: fromEntity, mode: 1 } : { entity: fromEntity, id: idFromRoute, mode: 1 })
+          }
+          break
+        }
+        case 'streamTraffic': {
+          fromEntity = 'streams'
           if (fromEntity !== toEntity) {
             promises.push(this.isNeedSelect && this.isItemsInit ? { entity: fromEntity, mode: 1 } : { entity: fromEntity, id: idFromRoute, mode: 1 })
           }

@@ -11,6 +11,8 @@ const origins = {
     streams: '/gw/streams/:id',
     modems: '/gw/modems/:id',
     webhooks: '/platform/webhooks/:id',
+    grants: '/platform/grants/:id',
+    realms: '/platform/realms/:id',
     containers: '/storage/containers/:id',
     cdns: '/storage/cdns/:id',
     tasks: '/gw/calcs/:calc/devices/:device',
@@ -24,6 +26,8 @@ const origins = {
     groups: ['id', 'name', 'deleted'],
     streams: ['id', 'name', 'deleted', 'configuration', 'protocol_id'],
     webhooks: ['id', 'name', 'deleted', 'configuration'],
+    grants: ['id', 'name', 'deleted'],
+    realms: ['id', 'name', 'deleted'],
     modems: ['id', 'name', 'deleted', 'configuration'],
     containers: ['id', 'name', 'deleted'],
     cdns: ['id', 'name', 'deleted'],
@@ -197,7 +201,7 @@ async function removeEntities (store, payload) {
   return res
 }
 
-const itemTypes = {
+const itemTypes = { // enum index base/src/libstate/state.h:49
   devices: 11,
   channels: 9,
   groups: 31,
@@ -206,6 +210,8 @@ const itemTypes = {
   plugins: 25,
   modems: 10,
   webhooks: 36,
+  grants: 37,
+  realms: 29,
   containers: 6,
   cdns: 7
 }

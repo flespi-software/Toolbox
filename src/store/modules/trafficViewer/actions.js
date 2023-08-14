@@ -167,7 +167,7 @@ function removePollingGetMessages ({ state, commit }) {
   state.messagePolling = false
   Vue.$logger.info(`[trafficViewer]removePollingGetMessages`)
 }
-async function getDevicePreview ({ state }, device) {
+async function getDevicePreview ({ state, commit }, device) {
   let messages = []
   try {
     const params = { data: { count: 20, reverse: true } }

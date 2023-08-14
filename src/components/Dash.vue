@@ -25,6 +25,8 @@ export default {
         groups: '/groups',
         streams: '/streams',
         webhooks: '/webhooks',
+        grants: '/grants',
+        realms: '/realms',
         modems: '/modems',
         calcs: '/calcs',
         plugins: '/plugins',
