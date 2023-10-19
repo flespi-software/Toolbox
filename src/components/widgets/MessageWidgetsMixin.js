@@ -62,7 +62,7 @@ export default {
           title: 'JSON',
           description,
           wrapper: JsonTree,
-          data: content
+          item: content
         }
         config.object = {
           title: 'Fields',
@@ -71,7 +71,7 @@ export default {
           wrapper: ObjectView,
           meta: this.fieldsDevicesMetaData,
           action: this.messagesWidgetActionHandler,
-          data: content
+          item: content
         }
         Object.keys(content).forEach(name => {
           if (
@@ -85,7 +85,7 @@ export default {
             config[`image{${name}}`] = {
               title: `Image{${name}}`,
               wrapper: ImageView,
-              data
+              item: data
             }
           }
         })

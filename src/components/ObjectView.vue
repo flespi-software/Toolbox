@@ -1,15 +1,24 @@
 <template>
   <div style="height: 100%">
+    <q-item dense dark v-if="highlightType && item['server.timestamp']" :class="`text-white ${item['server.timestamp'] - item.timestamp < 0 ? 'bg-orange-9' : 'bg-grey-9'} rounded-borders q-pr-none q-pl-sm`" :title="highlightExplanation || ''">
+      <q-item-section avatar style="min-width:30px;padding-right:0">
+        <q-icon name="mdi-alert" />
+      </q-item-section>
+      <q-item-section class="q-px-xs">
+        <q-item-label class="text-bold">{{highlightDescription}}</q-item-label>
+        <q-item-label caption title="Mesaage received time">{{formatDate(item['server.timestamp'] * 1000, 'DD/MM/YYYY HH:mm:ss')}} ({{Math.floor(item['server.timestamp'] - item.timestamp) * -1}} s.)</q-item-label>
+      </q-item-section>
+    </q-item>
     <q-item  class="q-pa-none" style="position: sticky; top: 0px; z-index: 1;">
       <q-item-section class="q-px-sm">
         <q-input type="text" color="white" dark label="Search" v-model="search" class="q-py-none bg-grey-8" outlined dense/>
       </q-item-section>
     </q-item>
     <q-list separator dark>
-      <q-item v-if="!Object.keys(data).length || !Object.keys(filteredObject).length">
+      <q-item v-if="!Object.keys(item).length || !Object.keys(filteredObject).length">
         <q-item-section>
           <q-item-label header class="ellipsis text-bold text-center text-white">No parameters</q-item-label>
-          <q-item-label v-if="!Object.keys(data).length" caption class="ellipsis text-center text-white">Message has not fields</q-item-label>
+          <q-item-label v-if="!Object.keys(item).length" caption class="ellipsis text-center text-white">Message has not fields</q-item-label>
           <q-item-label v-if="!Object.keys(filteredObject).length && this.search" caption class="ellipsis text-center text-white">Nothing found on your search</q-item-label>
         </q-item-section>
       </q-item>
@@ -42,19 +51,23 @@
 
 <script>
 import { date } from 'quasar'
+
+import highlightMessage from './messages/highlightMessageMixin.js'
+
 const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'})
 export default {
-  props: ['data', 'meta'],
+  props: ['item', 'meta'],
   data () {
     return {
       search: ''
     }
   },
+  mixins: [ highlightMessage ],
   computed: {
     filteredObject () {
-      return Object.keys(this.data).sort(collator.compare).reduce((acc, key) => {
+      return Object.keys(this.item).sort(collator.compare).reduce((acc, key) => {
         if (key.indexOf(this.search) !== -1) {
-          acc[key] = this.data[key]
+          acc[key] = this.item[key]
         }
         return acc
       }, {})

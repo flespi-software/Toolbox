@@ -54,7 +54,7 @@ export default {
             title: 'log object',
             description: log['x-flespi-description'],
             wrapper: JsonTree,
-            data: log,
+            item: log,
             descriptionAction: log.traffic ? {
               handler: this.logsWidgetDescriptionActionHandler,
               type: 'to-error-traffic',
@@ -69,42 +69,42 @@ export default {
             wrapper: ObjectView,
             meta: this.fieldsLogsMetaData,
             action: this.logsWidgetActionHandler,
-            data: log
+            item: log
           }
         }
         if (log.item_data) {
           config.item_data = {
             title: 'item data',
             wrapper: JsonTree,
-            data: log.item_data
+            item: log.item_data
           }
         }
         if (log.http_data) {
           config.http_data = {
             title: 'http data',
             wrapper: JsonTree,
-            data: log.http_data
+            item: log.http_data
           }
         }
         if (log.properties) {
           config.properties = {
             title: 'properties',
             wrapper: JsonTree,
-            data: log.properties
+            item: log.properties
           }
         }
         if (log.pending) {
           config.pending = {
             title: 'pending',
             wrapper: JsonTree,
-            data: log.pending
+            item: log.pending
           }
         }
         if (log.current) {
           config.current = {
             title: `${log.name} [${date.formatDate(log.timestamp * 1000, 'HH:mm:ss')}]`,
             wrapper: JsonTree,
-            data: log.current
+            item: log.current
           }
         }
       }

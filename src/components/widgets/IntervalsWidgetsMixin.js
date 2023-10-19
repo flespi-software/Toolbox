@@ -87,13 +87,13 @@ export default {
           title: 'JSON',
           description,
           wrapper: JsonTree,
-          data: content
+          item: content
         }
         config.object = {
           title: 'Fields',
           description,
           wrapper: ObjectView,
-          data: content,
+          item: content,
           meta: this.fieldsIntervalsMetaData,
           action: this.intervalsWidgetActionHandler
         }

@@ -263,7 +263,7 @@ export default {
           wrapper: ObjectView,
           meta: this.fieldsDevicesMetaData,
           action: this.messagesWidgetActionHandler,
-          data: content.params
+          item: content.params
         }
       }
       return obj

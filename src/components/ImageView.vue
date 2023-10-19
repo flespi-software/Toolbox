@@ -1,12 +1,12 @@
 <template>
-  <div class="image-view__image" :style="{backgroundImage: `url(${data})`}"></div>
+  <div class="image-view__image" :style="{backgroundImage: `url(${item})`}"></div>
 </template>
 
 <script>
 export default {
   name: 'image-view',
   props: {
-    data: String,
+    item: String,
     inverted: {
       type: Boolean,
       default () {

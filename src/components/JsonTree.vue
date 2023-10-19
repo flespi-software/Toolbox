@@ -1,21 +1,21 @@
 <template>
   <div>
-    <span :class="{'text-white': inverted !== undefined}">{{Array.isArray(data) ? '[' : '{'}}</span>
-    <div class="margin-left" v-for="(value, key, index) in data" :key="`${key}-${index}`">
+    <span :class="{'text-white': inverted !== undefined}">{{Array.isArray(item) ? '[' : '{'}}</span>
+    <div class="margin-left" v-for="(value, key, index) in item" :key="`${key}-${index}`">
       <div v-if="value && typeof value === 'object'">
-        <div @click="toggle(Array.isArray(data) ? key : index)" class="cursor-pointer">
+        <div @click="toggle(Array.isArray(item) ? key : index)" class="cursor-pointer">
           <span :class="[theme.label]">{{key}}</span><span :class="{'text-white': inverted !== undefined}"> : {{Array.isArray(value) ? `Array [${value.length}]` : 'Object'}}</span>
-          <q-icon :color="inverted !== undefined ? 'white' : 'grey-9'" v-if="showObj[Array.isArray(data) ? key : index]" name="mdi-menu-down" style="vertical-align: baseline" />
+          <q-icon :color="inverted !== undefined ? 'white' : 'grey-9'" v-if="showObj[Array.isArray(item) ? key : index]" name="mdi-menu-down" style="vertical-align: baseline" />
           <q-icon :color="inverted !== undefined ? 'white' : 'grey-9'" v-else name="mdi-menu-right" style="vertical-align: baseline" />
         </div>
-        <json-tree class="margin-left" v-if="showObj[Array.isArray(data) ? key : index]" :data='value' :inverted="inverted"/>
+        <json-tree class="margin-left" v-if="showObj[Array.isArray(item) ? key : index]" :item='value' :inverted="inverted"/>
       </div>
       <div v-else>
         <span :class="[theme.label]">{{key}}</span><span :class="{'text-white': inverted !== undefined}"> : </span>
         <pre class="json-tree__field-value" :class="{[theme.typeNumberOrBool]: typeof value === 'number' || typeof value === 'boolean', [theme.typeString]: typeof value === 'string', [theme.typeEmpty]: typeof value === 'undefined' || value === null }" :title="typeof key === 'string' && key.indexOf('timestamp') >= 0 && typeof value === 'number' ? formatDate(value * 1000, 'DD/MM/YYYY HH:mm:ss'): ''">{{JSON.stringify(value)}}</pre>
       </div>
     </div>
-    <span :class="{'text-white': inverted !== undefined}">{{Array.isArray(data) ? ']' : '}'}}</span>
+    <span :class="{'text-white': inverted !== undefined}">{{Array.isArray(item) ? ']' : '}'}}</span>
   </div>
 </template>
 
@@ -25,7 +25,7 @@ import { date } from 'quasar'
 export default {
   name: 'json-tree',
   props: {
-    data: [Object, Array],
+    item: [Object, Array],
     inverted: {
       type: Boolean,
       default () {
@@ -35,7 +35,7 @@ export default {
   },
   data () {
     const showObj = []
-    const len = Object.keys(this.data).length
+    const len = Object.keys(this.item).length
     for (let i = 0, l = len; i < l; i++) {
       showObj.push(true)
     }

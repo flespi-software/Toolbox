@@ -24,6 +24,8 @@
 <script>
 import { date } from 'quasar'
 
+import highlightMessage from '../highlightMessageMixin.js'
+
 export default {
   props: [
     'item',
@@ -35,31 +37,9 @@ export default {
     'selected',
     'menuCellActive'
   ],
+  mixins: [ highlightMessage ],
   data () {
-    let highlightLevel = 0,
-      highlightType = ''
-    if (this.item.timestamp < this.item['server.timestamp'] - 1800) { // >30min
-      highlightType = 'grey'
-      highlightLevel = 7
-    } else if (this.item.timestamp < this.item['server.timestamp'] - 600) { // 10-30min
-      highlightType = 'grey'
-      highlightLevel = 6
-    } else if (this.item.timestamp < this.item['server.timestamp'] - 120) { // 2-10min
-      highlightType = 'grey'
-      highlightLevel = 5
-    } else if (this.item.timestamp - 1800 > this.item['server.timestamp']) { // >30min
-      highlightType = 'orange'
-      highlightLevel = 10
-    } else if (this.item.timestamp - 60 > this.item['server.timestamp']) { // 1-30min
-      highlightType = 'orange'
-      highlightLevel = 7
-    } else if (this.item.timestamp - 1 > this.item['server.timestamp']) { // < 1sec-1min
-      highlightType = 'orange'
-      highlightLevel = 4
-    }
     return {
-      highlightType,
-      highlightLevel,
       date: date
     }
   },

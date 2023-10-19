@@ -18,17 +18,17 @@
     <div class="bg-grey-8 scroll relative-position" :style="{ height: isModified ? 'calc(100% - 50px)' : 'calc(100% - 40px)', width: 'calc(100% - 4px)' }">
       <q-tab-panel v-for="(item, key) in config" :name="key" :key="`tab-pane-${key}`" v-show="tabModel === key">
         <div v-if="item.description">
-          <div style="font-size: 1rem; width: calc(100% - 35px)" class="text-center text-bold q-mb-sm text-white" :class="[item.data['x-flespi-color']]" v-html="item.description"></div>
-          <q-btn class="absolute" style="top: 5px; right: 5px;" color="grey-1" flat dense icon="mdi-content-copy" @click="copyMessageHandler({content: item.data})">
+          <div style="font-size: 1rem; width: calc(100% - 35px)" class="text-center text-bold q-mb-sm text-white" :class="[item.item['x-flespi-color']]" v-html="item.description"></div>
+          <q-btn class="absolute" style="top: 5px; right: 5px;" color="grey-1" flat dense icon="mdi-content-copy" @click="copyMessageHandler({content: item.item})">
             <q-tooltip>Copy data</q-tooltip>
           </q-btn>
-          <q-btn v-if="item.descriptionAction" class="absolute" style="top: 38px; right: 5px;" :color="item.descriptionAction.color" flat dense :icon="item.descriptionAction.icon" @click="item.descriptionAction.handler({type: 'to-error-traffic', data: item.data})">
+          <q-btn v-if="item.descriptionAction" class="absolute" style="top: 38px; right: 5px;" :color="item.descriptionAction.color" flat dense :icon="item.descriptionAction.icon" @click="item.descriptionAction.handler({type: 'to-error-traffic', data: item.item})">
             <q-tooltip>{{item.descriptionAction.title}}</q-tooltip>
           </q-btn>
         </div>
-        <component v-if="item.wrapper && typeof item.wrapper === 'object'" :is="item.wrapper" :ref="key" :data="item.data" :meta="item.meta" @action="data => { item.action && item.action(data) }" :inverted="inverted"/>
-        <component v-else-if="item.wrapper && typeof item.wrapper === 'string'" :is="item.wrapper" :ref="key" :class="{'text-white': inverted !== undefined}">{{item.data}}</component>
-        <div v-else :class="{'text-white': inverted !== undefined}" :ref="key">{{item.data}}</div>
+        <component v-if="item.wrapper && typeof item.wrapper === 'object'" :is="item.wrapper" :ref="key" :item="item.item" :meta="item.meta" @action="data => { item.action && item.action(data) }" :inverted="inverted"/>
+        <component v-else-if="item.wrapper && typeof item.wrapper === 'string'" :is="item.wrapper" :ref="key" :class="{'text-white': inverted !== undefined}">{{item.item}}</component>
+        <div v-else :class="{'text-white': inverted !== undefined}" :ref="key">{{item.item}}</div>
       </q-tab-panel>
     </div>
     <div class="widget-window__actions">

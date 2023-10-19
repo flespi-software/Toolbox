@@ -13,18 +13,18 @@ export default {
   methods: {
     getLogItemColorByCodes (code, extCode) {
       const logMeta = this.logsObject.codes[code]
-      let color = COLORS[logMeta?.severity]
+      let color = COLORS[logMeta && logMeta.severity]
       if (extCode) {
-        color = COLORS[logMeta.extra_codes[extCode]?.severity] || color
+        color = COLORS[logMeta.extra_codes[extCode] && logMeta.extra_codes[extCode].severity] || color
       }
       return color
     },
     getLogItemColorByLogEntry (log) {
       const logMeta = this.logsObject.codes[log.event_code]
-      let color = COLORS[logMeta?.severity]
-      const extraName = logMeta?.extra_name
+      let color = COLORS[logMeta && logMeta.severity]
+      const extraName = logMeta && logMeta.extra_name
       if (extraName && log[extraName]) {
-        color = COLORS[logMeta.extra_codes[log[extraName]]?.severity] || color
+        color = COLORS[logMeta.extra_codes[log[extraName]] && logMeta.extra_codes[log[extraName]].severity] || color
       }
       return color
     },
@@ -48,7 +48,7 @@ export default {
         const extData = logObject.extra_codes[log[extraName]]
         extraData = {
           ...extData,
-          color: COLORS[extData?.severity]
+          color: COLORS[extData && extData.severity]
         }
       }
       return {
@@ -56,7 +56,7 @@ export default {
         description: logObject.description,
         doc: logObject.doc,
         entity: logObject.entity,
-        color: COLORS[logObject?.severity],
+        color: COLORS[logObject && logObject.severity],
         extraName,
         extraData
       }

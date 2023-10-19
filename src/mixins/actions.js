@@ -37,7 +37,7 @@ export default {
           const cols = colsSchema.schemas[colsSchema.activeSchema].cols.filter(col => !col.__dest).map(col => col.name)
           this.isFileCsvLoading = true
           params.fields = cols.join(',')
-          this.$store.dispatch(`${this.moduleName}/getMessages`, params)
+          this.$store.dispatch(`${this.moduleName}/${this.actionName ? this.actionName : 'getMessages'}`, params)
             .then(messages => {
               if (!messages || !messages.length) {
                 this.$q.notify({
@@ -55,6 +55,14 @@ export default {
                       message[name] = date.formatDate(time, 'DD/MM/YYYY HH:mm:ss')
                     }
                   })
+                })
+              }
+              if (this.getLogDescriptionByItem) {
+                messages.forEach(message => {
+                  if (message['event_code']) {
+                    console.log('event_code')
+                    message['event_code'] = message['event_code'] + ': ' + this.getLogDescriptionByItem(message)
+                  }
                 })
               }
               let csv = ''

@@ -6,6 +6,7 @@
       name="LogsVirtualScroll"
       :cols="cols"
       :actions="actions"
+      :panelActions="panelActions"
       :items="messages"
       :dateRange="dateRange"
       :viewConfig="viewConfig"
@@ -52,6 +53,8 @@ import routerProcess from '../../mixins/routerProcess'
 import { ACTION_MODE_MULTI, ACTION_MODE_SINGLE } from '../../config'
 import testExpressionsMixin from '../../mixins/testExpressionsMixin'
 import multiselectMixin from '../../mixins/multiselectMixin'
+import actions from '../../mixins/actions'
+
 
 export default {
   props: [
@@ -73,6 +76,7 @@ export default {
       scrollTimestamp: undefined,
       actions: this.config.actions,
       moduleName: this.config.vuexModuleName,
+      actionName: 'getLogs',
       autoscroll: true,
       isInit: false
     }
@@ -99,6 +103,29 @@ export default {
       get () {
         return this.$store.state[this.moduleName].origin
       }
+    },
+    panelActions () {
+      return [
+        {
+          label: 'Export CSV',
+          icon: 'mdi-file-document-outline',
+          handler: () => this.exportCsv(
+            {
+              filter: `${this.filter}`,
+              from: this.from / 1000,
+              to: this.to / 1000
+            },
+            {
+              from: this.from,
+              to: this.to
+            },
+            'devices'
+          ),
+          condition: this.messages.length,
+          tooltip: 'Save messages to CSV',
+          async: this.isFileCsvLoading
+        }
+      ]
     },
     cols: {
       get () {
@@ -657,7 +684,7 @@ export default {
     this.connectHandler !== undefined && Vue.connector.socket.off('connect', this.connectHandler)
     this.$store.commit(`${this.moduleName}/clear`)
   },
-  mixins: [ItemMixin, routerProcess, testExpressionsMixin, multiselectMixin],
+  mixins: [actions, ItemMixin, routerProcess, testExpressionsMixin, multiselectMixin],
   components: {
     VirtualScrollList,
     EmptyPane,

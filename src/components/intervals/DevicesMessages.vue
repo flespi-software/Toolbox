@@ -218,7 +218,7 @@ export default {
       data.props.actionsVisible = this.actionsVisible
       data.props.selected = this.selected.includes(index)
       data.props.actions = () => this.getItemPropsActions(item, data)
-      data.props.highlighted = this.interval && item.timestamp >= this.interval.begin && item.timestamp <= this.interval.end
+      data.props.highlighted = this.interval && (item.timestamp >= this.interval.begin && item.timestamp <= this.interval.end)
       if (!data.on) { data.on = {} }
       data.on.action = this.actionHandler
       data.on['item-click'] = this.itemClickHandler
@@ -345,13 +345,14 @@ export default {
     },
     async showMessagesByInterval () {
       const interval = this.interval
+      const that = this
       if (!interval) { return }
       const existMessageIndex = this.messages.findIndex(message => message.timestamp === interval.begin)
       if (existMessageIndex !== -1) {
         this.scrollTo(existMessageIndex - 1)
       } else {
         this.$store.state[this.moduleName].messages = []
-        const intervalMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.begin, to: interval.end, count: this.limit })
+        const intervalMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.begin - 180, to: interval.end + 180, count: this.limit })
         const count = Math.ceil((this.limit - intervalMessages.length) / 2)
         let scrollToIndex = 0
         if (intervalMessages.length < this.limit) {
@@ -370,7 +371,10 @@ export default {
         }
         this.$store.state[this.moduleName].pages = [intervalMessages.length]
         this.$store.commit(`${this.moduleName}/setHistoryMessages`, intervalMessages)
-        this.scrollTo(scrollToIndex)
+        setTimeout(function () {
+          const existMessageIndex = intervalMessages.findIndex(message => message.timestamp === interval.begin || message['timestamp.key'] === interval.begin)
+          that.scrollTo(existMessageIndex || scrollToIndex || 0)
+        }, 50)
       }
     },
     actionHandler ({ index, type, content }) {
