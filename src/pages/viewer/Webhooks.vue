@@ -4,11 +4,12 @@
     <entities-toolbar
       :item="selectedItem" :actions="actions"
     >
-      <div style="max-width: 50%" :class="{'middle-modificator': !active}" slot="selects">
+      <div style="max-width: 50%" class="flex" :class="{'middle-modificator': !active}" slot="selects">
         <q-select
           ref="itemSelect"
           class="items__select"
           :class="{'items__select--no-selected': !active}"
+          style="max-width:calc(100% - 70px)"
           :value="active"
           :options="filteredItems"
           filled
@@ -76,6 +77,12 @@
             </q-item>
           </template>
         </q-select>
+        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp" v-if="$q.platform.is.desktop && selectedItem && !selectedItem.deleted">
+          <q-btn title="Traffic hex payload" class="on-right pull-right text-center rounded-borders q-px-xs q-py-none text-white" @click="trafficViewHandler" flat dense style="width: 50px;">
+            <q-icon size="1.5rem" color="white" name="mdi-download-network-outline"/>
+            <div style="font-size: .7rem; line-height: .7rem">Traffic</div>
+          </q-btn>
+        </transition>
       </div>
     </entities-toolbar>
     <logs
@@ -86,10 +93,11 @@
       originPattern="platform/webhooks/:id"
       :entity-name="entityName"
       :isEnabled="true"
-      :config="config.logs"
+      :config="logsConfig"
       :style="{ height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', ...panelsWidgetsStyle }"
       @view-log-message="viewWidgetsLogHandler"
       @action-select="data => widgetsViewedLog = data.content"
+      @to-traffic="toTrafficHandler"
     />
     <div v-if="!items.length && isItemsInit" class="text-center text-grey-3 q-mt-lg">
       <div style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Webhooks not found'}}</div>
@@ -122,6 +130,8 @@ import init from '../../mixins/entitiesInit'
 import EntitiesToolbar from '../../components/EntitiesToolbar'
 import routerProcess from '../../mixins/routerProcess'
 import get from 'lodash/get'
+import cloneDeep from 'lodash/cloneDeep'
+import { ACTION_MODE_SINGLE } from '../../config'
 
 export default {
   props: [
@@ -152,6 +162,9 @@ export default {
       tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
       itemsCollection (state) {
         return state.webhooks || {}
+      },
+      needTrafficRoute (state) {
+        return get(state.config, 'webhookTraffic.isDrawable', false)
       }
     }),
     items () {
@@ -190,6 +203,19 @@ export default {
     selectedItem () {
       const item = this.itemsCollection[this.active] || null
       return item
+    },
+    logsConfig () {
+      const config = cloneDeep(this.config.logs)
+      if (this.needTrafficRoute) {
+        config.actions.push({
+          icon: 'mdi-download-network-outline',
+          label: 'View traffic',
+          classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'traffic'
+        })
+      }
+      return config
     },
     actions () {
       return [
@@ -240,6 +266,19 @@ export default {
     },
     updateActive (id) {
       this.updateRoute({name: this.entityName, params: { id }}, !this.active)
+    },
+    trafficViewHandler () {
+      this.$router.push(`/tools/webhook-traffic/${this.active}`).catch(err => err)
+    },
+    toTrafficHandler ({ content }) {
+      const timestamp = content['server.timestamp'] || content.timestamp,
+        to = timestamp + 1,
+        from = to - 10,
+        highlight = timestamp,
+        query = {
+          to, from, highlight
+        }
+      this.$router.push({ path: `/tools/webhook-traffic/${this.active}`, query }).catch(err => err)
     },
     init () {
       const entity = this.entityName,

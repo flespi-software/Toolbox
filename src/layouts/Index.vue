@@ -83,7 +83,7 @@ export default {
       toolboxMode: undefined,
       connectFlag: false,
       isTabsVisible: true,
-      entityByGroup: ['platform', 'webhooks', 'realms', 'grants', 'channels', 'devices', 'groups', 'streams', 'calcs', 'intervals', 'plugins', 'hexViewer', 'trafficViewer', 'deviceTraffic', 'streamTraffic', 'modems', 'containers', 'cdns', 'mqtt', 'mqttClient'],
+      entityByGroup: ['platform', 'webhooks', 'realms', 'grants', 'channels', 'devices', 'groups', 'streams', 'calcs', 'intervals', 'plugins', 'hexViewer', 'trafficViewer', 'deviceTraffic', 'streamTraffic', 'webhookTraffic', 'modems', 'containers', 'cdns', 'mqtt', 'mqttClient'],
       isNeedSelect: true,
       entityInited: false,
       isInit: Vue.connector.socket.connected()
@@ -222,6 +222,7 @@ export default {
               result.push('webhooks')
               result.push('grants')
               result.push('realms')
+              result.push('webhookTraffic')
               break
             }
           }

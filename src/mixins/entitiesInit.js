@@ -64,6 +64,20 @@ export default {
               }
               break
             }
+            case 'webhooks': {
+              if (fromEntity === 'webhookTraffic') { fromEntity = 'webhooks' }
+              if (entity !== fromEntity) {
+                getMainEntity(entity, idFromRoute, idFromLS, vm.isNeedSelect, promises)
+              }
+              break
+            }
+            case 'webhookTraffic': {
+              entity = 'webhooks'
+              if (entity !== fromEntity) {
+                getMainEntity(entity, idFromRoute, idFromLS, vm.isNeedSelect, promises)
+              }
+              break
+            }
             case 'calcs': {
               if (fromEntity === 'intervals') { fromEntity = 'calcs' }
               if (idFromRoute) {
