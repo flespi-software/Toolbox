@@ -24,32 +24,32 @@ export default {
       if (item.timestamp < item['server.timestamp'] - 1800) { // >30min
         highlightType = 'grey'
         highlightLevel = 7
-        highlightDescription = 'Message come from the past'
+        highlightDescription = 'Message came from the past'
         highlightExplanation = 'flushing blackbox or wrong device settings'
       } else if (item.timestamp < item['server.timestamp'] - 600) { // 10-30min
         highlightType = 'grey'
         highlightLevel = 6
-        highlightDescription = 'Message come from the past'
+        highlightDescription = 'Message came from the past'
         highlightExplanation = 'flushing blackbox or wrong device settings'
       } else if (item.timestamp < item['server.timestamp'] - 120) { // 2-10min
         highlightType = 'grey'
         highlightLevel = 5
-        highlightDescription = 'Message come from the past'
+        highlightDescription = 'Message came from the past'
         highlightExplanation = 'flushing blackbox or wrong device settings'
       } else if (item.timestamp - 1800 > item['server.timestamp']) { // >30min
         highlightType = 'orange'
         highlightLevel = 10
-        highlightDescription = 'Message come from the future'
+        highlightDescription = 'Message came from the future'
         highlightExplanation = 'wrong device settings'
       } else if (item.timestamp - 60 > item['server.timestamp']) { // 1-30min
         highlightType = 'orange'
         highlightLevel = 7
-        highlightDescription = 'Message come from the future'
+        highlightDescription = 'Message came from the future'
         highlightExplanation = 'wrong device settings'
       } else if (item.timestamp - 1 > item['server.timestamp']) { // < 1sec-1min
         highlightType = 'orange'
         highlightLevel = 4
-        highlightDescription = 'Message come from the future'
+        highlightDescription = 'Message came from the future'
         highlightExplanation = 'wrong device settings'
       }
       if (item['rest.timestamp']) {

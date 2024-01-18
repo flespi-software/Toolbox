@@ -1,6 +1,6 @@
 <template>
   <div style="height: 100%">
-    <q-item dense dark v-if="highlightType && item['server.timestamp']" :class="`text-white ${item['server.timestamp'] - item.timestamp < 0 ? 'bg-orange-9' : 'bg-grey-9'} rounded-borders q-pr-none q-pl-sm`" :title="highlightExplanation || ''">
+    <q-item dense dark v-if="highlightType && item['server.timestamp']" href="https://flespi.com/kb/toolbox-guide#colors" target="_blank" :class="`text-white ${item['server.timestamp'] - item.timestamp < 0 ? 'bg-orange-9' : 'bg-grey-9'} rounded-borders q-pr-none q-pl-sm`" :title="highlightExplanation || ''">
       <q-item-section avatar style="min-width:30px;padding-right:0">
         <q-icon name="mdi-alert" />
       </q-item-section>

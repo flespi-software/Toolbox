@@ -12,7 +12,7 @@
           :key="prop.name + k"
           class="list__item"
           :class="{[`item_${k}`]: true, 'item--active': menuCellActive && menuCellActive.row === index && menuCellActive.col === k}"
-          :title="values[prop.name].value + (highlightDescription ? `\n${highlightDescription} ${highlightExplanation?'(' + highlightExplanation + ')' : ''}` : '')"
+          :title="(values[prop.name].value || '') + (highlightDescription ? `\n${highlightDescription} ${highlightExplanation?'(' + highlightExplanation + ')' : ''}` : '')"
         >
           {{values[prop.name].value}}
         </span>

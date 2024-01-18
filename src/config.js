@@ -449,10 +449,10 @@ export default {
         },
         {
           name: 'name',
-          title: 'setting',
+          title: 'name',
           width: 80,
           display: true,
-          description: 'Setting name'
+          description: 'Name'
         },
         {
           name: 'ident',

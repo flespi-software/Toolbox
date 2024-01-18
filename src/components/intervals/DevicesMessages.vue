@@ -218,7 +218,7 @@ export default {
       data.props.actionsVisible = this.actionsVisible
       data.props.selected = this.selected.includes(index)
       data.props.actions = () => this.getItemPropsActions(item, data)
-      data.props.highlighted = this.interval && (item.timestamp >= this.interval.begin && item.timestamp <= this.interval.end)
+      data.props.highlighted = this.interval && ((item.timestamp >= this.interval.begin && item.timestamp <= this.interval.end) || (item['timestamp.key'] >= this.interval.begin && item['timestamp.key'] <= this.interval.end))
       if (!data.on) { data.on = {} }
       data.on.action = this.actionHandler
       data.on['item-click'] = this.itemClickHandler
