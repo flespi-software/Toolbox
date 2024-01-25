@@ -276,6 +276,13 @@ export default {
           description: 'Log event code and description'
         },
         {
+          name: 'reason',
+          title: 'reason',
+          width: 400,
+          display: true,
+          description: 'Log event reason'
+        },
+        {
           name: 'host',
           width: 150,
           display: true,
@@ -1737,7 +1744,7 @@ export default {
     }
   },
   webhookTraffic: {
-    label: 'Stream traffic',
+    label: 'Webhook traffic',
     path: 'tools/webhook-traffic',
     type: 'tools',
     icon: 'mdi-download-network-outline',
@@ -1755,7 +1762,49 @@ export default {
         label: 'Traffic not found',
         sublabel: 'If you expect to see the raw messages here',
         hints: [
-          { html: "Make sure your trackers are correctly pointed to this channel’s <span class='text-bold'>IP:port</span> and they are currently sending messages.", wclass: ['col-12'] },
+          { html: "Pick a specific date and time using the <span class='text-bold'>date/time picker</span> on the top right.", wclass: ['col-12'] },
+          { html: "Narrow down the search by specifying the desired parameter values in the <span class='text-bold'>filter control</span>.", wclass: ['col-12'] }
+        ]
+      },
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'copy',
+          classes: '',
+          type: 'copy'
+        }
+      ],
+      viewConfig: {
+        needShowFilter: true
+      },
+      theme: {
+        color: 'white',
+        bgColor: 'grey-9',
+        contentInverted: true,
+        controlsInverted: true
+      }
+    }
+  },
+  pluginTraffic: {
+    label: 'Plugin traffic',
+    path: 'tools/plugin-traffic',
+    type: 'tools',
+    icon: 'mdi-download-network-outline',
+    acl: [{
+      name: 'plugins',
+      methods: ['GET'],
+      submodules: [
+        { name: 'packets', methods: ['GET'] }
+      ]
+    }],
+    isDrawable: false,
+    messages: {
+      vuexModuleName: 'pluginTraffic',
+      emptyState: {
+        label: 'Traffic not found',
+        sublabel: 'If you expect to see the raw messages here',
+        hints: [
+          { html: "Make sure your trackers are correctly pointed to the channel’s <span class='text-bold'>IP:port</span> and they are currently sending messages.", wclass: ['col-12'] },
           { html: "Pick a specific date and time using the <span class='text-bold'>date/time picker</span> on the top right.", wclass: ['col-12'] },
           { html: "Narrow down the search by specifying the desired parameter values in the <span class='text-bold'>filter control</span>.", wclass: ['col-12'] }
         ]

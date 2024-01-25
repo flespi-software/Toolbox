@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.22.0] - 2024-01-25
+[feature] plugin traffic
+### [1.21.0] - 2024-01-14
+[feature] webhook traffic
 ### [1.20.2] - 2023-08-14
 [feature] stream traffic
 [feature] realm logs

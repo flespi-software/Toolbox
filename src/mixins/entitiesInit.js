@@ -64,6 +64,20 @@ export default {
               }
               break
             }
+            case 'plugins': {
+              if (fromEntity === 'pluginTraffic') { fromEntity = 'plugins' }
+              if (entity !== fromEntity) {
+                getMainEntity(entity, idFromRoute, idFromLS, vm.isNeedSelect, promises)
+              }
+              break
+            }
+            case 'pluginTraffic': {
+              entity = 'plugins'
+              if (entity !== fromEntity) {
+                getMainEntity(entity, idFromRoute, idFromLS, vm.isNeedSelect, promises)
+              }
+              break
+            }
             case 'webhooks': {
               if (fromEntity === 'webhookTraffic') { fromEntity = 'webhooks' }
               if (entity !== fromEntity) {
