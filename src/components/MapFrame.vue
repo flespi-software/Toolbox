@@ -34,6 +34,10 @@ export default {
       this.lastCommand.namedmarkers = markers
       return this
     },
+    addNamedTracks (tracks) {
+      this.lastCommand.namedtracks = tracks
+      return this
+    },
     addNamedMarker (markers) {
       this.lastCommand.namedmarkers = { ...this.lastCommand.namedmarkers, ...markers }
       return this

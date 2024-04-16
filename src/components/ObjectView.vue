@@ -36,6 +36,7 @@
               </q-tooltip>
             </q-item-label>
             <q-item-label v-if="filteredObject[key] && filteredObject[key].toString().match(/^data:image\/(?:gif|png|jpeg|bmp|webp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}/)" caption><img class="image-bin" :src="filteredObject[key]" :alt="key"></q-item-label>
+            <q-item-label v-else-if="key.indexOf('media.image') === 0 || key.indexOf('media.video') === 0" caption><a :href="filteredObject[key].url" target="_blank"><img class="image-bin" :src="filteredObject[key].url + '?preview=jpeg'" :alt="key"></a></q-item-label>
             <q-item-label multiline v-else-if="key.indexOf('image.bin.') === -1" caption class="ellipsis text-white">{{typeof filteredObject[key] !== 'string' ? JSON.stringify(filteredObject[key]) : filteredObject[key]}}<q-tooltip>{{key.indexOf('timestamp') != -1 && typeof filteredObject[key] === 'number' ? formatDate(filteredObject[key] * 1000, 'DD/MM/YYYY HH:mm:ss') : (typeof filteredObject[key] !== 'string' ? JSON.stringify(filteredObject[key]) : filteredObject[key])}}</q-tooltip></q-item-label>
             <q-item-label v-else-if="key.indexOf('image.bin.') === 0" caption><img class="image-bin" :src="`data:image/${key.split('.')[2]};base64, ${filteredObject[key].replace(/^data\:image\/\w*\;base64\,\s/, '')}`" :alt="key"></q-item-label>
           </q-item-section>
@@ -91,5 +92,5 @@ export default {
     color $grey-4
     font-size .8rem
   .image-bin
-    max-width 265px
+    max-width 100%
 </style>

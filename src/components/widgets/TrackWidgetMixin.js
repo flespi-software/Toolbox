@@ -67,7 +67,8 @@ export default {
             ],
             direction: content['position.direction'],
             color: '#f0f',
-            label: 'Message'
+            label: 'Message',
+            setpoints: [[content['position.latitude'],content['position.longitude']]]
           }
         }
         this.trackWidgetMessageMarker = marker
@@ -81,7 +82,8 @@ export default {
                 content['position.lbs.longitude']
               ],
               color: '#09f',
-              label: 'LBS Position'
+              label: 'LBS Position',
+              setpoints: [[content['position.lbs.latitude'],content['position.lbs.longitude']]]
             }
           }
           this.trackWidgetLBSMessageMarker = lbsmarker
