@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.23.0] - 2024-04-17
+[feature] plugin processing view
 ### [1.22.0] - 2024-01-25
 [feature] plugin traffic
 ### [1.21.0] - 2024-01-14

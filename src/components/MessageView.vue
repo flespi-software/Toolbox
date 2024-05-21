@@ -29,7 +29,7 @@
           <q-item-section>
             <q-item-label header class="ellipsis text-bold q-pa-none text-white">
               <span>{{key}}</span>
-              <span v-if='meta[key] && meta[key].unit' class="object-viewier__units">, {{meta[key].unit}}</span>
+              <span v-if='meta[key] && meta[key].unit' class="message-viewer__units">, {{meta[key].unit}}</span>
               <q-tooltip>
                 <span class="text-bold">{{key}}</span><span class="block" v-if='meta[key] && meta[key].unit'>, {{meta[key].unit}}</span>
                 <span class="block" v-if="meta[key] && meta[key].description">{{ meta[key].description }}</span>
@@ -52,15 +52,19 @@
 
 <script>
 import { date } from 'quasar'
+import { get } from 'lodash'
+import Vue from 'vue'
 
 import highlightMessage from './messages/highlightMessageMixin.js'
 
 const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'})
 export default {
-  props: ['item', 'meta'],
+  props: ['log', 'meta'],
   data () {
     return {
-      search: ''
+      search: '',
+      item: {},
+      loading: false
     }
   },
   mixins: [ highlightMessage ],
@@ -74,9 +78,37 @@ export default {
       }, {})
     }
   },
+  watch:{
+    log: function () {
+      this.getLogMessage()
+    }
+  },
+  mounted(){
+    this.getLogMessage()
+  },
   methods: {
     formatDate: date.formatDate,
 
+    async getLogMessage () {
+      try {
+        this.item = {}
+        this.loading = true
+        let params = {
+          reverse: false,
+          count: 1,
+          filter: 'timestamp==' + this.log.message_timestamp,
+          from: this.log.message_timestamp,
+          to: this.log.message_timestamp
+        }
+        const respmessage = await Vue.connector.http.get(`/gw/devices/${this.log.device_id}/messages?data=${encodeURIComponent(JSON.stringify(params))}`)
+        this.item = get(respmessage, 'data.result.0', {})
+
+        this.loading = false
+      } catch (e) {
+        console.log(e)
+        this.loading = false
+      }
+    },
     action (type, data) {
       this.$emit('action', {
         type,
@@ -88,7 +120,7 @@ export default {
 </script>
 
 <style lang="stylus">
-  .object-viewier__units
+  .message-viewer__units
     color $grey-4
     font-size .8rem
   .image-bin

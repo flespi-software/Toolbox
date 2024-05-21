@@ -420,10 +420,10 @@ export default {
       const isRightSide = this.widgetStyle.right && isWidgetActive
       if (isTwoSide) {
         style.maxWidth = 'calc(100% - 600px)'
-        style.left = '300px'
+        style.left = '400px'
       } else if (isLeftSide || isRightSide) {
-        style.maxWidth = 'calc(100% - 300px)'
-        if (isRightSide) { style.left = '300px' }
+        style.maxWidth = 'calc(100% - 400px)'
+        if (isRightSide) { style.left = '400px' }
       }
       return style
     }

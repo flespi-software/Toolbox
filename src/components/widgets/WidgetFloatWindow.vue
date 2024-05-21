@@ -104,12 +104,12 @@ export default {
     minimize (minimizeTo) {
       const parentW = this.wrapperSize.width,
         parentH = this.wrapperSize.height
-      this.width = 300
+      this.width = 400
       this.height = parentH - 50
       switch (minimizeTo) {
         case 'left': {
           this.$nextTick(() => {
-            this.x = parentW - 300
+            this.x = parentW - 400
             this.y = parentH - this.height
           })
           break

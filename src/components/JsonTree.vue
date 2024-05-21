@@ -12,8 +12,9 @@
       </div>
       <div v-else>
         <span :class="[theme.label]">{{key}}</span><span :class="{'text-white': inverted !== undefined}"> : </span>
-        <pre class="json-tree__field-value" :class="{[theme.typeNumberOrBool]: typeof value === 'number' || typeof value === 'boolean', [theme.typeString]: typeof value === 'string', [theme.typeEmpty]: typeof value === 'undefined' || value === null }" :title="typeof key === 'string' && key.indexOf('timestamp') >= 0 && typeof value === 'number' ? formatDate(value * 1000, 'DD/MM/YYYY HH:mm:ss'): ''">{{JSON.stringify(value)}}</pre>
+        <pre class="json-tree__field-value" :class="{[theme.typeNumberOrBool]: typeof value === 'number' || typeof value === 'boolean', [theme.typeString]: typeof value === 'string', [theme.typeEmpty]: typeof value === 'undefined' || value === null }" :title="typeof key === 'string' && key.indexOf('timestamp') >= 0 && typeof value === 'number' ? formatDate(value * 1000, 'YYYY-MM-DD HH:mm:ss.SSS'): ''">{{JSON.stringify(value)}}</pre>
       </div>
+      <span class="json-comma">,</span>
     </div>
     <span :class="{'text-white': inverted !== undefined}">{{Array.isArray(item) ? ']' : '}'}}</span>
   </div>
@@ -76,4 +77,6 @@ export default {
     display inline
     white-space pre-wrap
     word-wrap break-word
+  .json-comma:last-child
+    display none
 </style>

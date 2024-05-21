@@ -2,6 +2,7 @@ import { date } from 'quasar'
 import get from 'lodash/get'
 import JsonTree from '../JsonTree.vue'
 import ObjectView from '../ObjectView'
+import MessageView from '../MessageView'
 /*
 <widgets
   ref="logsView"
@@ -70,6 +71,16 @@ export default {
             meta: this.fieldsLogsMetaData,
             action: this.logsWidgetActionHandler,
             item: log
+          }
+        }
+        if (log.message_timestamp && log.device_id) {
+          config.message = {
+            title: 'Message',
+            // description: log['x-flespi-description'],
+            wrapper: MessageView,
+            meta: this.fieldsLogsMetaData,
+            action: this.logsWidgetActionHandler,
+            log: log
           }
         }
         if (log.item_data) {

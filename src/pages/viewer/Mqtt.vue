@@ -207,8 +207,8 @@ export default {
       const isLeftSide = this.widgetStyle.left && (this.isWidgetsMessageActive || this.isWidgetsLogsActive || this.isWidgetsTrackActive)
       const isRightSide = this.widgetStyle.right && (this.isWidgetsMessageActive || this.isWidgetsLogsActive || this.isWidgetsTrackActive)
       if (isLeftSide || isRightSide) {
-        style.maxWidth = 'calc(100% - 300px)'
-        if (isRightSide) { style.left = '300px' }
+        style.maxWidth = 'calc(100% - 400px)'
+        if (isRightSide) { style.left = '400px' }
       }
       return style
     }

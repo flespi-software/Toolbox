@@ -4,6 +4,7 @@ import ImageView from '../ImageView'
 import JsonTree from '../JsonTree'
 import ObjectView from '../ObjectView'
 import MapFrame from '../MapFrame'
+import PluginProcessing from '../PluginProcessing'
 /*
 <widgets
   ref="messagesView"
@@ -51,7 +52,7 @@ export default {
       const content = this.widgetsViewedMessage
       const config = {}
       if (content) {
-        const description = `${content.ident ? `<div style="font-size: 1.1rem">${content.ident}</div>` : ''}${content.timestamp ? `<div style="font-size: .8rem">${date.formatDate(content.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss (Z)')}</div>` : ''}`
+        const description = `${content.ident ? `<div style="font-size: 1.1rem">${content.ident}</div>` : ''}${content.timestamp ? `<div style="font-size: .8rem">${date.formatDate(content.timestamp * 1000, 'YYYY-MM-DD HH:mm:ss.SSS (Z)')}</div>` : ''}`
         if ((content['position.latitude'] && content['position.longitude']) || (content['position.lbs.latitude'] && content['position.lbs.longitude'])) {
           config.position = {
             titleIcon: 'mdi-map-marker-radius',
@@ -72,6 +73,15 @@ export default {
           meta: this.fieldsDevicesMetaData,
           action: this.messagesWidgetActionHandler,
           item: content
+        }
+        if (content['device.id']) {
+          config.plugins = {
+            titleIcon: 'mdi-puzzle',
+            description,
+            wrapper: PluginProcessing,
+            meta: this.fieldsDevicesMetaData,
+            item: content
+          }
         }
         Object.keys(content).forEach(name => {
           if (
