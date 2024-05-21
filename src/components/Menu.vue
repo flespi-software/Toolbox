@@ -99,6 +99,15 @@
               <div>{{config.calcs.label}}</div>
             </q-item-section>
           </q-item>
+
+          <q-item v-if="entities.includes('geofences')" to='/geofences' class="col-6" active-class="bg-grey-6">
+            <q-item-section class="text-center text-white">
+              <div>
+                <q-icon :name="config.geofences.icon" size="2.6em"/>
+              </div>
+              <div>{{config.geofences.label}}</div>
+            </q-item-section>
+          </q-item>
           <q-item v-if="entities.includes('plugins')" to='/plugins' class="col-6" active-class="bg-grey-6">
             <q-item-section class="text-center text-white">
               <div>
@@ -204,7 +213,7 @@ export default {
   computed: {
     hubGroupModel () {
       const entity = this.entity
-      return entity === 'channels' || entity === 'calcs' || entity === 'intervals' || entity === 'plugins' || entity === 'devices' || entity === 'streams' || entity === 'modems' || entity === 'hexViewer' || entity === 'trafficViewer' || entity === 'intervals'
+      return entity === 'channels' || entity === 'calcs' || entity === 'intervals' || entity === 'plugins' || entity === 'geofences' || entity === 'devices' || entity === 'streams' || entity === 'modems' || entity === 'hexViewer' || entity === 'trafficViewer' || entity === 'intervals'
     },
     storageGroupModel () {
       const entity = this.entity

@@ -83,7 +83,7 @@ export default {
       toolboxMode: undefined,
       connectFlag: false,
       isTabsVisible: true,
-      entityByGroup: ['platform', 'webhooks', 'realms', 'grants', 'channels', 'devices', 'groups', 'streams', 'calcs', 'intervals', 'plugins', 'hexViewer', 'trafficViewer', 'deviceTraffic', 'streamTraffic', 'webhookTraffic', 'pluginTraffic', 'modems', 'containers', 'cdns', 'mqtt', 'mqttClient'],
+      entityByGroup: ['platform', 'webhooks', 'realms', 'grants', 'channels', 'devices', 'groups', 'streams', 'calcs', 'intervals', 'geofences', 'plugins', 'hexViewer', 'trafficViewer', 'deviceTraffic', 'streamTraffic', 'webhookTraffic', 'pluginTraffic', 'modems', 'containers', 'cdns', 'mqtt', 'mqttClient'],
       isNeedSelect: true,
       entityInited: false,
       isInit: Vue.connector.socket.connected()
@@ -199,6 +199,7 @@ export default {
               result.push('streams')
               result.push('intervals')
               result.push('calcs')
+              result.push('geofences')
               result.push('plugins')
               result.push('modems')
               result.push('hexViewer')

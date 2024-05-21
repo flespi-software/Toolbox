@@ -237,6 +237,86 @@ export default {
       }
     }
   },
+  geofences: {
+    label: 'Geofences',
+    icon: 'mdi-vector-polygon',
+    type: 'viewer',
+    acl: [{
+      name: 'geofences',
+      methods: ['GET'],
+      submodules: [
+        { name: 'logs', methods: ['GET'] }
+      ]
+    }],
+    isDrawable: false,
+    logs: {
+      vuexModuleName: 'geofencesLogs',
+      emptyState: {
+        label: 'Log entries not found',
+        sublabel: 'If you expect to see the log records here',
+        hints: [
+          { html: "Make sure you <a class='text-white' href='https://flespi.com/kb/working-with-devices-assigned-to-calculator' target='_blank'>assigned</a> this calculator to one or more devices and that these devices have messages to perform calculations with." },
+          { html: "Pick a specific date and time using the <span class='text-bold'>date/time picker</span> on the top right." },
+          { html: "Narrow down the search by specifying the desired parameter values in the <span class='text-bold'>filter control</span>." }
+        ]
+      },
+      cols: [
+        {
+          name: 'timestamp',
+          width: 165,
+          display: true,
+          description: 'Log event time',
+          addition: `${locale.slice(0, 3)}:${locale.slice(3)}`
+        },
+        {
+          name: 'event_code',
+          title: 'event',
+          width: 400,
+          display: true,
+          description: 'Log event code and description'
+        },
+        {
+          name: 'reason',
+          title: 'reason',
+          width: 400,
+          display: true,
+          description: 'Log event reason'
+        },
+        {
+          name: 'host',
+          width: 150,
+          display: true,
+          description: "Connected device's address (source) or IP address from which HTTP request was received (host)"
+        }
+      ],
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log object',
+          classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'copy'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log objects',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
+          type: 'copy'
+        }
+      ],
+      viewConfig: {
+        needShowFilter: true,
+        needShowDateRange: true
+      },
+      theme: {
+        color: 'white',
+        bgColor: 'grey-9',
+        contentInverted: true,
+        controlsInverted: true
+      }
+    }
+  },
   plugins: {
     label: 'Plugins',
     icon: 'mdi-puzzle',

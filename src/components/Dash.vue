@@ -30,6 +30,7 @@ export default {
         modems: '/modems',
         calcs: '/calcs',
         plugins: '/plugins',
+        geofences: '/geofences',
         // hexViewer: '/tools/hex',
         // trafficViewer: '/tools/traffic',
         // deviceTraffic: '/tools/device-traffic',
