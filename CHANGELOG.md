@@ -1,6 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
-### [1.23.0] - 2024-05-21
+### [1.24.1] - 2024-07-23
+[fix] date picker
+### [1.24.0] - 2024-05-21
 [feature] geofence logs added
 ### [1.23.0] - 2024-04-17
 [feature] plugin processing view

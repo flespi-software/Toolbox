@@ -49,7 +49,7 @@ export default {
       const selectors = get(this.widgetsViewedInterval, 'entity.selectors', undefined)
       if (selectors) {
         config = selectors.reduce((result, selectorInstanse, selectorIndex) => {
-          if (selectorInstanse.type !== 'geofence') { return result }
+          if (selectorInstanse.type !== 'geofence' || !selectorInstanse.geofences || selectorInstanse.geofences.length === 0 ) { return result }
           selectorInstanse.geofences.forEach((geofence, gIndex) => {
             const name = `${geofence.name||'NoName'}-${selectorIndex}-${gIndex}`
             if (geofence.type === 'circle') {
