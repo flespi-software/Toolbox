@@ -6,6 +6,48 @@ export const COLORS = {
   notice: 'green',
   warning: 'yellow'
 }
+const TYPES = {
+  1: 'customer',
+  2: 'customer/oauth(DEPRECATED)',
+  3: 'customer/tokens(DEPRECATED)',
+  4: 'limits',
+  5: 'subaccounts',
+  6: 'containers',
+  7: 'cdns',
+  8: 'reserved [N/A]',
+  9: 'channels',
+  10: 'modems',
+  11: 'devices',
+  12: 'streams',
+  13: 'calcs',
+  14: 'mqtt sessions',
+  15: 'no dedicated uri for rmtree items',
+  16: 'protocols(DEPRECATED)',
+  17: 'calcs/devices',
+  18: 'mqtt subscriptions',
+  19: 'channels/commands',
+  20: 'streams/devices',
+  21: 'streams/channels',
+  22: 'devices/telemetry',
+  23: 'devices/settings',
+  24: 'devices/plugins',
+  25: 'plugins',
+  26: 'plugins/devices',
+  27: 'channel-protocols',
+  28: 'stream-protocols',
+  29: 'realms',
+  30: 'plugin-types',
+  31: 'groups',
+  32: 'billing',
+  33: 'tokens',
+  34: 'oauth',
+  35: 'device-types',
+  36: 'webhooks',
+  37: 'grants',
+  38: 'identity-providers',
+  39: 'realms users',
+  40: 'geofences'
+}
 export default {
   computed: mapState ({
     logsObject: state => state.logsObject
@@ -70,6 +112,8 @@ export default {
         res = date.formatDate(item[prop.name] * 1000, 'DD/MM/YYYY HH:mm:ss')
       } else if (prop.name === 'host') {
         res = item.host || item.source || ''
+      } else if (prop.name === 'origin_type') {
+        res = TYPES[item[prop.name]] || item[prop.name]
       }
       return res
     }

@@ -7,7 +7,7 @@
       <div style="max-width: 50%" :class="{'middle-modificator': !active}" slot="selects">
         <q-select
           ref="itemSelect"
-          class="items__select"
+          class="items__select inline-block"
           :class="{'items__select--no-selected': !active}"
           :value="active"
           :options="filteredItems"
@@ -70,6 +70,19 @@
             </q-item>
           </template>
         </q-select>
+        <q-select
+          v-if="active"
+          style="min-width:180px;"
+          label="Select type"
+          class="inline-block vertical-top q-ml-sm ellipsis"
+          dark
+          v-model="itemtype"
+          :options="itemtypes"
+          emit-value map-options
+          filled
+          hide-bottom-space dense color="white"
+        >
+        </q-select>
       </div>
     </entities-toolbar>
     <logs
@@ -78,6 +91,7 @@
       :item="selectedItem"
       :cid="selectedItem.id"
       :limit="limit"
+      :itemtype="itemtype"
       originPattern="platform/customer/*"
       :entity-name="entityName"
       :isEnabled="true"
@@ -134,6 +148,16 @@ export default {
       isInit: false,
       isItemsInit: false,
       isItemsInitStart: false,
+      itemtype: 0,
+      itemtypes: [
+        { value: 0, label: 'REST API requests'},
+        { value: 4, label: 'limits'},
+        { value: 29, label: 'realms'},
+        { value: 33, label: 'tokens'},
+        { value: 37, label: 'grants'},
+        { value: 38, label: 'identity-providers'},
+        { value: 40, label: 'geofences'}
+      ],
       filter: ''
     }
   },

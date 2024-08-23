@@ -63,7 +63,8 @@ export default {
     'limit',
     'originPattern',
     'config',
-    'entityName'
+    'entityName',
+    'itemtype'
   ],
   data () {
     return {
@@ -225,6 +226,18 @@ export default {
     },
     viewConfig () {
       return Object.assign(this.config.viewConfig, { needKeysProcess: !!this.selected.length })
+    }
+  },
+  mounted () {
+  },
+  updated () {
+    this.$store.commit(`${this.moduleName}/setItemtype`, this.itemtype || null)
+  },
+  watch: {
+    itemtype: {
+      handler (val, old) {
+        this.$store.commit(`${this.moduleName}/setItemtype`, this.itemtype || null)
+      }
     }
   },
   methods: {
@@ -488,6 +501,7 @@ export default {
     },
     async changeCid () {
       await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active entity */
+      this.$store.commit(`${this.moduleName}/setItemtype`, this.itemtype || null)
       this.$store.commit(`${this.moduleName}/setCid`, this.cid)
       this.$store.commit(`${this.moduleName}/setItemDeletedStatus`, this.item.deleted)
       this.$store.commit(`${this.moduleName}/clearMessages`)
@@ -656,6 +670,10 @@ export default {
       this.currentLimit = limit
     },
     cid () {
+      this.changeCid()
+    },
+
+    itemtype () {
       this.changeCid()
     },
     $route (route) {
