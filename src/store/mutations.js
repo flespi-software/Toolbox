@@ -129,7 +129,7 @@ function setTokenInfo (state, tokenInfo) {
         let isEq = true
         isEq = !needModules.some((needModule) => {
           const accessModule = accessModules.find(module => module.name === needModule.name)
-          return !accessModule || !isEqual(sortBy(intersection(needModule.methods, accessModule.methods)), sortBy(accessModule.methods))
+          return !accessModule || !isEqual(sortBy(intersection(needModule.methods, accessModule.methods)), sortBy(needModule.methods))
         })
         return isEq
       }
