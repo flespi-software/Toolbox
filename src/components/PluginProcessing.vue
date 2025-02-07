@@ -118,8 +118,10 @@ export default {
           from: ts,
           to: ts + 600
         }
-        const resplogs = await Vue.connector.http.get(`/gw/plugins/${Object.keys(this.plugins).join(',')}/logs?data=${encodeURIComponent(JSON.stringify(params))}`)
-        this.logs = get(resplogs, 'data.result', []).sort((a,b) => (a.timestamp > b.timestamp) ? 1 : -1)
+        if (Object.keys(this.plugins).length > 0) {
+          const resplogs = await Vue.connector.http.get(`/gw/plugins/${Object.keys(this.plugins).join(',')}/logs?data=${encodeURIComponent(JSON.stringify(params))}`)
+          this.logs = get(resplogs, 'data.result', []).sort((a,b) => (a.timestamp > b.timestamp) ? 1 : -1)
+        }
 
         this.loading = false
       } catch (e) {

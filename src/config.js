@@ -944,28 +944,35 @@ export default {
           description: 'Log event code and description'
         },
         {
-          name: 'accepted',
+          name: 'ack_latency',
+          title: 'latency',
           width: 100,
           display: true,
-          description: 'Messages count has accepted'
+          description: 'ACK latency'
         },
         {
-          name: 'read',
+          name: 'ident',
+          width: 180,
+          display: true,
+          description: 'Device ident'
+        },
+        {
+          name: 'device_id',
           width: 100,
           display: true,
-          description: 'Messages count has read'
+          description: 'Device ID'
         },
         {
-          name: 'rejected',
-          width: 100,
-          display: true,
-          description: 'Messages count has rejected'
-        },
-        {
-          name: 'skipped',
-          width: 100,
+          name: 'reason',
+          width: 200,
           display: true,
           description: 'Messages count has skipped'
+        },
+        {
+          name: 'message_timestamp',
+          width: 200,
+          display: true,
+          description: 'Message timestamp'
         }
       ],
       actions: [

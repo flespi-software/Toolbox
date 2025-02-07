@@ -1,4 +1,5 @@
 import MapFrame from '../MapFrame'
+import { date } from 'quasar'
 /*
 <widgets
   ref="track"
@@ -59,35 +60,52 @@ export default {
       if (!map) { return }
       if (data) {
         const { content } = data
-        const marker = {
-          message: {
-            latlng: [
-              content['position.latitude'],
-              content['position.longitude']
-            ],
-            direction: content['position.direction'],
-            color: '#f0f',
-            label: 'Message',
-            setpoints: [[content['position.latitude'],content['position.longitude']]]
-          }
-        }
-        this.trackWidgetMessageMarker = marker
-        map.addNamedMarker(marker)
-
-        if (content['position.lbs.latitude'] && content['position.lbs.longitude']) {
-          const lbsmarker = {
-            lbsmessage: {
+        if (!Array.isArray(content)){
+          const marker = {
+            message: {
               latlng: [
-                content['position.lbs.latitude'],
-                content['position.lbs.longitude']
+                content['position.latitude'],
+                content['position.longitude']
               ],
-              color: '#09f',
-              label: 'LBS Position',
-              setpoints: [[content['position.lbs.latitude'],content['position.lbs.longitude']]]
+              direction: content['position.direction'],
+              color: '#f0f',
+              label: 'Message',
+              setpoints: [[content['position.latitude'],content['position.longitude']]]
             }
           }
-          this.trackWidgetLBSMessageMarker = lbsmarker
-          map.addNamedMarker(lbsmarker)
+          this.trackWidgetMessageMarker = marker
+          map.addNamedMarker(marker)
+
+          if (content['position.lbs.latitude'] && content['position.lbs.longitude']) {
+            const lbsmarker = {
+              lbsmessage: {
+                latlng: [
+                  content['position.lbs.latitude'],
+                  content['position.lbs.longitude']
+                ],
+                color: '#09f',
+                label: 'LBS Position',
+                setpoints: [[content['position.lbs.latitude'],content['position.lbs.longitude']]]
+              }
+            }
+            this.trackWidgetLBSMessageMarker = lbsmarker
+            map.addNamedMarker(lbsmarker)
+          }
+        } else {
+          const markers = {}
+          content.forEach(el => {
+            markers[el.timestamp] = {
+              latlng: [
+                el['position.latitude'],
+                el['position.longitude']
+              ],
+              direction: el['position.direction'],
+              color: '#f0f',
+              title: this.formatDate(el.timestamp * 1000, 'YYYY-MM-DD HH:mm:ss.SSS'),
+              setpoints: [[el['position.latitude'],el['position.longitude']]]
+            }
+          })
+          map.addNamedMarkers({ ...markers, ...this.trackWidgetMessageMarker, ...this.trackWidgetLBSMessageMarker })
         }
       } else {
         this.trackWidgetLBSMessageMarker = undefined
@@ -99,6 +117,8 @@ export default {
     trackWidgetClear () {
       this.trackWidgetLBSMessageMarker = undefined
       this.trackWidgetMessageMarker = undefined
-    }
+    },
+
+    formatDate: date.formatDate
   }
 }

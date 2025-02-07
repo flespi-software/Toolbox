@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.24.5] - 2024-07-23
+[fix] show on map multiple messages
+[fix] plugin processing widget
+[refactor] stream log columns
 ### [1.24.1] - 2024-07-23
 [fix] date picker
 ### [1.24.0] - 2024-05-21
