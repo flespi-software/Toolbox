@@ -33,7 +33,7 @@
       </q-item-section>
     </q-item>
     <q-expansion-item
-      v-if="entities.includes('channels') || entities.includes('devices') || entities.includes('streams') || entities.includes('modems')"
+      v-if="entities.includes('channels') || entities.includes('devices') || entities.includes('streams') || entities.includes('modems') || entities.includes('assets')"
       group="menu"
       label="Telematics Hub"
       icon="mdi-sitemap"
@@ -82,7 +82,15 @@
               <div>{{config.modems.label}}</div>
             </q-item-section>
           </q-item>
-          <q-separator style="width: 100%" v-if="entities.includes('channels') || entities.includes('devices') || entities.includes('streams') || entities.includes('modems')"/>
+          <q-item v-if="entities.includes('assets')" to='/assets' class="col-6" active-class="bg-grey-6">
+            <q-item-section class="text-center text-white">
+              <div>
+                <q-icon :name="config.assets.icon" size="2.6em"/>
+              </div>
+              <div>{{config.assets.label}}</div>
+            </q-item-section>
+          </q-item>
+          <q-separator style="width: 100%" v-if="entities.includes('channels') || entities.includes('devices') || entities.includes('streams') || entities.includes('modems') || entities.includes('assets')"/>
           <!-- <q-item v-if="entities.includes('intervals')" to='/device/null/calc/null/intervals' class="col-6" active-class="bg-grey-6">
             <q-item-section class="text-center text-white">
               <div>
@@ -213,7 +221,7 @@ export default {
   computed: {
     hubGroupModel () {
       const entity = this.entity
-      return entity === 'channels' || entity === 'calcs' || entity === 'intervals' || entity === 'plugins' || entity === 'geofences' || entity === 'devices' || entity === 'streams' || entity === 'modems' || entity === 'hexViewer' || entity === 'trafficViewer' || entity === 'intervals'
+      return entity === 'channels' || entity === 'calcs' || entity === 'intervals' || entity === 'plugins' || entity === 'geofences' || entity === 'devices' || entity === 'streams' || entity === 'modems' || entity === 'assets' || entity === 'hexViewer' || entity === 'trafficViewer' || entity === 'intervals'
     },
     storageGroupModel () {
       const entity = this.entity

@@ -28,6 +28,7 @@ export default {
         grants: '/grants',
         realms: '/realms',
         modems: '/modems',
+        assets: '/assets',
         calcs: '/calcs',
         plugins: '/plugins',
         geofences: '/geofences',

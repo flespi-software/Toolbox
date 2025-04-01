@@ -46,7 +46,8 @@ const TYPES = {
   37: 'grants',
   38: 'identity-providers',
   39: 'realms users',
-  40: 'geofences'
+  40: 'geofences',
+  41: 'assets'
 }
 export default {
   computed: mapState ({

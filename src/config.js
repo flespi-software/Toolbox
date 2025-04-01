@@ -1358,6 +1358,79 @@ export default {
       }
     }
   },
+  assets: {
+    label: 'Assets',
+    icon: 'mdi-timeline',
+    type: 'viewer',
+    acl: [{
+      name: 'assets',
+      methods: ['GET'],
+      submodules: [
+        { name: 'logs', methods: ['GET'] }
+      ]
+    }],
+    isDrawable: false,
+    logs: {
+      vuexModuleName: 'assetsLogs',
+      emptyState: {
+        label: 'Log entries not found',
+        sublabel: 'If you expect to see the log records here',
+        hints: [
+          { html: 'Make sure your asset is configured correctly.' },
+          { html: "Pick a specific date and time using the <span class='text-bold'>date/time picker</span> on the top right." },
+          { html: "Narrow down the search by specifying the desired parameter values in the <span class='text-bold'>filter control</span>." }
+        ]
+      },
+      cols: [
+        {
+          name: 'timestamp',
+          width: 165,
+          display: true,
+          description: 'Log event time',
+          addition: `${locale.slice(0, 3)}:${locale.slice(3)}`
+        },
+        {
+          name: 'event_code',
+          title: 'event',
+          width: 450,
+          display: true,
+          description: 'Log event code and description'
+        },
+        {
+          name: 'app',
+          width: 150,
+          display: true,
+          description: "Request app"
+        }
+      ],
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log object',
+          classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'copy'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log objects',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
+          type: 'copy'
+        }
+      ],
+      viewConfig: {
+        needShowFilter: true,
+        needShowDateRange: true
+      },
+      theme: {
+        color: 'white',
+        bgColor: 'grey-9',
+        contentInverted: true,
+        controlsInverted: true
+      }
+    }
+  },
   containers: {
     label: 'Containers',
     icon: 'featured_play_list',

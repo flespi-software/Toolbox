@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.25.0] - 2025-03-01
+[feature] asset logs added
 ### [1.24.5] - 2024-07-23
 [fix] show on map multiple messages
 [fix] plugin processing widget
@@ -982,41 +984,7 @@ All notable changes to this project will be documented in this file.
 [feature] 403 codes added
 ### [0.7.13] - 2018-02-22
 [feature] migrate from registry to gw
-### [0.7.12] - 2018-02-20
-[feature] group route fot hub, mqtt, and storage
-[fix] reload page after getting new cache
-[fix] fix process request error
-[fix] resize tabs
-### [0.7.11] - 2018-02-14
-[feature] packages updated
-[fix] offline mode
-### [0.7.10] - 2018-02-09
-[update] text and colors of events
-### [0.7.9] - 2018-02-09
-[feature] migrate to new version of flespi-io-js
-[fix] icon for address
-[fix] service worker
-### [0.7.8] - 2018-02-07
-[fix] service worker
-### [0.7.7] - 2018-02-07
-[feature] icons for address
-[feature] pending in jsonViewer
-### [0.7.6] - 2018-02-07
-[fix] device logs texts
-### [0.7.5] - 2018-01-30
-[feature] packages updated
-[fix] isCustomer logic
-### [0.7.4] - 2018-01-29
-[feature] rebase to flespi-io-js
-### [0.7.3] - 2018-01-18
-[feature] hide exit button in iframe
-[feature] new event codes
-[fix] offline mode
-### [0.7.2] - 2018-01-08
-[feature] added ability to drag cols in cols configurator and in table
-[feature] new view for ratio control
-[fix] empty info
-### [0.7.1] - 2018-01-04
+          width: 165,
 [fix] fix padding in full-screen mode
 [fix] empty map with messages out of position
 [fix] get messages in devices by cols
