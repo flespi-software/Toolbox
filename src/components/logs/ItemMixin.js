@@ -109,7 +109,7 @@ export default {
       let res = prop.custom ? JSON.stringify(item[prop.name]) : item[prop.name]
       if (prop.name === 'event_code') {
         res = this.getLogDescriptionByItem(item)
-      } else if (prop.name === 'timestamp' || prop.name === 'interval_begin' || prop.name === 'interval_end') {
+      } else if (prop.name === 'timestamp' || prop.name === 'message_timestamp' || prop.name === 'interval_begin' || prop.name === 'interval_end') {
         res = date.formatDate(item[prop.name] * 1000, 'DD/MM/YYYY HH:mm:ss')
       } else if (prop.name === 'host') {
         res = item.host || item.source || ''

@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.25.1] - 2025-06-30
+[feature] message_timestamp field formatting
 ### [1.25.0] - 2025-03-01
 [feature] asset logs added
 ### [1.24.5] - 2024-07-23
