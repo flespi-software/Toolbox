@@ -91,10 +91,11 @@
       originPattern="gw/streams/:id"
       :entity-name="entityName"
       :isEnabled="true"
-      :config="config.logs"
+      :config="logsConfig"
       :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', ...panelsWidgetsStyle}"
       @view-log-message="viewWidgetsLogHandler"
       @action-select="data => widgetsViewedLog = data.content"
+      @to-traffic="toTrafficHandler"
     />
     <div v-if="!items.length && isItemsInit" class="text-center text-grey-3 q-mt-lg">
       <div style="font-size: 2rem;">{{isLoading ? 'Fetching data..' : 'Streams not found'}}</div>
@@ -127,6 +128,8 @@ import init from '../../mixins/entitiesInit'
 import EntitiesToolbar from '../../components/EntitiesToolbar'
 import routerProcess from '../../mixins/routerProcess'
 import get from 'lodash/get'
+import cloneDeep from 'lodash/cloneDeep'
+import { ACTION_MODE_SINGLE } from '../../config'
 
 export default {
   props: [
@@ -207,6 +210,19 @@ export default {
         }
       ]
     },
+    logsConfig () {
+      const config = cloneDeep(this.config.logs)
+      // if (this.needTrafficRoute) {
+      config.actions.push({
+        icon: 'mdi-download-network-outline',
+        label: 'View traffic',
+        classes: '',
+        mode: ACTION_MODE_SINGLE,
+        type: 'traffic'
+      })
+      // }
+      return config
+    },
     panelsWidgetsStyle () {
       const style = {}
       const isLeftSide = this.widgetStyle.left && (this.isWidgetsMessageActive || this.isWidgetsLogsActive || this.isWidgetsTrackActive)
@@ -250,6 +266,17 @@ export default {
 
     trafficViewHandler () {
       this.$router.push(`/tools/stream-traffic/${this.active}`).catch(err => err)
+    },
+
+    toTrafficHandler ({ content }) {
+      const timestamp = content['server.timestamp'] || content.timestamp,
+        to = timestamp + 1,
+        from = to - 10,
+        highlight = timestamp,
+        query = {
+          to, from, highlight
+        }
+      this.$router.push({ path: `/tools/stream-traffic/${this.active}`, query }).catch(err => err)
     },
     init () {
       const entity = this.entityName,

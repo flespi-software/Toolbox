@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.25.2] - 2025-07-03
+[feature] view traffic for stream log
 ### [1.25.1] - 2025-06-30
 [feature] message_timestamp field formatting
 ### [1.25.0] - 2025-03-01
