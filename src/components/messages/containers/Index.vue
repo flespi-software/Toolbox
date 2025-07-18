@@ -263,12 +263,12 @@ export default {
           return hasImage
         })
       }
-      // actions.push({
-      //   icon: 'mdi-function',
-      //   label: 'Test expression',
-      //   classes: '',
-      //   type: 'expression'
-      // })
+      actions.push({
+        icon: 'mdi-function',
+        label: 'Test expression',
+        classes: '',
+        type: 'expression'
+      })
       return actions
     },
     scrollTo (index) {
@@ -381,14 +381,14 @@ export default {
           this.copyMessageHandler({ index, content })
           break
         }
-        // case 'expression': {
-        //   this.showExprTest(
-        //     this.$store.state.token,
-        //     this.cols.schemas[this.cols.activeSchema].cols,
-        //     this.selected.map(index => this.messages[index])
-        //   )
-        //   break
-        // }
+        case 'expression': {
+          this.showExprTest(
+            this.$store.state.token,
+            this.cols.schemas[this.cols.activeSchema].cols,
+            this.selected.map(index => { return { ...this.messages[index].params, key: this.messages[index].key } })
+          )
+          break
+        }
         case 'timeSync': {
           this.$emit(`action-${type}`, {
             index,
