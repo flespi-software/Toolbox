@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.25.6] - 2025-08-25
+[fix] export host field in logs
 ### [1.25.5] - 2025-08-11
 [fix] filter by cid for empty filter
 ### [1.25.3] - 2025-07-18

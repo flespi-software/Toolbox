@@ -35,8 +35,12 @@ export default {
           const moduleState = this.$store.state[this.moduleName]
           const colsSchema = moduleState.cols
           const cols = colsSchema.schemas[colsSchema.activeSchema].cols.filter(col => !col.__dest).map(col => col.name)
+          if (cols.indexOf('host')>-1) {
+            params.fields = [...cols, 'source'].join(',')
+          } else {
+            params.fields = cols.join(',')
+          }
           this.isFileCsvLoading = true
-          params.fields = cols.join(',')
           this.$store.dispatch(`${this.moduleName}/${this.actionName ? this.actionName : 'getMessages'}`, params)
             .then(messages => {
               if (!messages || !messages.length) {
@@ -60,11 +64,15 @@ export default {
               if (this.getLogDescriptionByItem) {
                 messages.forEach(message => {
                   if (message['event_code']) {
-                    console.log('event_code')
                     message['event_code'] = message['event_code'] + ': ' + this.getLogDescriptionByItem(message)
                   }
                 })
               }
+              messages.forEach(message => {
+                if (message['source'] && !message['host']) {
+                  message['host'] = message['source']
+                }
+              })
               let csv = ''
               try {
                 csv = parse(messages, { fields: cols })

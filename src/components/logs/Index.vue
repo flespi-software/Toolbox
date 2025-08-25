@@ -120,7 +120,7 @@ export default {
               from: this.from,
               to: this.to
             },
-            'devices'
+            'logs'
           ),
           condition: this.messages.length,
           tooltip: 'Save messages to CSV',
