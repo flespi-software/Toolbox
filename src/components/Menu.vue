@@ -32,6 +32,14 @@
         {{config.grants.label}}
       </q-item-section>
     </q-item>
+    <q-item v-if="entities.includes('ai')" to='/ai' active-class="bg-grey-6 text-white">
+      <q-item-section avatar>
+        <q-icon :name="config.ai.icon" color="white"/>
+      </q-item-section>
+      <q-item-section class="text-white">
+        {{config.ai.label}}
+      </q-item-section>
+    </q-item>
     <q-expansion-item
       v-if="entities.includes('channels') || entities.includes('devices') || entities.includes('streams') || entities.includes('modems') || entities.includes('assets')"
       group="menu"

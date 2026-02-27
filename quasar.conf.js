@@ -120,7 +120,6 @@ module.exports = function (ctx) {
       // analyze: true,
       // preloadChunks: false,
       // extractCSS: false,
-
       // https://quasar.dev/quasar-cli/cli-documentation/handling-webpack
       chainWebpack (chain) {
         chain.plugin('eslint-webpack-plugin')

@@ -156,6 +156,9 @@ export default {
               }
               break
             }
+            case 'ai': {
+              break
+            }
             case 'platform': {
               entity = 'subaccounts'
               if (fromEntity === 'mqtt') {
@@ -303,6 +306,9 @@ export default {
           if (fromEntity !== toEntity) {
             promises.push(this.isNeedSelect && this.isItemsInit ? { entity: fromEntity, mode: 1 } : { entity: fromEntity, id: idFromRoute, mode: 1 })
           }
+          break
+        }
+        case 'ai': {
           break
         }
         case 'platform': {

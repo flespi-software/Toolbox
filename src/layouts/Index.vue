@@ -84,7 +84,7 @@ export default {
       connectFlag: false,
       isTabsVisible: true,
       entityByGroup: [
-        'platform', 'webhooks', 'realms', 'grants', 'channels',
+        'platform', 'webhooks', 'realms', 'grants', 'ai', 'channels',
         'devices', 'groups', 'streams', 'calcs', 'intervals',
         'geofences', 'plugins', 'hexViewer', 'trafficViewer',
         'deviceTraffic', 'streamTraffic', 'webhookTraffic',
@@ -233,6 +233,7 @@ export default {
               result.push('grants')
               result.push('realms')
               result.push('webhookTraffic')
+              result.push('ai')
               break
             }
           }

@@ -1729,6 +1729,97 @@ export default {
       }
     }
   },
+  ai: {
+    label: 'AI',
+    icon: 'mdi-robot-outline',
+    type: 'viewer',
+    acl: [{
+      name: 'ai',
+      methods: ['GET'],
+      submodules: [
+        { name: 'logs', methods: ['GET'] }
+      ]
+    }],
+    isDrawable: false,
+    logs: {
+      vuexModuleName: 'aiLogs',
+      emptyState: {
+        label: 'Log entries not found',
+        sublabel: 'If you expect to see the log records here',
+        hints: [
+          { html: "Make sure you have performed some AI operations, e.g. used AI tools or MCP endpoints.", wclass: ['col-6', 'col-sm-6'] },
+          { html: "Pick a specific date and time using the <span class='text-bold'>date/time picker</span> on the top right.", wclass: ['col-6', 'col-sm-6'] },
+          { html: "Narrow down the search by specifying the desired parameter values in the <span class='text-bold'>filter control</span>.", wclass: ['col-6', 'col-sm-6'] }
+        ]
+      },
+      cols: [
+        {
+          name: 'timestamp',
+          width: 165,
+          display: true,
+          description: 'Log event time',
+          addition: `${locale.slice(0, 3)}:${locale.slice(3)}`
+        },
+        {
+          name: 'event_code',
+          title: 'event',
+          width: 450,
+          display: true,
+          description: 'Log event code and description'
+        },
+        {
+          name: 'host',
+          width: 150,
+          display: true,
+          description: 'IP address from which HTTP request was received'
+        },
+        {
+          name: 'app',
+          width: 150,
+          display: true,
+          description: 'Request app'
+        },
+        {
+          name: 'method',
+          width: 150,
+          display: true,
+          description: 'REST API method'
+        },
+        {
+          name: 'uri',
+          width: 150,
+          display: true,
+          description: 'Request URI'
+        }
+      ],
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log object',
+          classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'copy'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log objects',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
+          type: 'copy'
+        }
+      ],
+      viewConfig: {
+        needShowFilter: true,
+        needShowDateRange: true
+      },
+      theme: {
+        color: 'white',
+        bgColor: 'grey-9',
+        contentInverted: true,
+        controlsInverted: true
+      }
+    }
+  },
   hexViewer: {
     label: 'Hex Viewer',
     path: 'tools/hex',
