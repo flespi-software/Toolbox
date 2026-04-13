@@ -1786,10 +1786,22 @@ export default {
           description: 'REST API method'
         },
         {
-          name: 'uri',
-          width: 150,
+          name: 'tool',
+          width: 200,
           display: true,
-          description: 'Request URI'
+          description: 'AI tool name'
+        },
+        {
+          name: 'credits',
+          width: 100,
+          display: true,
+          description: 'Credits consumed'
+        },
+        {
+          name: 'response',
+          width: 300,
+          display: true,
+          description: 'AI response'
         }
       ],
       actions: [
