@@ -10,21 +10,39 @@
           @save="dateRangeChange"
         />
       </q-toolbar>
-      <div v-if="loadingFlag && itemsCount > 0" class="absolute-bottom-right absolute-top-left" style="overflow: hidden; top: 50px;">
+      <div class="bg-grey-9 q-px-xs" style="border-top: 1px solid #424242;">
+        <div class="flex items-center" style="height: 30px;">
+          <q-btn dense flat round size="xs" icon="mdi-lan-connect" :color="eventFilter.connect ? 'green-4' : 'grey-7'" @click="toggleEventFilter('connect')"><q-tooltip>Connect</q-tooltip></q-btn>
+          <q-btn dense flat round size="xs" icon="mdi-lan-disconnect" :color="eventFilter.disconnect ? 'red-4' : 'grey-7'" @click="toggleEventFilter('disconnect')"><q-tooltip>Disconnect</q-tooltip></q-btn>
+          <q-btn dense flat round size="xs" icon="mdi-arrow-left-thick" :color="eventFilter.received ? 'purple-4' : 'grey-7'" @click="toggleEventFilter('received')"><q-tooltip>Data received</q-tooltip></q-btn>
+          <q-btn dense flat round size="xs" icon="mdi-arrow-right-thick" :color="eventFilter.sent ? 'yellow-4' : 'grey-7'" @click="toggleEventFilter('sent')"><q-tooltip>Data sent</q-tooltip></q-btn>
+          <q-space/>
+          <q-badge v-if="connFilter !== null" color="amber-8" class="cursor-pointer q-mr-xs" @click.native="clearConnFilter">
+            conn:#{{connFilter.toString().slice(-6)}} <q-icon name="mdi-close" size="12px" class="q-ml-xs"/>
+          </q-badge>
+          <q-btn dense flat round size="xs" icon="mdi-magnify" :color="hexSearchOpen ? 'white' : 'grey-5'" @click="toggleHexSearch"><q-tooltip>HEX search</q-tooltip></q-btn>
+        </div>
+        <div v-if="hexSearchOpen" class="flex items-center" style="height: 26px; padding-bottom: 4px;">
+          <q-input ref="hexSearchInput" v-model="hexSearch" dense borderless dark placeholder="FF 00 AB..." input-class="text-white" class="full-width" style="font-size: 12px; font-family: monospace;" @input="debouncedHexSearch" @keydown.esc="toggleHexSearch">
+            <template v-slot:append><q-icon v-if="hexSearch" name="mdi-close" size="14px" color="grey-5" class="cursor-pointer" @click="hexSearch = ''; updateHexSearch('')"/></template>
+          </q-input>
+        </div>
+      </div>
+      <div v-if="loadingFlag && itemsCount > 0" class="absolute-bottom-right absolute-top-left" :style="{overflow: 'hidden', top: topOffset}">
         <message-skeleton v-for="(_, index) in new Array(itemsCount).fill('')" :key="index"/>
       </div>
-      <template v-else-if="!loadingFlag && messages.length">
+      <template v-else-if="!loadingFlag && filteredMessages.length">
         <VirtualList
           :onscroll="listScroll"
           ref="scroller"
-          :style="{position: 'absolute', top: '50px', bottom: 0, right: 0, left: 0, height: 'auto'}"
+          :style="{position: 'absolute', top: topOffset, bottom: 0, right: 0, left: 0, height: 'auto'}"
           :class="{'bg-grey-9': true, 'text-white': true, 'cursor-pointer': true}"
           :size="itemHeight"
           :remain="itemsCount"
           wclass="q-w-list"
         >
           <messages-list-item
-            v-for="(item, index) in messages"
+            v-for="(item, index) in filteredMessages"
             :key="index"
             :item="item"
             :index="index"
@@ -34,11 +52,16 @@
             :view="view"
             @action="actionHandler"
             @item-click="messageClickHandler"
+            @conn-filter="setConnFilter"
             @mouseenter.native="highlightConn(item.conn)"
             @mouseleave.native="highlightConn(null)"
           />
         </VirtualList>
       </template>
+      <div v-else-if="!loadingFlag && messages.length && !filteredMessages.length" class="text-center text-grey-5 q-pa-lg" :style="{marginTop: topOffset}">
+        <q-icon name="mdi-filter-off-outline" size="2rem" class="q-mb-sm"/><br>
+        No messages match current filters
+      </div>
       <empty-pane v-else :config="config.emptyState"/>
     </div>
     <export-modal ref="export" :format="view" :dateRange="dateRange" :config="config" :item-id="active"/>
@@ -58,6 +81,7 @@ import range from 'lodash/range'
 import ExportModal from '../ExportModal'
 import routerProcess from '../../../mixins/routerProcess'
 import highlightMixin from '../highlightConnMixin'
+import convertMixin from '../../../mixins/convert'
 
 export default {
   props: [
@@ -78,7 +102,18 @@ export default {
       needAutoScroll: true,
       selected: [],
       scrollerScrollTop: 0,
-      isInit: false
+      isInit: false,
+      eventFilter: { connect: true, disconnect: true, received: true, sent: true },
+      connFilter: null,
+      hexSearch: '',
+      hexSearchNormalized: '',
+      hexSearchOpen: false,
+      eventCategories: {
+        0: 'connect', 32: 'connect', 512: 'connect',
+        1: 'disconnect', 33: 'disconnect', 513: 'disconnect',
+        2: 'received', 130: 'received', 66: 'received', 34: 'received', 258: 'received', 514: 'received',
+        3: 'sent', 67: 'sent', 131: 'sent', 35: 'sent', 259: 'sent', 515: 'sent'
+      }
     }
   },
   computed: {
@@ -142,6 +177,24 @@ export default {
     loadingFlag () {
       const state = this.$store.state
       return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
+    },
+    topOffset () {
+      return this.hexSearchOpen ? '110px' : '80px'
+    },
+    hasActiveFilters () {
+      const ef = this.eventFilter
+      return !(ef.connect && ef.disconnect && ef.received && ef.sent) || this.connFilter !== null || this.hexSearchNormalized.length > 0
+    },
+    filteredMessages () {
+      if (!this.hasActiveFilters) return this.messages
+      const hexNeedle = this.hexSearchNormalized
+      return this.messages.filter(msg => {
+        const cat = this.eventCategories[msg.type]
+        if (cat && !this.eventFilter[cat]) return false
+        if (this.connFilter !== null && msg.conn !== this.connFilter) return false
+        if (hexNeedle && (!msg.data || !this.base64ToHex(msg.data).includes(hexNeedle))) return false
+        return true
+      })
     }
   },
   methods: {
@@ -187,6 +240,39 @@ export default {
     },
     clearSelected () {
       this.selected = []
+    },
+    toggleEventFilter (key) {
+      this.$set(this.eventFilter, key, !this.eventFilter[key])
+      const ef = this.eventFilter
+      if (!ef.connect && !ef.disconnect && !ef.received && !ef.sent) {
+        this.eventFilter = { connect: true, disconnect: true, received: true, sent: true }
+      }
+      this.selected = []
+      this.$emit('view-data', [])
+    },
+    setConnFilter (conn) {
+      this.connFilter = conn
+      this.selected = []
+      this.$emit('view-data', [])
+    },
+    clearConnFilter () {
+      this.connFilter = null
+      this.selected = []
+      this.$emit('view-data', [])
+    },
+    toggleHexSearch () {
+      this.hexSearchOpen = !this.hexSearchOpen
+      if (this.hexSearchOpen) {
+        this.$nextTick(() => { this.$refs.hexSearchInput && this.$refs.hexSearchInput.focus() })
+      } else if (this.hexSearch) {
+        this.hexSearch = ''
+        this.updateHexSearch('')
+      }
+    },
+    updateHexSearch (val) {
+      this.hexSearchNormalized = val.replace(/[\s:.-]/g, '').toUpperCase()
+      this.selected = []
+      this.$emit('view-data', [])
     },
     wrapperResizeHandler () {
       this.resetParams()
@@ -282,7 +368,7 @@ export default {
       }
       if (this.needAutoScroll) { this.needAutoScroll = false }
       this.selected.sort((a, b) => a - b)
-      this.$emit('view-data', this.selected.map(index => ({ ...this.messages[index], index })))
+      this.$emit('view-data', this.selected.map(index => ({ ...this.filteredMessages[index], index })))
     },
     copyMessageHandler ({ index, content }) {
       copyToClipboard(JSON.stringify(content)).then((e) => {
@@ -315,7 +401,7 @@ export default {
     exportModalOpen () { this.$refs.export.show() },
     highlightIncoming (timestamp) {
       const isTypeDataReceive = (type) => type === 2 || type === 130 || type === 66 || type === 34
-      const { incomingMessageIndex, incomingMessageIndexEnd } = this.messages.reduce((result, message, index) => {
+      const { incomingMessageIndex, incomingMessageIndexEnd } = this.filteredMessages.reduce((result, message, index) => {
         if (isTypeDataReceive(message.type)) {
           if (result.incomingMessageIndex === -1) {
             result.incomingMessageIndex = index
@@ -391,6 +477,7 @@ export default {
   created () {
     this.debouncedGetMessagesPrev = throttle(this.getMessagesPrev, 2000, { trailing: false })
     this.debouncedGetMessagesNext = throttle(this.getMessagesNext, 2000, { trailing: false })
+    this.debouncedHexSearch = throttle(this.updateHexSearch, 500, { leading: false, trailing: true })
     this.init()
   },
   mounted () {
@@ -410,7 +497,7 @@ export default {
     this.to = 0
     this.from = 0
   },
-  mixins: [routerProcess, highlightMixin],
+  mixins: [routerProcess, highlightMixin, convertMixin],
   components: { MessagesListItem, VirtualList, EmptyPane, MessageSkeleton, DateRangeModal, ExportModal }
 }
 </script>

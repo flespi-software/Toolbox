@@ -1,5 +1,5 @@
 <template>
-  <q-item :class="[`${selected ? 'bg-grey-8' : ''}`, `traffic-viewer__item--connection-${item.conn}`]" clickable @click="(event) => { itemClickHandler(index, item, event) }" style="user-select: none">
+  <q-item :class="[`${selected ? 'bg-grey-8' : ''}`, `traffic-viewer__item--connection-${item.conn}`]" clickable @click="(event) => { itemClickHandler(index, item, event) }" :style="{ userSelect: 'none', borderLeft: `3px solid ${borderColor}` }">
     <q-tooltip>{{eventsDesc[item.type]}}</q-tooltip>
     <q-item-section v-if="actions" side class="q-pr-none">
       <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon" :color="selected ? 'grey-5' : ''">
@@ -13,9 +13,9 @@
     <q-item-section side class="">
       <small :class="[`text-grey-${selected ? 5 : 7}`]">{{eventsDesc[item.type]}}</small>
       <div>
-        <small class="rounded-borders q-px-xs text-white bg-amber-8">
-          {{item.conn.toString().slice(0,2)}}
-          <q-tooltip>{{item.conn}}</q-tooltip>
+        <small class="rounded-borders q-px-xs text-white bg-amber-8 cursor-pointer" @click.stop="$emit('conn-filter', item.conn)">
+          #{{item.conn.toString().slice(-6)}}
+          <q-tooltip>conn: {{item.conn}} — click to filter</q-tooltip>
         </small>
         <small class="rounded-borders q-mx-xs q-px-xs text-white" :class="{'bg-blue': transport === 'tcp', 'bg-pink-4': transport === 'udp', 'bg-green-9': transport === 'http', 'bg-purple-9': transport === 'mqtt', 'bg-cyan-9': transport === 'ftp'}">{{transport}}</small>
         <q-icon class="q-ml-xs" size="1.2rem" :color="eventsColors[item.type]" :name="eventIcons[item.type]"/>
@@ -138,6 +138,16 @@ export default {
     }
   },
   computed: {
+    borderColor () {
+      const categories = {
+        0: 'connect', 32: 'connect', 512: 'connect',
+        1: 'disconnect', 33: 'disconnect', 513: 'disconnect',
+        2: 'received', 130: 'received', 66: 'received', 34: 'received', 258: 'received', 514: 'received',
+        3: 'sent', 67: 'sent', 131: 'sent', 35: 'sent', 259: 'sent', 515: 'sent'
+      }
+      const colors = { connect: '#66BB6A', disconnect: '#EF5350', received: '#AB47BC', sent: '#FFEE58' }
+      return colors[categories[this.item.type]] || 'transparent'
+    },
     dataPreview () {
       if (!this.item.data) { return '' }
       let preview = this.hex

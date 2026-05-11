@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.27.0] - 2026-05-11
+[feature] device traffic: event type filters, connection filter, hex search, visual improvements
 ### [1.25.6] - 2025-08-25
 [fix] export host field in logs
 ### [1.25.5] - 2025-08-11
