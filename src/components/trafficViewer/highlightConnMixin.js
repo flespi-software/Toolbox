@@ -10,7 +10,7 @@ export default {
       if (conn) {
         const highlightClass = document.createElement('style')
         highlightClass.type = 'text/css'
-        const styleValue = `.traffic-viewer__item--connection-${conn} { background-color: #546e7a!important; }`
+        const styleValue = `.traffic-viewer__item--connection-${conn}:not(.bg-grey-8) { background-color: #546e7a!important; }`
         if (highlightClass.styleSheet) {
           highlightClass.styleSheet.cssText = styleValue
         } else {

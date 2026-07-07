@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.27.1] - 2026-05-15
+[fix] connection highlight no longer hides selected messages
 ### [1.27.0] - 2026-05-11
 [feature] device traffic: event type filters, connection filter, hex search, visual improvements
 ### [1.25.6] - 2025-08-25
