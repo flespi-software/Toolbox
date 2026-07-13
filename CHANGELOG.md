@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.27.3] - 2026-07-13
+[fix] entity select no longer closes on incoming real-time messages
 ### [1.27.2] - 2026-07-07
 [fix] logs: real-time entries and refresh with a scroll position now respect the active filter
 ### [1.27.1] - 2026-05-15
