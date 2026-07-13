@@ -1,4 +1,5 @@
 import { SessionStorage, Notify, LocalStorage } from 'quasar'
+import settingsStorage from '../infrastructure/settingsStorage'
 import Vue from 'vue'
 import isEqual from 'lodash/isEqual'
 import intersection from 'lodash/intersection'
@@ -185,18 +186,28 @@ function setSocketOffline (state, flag) {
 
 function clearNotificationCounter (state) { state.newNotificationCounter = 0 }
 
+/* settings that do not survive a reload are still better than an interface that does not start */
+function isSettingsObject (settings) {
+  return !!settings && typeof settings === 'object' && !Array.isArray(settings)
+}
+
 function getToolboxSettings (state) {
-  let settings = LocalStorage.getItem('flespi-toolbox-settings')
+  let settings = settingsStorage.getItem('flespi-toolbox-settings')
+  if (!isSettingsObject(settings)) { settings = null }
   /* migration, remove later 13.12.19 */
   if (!settings) {
     settings = { entities: {} }
     const entities = settings.entities
     const entityNames = ['devices', 'channels', 'calcs', 'intervals', 'geofences', 'plugins', 'groups', 'streams', 'modems', 'assets', 'containers', 'cdns', 'tools/hex', 'tools/traffic', 'platform', 'mqtt', 'webhooks', 'grants', 'realms']
     entityNames.forEach(name => {
-      const value = LocalStorage.getItem(name)
-      if (value) {
-        entities[name] = value
-        LocalStorage.remove(name)
+      try {
+        const value = LocalStorage.getItem(name)
+        if (value) {
+          entities[name] = value
+          LocalStorage.remove(name)
+        }
+      } catch (e) {
+        /* a value quasar cannot parse is a value we cannot migrate */
       }
     })
   }
@@ -207,8 +218,8 @@ function getToolboxSettings (state) {
 }
 
 function setToolboxSettings (state, { type, opt, value }) {
-  let settings = LocalStorage.getItem('flespi-toolbox-settings')
-  if (!settings || settings === 'null') {
+  let settings = settingsStorage.getItem('flespi-toolbox-settings')
+  if (!isSettingsObject(settings)) {
     settings = {}
   }
   switch (type) {
@@ -225,14 +236,14 @@ function setToolboxSettings (state, { type, opt, value }) {
       break
     }
   }
-  LocalStorage.set('flespi-toolbox-settings', settings)
+  settingsStorage.set('flespi-toolbox-settings', settings)
   settings = { entities: settings.entities, viewSettings: settings.viewSettings }
   state.settings = settings
   Vue.$logger.info(`setToolboxSettings: ${JSON.stringify(settings)}`)
 }
 
 function clearToolboxSettings (state) {
-  LocalStorage.remove('flespi-toolbox-settings')
+  settingsStorage.clear()
 }
 
 function setRegions (state, regions) {

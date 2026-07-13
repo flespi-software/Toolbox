@@ -504,7 +504,7 @@ export default {
     },
     async init () {
       if (!this.$store.state[this.moduleName]) {
-        this.$store.registerModule(this.moduleName, intervalsModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.isSecondary ? 'intervals' : this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
+        this.$store.registerModule(this.moduleName, intervalsModule({ Vue, LocalStorage: this.$settingsStorage, name: { name: this.isSecondary ? 'intervals' : this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
       } else {
         this.$store.commit(`${this.moduleName}/clear`)
       }

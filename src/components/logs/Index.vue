@@ -54,6 +54,7 @@ import { ACTION_MODE_MULTI, ACTION_MODE_SINGLE } from '../../config'
 import testExpressionsMixin from '../../mixins/testExpressionsMixin'
 import multiselectMixin from '../../mixins/multiselectMixin'
 import actions from '../../mixins/actions'
+import liveTail from '../../mixins/liveTail'
 
 
 export default {
@@ -97,7 +98,7 @@ export default {
         this.$store.commit(`${this.moduleName}/setOrigin`, val)
         this.$store.commit(`${this.moduleName}/setItemDeletedStatus`, (this.item && this.item.deleted))
         this.$store.commit(`${this.moduleName}/clearMessages`)
-        this.$store.dispatch(`${this.moduleName}/getCols`, this.config.cols)
+        await this.$store.dispatch(`${this.moduleName}/getCols`, this.config.cols)
         await this.$store.dispatch(`${this.moduleName}/initTime`)
         await this.getMessages()
       },
@@ -305,6 +306,12 @@ export default {
       this.$nextTick(() => this.$refs.scrollList && this.$refs.scrollList.scrollTo(scrollIndex))
     },
     scrollHandler ({ event, data }) {
+      if (this.isLiveTail(event)) {
+        if (this.scrollTimestamp === undefined) { return }
+        this.scrollTimestamp = undefined
+        this.debouncedUpdateMessagesRoute({}, true)
+        return
+      }
       const index = Math.floor(data.start + ((data.end - data.start) / 4))
       const message = this.messages[index]
       if (message) {
@@ -505,7 +512,7 @@ export default {
       this.$store.commit(`${this.moduleName}/setCid`, this.cid)
       this.$store.commit(`${this.moduleName}/setItemDeletedStatus`, this.item.deleted)
       this.$store.commit(`${this.moduleName}/clearMessages`)
-      this.$store.dispatch(`${this.moduleName}/getCols`, this.config.cols)
+      await this.$store.dispatch(`${this.moduleName}/getCols`, this.config.cols)
       await this.$store.dispatch(`${this.moduleName}/initTime`)
       await this.$store.dispatch(`${this.moduleName}/get`)
     },
@@ -573,7 +580,7 @@ export default {
     },
     async init () {
       if (!this.$store.state[this.moduleName]) {
-        this.$store.registerModule(this.moduleName, logsModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
+        this.$store.registerModule(this.moduleName, logsModule({ Vue, LocalStorage: this.$settingsStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
       } else {
         this.$store.commit(`${this.moduleName}/clear`)
       }
@@ -702,7 +709,7 @@ export default {
     this.connectHandler !== undefined && Vue.connector.socket.off('connect', this.connectHandler)
     this.$store.commit(`${this.moduleName}/clear`)
   },
-  mixins: [actions, ItemMixin, routerProcess, testExpressionsMixin, multiselectMixin],
+  mixins: [actions, ItemMixin, routerProcess, testExpressionsMixin, multiselectMixin, liveTail],
   components: {
     VirtualScrollList,
     EmptyPane,

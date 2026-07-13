@@ -47,6 +47,7 @@ import routerProcess from '../../mixins/routerProcess'
 import { ACTION_MODE_MULTI, ACTION_MODE_SINGLE } from '../../config'
 import testExpressionsMixin from '../../mixins/testExpressionsMixin'
 import multiselectMixin from '../../mixins/multiselectMixin'
+import liveTail from '../../mixins/liveTail'
 
 export default {
   props: [
@@ -269,6 +270,12 @@ export default {
       this.$nextTick(() => this.$refs.scrollList && this.$refs.scrollList.scrollToWithSavePadding(index))
     },
     scrollHandler ({ event, data }) {
+      if (this.isLiveTail(event)) {
+        if (this.scrollTimestamp === undefined) { return }
+        this.scrollTimestamp = undefined
+        this.debouncedUpdateMessagesRoute({}, true)
+        return
+      }
       const index = Math.floor(data.start + ((data.end - data.start) / 4))
       const message = this.messages[index]
       const timestamp = message.timestamp
@@ -530,7 +537,7 @@ export default {
     },
     async init () {
       if (!this.$store.state[this.moduleName]) {
-        this.$store.registerModule(this.moduleName, devicesMessagesModule({ Vue, LocalStorage: this.$q.localStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
+        this.$store.registerModule(this.moduleName, devicesMessagesModule({ Vue, LocalStorage: this.$settingsStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
       } else {
         this.$store.commit(`${this.moduleName}/clear`)
       }
@@ -647,7 +654,7 @@ export default {
     this.connectHandler !== undefined && Vue.connector.socket.off('connect', this.connectHandler)
     this.$store.commit(`${this.moduleName}/clear`)
   },
-  mixins: [actions, routerProcess, testExpressionsMixin, multiselectMixin],
+  mixins: [actions, routerProcess, testExpressionsMixin, multiselectMixin, liveTail],
   components: { VirtualScrollList, EmptyPane }
 }
 </script>

@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.27.4] - 2026-07-13
+[feature] settings moved from localStorage to IndexedDB: no 5MB quota, async writes, a record per list
+[fix] app starts even when the settings storage is full or holds broken data
+[fix] real-time list no longer rewrites the scroll query parameter while pinned to the bottom
 ### [1.27.3] - 2026-07-13
 [fix] entity select no longer closes on incoming real-time messages
 ### [1.27.2] - 2026-07-07

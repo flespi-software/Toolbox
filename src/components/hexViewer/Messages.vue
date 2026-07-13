@@ -447,7 +447,7 @@ export default {
           channelsMessagesModuleSerial(
             {
               Vue,
-              LocalStorage: this.$q.localStorage,
+              LocalStorage: this.$settingsStorage,
               name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' },
               errorHandler: (err) => { this.$store.commit('reqFailed', err) },
               filterHandler: this.filterMessage,
