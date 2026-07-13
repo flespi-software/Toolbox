@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.27.6] - 2026-07-13
+[fix] intervals: named column presets survive a reload instead of disappearing and getting erased (bump qvirtualscroll)
 ### [1.27.5] - 2026-07-13
 [fix] intervals: columns show up again — the protocol schema is rebuilt from the calculator counters (bump qvirtualscroll)
 ### [1.27.4] - 2026-07-13
