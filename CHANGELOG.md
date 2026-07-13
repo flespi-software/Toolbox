@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.27.5] - 2026-07-13
+[fix] intervals: columns show up again — the protocol schema is rebuilt from the calculator counters (bump qvirtualscroll)
 ### [1.27.4] - 2026-07-13
 [feature] settings moved from localStorage to IndexedDB: no 5MB quota, async writes, a record per list
 [fix] app starts even when the settings storage is full or holds broken data
