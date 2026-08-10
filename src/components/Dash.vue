@@ -38,7 +38,10 @@ export default {
         containers: '/containers',
         cdns: '/cdns',
         mqtt: '/mqtt',
-        mqttClient: '/tools/mqtt'
+        mqttClient: '/tools/mqtt',
+        ai: '/ai/logs',
+        agents: '/ai/agents',
+        connectors: '/ai/connectors'
       }
     }
   },

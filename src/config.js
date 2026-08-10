@@ -1731,6 +1731,7 @@ export default {
   },
   ai: {
     label: 'AI',
+    path: 'ai/logs',
     icon: 'mdi-robot-outline',
     type: 'viewer',
     acl: [{
@@ -1802,6 +1803,170 @@ export default {
           width: 300,
           display: true,
           description: 'AI response'
+        }
+      ],
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log object',
+          classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'copy'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log objects',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
+          type: 'copy'
+        }
+      ],
+      viewConfig: {
+        needShowFilter: true,
+        needShowDateRange: true
+      },
+      theme: {
+        color: 'white',
+        bgColor: 'grey-9',
+        contentInverted: true,
+        controlsInverted: true
+      }
+    }
+  },
+  agents: {
+    label: 'Agents',
+    path: 'ai/agents',
+    icon: 'mdi-robot-happy-outline',
+    type: 'viewer',
+    acl: [{
+      name: 'agents',
+      methods: ['GET'],
+      submodules: [
+        { name: 'logs', methods: ['GET'] }
+      ]
+    }],
+    isDrawable: false,
+    logs: {
+      vuexModuleName: 'agentsLogs',
+      emptyState: {
+        label: 'Log entries not found',
+        sublabel: 'If you expect to see the log records here',
+        hints: [
+          { html: "Make sure the agent is enabled and has been given something to work on — logs appear as the agent takes its reasoning steps." },
+          { html: "Pick a specific date and time using the <span class='text-bold'>date/time picker</span> on the top right." },
+          { html: "Narrow down the search by specifying the desired parameter values in the <span class='text-bold'>filter control</span>." }
+        ]
+      },
+      cols: [
+        {
+          name: 'timestamp',
+          width: 165,
+          display: true,
+          description: 'Log event time',
+          addition: `${locale.slice(0, 3)}:${locale.slice(3)}`
+        },
+        {
+          name: 'event_code',
+          title: 'event',
+          width: 250,
+          display: true,
+          description: 'Log event code and description'
+        },
+        {
+          name: 'event_text',
+          title: 'Text',
+          width: 450,
+          display: true,
+          description: 'Log record text'
+        },
+        {
+          name: 'event_origin',
+          title: 'Origin',
+          width: 150,
+          display: true,
+          description: 'Log record origin name'
+        }
+      ],
+      actions: [
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log object',
+          classes: '',
+          mode: ACTION_MODE_SINGLE,
+          type: 'copy'
+        },
+        {
+          icon: 'mdi-content-copy',
+          label: 'Copy log objects',
+          classes: '',
+          mode: ACTION_MODE_MULTI,
+          type: 'copy'
+        }
+      ],
+      viewConfig: {
+        needShowFilter: true,
+        needShowDateRange: true
+      },
+      theme: {
+        color: 'white',
+        bgColor: 'grey-9',
+        contentInverted: true,
+        controlsInverted: true
+      }
+    }
+  },
+  connectors: {
+    label: 'Connectors',
+    path: 'ai/connectors',
+    icon: 'mdi-transit-connection-variant',
+    type: 'viewer',
+    acl: [{
+      name: 'connectors',
+      methods: ['GET'],
+      submodules: [
+        { name: 'logs', methods: ['GET'] }
+      ]
+    }],
+    isDrawable: false,
+    logs: {
+      vuexModuleName: 'connectorsLogs',
+      emptyState: {
+        label: 'Log entries not found',
+        sublabel: 'If you expect to see the log records here',
+        hints: [
+          { html: "Make sure the connector is enabled and assigned to an agent — logs appear when the connector is configured or used." },
+          { html: "Pick a specific date and time using the <span class='text-bold'>date/time picker</span> on the top right." },
+          { html: "Narrow down the search by specifying the desired parameter values in the <span class='text-bold'>filter control</span>." }
+        ]
+      },
+      cols: [
+        {
+          name: 'timestamp',
+          width: 165,
+          display: true,
+          description: 'Log event time',
+          addition: `${locale.slice(0, 3)}:${locale.slice(3)}`
+        },
+        {
+          name: 'event_code',
+          title: 'event',
+          width: 250,
+          display: true,
+          description: 'Log event code and description'
+        },
+        {
+          name: 'event_text',
+          title: 'Text',
+          width: 450,
+          display: true,
+          description: 'Log record text'
+        },
+        {
+          name: 'event_origin',
+          title: 'Origin',
+          width: 150,
+          display: true,
+          description: 'Log record origin name'
         }
       ],
       actions: [

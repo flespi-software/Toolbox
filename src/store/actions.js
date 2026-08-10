@@ -17,6 +17,8 @@ const origins = {
     realms: '/platform/realms/:id',
     containers: '/storage/containers/:id',
     cdns: '/storage/cdns/:id',
+    agents: '/ai/agents/:id',
+    connectors: '/ai/connectors/:id',
     tasks: '/gw/calcs/:calc/devices/:device',
     subaccounts: '/platform/subaccounts/:id'
   },
@@ -35,6 +37,8 @@ const origins = {
     assets: ['id', 'name', 'deleted'],
     containers: ['id', 'name', 'deleted'],
     cdns: ['id', 'name', 'deleted'],
+    agents: ['id', 'name', 'deleted', 'enabled', 'status', 'title'],
+    connectors: ['id', 'name', 'deleted', 'enabled', 'type_id'],
     tasks: ['device_id', 'calc_id'],
     subaccounts: ['id', 'name', 'deleted']
   },

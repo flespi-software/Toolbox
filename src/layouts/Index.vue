@@ -84,7 +84,7 @@ export default {
       connectFlag: false,
       isTabsVisible: true,
       entityByGroup: [
-        'platform', 'webhooks', 'realms', 'grants', 'ai', 'channels',
+        'platform', 'webhooks', 'realms', 'grants', 'ai', 'agents', 'connectors', 'channels',
         'devices', 'groups', 'streams', 'calcs', 'intervals',
         'geofences', 'plugins', 'hexViewer', 'trafficViewer',
         'deviceTraffic', 'streamTraffic', 'webhookTraffic',

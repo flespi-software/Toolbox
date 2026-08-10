@@ -87,7 +87,8 @@ export default {
     },
     eventLinkMore () {
       const host = this.$flespiServer
-      return `${host}/${this.getLogMeta(this.item).doc}`
+      const doc = this.getLogMeta(this.item).doc
+      return doc ? `${host}/${doc}` : host
     },
     description () {
       return this.getLogDescriptionByItem(this.item)

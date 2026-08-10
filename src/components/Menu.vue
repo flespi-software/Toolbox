@@ -32,14 +32,43 @@
         {{config.grants.label}}
       </q-item-section>
     </q-item>
-    <q-item v-if="entities.includes('ai')" to='/ai' active-class="bg-grey-6 text-white">
-      <q-item-section avatar>
-        <q-icon :name="config.ai.icon" color="white"/>
-      </q-item-section>
-      <q-item-section class="text-white">
-        {{config.ai.label}}
-      </q-item-section>
-    </q-item>
+    <q-expansion-item
+      v-if="entities.includes('ai') || entities.includes('agents') || entities.includes('connectors')"
+      group="menu"
+      label="AI"
+      :icon="config.ai.icon"
+      :value="aiGroupModel"
+      dark
+    >
+      <div>
+        <q-list class="row q-py-none">
+          <q-item v-if="entities.includes('ai')" to='/ai/logs' class="col-6" active-class="bg-grey-6">
+            <q-item-section class="text-center text-white">
+              <div>
+                <q-icon name="mdi-format-list-bulleted" size="2.6em"/>
+              </div>
+              <div>Logs</div>
+            </q-item-section>
+          </q-item>
+          <q-item v-if="entities.includes('agents')" to='/ai/agents' class="col-6" active-class="bg-grey-6">
+            <q-item-section class="text-center text-white">
+              <div>
+                <q-icon :name="config.agents.icon" size="2.6em"/>
+              </div>
+              <div>{{config.agents.label}}</div>
+            </q-item-section>
+          </q-item>
+          <q-item v-if="entities.includes('connectors')" to='/ai/connectors' class="col-6" active-class="bg-grey-6">
+            <q-item-section class="text-center text-white">
+              <div>
+                <q-icon :name="config.connectors.icon" size="2.6em"/>
+              </div>
+              <div>{{config.connectors.label}}</div>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </div>
+    </q-expansion-item>
     <q-expansion-item
       v-if="entities.includes('channels') || entities.includes('devices') || entities.includes('streams') || entities.includes('modems') || entities.includes('assets')"
       group="menu"
@@ -227,6 +256,10 @@
 export default {
   props: ['config', 'entities', 'entity'],
   computed: {
+    aiGroupModel () {
+      const entity = this.entity
+      return entity === 'ai' || entity === 'agents' || entity === 'connectors'
+    },
     hubGroupModel () {
       const entity = this.entity
       return entity === 'channels' || entity === 'calcs' || entity === 'intervals' || entity === 'plugins' || entity === 'geofences' || entity === 'devices' || entity === 'streams' || entity === 'modems' || entity === 'assets' || entity === 'hexViewer' || entity === 'trafficViewer' || entity === 'intervals'

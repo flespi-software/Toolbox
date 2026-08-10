@@ -57,7 +57,7 @@ export default {
     getLogItemColorByCodes (code, extCode) {
       const logMeta = this.logsObject.codes[code]
       let color = COLORS[logMeta && logMeta.severity]
-      if (extCode) {
+      if (extCode && logMeta && logMeta.extra_codes) {
         color = COLORS[logMeta.extra_codes[extCode] && logMeta.extra_codes[extCode].severity] || color
       }
       return color
@@ -85,6 +85,22 @@ export default {
     },
     getLogMeta (log) {
       const logObject = this.logsObject.codes[log.event_code]
+      /*
+       * `toolbox/codes` is a platform-side constant and always trails the API: a subsystem can log a code
+       * it does not know about yet. The record still has to be readable, so fall back to what the log
+       * itself carries instead of taking the whole list down.
+       */
+      if (!logObject) {
+        return {
+          code: log.event_code,
+          description: log.event_text || `event ${log.event_code}`,
+          doc: '',
+          entity: undefined,
+          color: undefined,
+          extraName: undefined,
+          extraData: undefined
+        }
+      }
       const extraName = logObject.extra_name
       let extraData = undefined
       if (logObject.extra_name && log[extraName]) {
