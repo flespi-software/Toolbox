@@ -30,7 +30,11 @@ export default [
   {
     path: '/',
     component: () => import('layouts/Index'),
-    children: [ ...getIndexChildrenRoutes(config) ]
+    children: [
+      ...getIndexChildrenRoutes(config),
+      /* the AI logs viewer used to answer at /ai — links and bookmarks to it must keep working */
+      { path: 'ai', redirect: '/ai/logs' }
+    ]
   },
   { path: '/token/:token', component: () => import('pages/Login') },
   { path: '/login', component: () => import('pages/Login'), name: 'simpleLogin' },
