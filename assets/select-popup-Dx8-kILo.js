@@ -1,0 +1,1 @@
+import{$ as e}from"./index-BQDY-AMl.js";import{t}from"./QSelect-DPqRZYde.js";t.props.popupNoRouteDismiss={type:Boolean,default:!0};var n=e(()=>{});export{n as default};

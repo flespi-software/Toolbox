@@ -1,0 +1,1 @@
+import{$ as e}from"./index-BQDY-AMl.js";var t=e(()=>{});export{t as default};

@@ -1,0 +1,1 @@
+var e=null;function t(t){e=t?t.fullPath:null}function n(){let t=e;return e=null,t}export{n,t};
