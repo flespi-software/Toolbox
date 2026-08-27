@@ -507,6 +507,7 @@ export default {
   },
   methods: {
     getItemProps (index) {
+      if (this.items[index] === undefined) { return null }
       const active = this.editableRow && this.editableCol ? { col: this.editableCol.index, row: this.editableRow.index } : null
       const props = {
         key: index,
@@ -523,7 +524,7 @@ export default {
           'data-index': index
         }
       }
-      this.itemprops(index, props)
+      if (this.itemprops(index, props) === false) { return null }
       return props
     },
     searchSubmitHandler () {

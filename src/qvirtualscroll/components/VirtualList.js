@@ -222,7 +222,15 @@ export default {
 
       const renders = []
       for (let i = delta.start; i < delta.total && i <= Math.ceil(delta.end); i++) {
-        renders.push(this.item ? h(this.item, toVue3Props(this.itemprops(i))) : rows[i])
+        if (!this.item) {
+          renders.push(rows[i])
+          continue
+        }
+        /* `delta.total` comes from the `itemcount` the parent fixed at its last render; the list
+         * behind it is read live, so a row in that range can already be gone. */
+        const data = this.itemprops(i)
+        if (data === null) { continue }
+        renders.push(h(this.item, toVue3Props(data)))
       }
       return renders
     }

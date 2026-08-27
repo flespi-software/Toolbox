@@ -274,6 +274,9 @@ export default {
     },
     getItemsProps (index, data) {
       const item = this.messages[index]
+      /* `itemcount` is fixed by the parent's render while this reads the list live, so the
+       * row can already be gone — say so instead of throwing. See VirtualList.filter. */
+      if (item === undefined) { return false }
       data.key = item['x-flespi-message-key']
       data.class = 'list-item list-item--click-control'
       data.props.etcVisible = this.etcVisible
