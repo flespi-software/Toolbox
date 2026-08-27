@@ -62,6 +62,16 @@ export default defineConfig((ctx) => {
         LOCAL: process.env.NODE_LOCAL === 'local'
       },
 
+      /*
+       * Quasar 1 left `publicPath` empty for a hash-mode SPA, so the built index.html referenced
+       * its assets relatively and the app ran from any directory. app-vite forces a leading slash
+       * on `publicPath`, so Vite's `base` is set straight here instead — `connector.js` still
+       * expects to be served from a `/toolbox` subpath in one of its branches.
+       */
+      extendViteConf (viteConf) {
+        viteConf.base = './'
+      },
+
       vitePlugins: [
         ['vite-plugin-checker', {
           eslint: {
