@@ -22,7 +22,7 @@
       </q-list>
     </q-menu>
     <div class="text-white hex-viewer" :style="{wordBreak: view === 'text' ? 'break-all' : ''}" v-if="hex" @click="selectAllHandler" @mouseover="wrapperMouseOverHandler">
-      <q-menu v-if="highlightIndex > -1" :target="`.highlighted.byte-${highlightIndex}`" :value="true" no-parent-event no-route-dismiss>
+      <q-menu v-if="highlightIndex > -1" :target="`.highlighted.byte-${highlightIndex}`" :model-value="true" no-parent-event no-route-dismiss>
         <div class="bg-grey-8 q-pa-xs text-caption">
           <pre v-for="textModel in highlightTexts" :key="textModel.text" class="q-ma-none text-white text-pre">{{textModel.text}}</pre>
         </div>
@@ -77,55 +77,68 @@
   </div>
 </template>
 
-<style lang="stylus">
-  .text-pre
-    white-space pre-wrap
-    word-break break-word
-  .raw-hex-data
-    font-size 0.8rem
-    font-family initial
-    border-radius 2px
-    background-color #555
-    color #ccc
-    padding 0 2px
-  .hex-char, .text-char
-    white-space pre
-  .selected--basic
-    color rgb(51, 51, 51)
-    background-color rgba(255, 255, 255, 0.7) !important
-  .selected--error
-    color rgb(51, 51, 51)
-    background-color rgba(244, 67, 54, 0.7)
-  .selected--hovered
-    color rgb(51, 51, 51)
-    background-color rgba(255, 255, 255, 0.4)
-  .hex-viewer
-    padding 10px 10px
-    margin 0 auto
-    width 820px
-    font-family 'PT Mono',monospace
-    font-size 14.5px
-    line-height 22px
-    user-select none
-    cursor default
-    font-variant normal
-    text-transform none
-    -webkit-font-smoothing antialiased
-    .hex-viewer__addresses
-      width 80px
-      display inline-block
-      div
-        overflow hidden
-    .hex-viewer__value
-      width 420px
-      display inline-block
-      div
-        overflow hidden
-    .hex-viewer__text
-      width: 300px
-      display inline-block
-      div
-        overflow hidden
+<style lang="scss">
+  .text-pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .raw-hex-data {
+    font-size: 0.8rem;
+    font-family: initial;
+    border-radius: 2px;
+    background-color: #555;
+    color: #ccc;
+    padding: 0 2px;
+  }
+  .hex-char, .text-char {
+    white-space: pre;
+  }
+  .selected--basic {
+    color: rgb(51, 51, 51);
+    background-color: rgba(255, 255, 255, 0.7) !important;
+  }
+  .selected--error {
+    color: rgb(51, 51, 51);
+    background-color: rgba(244, 67, 54, 0.7);
+  }
+  .selected--hovered {
+    color: rgb(51, 51, 51);
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+  .hex-viewer {
+    padding: 10px 10px;
+    margin: 0 auto;
+    width: 820px;
+    font-family: 'PT Mono',monospace;
+    font-size: 14.5px;
+    line-height: 22px;
+    user-select: none;
+    cursor: default;
+    font-variant: normal;
+    text-transform: none;
+    -webkit-font-smoothing: antialiased;
+    .hex-viewer__addresses {
+      width: 80px;
+      display: inline-block;
+      div {
+        overflow: hidden;
+      }
+    }
+    .hex-viewer__value {
+      width: 420px;
+      display: inline-block;
+      div {
+        overflow: hidden;
+      }
+    }
+    .hex-viewer__text {
+      width: 300px;
+      display: inline-block;
+      div {
+        overflow: hidden;
+      }
+    }
+  }
 </style>
 
 <script>

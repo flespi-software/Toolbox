@@ -44,7 +44,7 @@ export default {
     window.addEventListener('keydown', this.enableSelectionMode)
     window.addEventListener('keyup', this.disableSelectionMode)
   },
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener('keydown', this.enableSelectionMode)
     window.removeEventListener('keyup', this.disableSelectionMode)
   },

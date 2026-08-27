@@ -34,8 +34,8 @@
             :view="view"
             @action="actionHandler"
             @item-click="messageClickHandler"
-            @mouseenter.native="highlightConn(item.conn)"
-            @mouseleave.native="highlightConn(null)"
+            @mouseenter="highlightConn(item.conn)"
+            @mouseleave="highlightConn(null)"
           />
         </VirtualList>
       </template>
@@ -46,18 +46,19 @@
 </template>
 
 <script>
-import VirtualList from 'vue-virtual-scroll-list'
+import VirtualList from 'src/qvirtualscroll/components/VirtualList'
 import get from 'lodash/get'
 import throttle from 'lodash/throttle'
-import { DateRangeModal } from 'qvirtualscroll'
+import DateRangeModal from 'src/qvirtualscroll/components/DateRangeModal.vue'
 import { copyToClipboard } from 'quasar'
 import MessagesListItem from '../MessagesListItem.vue'
-import EmptyPane from '../../EmptyPane'
-import MessageSkeleton from '../MessageSkeleton'
+import EmptyPane from '../../EmptyPane.vue'
+import MessageSkeleton from '../MessageSkeleton.vue'
 import range from 'lodash/range'
-import ExportModal from '../ExportModal'
+import ExportModal from '../ExportModal.vue'
 import routerProcess from '../../../mixins/routerProcess'
 import highlightMixin from '../highlightConnMixin'
+import { usePluginTrafficStore } from 'src/stores/traffic/pluginTraffic'
 
 export default {
   props: [
@@ -66,6 +67,11 @@ export default {
     'config',
     'view'
   ],
+  /* the viewer registered this store as a Vuex module and reached it by name */
+  setup (props) {
+    const trafficStore = usePluginTrafficStore({ name: props.config.vuexModuleName })
+    return { trafficStore }
+  },
   data () {
     return {
       theme: this.config.theme,
@@ -84,64 +90,63 @@ export default {
   computed: {
     active: {
       get () {
-        return this.$store.state[this.moduleName].active
+        return this.trafficStore.active
       },
       async set (id) {
         if (this.realtimeEnabled) {
-          await this.$store.dispatch(`${this.moduleName}/removePollingGetMessages`)
+          await this.trafficStore.removePollingGetMessages()
         }
-        this.$store.commit(`${this.moduleName}/setActive`, id)
-        await this.$store.dispatch(`${this.moduleName}/initTime`)
-        await this.$store.dispatch(`${this.moduleName}/getMessagesTail`)
+        this.trafficStore.setActive(id)
+        await this.trafficStore.initTime()
+        await this.trafficStore.getMessagesTail()
         if (this.to > Date.now()) {
-          await this.$store.dispatch(`${this.moduleName}/pollingGetMessages`)
+          await this.trafficStore.pollingGetMessages()
         }
         this.dateRangeChange(this.dateRange)
       }
     },
     messages: {
       get () {
-        return this.$store.state[this.moduleName].messages
+        return this.trafficStore.messages
       },
       set (val) {
-        this.$store.commit(`${this.moduleName}/setMessages`, val)
+        this.trafficStore.setMessages(val)
       }
     },
     currentLimit: {
       get () {
-        return this.$store.state[this.moduleName].limit
+        return this.trafficStore.limit
       },
       set (limit) {
-        this.$store.commit(`${this.moduleName}/setLimit`, limit)
+        this.trafficStore.setLimit(limit)
       }
     },
     dateRange () {
-      return [this.$store.state[this.moduleName].from, this.$store.state[this.moduleName].to]
+      return [this.trafficStore.from, this.trafficStore.to]
     },
     from: {
       get () {
-        return this.$store.state[this.moduleName].from
+        return this.trafficStore.from
       },
       set (val) {
         val = val || 0
-        this.$store.commit(`${this.moduleName}/setFrom`, val)
+        this.trafficStore.setFrom(val)
       }
     },
     to: {
       get () {
-        return this.$store.state[this.moduleName].to
+        return this.trafficStore.to
       },
       set (val) {
         val = val || 0
-        this.$store.commit(`${this.moduleName}/setTo`, val)
+        this.trafficStore.setTo(val)
       }
     },
     realtimeEnabled () {
-      return this.$store.state[this.moduleName].messagePolling
+      return this.trafficStore.messagePolling
     },
     loadingFlag () {
-      const state = this.$store.state
-      return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
+      return !!this.trafficStore.isLoading
     }
   },
   methods: {
@@ -172,16 +177,16 @@ export default {
       this.from = from
       this.to = to
       if (this.realtimeEnabled) {
-        this.$store.dispatch(`${this.moduleName}/removePollingGetMessages`)
+        this.trafficStore.removePollingGetMessages()
       }
       if (this.needAutoScroll && to <= Date.now()) {
         this.needAutoScroll = false
       }
-      this.$store.commit(`${this.moduleName}/clearMessages`)
-      this.$store.dispatch(`${this.moduleName}/getMessages`)
+      this.trafficStore.clearMessages()
+      this.trafficStore.getMessages()
         .then(() => {
           if (to > Date.now()) {
-            this.$store.dispatch(`${this.moduleName}/pollingGetMessages`)
+            this.trafficStore.pollingGetMessages()
           }
         })
     },
@@ -231,7 +236,7 @@ export default {
       const scrollerElement = get(this.$refs, 'scroller.$el', undefined)
       const offsetAll = scrollerElement.scrollHeight - scrollerElement.clientHeight
       const scrollTop = scrollerElement.scrollTop
-      this.$store.dispatch(`${this.moduleName}/getMessagesPrev`)
+      this.trafficStore.getMessagesPrev()
         .then((messages) => {
           if (messages && messages.length) {
             const newOffsetAll = scrollerElement.scrollHeight - scrollerElement.clientHeight
@@ -240,7 +245,7 @@ export default {
         })
     },
     getMessagesNext () {
-      this.$store.dispatch(`${this.moduleName}/getMessagesNext`)
+      this.trafficStore.getMessagesNext()
     },
     actionHandler ({ index, type, content }) {
       switch (type) {
@@ -308,9 +313,9 @@ export default {
     },
     clear () {
       if (this.realtimeEnabled) {
-        this.$store.dispatch(`${this.moduleName}/removePollingGetMessages`)
+        this.trafficStore.removePollingGetMessages()
       }
-      this.$store.commit(`${this.moduleName}/clearMessages`)
+      this.trafficStore.clearMessages()
     },
     exportModalOpen () { this.$refs.export.show() },
     highlightIncoming (timestamp) {
@@ -345,8 +350,8 @@ export default {
     },
     async init () {
       this.currentLimit = this.limit
-      if (this.activeId && !this.$store.state[this.moduleName].active) {
-        this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
+      if (this.activeId && !this.trafficStore.active) {
+        this.trafficStore.setActive(this.activeId)
       }
       const from = this.$route.query.from * 1000,
         to = this.$route.query.to * 1000,
@@ -354,14 +359,14 @@ export default {
       if (from && to) {
         this.from = from
         this.to = to
-        await this.$store.dispatch(`${this.moduleName}/getMessages`)
+        await this.trafficStore.getMessages()
         this.$nextTick(() => this.highlightIncoming(selectTime))
       } else {
-        await this.$store.dispatch(`${this.moduleName}/initTime`)
-        await this.$store.dispatch(`${this.moduleName}/getMessagesTail`)
+        await this.trafficStore.initTime()
+        await this.trafficStore.getMessagesTail()
       }
       if (this.to > Date.now()) {
-        await this.$store.dispatch(`${this.moduleName}/pollingGetMessages`)
+        await this.trafficStore.pollingGetMessages()
       }
       this.updateRoute({
         query: {
@@ -403,10 +408,10 @@ export default {
       if (this.needAutoScroll && this.$refs.scroller && this.$refs.scroller.$el) { this.$refs.scroller.$el.scrollTop = this.$refs.scroller.$el.scrollHeight }
     }
   },
-  destroyed () {
+  unmounted () {
     this.highlightConn(null)
-    this.$store.dispatch(`${this.moduleName}/removePollingGetMessages`)
-    this.$store.commit(`${this.moduleName}/clearMessages`)
+    this.trafficStore.removePollingGetMessages()
+    this.trafficStore.clearMessages()
     this.to = 0
     this.from = 0
   },

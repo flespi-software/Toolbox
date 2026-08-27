@@ -10,9 +10,9 @@
     @dragging="$emit('active')"
     @change-view-model="changeViewModelHandler"
   >
-    <q-tabs :value="tabModel" @input="setTab" class="text-white" :dense="!isModified" :style="{ width: isModified ? 'calc(100% - 66px)' : $q.platform.is.mobile ? 'calc(100% - 33px)' : '', height: isModified ? '50px' : '' }" outside-arrows>
-      <template v-for="(item, key) in config">
-        <q-tab :name="key" :label="item.title" :key="`tab-${key}`" color="grey-9" :icon="item.titleIcon"/>
+    <q-tabs :model-value="tabModel" @update:model-value="setTab" class="text-white" :dense="!isModified" :style="{ width: isModified ? 'calc(100% - 66px)' : $q.platform.is.mobile ? 'calc(100% - 33px)' : '', height: isModified ? '50px' : '' }" outside-arrows>
+      <template v-for="(item, key) in config" :key="`tab-${key}`">
+        <q-tab :name="key" :label="item.title" color="grey-9" :icon="item.titleIcon"/>
       </template>
     </q-tabs>
     <div class="bg-grey-8 scroll relative-position" :style="{ height: isModified ? 'calc(100% - 50px)' : 'calc(100% - 40px)', width: 'calc(100% - 4px)' }">
@@ -40,12 +40,13 @@
 </template>
 
 <script>
-import WidgetWindow from './WidgetFloatWindow'
+import WidgetWindow from './WidgetFloatWindow.vue'
 import { copyToClipboard } from 'quasar'
-import get from 'lodash/get'
 import routerProcess from '../../mixins/routerProcess'
 export default {
-  props: ['config', 'inverted', 'value', 'actions', 'active', 'controls', 'viewModel'],
+  name: 'WidgetsPane',
+  emits: ['update:modelValue', 'close', 'active', 'change-view-model', 'next', 'prev'],
+  props: ['config', 'inverted', 'modelValue', 'actions', 'active', 'controls', 'viewModel'],
   data () {
     return {
       prevTab: undefined,
@@ -63,7 +64,10 @@ export default {
     tabNames () { return Object.keys(this.config) }
   },
   methods: {
-    ref (name) { return get(this.$refs[name], 0, undefined) },
+    ref (name) {
+      const value = this.$refs[name]
+      return Array.isArray(value) ? value[0] : value
+    },
     show () { this.visible = true },
     hide () { this.visible = false },
     setTab (name) {
@@ -88,7 +92,7 @@ export default {
       }
     },
     closeHandler () {
-      this.$emit('input', false)
+      this.$emit('update:modelValue', false)
       this.$emit('close')
       this.updateRoute({  query: { widget_tab: undefined } })
     },
@@ -145,7 +149,7 @@ export default {
   components: { WidgetWindow },
   mixins: [routerProcess],
   watch: {
-    value (value) { this.visible = value },
+    modelValue (value) { this.visible = value },
     config (config) {
       if (this.prevTab) {
         this.setTab(this.prevTab)
@@ -166,18 +170,19 @@ export default {
     window.addEventListener('keyup', this.escHandler)
     this.setTab(activeTabName)
   },
-  destroyed () {
+  unmounted () {
     window.removeEventListener('keyup', this.escHandler)
   }
 }
 </script>
 
-<style lang="stylus">
-  .widget-window__actions
-    bottom 16px
-    right 16px
-    z-index 999
-    background rgba(100,100,100,.4)
-    border-radius 5px
-    position absolute
+<style lang="scss">
+  .widget-window__actions {
+    bottom: 16px;
+    right: 16px;
+    z-index: 999;
+    background: rgba(100, 100, 100, .4);
+    border-radius: 5px;
+    position: absolute;
+  }
 </style>

@@ -4,15 +4,17 @@
     :color="`${eventsColors[message.type]}-6`"
     class="hex-viewer__timeline-element"
   >
-    <div slot="title">
-      <div style="line-height: 18px;">
-        <span>{{eventsDesc[message.type]}}</span>
+    <template #title>
+      <div>
+        <div style="line-height: 18px;">
+          <span>{{eventsDesc[message.type]}}</span>
+        </div>
+        <div class="text-grey-5" style="font-size: .7rem;">
+          {{date.formatDate(message.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss.SSS (Z)')}}
+          <small class="rounded-borders q-mx-xs q-px-xs text-white" :class="{'bg-blue': transport === 'tcp', 'bg-pink-4': transport === 'udp', 'bg-green-9': transport === 'http', 'bg-purple-9': transport === 'mqtt'}">{{transport}}</small>
+        </div>
       </div>
-      <div class="text-grey-5" style="font-size: .7rem;">
-        {{date.formatDate(message.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss.SSS (Z)')}}
-        <small class="rounded-borders q-mx-xs q-px-xs text-white" :class="{'bg-blue': transport === 'tcp', 'bg-pink-4': transport === 'udp', 'bg-green-9': transport === 'http', 'bg-purple-9': transport === 'mqtt'}">{{transport}}</small>
-      </div>
-    </div>
+    </template>
     <div style="word-break: break-all; font-size: .8rem; height: 1rem;" class="ellipsis">{{dataPreview}}</div>
   </q-timeline-entry>
 </template>
@@ -136,8 +138,10 @@ export default {
 }
 </script>
 
-<style lang="stylus">
-  .hex-viewer__timeline-element
-    .q-timeline__title
-      margin-bottom 0
+<style lang="scss">
+  .hex-viewer__timeline-element {
+    .q-timeline__title {
+      margin-bottom: 0;
+    }
+  }
 </style>

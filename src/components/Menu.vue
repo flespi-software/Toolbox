@@ -37,7 +37,7 @@
       group="menu"
       label="AI"
       :icon="config.ai.icon"
-      :value="aiGroupModel"
+      :model-value="aiGroupModel"
       dark
     >
       <div>
@@ -74,7 +74,7 @@
       group="menu"
       label="Telematics Hub"
       icon="mdi-sitemap"
-      :value="hubGroupModel"
+      :model-value="hubGroupModel"
       dark
     >
       <div>
@@ -195,7 +195,7 @@
       group="menu"
       label="Storage"
       icon="mdi-database"
-      :value="storageGroupModel"
+      :model-value="storageGroupModel"
       dark
     >
       <div>
@@ -223,7 +223,7 @@
       group="menu"
       label="MQTT"
       icon="mdi-access-point-network"
-      :value="mqttGroupModel" dark
+      :model-value="mqttGroupModel" dark
       v-if="entities.includes('mqtt') || entities.includes('mqttClient')"
     >
       <div>

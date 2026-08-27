@@ -17,10 +17,11 @@ export default {
 }
 </script>
 
-<style lang="stylus">
-  .image-view__image
-    background-repeat no-repeat
-    height 60vh
-    background-size contain
-    background-position center
+<style lang="scss">
+  .image-view__image {
+    background-repeat: no-repeat;
+    height: 60vh;
+    background-size: contain;
+    background-position: center;
+  }
 </style>

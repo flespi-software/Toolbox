@@ -5,10 +5,13 @@
 </template>
 
 <script>
-import init from '../../mixins/entitiesInit'
+import init, { entitiesRouteGuards } from '../../mixins/entitiesInit'
+import { useMainStore } from 'src/stores/main'
 
 export default {
   name: 'MQTTClient',
+  /* Vue Router 4 does not pick guards up from a mixin — see mixins/entitiesInit.js */
+  ...entitiesRouteGuards,
   props: [
     'limit',
     'isLoading',
@@ -24,7 +27,7 @@ export default {
         settings: {
           clientId: `toolbox-mqtt-board-${Math.random().toString(16).substr(2, 8)}`,
           host: this.$flespiSocketServer,
-          username: `FlespiToken ${this.$store.state.token}`
+          username: `FlespiToken ${useMainStore().token}`
         },
         whiteLabel: 'MQTT Clients',
         useLS: false,
@@ -62,14 +65,19 @@ export default {
     }
   },
   created () {
-    window.addEventListener('message', ({ data }) => {
+    /* the Vue 2 build left this listener behind when the page went away */
+    this.messageHandler = ({ data }) => {
       const { cmd, name } = this.messageProcess(data)
       if (name === this.name && cmd) {
         if (cmd === 'ready') {
           this.setSettings(this.mqttBoardConfig)
         }
       }
-    })
+    }
+    window.addEventListener('message', this.messageHandler)
+  },
+  beforeUnmount () {
+    window.removeEventListener('message', this.messageHandler)
   }
 }
 </script>

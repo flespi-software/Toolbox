@@ -22,6 +22,9 @@
 import ExpressionsTestViewer from "./ExpressionsTestViewer.vue"
 
 export default {
+  name: 'ExpressionTestDialog',
+  /* the dialog plugin listens for these two */
+  emits: ['ok', 'hide'],
   props: {
     theme: {
       type: String,

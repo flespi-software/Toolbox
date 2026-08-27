@@ -32,9 +32,8 @@
       <div v-if="loading" class="text-h6 text-grey text-center" >
         Loading...
       </div>
-      <template v-for="(log) in logs">
+      <template v-for="(log) in logs" :key="log.timestamp + '-' + log.origin_id">
         <q-item
-          :key="log.timestamp + '-' + log.origin_id"
         >
           <q-item-section side>
             <q-icon name="mdi-puzzle" color="white" />
@@ -51,7 +50,7 @@
             </q-item-label>
           </q-item-section>
         </q-item>
-        <div :key="log.timestamp + '-' + log.origin_id + 'arrow'" class="q-pl-md flow-arrow">
+        <div class="q-pl-md flow-arrow">
           <q-icon name="mdi-arrow-down" size="sm" color="grey" />
         </div>
       </template>
@@ -63,8 +62,9 @@
 import { date } from 'quasar'
 
 import highlightMessage from './messages/highlightMessageMixin.js'
-import Vue from 'vue'
-import get from 'lodash.get'
+import { connector } from 'src/services/connector'
+/* was `lodash.get`, a package the project never declared — it came in transitively */
+import get from 'lodash/get'
 
 const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'})
 export default {
@@ -106,7 +106,7 @@ export default {
         this.logs = []
         this.loading = true
         if (Object.keys(this.plugins).length === 0) {
-          const resp = await Vue.connector.http.get(`/gw/devices/${this.item['device.id']}?fields=plugins`)
+          const resp = await connector.http.get(`/gw/devices/${this.item['device.id']}?fields=plugins`)
           let plugins = get(resp, 'data.result.0.plugins', [])
           this.plugins = plugins.reduce((a,v) => ({...a,[v.id]: v.name}),{})
         }
@@ -119,7 +119,7 @@ export default {
           to: ts + 600
         }
         if (Object.keys(this.plugins).length > 0) {
-          const resplogs = await Vue.connector.http.get(`/gw/plugins/${Object.keys(this.plugins).join(',')}/logs?data=${encodeURIComponent(JSON.stringify(params))}`)
+          const resplogs = await connector.http.get(`/gw/plugins/${Object.keys(this.plugins).join(',')}/logs?data=${encodeURIComponent(JSON.stringify(params))}`)
           this.logs = get(resplogs, 'data.result', []).sort((a,b) => (a.timestamp > b.timestamp) ? 1 : -1)
         }
 
@@ -138,14 +138,18 @@ export default {
 }
 </script>
 
-<style lang="stylus">
-  .object-viewier__units
-    color $grey-4
-    font-size .8rem
-  .image-bin
-    max-width 100%
-  .flow-arrow
-    margin -7px 0
-    &:last-child
-      display none
+<style lang="scss">
+  .object-viewier__units {
+    color: $grey-4;
+    font-size: .8rem;
+  }
+  .image-bin {
+    max-width: 100%;
+  }
+  .flow-arrow {
+    margin: -7px 0;
+    &:last-child {
+      display: none;
+    }
+  }
 </style>

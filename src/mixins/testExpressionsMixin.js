@@ -8,13 +8,14 @@ export default {
         }
         return res
       }, [])
+      /* Quasar 2 hands the props to a custom dialog through componentProps; `parent` is gone */
       this.$q.dialog({
         component: ExpressionTestDialog,
-        parent: this,
-        data: messages,
-        columns: activeCols,
-        token: token,
-        noRouteDismiss: true
+        componentProps: {
+          data: messages,
+          columns: activeCols,
+          token: token
+        }
       })
     }
   }

@@ -19,7 +19,7 @@
       :i18n="i18n"
       :item="listItem"
       :itemprops="getItemsProps"
-      @click.native="tableClickHandler"
+      @click="tableClickHandler"
       @scroll="scrollHandler"
       @action="actionHandler"
       @change-filter="filterChangeHandler"
@@ -29,18 +29,23 @@
       @arrowup="arrowUpHandler"
       @arrowdown="arrowDownHandler"
     >
-      <empty-pane slot="empty" :config="config.emptyState"/>
+      <template #empty><empty-pane  :config="config.emptyState"/></template>
     </virtual-scroll-list>
   </div>
 </template>
 
 <script>
-import { VirtualScrollList, intervalsModule } from 'qvirtualscroll'
-import Vue from 'vue'
+/* a component definition in data() would be handed to Vue as a reactive proxy */
+import { markRaw } from 'vue'
+import { VirtualScrollList } from 'src/qvirtualscroll'
+import { useIntervalsStore } from 'src/qvirtualscroll/stores/intervals'
+import { connector } from 'src/services/connector'
+import { useMainStore } from 'src/stores/main'
+import settingsStorage from 'src/infrastructure/settingsStorage'
 import debounce from 'lodash/debounce'
 import { copyToClipboard } from 'quasar'
 import MessagesListItem from './MessagesListItem.vue'
-import EmptyPane from '../EmptyPane'
+import EmptyPane from '../EmptyPane.vue'
 import actions from '../../mixins/actions'
 import routerProcess from '../../mixins/routerProcess'
 import { ACTION_MODE_MULTI, ACTION_MODE_SINGLE } from '../../config'
@@ -57,9 +62,23 @@ export default {
     'interval',
     'dateRange'
   ],
+  setup (props) {
+    const mainStore = useMainStore()
+    /*
+     * The Vue 2 build registered a Vuex module named after the list and dropped it again. The store
+     * registry keeps the same one-per-list identity.
+     */
+    const listStore = useIntervalsStore({
+      name: props.isSecondary ? 'intervals' : props.config.vuexModuleName,
+      lsNamespace: 'flespi-toolbox-settings.cols',
+      storage: settingsStorage,
+      errorHandler: (err) => { mainStore.reqFailed(err) }
+    })
+    return { mainStore, listStore }
+  },
   data () {
     return {
-      listItem: MessagesListItem,
+      listItem: markRaw(MessagesListItem),
       theme: this.config.theme,
       isSecondary: this.config.mode === 'secondary',
       routeParamName: this.config.mode === 'secondary' ? 'related_intervals' : 'intervals',
@@ -77,7 +96,7 @@ export default {
   computed: {
     messages: {
       get () {
-        let messages = this.$store.state[this.moduleName].messages
+        let messages = this.listStore.messages
         messages = Object.values(messages)
         messages.sort((a, b) => {
           return a.begin - b.begin
@@ -86,103 +105,103 @@ export default {
         return messages
       },
       set (val) {
-        this.$store.commit(`${this.moduleName}/setMessages`, val)
+        this.listStore.setMessages(val)
       }
     },
     active: {
       get () {
-        return this.$store.state[this.moduleName].active
+        return this.listStore.active
       },
       async set (val) {
-        await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active device */
-        this.$store.commit(`${this.moduleName}/setActive`, val)
-        this.$store.commit(`${this.moduleName}/clearMessages`)
+        await this.listStore.unsubscribePooling()/* remove subscription for previous active device */
+        this.listStore.setActive(val)
+        this.listStore.clearMessages()
         const counters = this.item.counters || []
-        val && this.$store.dispatch(`${this.moduleName}/getCols`, counters)
-        await this.$store.dispatch(`${this.moduleName}/initTime`)
+        val && this.listStore.getCols(counters)
+        await this.listStore.initTime()
         this.$emit('change:date-range', [this.begin, this.end])
-        await this.$store.dispatch(`${this.moduleName}/get`)
-        this.$store.dispatch(`${this.moduleName}/pollingGet`)
+        await this.listStore.get()
+        this.listStore.pollingGet()
       }
     },
     activeDevice: {
       get () {
-        return this.$store.state[this.moduleName].activeDevice
+        return this.listStore.activeDevice
       },
       async set (id) {
-        await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active device */
-        this.$store.commit(`${this.moduleName}/setActiveDevice`, id)
-        this.$store.commit(`${this.moduleName}/clearMessages`)
-        await this.$store.dispatch(`${this.moduleName}/initTime`)
+        await this.listStore.unsubscribePooling()/* remove subscription for previous active device */
+        this.listStore.setActiveDevice(id)
+        this.listStore.clearMessages()
+        await this.listStore.initTime()
         this.$emit('change:date-range', [this.begin, this.end])
-        await this.$store.dispatch(`${this.moduleName}/get`)
-        this.$store.dispatch(`${this.moduleName}/pollingGet`)
+        await this.listStore.get()
+        this.listStore.pollingGet()
       }
     },
     cols: {
       get () {
-        return this.$store.state[this.moduleName].cols
+        return this.listStore.cols
       },
       set (val) {
-        this.$store.commit(`${this.moduleName}/updateCols`, val)
+        this.listStore.updateCols(val)
       }
     },
     filter: {
       get () {
-        return this.$store.state[this.moduleName].filter
+        return this.listStore.filter
       },
       set (val) {
         val = val || ''
-        this.$store.commit(`${this.moduleName}/setFilter`, val)
+        this.listStore.setFilter(val)
       }
     },
     begin: {
       get () {
-        const begin = this.isSecondary ? this.dateRange[0] : this.$store.state[this.moduleName].begin
+        const begin = this.isSecondary ? this.dateRange[0] : this.listStore.begin
         return begin
       },
       set (val) {
         val = val || 0
-        this.$store.commit(`${this.moduleName}/setBegin`, val)
+        this.listStore.setBegin(val)
       }
     },
     end: {
       get () {
-        const end = this.isSecondary ? this.dateRange[1] : this.$store.state[this.moduleName].end
+        const end = this.isSecondary ? this.dateRange[1] : this.listStore.end
         return end
       },
       set (val) {
         val = val || 0
-        this.$store.commit(`${this.moduleName}/setEnd`, val)
+        this.listStore.setEnd(val)
       }
     },
     reverse: {
       get () {
-        return this.$store.state[this.moduleName].reverse || false
+        return this.listStore.reverse || false
       },
       set (val) {
-        this.$store.commit(`${this.moduleName}/setReverse`, val)
+        this.listStore.setReverse(val)
       }
     },
     currentLimit: {
       get () {
-        return this.$store.state[this.moduleName].limit
+        return this.listStore.limit
       },
       set (val) {
         val = val || 0
-        this.$store.commit(`${this.moduleName}/setLimit`, val)
+        this.listStore.setLimit(val)
       }
     },
     selected: {
       get () {
-        const selected = this.$store.state[this.moduleName].selected
+        const selected = this.listStore.selected
         if (selected && !selected.length) {
           this.$emit('view-data', null)
         }
         return selected
       },
       set (val) {
-        this.$store.commit(`${this.moduleName}/setSelected`, val)
+        this.listStore.setSelected(val)
         this.updateSelectedRoute(this.selectedMessagesTimestamps)
       }
     },
@@ -194,8 +213,7 @@ export default {
       return messages
     },
     loadingFlag () {
-      const state = this.$store.state
-      return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
+      return !!this.listStore.isLoading
     },
     needAutoscroll () {
       return !this.selected.length && this.autoscroll
@@ -230,7 +248,8 @@ export default {
       ]
     },
     viewConfig () {
-      return Object.assign(this.config.viewConfig, { needKeysProcess: !!this.selected.length })
+      /* merging into `this.config.viewConfig` wrote into the shared config for good */
+      return Object.assign({}, this.config.viewConfig, { needKeysProcess: !!this.selected.length })
     }
   },
   methods: {
@@ -292,13 +311,13 @@ export default {
           (!!this.filter && !params.filter) ||
           (this.filter && params.filter && this.filter !== params.filter)
         ) {
-          if (this.realtimeEnabled) { this.$store.dispatch(`${this.moduleName}/unsubscribePooling`) }
+          if (this.realtimeEnabled) { this.listStore.unsubscribePooling() }
           this.filter = params.filter || null
           needUpdate = true
         }
         if (needUpdate) {
-          this.$store.commit(`${this.moduleName}/clearMessages`)
-          this.$store.dispatch(`${this.moduleName}/get`)
+          this.listStore.clearMessages()
+          this.listStore.get()
         }
       } catch (e) {}
     },
@@ -323,8 +342,8 @@ export default {
     refresh () {
       this.$emit('change:date-range', [ this.begin, this.end ])
       this.viewedInterval = null
-      this.$store.commit(`${this.moduleName}/clearMessages`)
-      this.$store.dispatch(`${this.moduleName}/get`)
+      this.listStore.clearMessages()
+      this.listStore.get()
     },
     dateRangeChange (range) {
       const begin = range[0],
@@ -333,8 +352,8 @@ export default {
       this.end = end
       this.$emit('change:date-range', range)
       this.viewedInterval = null
-      this.$store.commit(`${this.moduleName}/clearMessages`)
-      this.$store.dispatch(`${this.moduleName}/get`)
+      this.listStore.clearMessages()
+      this.listStore.get()
     },
     dateRangeChangeHandler (range) {
       const begin = range[0],
@@ -357,7 +376,7 @@ export default {
         }
         case 'expression': {
           this.showExprTest(
-            this.$store.state.token,
+            this.mainStore.token,
             this.cols.schemas[this.cols.activeSchema].cols,
             this.selected.map(index => this.messages[index])
           )
@@ -429,23 +448,23 @@ export default {
       if (existMessageIndex !== -1) {
         this.scrollTo(existMessageIndex - 1)
       } else {
-        this.$store.state[this.moduleName].messages = []
-        const intervalMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.begin, to: interval.end + 0.999999, count: this.limit })
+        this.listStore.messages = []
+        const intervalMessages = await this.listStore.getMessages({ from: interval.begin, to: interval.end + 0.999999, count: this.limit })
         const count = Math.ceil((this.limit - intervalMessages.length) / 2)
         let scrollToIndex = 0
-        if (intervalMessages.length < this.limit) {ep
+        if (intervalMessages.length < this.limit) {
           const paddingMessages = await Promise.all([
-            this.$store.dispatch(`${this.moduleName}/getMessages`, { from: this.from / 1000, to: interval.begin - 0.000001, count, reverse: true }),
-            this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.end + 1, to: this.to / 1000, count })
+            this.listStore.getMessages({ from: this.from / 1000, to: interval.begin - 0.000001, count, reverse: true }),
+            this.listStore.getMessages({ from: interval.end + 1, to: this.to / 1000, count })
           ])
           const prevMsgs = paddingMessages[0].reverse(),
             nextMsgs = paddingMessages[1]
           intervalMessages.splice(0, 0, ...prevMsgs)
           scrollToIndex = prevMsgs.length
           intervalMessages.splice(intervalMessages.length, 0, ...nextMsgs)
-          await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
+          await this.listStore.unsubscribePooling()
         } else {
-          await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
+          await this.listStore.unsubscribePooling()
         }
         this.scrollTo(scrollToIndex)
       }
@@ -503,19 +522,20 @@ export default {
       return res
     },
     async init () {
-      if (!this.$store.state[this.moduleName]) {
-        this.$store.registerModule(this.moduleName, intervalsModule({ Vue, LocalStorage: this.$settingsStorage, name: { name: this.isSecondary ? 'intervals' : this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
+      /* a list that had already been set up used to be cleared instead of re-registered */
+      if (this.listStore.initialized) {
+        this.listStore.clear()
       } else {
-        this.$store.commit(`${this.moduleName}/clear`)
+        this.listStore.initialized = true
       }
       this.currentLimit = this.limit
       if (this.activeId) {
-        this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
+        this.listStore.setActive(this.activeId)
         const counters = this.item.counters || []
-        this.$store.dispatch(`${this.moduleName}/getCols`, counters)
+        this.listStore.getCols(counters)
       }
       if (this.activeDeviceId) {
-        this.$store.commit(`${this.moduleName}/setActiveDevice`, this.activeDeviceId)
+        this.listStore.setActiveDevice(this.activeDeviceId)
       }
       const from = this.$route.query.from * 1000,
           to = this.$route.query.to * 1000
@@ -530,17 +550,17 @@ export default {
       if (this.isSecondary) {
         this.begin = this.dateRange[0]
         this.end = this.dateRange[1]
-        await this.$store.dispatch(`${this.moduleName}/get`)
+        await this.listStore.get()
       } else {
         if (from && to) {
           this.begin = from
           this.end = to
         } else {
-          await this.$store.dispatch(`${this.moduleName}/initTime`)
+          await this.listStore.initTime()
         }
         this.$emit('change:date-range', [this.begin, this.end])
-        await this.$store.dispatch(`${this.moduleName}/get`)
-        await this.$store.dispatch(`${this.moduleName}/pollingGet`)
+        await this.listStore.get()
+        await this.listStore.pollingGet()
       }
       if (initTimestamp) {
         const scrollIndex = this.messages.findIndex((message) => { return message.timestamp === initTimestamp })
@@ -624,23 +644,23 @@ export default {
   created () {
     this.debouncedUpdateMessagesRoute = debounce(this.updateMessagesRoute, 500, { trailing: true, maxWait: 1000 })
     this.init()
-    this.offlineHandler = Vue.connector.socket.on('offline', () => {
-      this.$store.commit(`${this.moduleName}/setOffline`)
+    this.offlineHandler = connector.socket.on('offline', () => {
+      this.listStore.setOffline()
     })
-    this.connectHandler = Vue.connector.socket.on('connect', () => {
-      if (this.$store.state[this.moduleName].offline) {
-        this.$store.commit(`${this.moduleName}/setReconnected`)
-        this.$store.commit(`${this.moduleName}/clearOfflineState`)
+    this.connectHandler = connector.socket.on('connect', () => {
+      if (this.listStore.offline) {
+        this.listStore.setReconnected()
+        this.listStore.clearOfflineState()
       }
     })
   },
-  beforeDestroy () {
-    this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
-    this.offlineHandler !== undefined && Vue.connector.socket.off('offline', this.offlineHandler)
-    this.connectHandler !== undefined && Vue.connector.socket.off('connect', this.connectHandler)
-    this.$store.commit(`${this.moduleName}/clear`)
-    this.$store.commit(`${this.moduleName}/setActive`, null)
-    this.$store.commit(`${this.moduleName}/setActiveDevice`, null)
+  beforeUnmount () {
+    this.listStore.unsubscribePooling()
+    this.offlineHandler !== undefined && connector.socket.off('offline', this.offlineHandler)
+    this.connectHandler !== undefined && connector.socket.off('connect', this.connectHandler)
+    this.listStore.clear()
+    this.listStore.setActive(null)
+    this.listStore.setActiveDevice(null)
   },
   mixins: [actions, routerProcess, testExpressionsMixin, multiselectMixin],
   components: { VirtualScrollList, EmptyPane }

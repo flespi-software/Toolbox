@@ -3,7 +3,7 @@
     <q-resize-observer @resize="onResizePage" />
     <entities-toolbar
       :item="selectedItem" :actions="actions">
-      <div slot="selects"></div>
+      <template #selects><div></div></template>
     </entities-toolbar>
     <logs
       ref="logs"
@@ -39,12 +39,16 @@
 import logs from '../../components/logs/Index.vue'
 import MainWidgetsMixin from '../../components/widgets/MainWidgetsMixin'
 import LogsWidgetsMixin from '../../components/widgets/LogsWidgetsMixin'
-import Widgets from '../../components/widgets/Widgets'
-import { mapState } from 'vuex'
-import EntitiesToolbar from '../../components/EntitiesToolbar'
+import Widgets from '../../components/widgets/Widgets.vue'
+import EntitiesToolbar from '../../components/EntitiesToolbar.vue'
 import routerProcess from '../../mixins/routerProcess'
+import { useMainStore } from 'src/stores/main'
+import { useLogsStore } from 'src/qvirtualscroll/stores/logs'
+import settingsStorage from 'src/infrastructure/settingsStorage'
 
 export default {
+  name: 'AiViewer',
+  emits: ['inited', 'uninited', 'update:settings'],
   props: [
     'limit',
     'isLoading',
@@ -54,6 +58,17 @@ export default {
     'settings'
   ],
   mixins: [MainWidgetsMixin, LogsWidgetsMixin, routerProcess],
+  setup (props) {
+    const mainStore = useMainStore()
+    /* the list's own store — the registry hands back the very one the logs component uses */
+    const logsStore = useLogsStore({
+      name: props.config.logs.vuexModuleName,
+      lsNamespace: 'flespi-toolbox-settings.cols',
+      storage: settingsStorage,
+      errorHandler: (err) => { mainStore.reqFailed(err) }
+    })
+    return { mainStore, logsStore }
+  },
   data () {
     return {
       entityName: 'ai',
@@ -61,12 +76,10 @@ export default {
     }
   },
   computed: {
-    ...mapState({
-      isEmptyMessages (state) {
-        return state[this.config.logs.vuexModuleName] ? !state[this.config.logs.vuexModuleName].messages.length : false
-      },
-      tokenInfo (state) { return state.tokenInfo }
-    }),
+    isEmptyMessages () {
+      return !this.logsStore.messages.length
+    },
+    tokenInfo () { return this.mainStore.tokenInfo },
     selectedItem () {
       return this.tokenInfo ? { id: this.tokenInfo.cid, name: 'AI' } : null
     },
@@ -82,8 +95,8 @@ export default {
     },
     panelsWidgetsStyle () {
       const style = {}
-      const isLeftSide = this.widgetStyle.left && (this.isWidgetsMessageActive || this.isWidgetsLogsActive || this.isWidgetsTrackActive)
-      const isRightSide = this.widgetStyle.right && (this.isWidgetsMessageActive || this.isWidgetsLogsActive || this.isWidgetsTrackActive)
+      const isLeftSide = this.widgetStyle.left && this.isWidgetsLogsActive
+      const isRightSide = this.widgetStyle.right && this.isWidgetsLogsActive
       if (isLeftSide || isRightSide) {
         style.maxWidth = 'calc(100% - 400px)'
         if (isRightSide) { style.left = '400px' }
@@ -100,7 +113,7 @@ export default {
         cancel: true,
         noRouteDismiss: true
       }).onOk(() => {
-        this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`)
+        this.logsStore.clearMessages()
         if (this.isWidgetsLogsActive) {
           this.isWidgetsLogsActive = false
           this.closeLogsWidgetsHandler()

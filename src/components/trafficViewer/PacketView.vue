@@ -41,8 +41,8 @@
 </template>
 
 <script>
-import HexViewer from '../HexViewer'
-import HexConverter from '../widgets/HexConverter'
+import HexViewer from '../HexViewer.vue'
+import HexConverter from '../widgets/HexConverter.vue'
 import convertMixin from '../../mixins/convert'
 import { date } from 'quasar'
 export default {
@@ -213,36 +213,42 @@ export default {
   components: { HexViewer, HexConverter }
 }
 </script>
-<style lang="stylus">
-  .packets__separator
-    position relative
-    left 50%
-    width 3px
-    height 15px
-  .packets__missing
-    .missing__up
-      &:after
-        background linear-gradient(-45deg, $yellow-9 5px, transparent 0), linear-gradient(45deg, $yellow-9 5px, transparent 0)
-        background-position left-bottom
-        background-repeat repeat-x
-        background-size 10px 10px
-        content: " "
-        display block
-        bottom 0px
-        left 0px
-        width 100%
-        height 10px
-    .missing__down
-      margin-top -7px
-      &:after
-        background linear-gradient(-45deg, $grey-9 5px, transparent 0), linear-gradient(45deg, $grey-9 5px, transparent 0)
-        background-position left-bottom
-        background-repeat repeat-x
-        background-size 10px 10px
-        content " "
-        display block
-        bottom 0px
-        left 0px
-        width 100%
-        height 10px
+<style lang="scss">
+  .packets__separator {
+    position: relative;
+    left: 50%;
+    width: 3px;
+    height: 15px;
+  }
+  .packets__missing {
+    .missing__up {
+      &:after {
+        background: linear-gradient(-45deg, $yellow-9 5px, transparent 0), linear-gradient(45deg, $yellow-9 5px, transparent 0);
+        background-position: left-bottom;
+        background-repeat: repeat-x;
+        background-size: 10px 10px;
+        content: " ";
+        display: block;
+        bottom: 0px;
+        left: 0px;
+        width: 100%;
+        height: 10px;
+      }
+    }
+    .missing__down {
+      margin-top: -7px;
+      &:after {
+        background: linear-gradient(-45deg, $grey-9 5px, transparent 0), linear-gradient(45deg, $grey-9 5px, transparent 0);
+        background-position: left-bottom;
+        background-repeat: repeat-x;
+        background-size: 10px 10px;
+        content: " ";
+        display: block;
+        bottom: 0px;
+        left: 0px;
+        width: 100%;
+        height: 10px;
+      }
+    }
+  }
 </style>

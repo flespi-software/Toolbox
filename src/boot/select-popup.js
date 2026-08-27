@@ -1,30 +1,17 @@
+import { defineBoot } from '#q-app'
 /* the very module the templates use — importing QSelect from 'quasar' may give another copy */
 import QSelect from 'quasar/src/components/select/QSelect.js'
 
 /*
  * Viewers rewrite the route query while messages/logs are streaming (scroll position, filters),
- * and Quasar dismisses every popup on route change. QSelect has no prop to pass `no-route-dismiss`
- * to its inner QMenu/QDialog, so it is set on the vnode of the popup here.
+ * and Quasar dismisses every popup on route change.
  *
- * Both `options` and `extendOptions` are patched: Vue rebuilds `options` from `extendOptions`
- * whenever a global mixin is installed, which would drop a patch applied to `options` alone.
+ * Quasar 1 had no way to pass `no-route-dismiss` through QSelect to its inner QMenu/QDialog, so the
+ * Vue 2 build patched QSelect's render functions. Quasar 2 exposes it as `popup-no-route-dismiss`,
+ * and the default is flipped here so that it keeps applying to every select in the app rather than
+ * having to be remembered at each of them.
  */
-function keepPopupOnRouteChange (methods, name) {
-  const render = methods[name]
-  if (typeof render !== 'function') { return }
-  methods[name] = function (h) {
-    const vnode = render.call(this, h)
-    if (vnode && vnode.componentOptions) {
-      vnode.componentOptions.propsData.noRouteDismiss = true
-    }
-    return vnode
-  }
-}
+QSelect.props.popupNoRouteDismiss = { type: Boolean, default: true }
 
-const patchTargets = [QSelect.options.methods, QSelect.extendOptions.methods]
-
-patchTargets.forEach(methods => {
-  if (!methods) { return }
-  keepPopupOnRouteChange(methods, '__getMenu')
-  keepPopupOnRouteChange(methods, '__getDialog')
+export default defineBoot(() => {
 })

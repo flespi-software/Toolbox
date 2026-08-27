@@ -1,8 +1,9 @@
+import { markRaw } from 'vue'
 import { date } from 'quasar'
 import get from 'lodash/get'
-import JsonTree from '../JsonTree'
-import ObjectView from '../ObjectView'
-import MapFrame from '../MapFrame'
+import JsonTreeComponent from '../JsonTree.vue'
+import ObjectViewComponent from '../ObjectView.vue'
+import MapFrameComponent from '../MapFrame.vue'
 /*
 <widgets
   ref="intervalsView"
@@ -19,6 +20,11 @@ import MapFrame from '../MapFrame'
   @prev="prevWidgetsInterval"
 />
 */
+/* a component definition inside a computed would otherwise be wrapped in a reactive proxy */
+const JsonTree = markRaw(JsonTreeComponent)
+const ObjectView = markRaw(ObjectViewComponent)
+const MapFrame = markRaw(MapFrameComponent)
+
 export default {
   data () {
     return {

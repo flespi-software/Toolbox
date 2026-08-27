@@ -9,7 +9,7 @@
             ref="itemDeviceSelect"
             class="items__select"
             :class="{'items__select--no-selected': !active}"
-            :value="active"
+            :model-value="active"
             :options="filteredDevices"
             filled
             :label="active ? undefined : 'SELECT DEVICE'"
@@ -20,16 +20,18 @@
             :popup-content-style="{height: `${((filteredDevices.length > 6 ? 6 : filteredDevices.length) * 48) + 48 + (filteredDevices.length ? 0 : 34)}px`}"
             @filter="filterDevicesSelectItems"
           >
-            <div slot="before-options" class="bg-dark q-pa-xs select__filter">
-              <q-input v-model="deviceFilter" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" autofocus @input="filter => $refs.itemDeviceSelect.filter(filter)">
-                <q-icon slot="prepend" name="mdi-magnify" color="white" />
-              </q-input>
-            </div>
-            <q-icon slot="prepend" name="mdi-developer-board" color="white" v-if="$q.platform.is.desktop"/>
+            <template #before-options>
+              <div class="bg-dark q-pa-xs select__filter">
+                <q-input v-model="deviceFilter" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" autofocus @update:model-value="filter => $refs.itemDeviceSelect.filter(filter)">
+                  <template #prepend><q-icon  name="mdi-magnify" color="white" /></template>
+                </q-input>
+              </div>
+            </template>
+            <template #prepend><q-icon  name="mdi-developer-board" color="white" v-if="$q.platform.is.desktop"/></template>
             <template v-slot:no-option>
               <div style="min-height: 77px;">
-                <q-input v-model="deviceFilter" @input="filter => $refs.itemDeviceSelect.filter(filter)" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" class="q-ma-xs" autofocus>
-                  <q-icon slot="prepend" name="mdi-magnify" color="white" />
+                <q-input v-model="deviceFilter" @update:model-value="filter => $refs.itemDeviceSelect.filter(filter)" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" class="q-ma-xs" autofocus>
+                  <template #prepend><q-icon  name="mdi-magnify" color="white" /></template>
                 </q-input>
                 <div class="text-center">No results</div>
               </div>
@@ -37,7 +39,6 @@
             <template v-slot:selected-item="scope">
               <q-item
                 v-bind="scope.itemProps"
-                v-on="scope.itemEvents"
                 class="q-pa-none"
                 style="margin-top: 2px; max-width: 100%; min-height: auto;"
               >
@@ -54,7 +55,6 @@
               <q-item
                 v-bind="scope.itemProps"
                 @click="setActive(scope.opt.id)"
-                v-on="scope.itemEvents"
                 :class="{'text-grey-8': scope.opt.deleted}"
                 class="q-pa-xs"
                 clickable
@@ -76,7 +76,7 @@
             ref="itemCalcSelect"
             class="items__select"
             :class="{'items__select--no-selected': !activeCalcId}"
-            :value="activeCalcId"
+            :model-value="activeCalcId"
             :options="filteredCalcs"
             filled
             :disable="calcsSelectorDisabled"
@@ -87,16 +87,18 @@
             :popup-content-style="{height: `${((filteredCalcs.length > 6 ? 6 : filteredCalcs.length) * 48) + 48 + (filteredCalcs.length ? 0 : 34)}px`}"
             @filter="filterCalcsSelectItems"
           >
-            <div slot="before-options" class="bg-dark q-pa-xs select__filter">
-              <q-input v-model="calcFilter" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" @input="filter => $refs.itemCalcSelect.filter(filter)" autofocus>
-                <q-icon slot="prepend" name="mdi-magnify" color="white" />
-              </q-input>
-            </div>
-            <q-icon slot="prepend" name="mdi-calculator-variant" color="white" v-if="$q.platform.is.desktop"/>
+            <template #before-options>
+              <div class="bg-dark q-pa-xs select__filter">
+                <q-input v-model="calcFilter" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" @update:model-value="filter => $refs.itemCalcSelect.filter(filter)" autofocus>
+                  <template #prepend><q-icon  name="mdi-magnify" color="white" /></template>
+                </q-input>
+              </div>
+            </template>
+            <template #prepend><q-icon  name="mdi-calculator-variant" color="white" v-if="$q.platform.is.desktop"/></template>
             <template v-slot:no-option>
               <div style="min-height: 77px;">
-                <q-input v-model="calcFilter" @input="filter => $refs.itemCalcSelect.filter(filter)" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" class="q-ma-xs" autofocus>
-                  <q-icon slot="prepend" name="mdi-magnify" color="white" />
+                <q-input v-model="calcFilter" @update:model-value="filter => $refs.itemCalcSelect.filter(filter)" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" class="q-ma-xs" autofocus>
+                  <template #prepend><q-icon  name="mdi-magnify" color="white" /></template>
                 </q-input>
                 <div class="text-center">No results</div>
               </div>
@@ -105,7 +107,6 @@
               <q-item
                 v-if="selectedCalc"
                 v-bind="scope.itemProps"
-                v-on="scope.itemEvents"
                 class="q-pa-none"
                 style="min-height: 20px; margin-top: 2px; max-width: 100%"
               >
@@ -121,7 +122,6 @@
               <q-item
                 v-bind="scope.itemProps"
                 @click="setActiveCalc(scope.opt.id)"
-                v-on="scope.itemEvents"
                 :class="{'text-grey-8': scope.opt.deleted}"
                 class="q-pa-xs"
                 clickable
@@ -138,8 +138,8 @@
         </div>
       </div>
       <div v-if="$q.platform.is.desktop" class="flex justify-end" :style="{width: `${actions.length * 72}px`}">
-        <template v-for="(action, index) in actions">
-          <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp" :key="index" v-if="action.condition">
+        <template v-for="(action, index) in actions" :key="index">
+          <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp" v-if="action.condition">
             <q-btn :title="action.label" class="on-left cursor-pointer pull-right text-center rounded-borders q-px-xs q-py-none text-white" @click="action.handler" flat dense style="max-width: 60px">
               <q-icon size="1.5rem" :name="action.icon"/>
               <div style="font-size: .7rem; line-height: .7rem">{{action.label}}</div>
@@ -152,8 +152,8 @@
         <q-btn flat icon="mdi-dots-vertical" color="white" v-if="hasActiveActions">
           <q-menu no-route-dismiss>
             <q-list>
-              <template v-for="(action, index) in actions">
-                <q-item v-close-popup v-if="action.condition" clickable @click="action.handler" :key="index">
+              <template v-for="(action, index) in actions" :key="index">
+                <q-item v-close-popup v-if="action.condition" clickable @click="action.handler">
                   <q-item-section avatar>
                     <q-icon :name="action.icon" />
                   </q-item-section>
@@ -252,17 +252,30 @@ import messages from '../../components/intervals/DevicesMessages.vue'
 import MainWidgetsMixin from '../../components/widgets/MainWidgetsMixin'
 import MessageWidgetsMixin from '../../components/widgets/MessageWidgetsMixin'
 import IntervalsWidgetsMixin from '../../components/widgets/IntervalsWidgetsMixin'
-import Widgets from '../../components/widgets/Widgets'
-import { mapState, mapActions, mapMutations } from 'vuex'
-import init from '../../mixins/entitiesInit'
+import Widgets from '../../components/widgets/Widgets.vue'
+import init, { entitiesRouteGuards, composeRouteGuards } from '../../mixins/entitiesInit'
 import routerProcess from '../../mixins/routerProcess'
 
-import Vue from 'vue'
+import { connector } from 'src/services/connector'
 
 const DEVICE_SOURCE = false,
   CALC_SOURCE = true
 
 export default {
+  /*
+   * Vue 2 ran the mixin's guard and this one in turn; a spread would drop the mixin's.
+   * See composeRouteGuards in mixins/entitiesInit.js.
+   */
+  ...composeRouteGuards(entitiesRouteGuards, {
+    beforeRouteEnter (to, from, next) {
+      next(vm => {
+        if (from.meta.moduleName !== to.meta.moduleName) {
+          vm.prevRoute = from
+          vm.prevEntity = from.meta.moduleName
+        }
+      })
+    }
+  }),
   props: [
     'limit',
     'isLoading',
@@ -297,19 +310,17 @@ export default {
     }
   },
   computed: {
-    ...mapState({
-      tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
-      devicesCollection (state) {
-        return state.devices || {}
-      },
-      tasksCollection (state) {
-        return state.tasks || {}
-      },
-      calcsCollection (state) {
-        return state.calcs || {}
-      },
-      sessionSettings (state) { return state.sessionSettings }
-    }),
+    tokenType () { return this.mainStore.tokenInfo && this.mainStore.tokenInfo.access ? this.mainStore.tokenInfo.access.type : -1 },
+    devicesCollection () {
+      return this.mainStore.devices || {}
+    },
+    tasksCollection () {
+      return this.mainStore.tasks || {}
+    },
+    calcsCollection () {
+      return this.mainStore.calcs || {}
+    },
+    sessionSettings () { return this.mainStore.sessionSettings },
     devices () {
       return Object.values(this.devicesCollection)
     },
@@ -458,8 +469,8 @@ export default {
       })
       return filteredItems
     },
-    ...mapActions(['getDeleted']),
-    ...mapMutations(['setToolboxSessionSettings']),
+    getDeleted (payload) { return this.mainStore.getDeleted(payload) },
+    setToolboxSessionSettings (payload) { return this.mainStore.setToolboxSessionSettings(payload) },
     filterDevicesSelectItems (filter, update) {
       if (this.isDevicesInit) {
         update()
@@ -529,7 +540,7 @@ export default {
       }).onOk(async () => {
         if (this.dateRange.length === 2) {
           const data = { from: this.dateRange[0] / 1000, to: this.dateRange[1] / 1000 }
-          await Vue.connector.http.post(`/gw/calcs/${this.activeCalcId}/devices/${this.active}/recalculate`, data).then((response) => {}, (response) => {})
+          await connector.http.post(`/gw/calcs/${this.activeCalcId}/devices/${this.active}/recalculate`, data).then((response) => {}, (response) => {})
           setTimeout(() => this.$refs.intervals.refresh(), 1000)
         }
       })
@@ -647,18 +658,10 @@ export default {
       this.calcsBlocked = true
     }
   },
-  beforeDestroy () {
+  beforeUnmount () {
     this.setToolboxSessionSettings({
       intervalDevicesBlocked: undefined,
       intervalCalcsBlocked: undefined
-    })
-  },
-  beforeRouteEnter (to, from, next) {
-    next(vm => {
-      if (from.meta.moduleName !== to.meta.moduleName) {
-        vm.prevRoute = from
-        vm.prevEntity = from.meta.moduleName
-      }
     })
   },
   watch: {
@@ -698,51 +701,64 @@ export default {
   components: { intervals, messages, Widgets }
 }
 </script>
-<style lang="stylus">
-  .intervals-page
-    .middle-modificator
-      position absolute
-      left calc(50% - 71px)
-    .items__select
-      max-width 100%
-      .q-field__control
-        height 100%
-        padding-top 2px
-      &--no-selected
-        width 180px
-    .items__popup
-      .select__filter
-        position sticky
-        top 0
-        z-index 1
-      .select__get-deleted
-        position sticky
-        bottom 0
-        z-index 1
-    .items__filter
-      min-width 250px
-      border 1px solid $grey-9
-      border-radius 3px
-    .cheap-modifier
-      font-size .6rem
-      font-weight bolder
-      border-radius 3px
-      background-color #90a4ae
-      color white
-      padding 0 2px
-      width 45px
-      position absolute
-      top -10px
-      right 0px
-      &--item
-        top 5px
-      &--mobile
-        right 7px
-    .deleted-action
-      width 100%
-      color #eee
-      background-color #999
-      font-size .7rem
-      padding-top 0
-      padding-bottom 0
+<style lang="scss">
+  .intervals-page {
+    .middle-modificator {
+      position: absolute;
+      left: calc(50% - 71px);
+    }
+    .items__select {
+      max-width: 100%;
+      .q-field__control {
+        height: 100%;
+        padding-top: 2px;
+      }
+      &--no-selected {
+        width: 180px;
+      }
+    }
+    .items__popup {
+      .select__filter {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+      .select__get-deleted {
+        position: sticky;
+        bottom: 0;
+        z-index: 1;
+      }
+    }
+    .items__filter {
+      min-width: 250px;
+      border: 1px solid $grey-9;
+      border-radius: 3px;
+    }
+    .cheap-modifier {
+      font-size: .6rem;
+      font-weight: bolder;
+      border-radius: 3px;
+      background-color: #90a4ae;
+      color: white;
+      padding: 0 2px;
+      width: 45px;
+      position: absolute;
+      top: -10px;
+      right: 0px;
+      &--item {
+        top: 5px;
+      }
+      &--mobile {
+        right: 7px;
+      }
+    }
+    .deleted-action {
+      width: 100%;
+      color: #eee;
+      background-color: #999;
+      font-size: .7rem;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  }
 </style>

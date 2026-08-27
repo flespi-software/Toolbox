@@ -4,7 +4,7 @@
     <div>
       <q-toolbar class="bg-grey-9">
         <q-input v-model="filter" class="full-width" outlined hide-bottom-space rounded dense color="white" dark placeholder="ident" :debounce="500">
-          <q-icon slot="prepend" name="mdi-magnify" color="white" />
+          <template #prepend><q-icon  name="mdi-magnify" color="white" /></template>
         </q-input>
       </q-toolbar>
       <div v-if="loadingFlag && itemsCount > 0" class="absolute-bottom-right absolute-top-left" style="overflow: hidden; top: 50px;">
@@ -26,8 +26,8 @@
             :index="index"
             :itemHeight="itemHeight"
             @item-click="deviceClickHandler"
-            @mouseenter.native="previewDeviceHandler(item)"
-            @mouseleave.native="previewDeviceCloseHandler(item)"
+            @mouseenter="previewDeviceHandler(item)"
+            @mouseleave="previewDeviceCloseHandler(item)"
           />
         </VirtualList>
       </template>
@@ -37,10 +37,12 @@
 </template>
 
 <script>
-import VirtualList from 'vue-virtual-scroll-list'
+import VirtualList from 'src/qvirtualscroll/components/VirtualList'
 import DeviceListItem from './DeviceListItem.vue'
-import EmptyPane from '../../EmptyPane'
-import DeviceSkeleton from './DeviceSkeleton'
+import EmptyPane from '../../EmptyPane.vue'
+import DeviceSkeleton from './DeviceSkeleton.vue'
+import { useMainStore } from 'src/stores/main'
+import { useTrafficViewerStore } from 'src/stores/traffic/trafficViewer'
 
 export default {
   props: [
@@ -49,6 +51,12 @@ export default {
     'config',
     'view'
   ],
+  /* the viewer registered this store as a Vuex module and reached it by name */
+  setup (props) {
+    const mainStore = useMainStore()
+    const trafficStore = useTrafficViewerStore({ name: props.config.vuexModuleName })
+    return { mainStore, trafficStore }
+  },
   data () {
     return {
       theme: this.config.theme,
@@ -62,27 +70,27 @@ export default {
   },
   computed: {
     selectedChannel () {
-      const channel = this.$store.state.channels[this.activeId]
-      const features = this.$store.state.channelsProtocols[channel.protocol_id].features
+      const channel = this.mainStore.channels[this.activeId]
+      const features = this.mainStore.channelsProtocols[channel.protocol_id].features
       channel.features = features
       return channel
     },
     devices: {
       get () {
-        return this.$store.state[this.moduleName].devices
+        return this.trafficStore.devices
       },
       set (val) {
-        this.$store.commit(`${this.moduleName}/setDevices`, val)
+        this.trafficStore.setDevices(val)
       }
     },
     devicesByIndex () {
-      return Object.values(this.$store.state[this.moduleName].devices)
+      return Object.values(this.trafficStore.devices)
     },
     filter: {
-      get () { return this.$store.state[this.moduleName].deviceFilter },
+      get () { return this.trafficStore.deviceFilter },
       set (filter) {
-        this.$store.commit(`${this.moduleName}/setDeviceFilter`, filter)
-        this.$store.dispatch(`${this.moduleName}/getDevices`)
+        this.trafficStore.setDeviceFilter(filter)
+        this.trafficStore.getDevices()
           .then(() => {
             this.$nextTick(() => {
               if (this.$refs.scroller) {
@@ -94,26 +102,25 @@ export default {
     },
     active: {
       get () {
-        return this.$store.state[this.moduleName].active
+        return this.trafficStore.active
       },
       async set (id) {
         if (this.realtimeEnabled) {
-          await this.$store.dispatch(`${this.moduleName}/removePollingGetDevices`)
+          await this.trafficStore.removePollingGetDevices()
         }
-        this.$store.commit(`${this.moduleName}/setActive`, id)
-        this.$store.commit(`${this.moduleName}/clearDevices`)
-        await this.$store.dispatch(`${this.moduleName}/getDevices`)
+        this.trafficStore.setActive(id)
+        this.trafficStore.clearDevices()
+        await this.trafficStore.getDevices()
         if (!this.selectedChannel.features.shared_connection) {
-          await this.$store.dispatch(`${this.moduleName}/pollingGetDevices`)
+          await this.trafficStore.pollingGetDevices()
         }
       }
     },
     realtimeEnabled () {
-      return this.$store.state[this.moduleName].realtimeEnabled
+      return this.trafficStore.realtimeEnabled
     },
     loadingFlag () {
-      const state = this.$store.state
-      return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
+      return !!this.trafficStore.isLoading
     }
   },
   methods: {
@@ -129,7 +136,7 @@ export default {
       this.resetParams()
     },
     deviceClickHandler ({ index, content, event }) {
-      this.$store.commit(`${this.moduleName}/setIdent`, content.ident)
+      this.trafficStore.setIdent(content.ident)
       this.$emit('change:device', content)
     },
     previewDeviceHandler (device) {
@@ -149,7 +156,7 @@ export default {
   },
   created () {
     const filter = this.$route.query.filter
-    if (filter) { this.$store.commit(`${this.moduleName}/setDeviceFilter`, filter) }
+    if (filter) { this.trafficStore.setDeviceFilter(filter) }
     if (this.activeId) {
       this.active = this.activeId
     }
@@ -157,8 +164,8 @@ export default {
   mounted () {
     this.resetParams()
   },
-  beforeDestroy() {
-    this.$store.dispatch(`${this.moduleName}/removePollingGetDevices`)
+  beforeUnmount() {
+    this.trafficStore.removePollingGetDevices()
   },
   components: { VirtualList, DeviceListItem, EmptyPane, DeviceSkeleton }
 }

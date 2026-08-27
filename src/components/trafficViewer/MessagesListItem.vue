@@ -2,7 +2,7 @@
   <q-item :class="[`${selected ? 'bg-grey-8' : ''}`, `traffic-viewer__item--connection-${item.conn}`]" clickable @click="(event) => { itemClickHandler(index, item, event) }" :style="{ userSelect: 'none', borderLeft: `3px solid ${borderColor}` }">
     <q-tooltip>{{eventsDesc[item.type]}}</q-tooltip>
     <q-item-section v-if="actions" side class="q-pr-none">
-      <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon" :color="selected ? 'grey-5' : ''">
+      <q-icon v-for="(action, i) in actions" :key="i" @click.stop="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon" :color="selected ? 'grey-5' : ''">
         <q-tooltip>{{action.label}}</q-tooltip>
       </q-icon>
     </q-item-section>

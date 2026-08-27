@@ -19,7 +19,7 @@
         <q-item-section>
           <q-item-label header class="ellipsis text-bold text-center text-white">No parameters</q-item-label>
           <q-item-label v-if="!Object.keys(item).length" caption class="ellipsis text-center text-white">Message has not fields</q-item-label>
-          <q-item-label v-if="!Object.keys(filteredObject).length && this.search" caption class="ellipsis text-center text-white">Nothing found on your search</q-item-label>
+          <q-item-label v-if="!Object.keys(filteredObject).length && search" caption class="ellipsis text-center text-white">Nothing found on your search</q-item-label>
         </q-item-section>
       </q-item>
       <template v-if="Object.keys(filteredObject).length">
@@ -57,6 +57,8 @@ import highlightMessage from './messages/highlightMessageMixin.js'
 
 const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'})
 export default {
+  name: 'ObjectView',
+  emits: ['action'],
   props: ['item', 'meta'],
   data () {
     return {
@@ -87,10 +89,13 @@ export default {
 }
 </script>
 
-<style lang="stylus">
-  .object-viewier__units
-    color $grey-4
-    font-size .8rem
-  .image-bin
-    max-width 100%
+<style lang="scss">
+  .object-viewier__units {
+    color: $grey-4;
+    font-size: .8rem;
+  }
+  .image-bin {
+    max-width: 100%;
+  }
 </style>
+

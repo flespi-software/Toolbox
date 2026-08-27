@@ -4,7 +4,7 @@
     <div>
       <q-toolbar class="bg-grey-9" v-if="(!loadingFlag && ((Object.keys(connections).length) || type === 'messages'))">
         <q-input v-model="filter" outlined hide-bottom-space rounded dense color="white" dark :placeholder="connection ? 'incoming or target *' : 'host:port'" :debounce="0" :style="{width: connection ? 'calc(100% - 50px)' : '100%'}">
-          <q-icon slot="prepend" name="mdi-magnify" color="white" />
+          <template #prepend><q-icon  name="mdi-magnify" color="white" /></template>
         </q-input>
         <q-btn title="Clear all connections" class="pull-right text-center text-white" flat dense v-if="!connection" @click="clearHandler">
           <q-icon size="1.5rem" color="white" name="mdi-playlist-remove"/>
@@ -77,14 +77,19 @@
 </template>
 
 <script>
-import { DateRangeModal, channelsMessagesModuleSerial } from 'qvirtualscroll'
-import VirtualList from 'vue-virtual-scroll-list'
-import Vue from 'vue'
+/* a component definition in data() would be handed to Vue as a reactive proxy */
+import { markRaw } from 'vue'
+import DateRangeModal from 'src/qvirtualscroll/components/DateRangeModal.vue'
+import { useChannelsMessagesSerialStore } from 'src/qvirtualscroll/stores/channelsMessagesSerial'
+import VirtualList from 'src/qvirtualscroll/components/VirtualList'
+import { connector } from 'src/services/connector'
+import { useMainStore } from 'src/stores/main'
+import settingsStorage from 'src/infrastructure/settingsStorage'
 import { copyToClipboard } from 'quasar'
 import MessagesListItem from './MessagesListItem.vue'
 import ConnectionsListItem from './ConnectionsListItem.vue'
-import EmptyPane from '../EmptyPane'
-import ConnectionSkeleton from './ConnectionSkeleton'
+import EmptyPane from '../EmptyPane.vue'
+import ConnectionSkeleton from './ConnectionSkeleton.vue'
 import range from 'lodash/range'
 import get from 'lodash/get'
 import routerProcess from '../../mixins/routerProcess'
@@ -98,10 +103,21 @@ export default {
     'type',
     'view'
   ],
+  setup (props) {
+    const mainStore = useMainStore()
+    const listStore = useChannelsMessagesSerialStore({
+      name: props.config.vuexModuleName,
+      lsNamespace: 'flespi-toolbox-settings.cols',
+      storage: settingsStorage,
+      errorHandler: (err) => { mainStore.reqFailed(err) }
+    })
+    return { mainStore, listStore }
+  },
   data () {
     return {
       theme: this.config.theme,
-      viewConfig: this.config.viewConfig,
+      /* aliased the shared `config` object, so the flag below leaked between viewers */
+      viewConfig: { ...this.config.viewConfig },
       actions: this.config.actions,
       moduleName: this.config.vuexModuleName,
       itemHeight: 56,
@@ -115,7 +131,7 @@ export default {
       scrollerScrollTop: 0,
       visitedConnections: [],
       inited: false,
-      MessagesListItem,
+      MessagesListItem: markRaw(MessagesListItem),
       ConnectionsListItem
     }
   },
@@ -140,70 +156,69 @@ export default {
     },
     messages: {
       get () {
-        return this.$store.state[this.moduleName].messages
+        return this.listStore.messages
       },
       set (val) {
-        this.$store.commit(`${this.moduleName}/setMessages`, val)
+        this.listStore.setMessages(val)
       }
     },
     active: {
       get () {
-        return this.$store.state[this.moduleName].active
+        return this.listStore.active
       },
       async set (id) {
         if (this.realtimeEnabled) {
-          await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
+          await this.listStore.unsubscribePooling()
         }
-        this.$store.commit(`${this.moduleName}/setActive`, id)
-        const activeItem = this.$store.state.channels[id] || {}
-        Vue.set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
-        this.$store.commit(`${this.moduleName}/clearMessages`)
-        await this.$store.dispatch(`${this.moduleName}/initTime`)
+        this.listStore.setActive(id)
+        const activeItem = this.mainStore.channels[id] || {}
+        this.viewConfig.needShowEtc = !!activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt')
+        this.listStore.clearMessages()
+        await this.listStore.initTime()
         this.clearSelected()
-        await this.$store.dispatch(`${this.moduleName}/get`)
+        await this.listStore.get()
         if (this.to > Date.now()) {
-          const render = await this.$store.dispatch(`${this.moduleName}/pollingGet`)
+          const render = await this.listStore.pollingGet()
           render()
         }
         this.dateRangeChange(this.dateRange)
       }
     },
     dateRange () {
-      return [this.$store.state[this.moduleName].from, this.$store.state[this.moduleName].to]
+      return [this.listStore.from, this.listStore.to]
     },
     from: {
       get () {
-        return this.$store.state[this.moduleName].from
+        return this.listStore.from
       },
       set (val) {
         val = val || 0
-        this.$store.commit(`${this.moduleName}/setFrom`, val)
+        this.listStore.setFrom(val)
       }
     },
     to: {
       get () {
-        return this.$store.state[this.moduleName].to
+        return this.listStore.to
       },
       set (val) {
         val = val || 0
-        this.$store.commit(`${this.moduleName}/setTo`, val)
+        this.listStore.setTo(val)
       }
     },
     realtimeEnabled () {
-      return this.$store.state[this.moduleName].realtimeEnabled
+      return this.listStore.realtimeEnabled
     },
     currentLimit: {
       get () {
-        return this.$store.state[this.moduleName].limit
+        return this.listStore.limit
       },
       set (val) {
         val = val || 0
-        this.$store.commit(`${this.moduleName}/setLimit`, val)
+        this.listStore.setLimit(val)
       }
     },
     loadingFlag () {
-      const state = this.$store.state
-      return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
+      return !!this.listStore.isLoading
     }
   },
   methods: {
@@ -315,7 +330,7 @@ export default {
       }
     },
     // getMessages () {
-    //   return this.$store.dispatch(`${this.moduleName}/get`)
+    //   return this.listStore.get()
     // },
     dateRangeChange (range) {
       this.updateRoute({
@@ -332,13 +347,13 @@ export default {
       this.from = from
       this.to = to
       if (this.realtimeEnabled) {
-        this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
+        this.listStore.unsubscribePooling()
       }
-      this.$store.commit(`${this.moduleName}/clearMessages`)
-      this.$store.dispatch(`${this.moduleName}/get`)
+      this.listStore.clearMessages()
+      this.listStore.get()
         .then(() => {
           if (to > Date.now()) {
-            this.$store.dispatch(`${this.moduleName}/pollingGet`).then(r => r())
+            this.listStore.pollingGet().then(r => r())
           }
         })
     },
@@ -437,29 +452,22 @@ export default {
         ok: true,
         cancel: true,
         noRouteDismiss: true
-      }).onOk(() => { this.$store.commit(`${this.moduleName}/clearMessages`) })
+      }).onOk(() => { this.listStore.clearMessages() })
         .onCancel(() => {})
     },
     async init () {
-      if (!this.$store.state[this.moduleName]) {
-        this.$store.registerModule(
-          this.moduleName,
-          channelsMessagesModuleSerial(
-            {
-              Vue,
-              LocalStorage: this.$settingsStorage,
-              name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' },
-              errorHandler: (err) => { this.$store.commit('reqFailed', err) },
-              filterHandler: this.filterMessage,
-              newMessagesInterseptor: this.newMessagesInterseptor
-            }
-          )
-        )
+      /* the store used to take the interceptor from the module factory, which ran before this component */
+      this.listStore.newMessagesInterseptor = this.newMessagesInterseptor
+      /* a list that had already been set up used to be cleared instead of re-registered */
+      if (this.listStore.initialized) {
+        this.listStore.clear()
+      } else {
+        this.listStore.initialized = true
       }
       if (this.activeId) {
-        this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
-        const activeItem = this.$store.state.channels[this.activeId] || {}
-        this.$set(this.config.viewConfig, 'needShowEtc', activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt'))
+        this.listStore.setActive(this.activeId)
+        const activeItem = this.mainStore.channels[this.activeId] || {}
+        this.viewConfig.needShowEtc = !!activeItem.protocol_name && (activeItem.protocol_name === 'http' || activeItem.protocol_name === 'mqtt')
       }
       this.currentLimit = this.limit
       const from = this.$route.query.from * 1000,
@@ -470,10 +478,10 @@ export default {
       if (from && to) {
         this.from = from
         this.to = to
-        await this.$store.dispatch(`${this.moduleName}/get`)
+        await this.listStore.get()
       } else {
-        await this.$store.dispatch(`${this.moduleName}/initTime`)
-        await this.$store.dispatch(`${this.moduleName}/get`)
+        await this.listStore.initTime()
+        await this.listStore.get()
       }
       const ident = get(this.connection, 'ident')
       const connection = this.connections[ident]
@@ -492,7 +500,7 @@ export default {
         this.closeCurrentConnection()
       }
       if (this.to > Date.now()) {
-        const render = await this.$store.dispatch(`${this.moduleName}/pollingGet`)
+        const render = await this.listStore.pollingGet()
         render()
       }
       this.updateRoute({
@@ -533,12 +541,12 @@ export default {
   },
   created () {
     this.init()
-    this.offlineHandler = Vue.connector.socket.on('offline', () => {
-      this.$store.commit(`${this.moduleName}/setOffline`)
+    this.offlineHandler = connector.socket.on('offline', () => {
+      this.listStore.setOffline()
     })
-    this.connectHandler = Vue.connector.socket.on('connect', () => {
-      if (this.$store.state[this.moduleName].offline) {
-        this.$store.commit(`${this.moduleName}/setReconnected`)
+    this.connectHandler = connector.socket.on('connect', () => {
+      if (this.listStore.offline) {
+        this.listStore.setReconnected()
       }
     })
   },
@@ -552,21 +560,22 @@ export default {
       if (this.needAutoScroll && this.$refs.scroller && this.$refs.scroller.$el) { this.$refs.scroller.$el.scrollTop = this.$refs.scroller.$el.scrollHeight }
     }
   },
-  destroyed () {
-    this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
-    this.offlineHandler !== undefined && Vue.connector.socket.off('offline', this.offlineHandler)
-    this.connectHandler !== undefined && Vue.connector.socket.off('connect', this.connectHandler)
-    this.$store.commit(`${this.moduleName}/clear`)
-    this.$store.unregisterModule(this.moduleName)
+  unmounted () {
+    this.listStore.unsubscribePooling()
+    this.offlineHandler !== undefined && connector.socket.off('offline', this.offlineHandler)
+    this.connectHandler !== undefined && connector.socket.off('connect', this.connectHandler)
+    this.listStore.clear()
   },
   mixins: [routerProcess],
   components: { VirtualList, EmptyPane, DateRangeModal, ConnectionSkeleton }
 }
 </script>
 
-<style lang="stylus">
-  .connection--visited
-    .connection__peer
-      text-decoration underline
-      color $purple-5!important
+<style lang="scss">
+  .connection--visited {
+    .connection__peer {
+      text-decoration: underline;
+      color: $purple-5!important;
+    }
+  }
 </style>

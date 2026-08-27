@@ -5,11 +5,10 @@
       :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, boxSizing: 'border-box'}"
       :class="[color, item['x-flespi-status'] ? 'missed-items' : '', selected ? 'bg-white-opasity-3' : '']"
     >
-      <template v-for="(prop, k) in cols">
-        <span v-if="prop.__dest === 'etc'" class="list__item item_etc" :class="{[`item_${k}`]: true, 'item--active': menuCellActive && menuCellActive.row === index && menuCellActive.col === k}" :key="prop.name + k + 'etc'">{{etc}}</span>
+      <template v-for="(prop, k) in cols" :key="prop.name + k">
+        <span v-if="prop.__dest === 'etc'" class="list__item item_etc" :class="{[`item_${k}`]: true, 'item--active': menuCellActive && menuCellActive.row === index && menuCellActive.col === k}">{{etc}}</span>
         <span
           v-else
-          :key="prop.name + k"
           class="list__item"
           :class="{[`item_${k}`]: true, 'item--active': menuCellActive && menuCellActive.row === index && menuCellActive.col === k}"
         >
@@ -20,8 +19,8 @@
             <q-icon v-if="item.address === 'sms'" name="mdi-email-outline"  title="address: sms"/>
             <q-icon v-if="item.address === 'local'" name="mdi-content-save-outline"  title="address: local"/>
           </template>
-          <q-icon name="mdi-alert-outline" v-if="prop.name === 'event_code' && !!item['error_text']" @click.stop.native="clickHandler(index, 'to-error-traffic', item)"><q-tooltip><pre class="q-ma-none">{{item['error_text']}}</pre></q-tooltip></q-icon>
-          <q-icon name="mdi-bug" v-if="prop.name === 'event_code' && isErrorType && isIntegration" @click.stop.native="clickHandler(index, 'error-report', item)"><q-tooltip>Report error to chat</q-tooltip></q-icon>
+          <q-icon name="mdi-alert-outline" v-if="prop.name === 'event_code' && !!item['error_text']" @click.stop="clickHandler(index, 'to-error-traffic', item)"><q-tooltip><pre class="q-ma-none">{{item['error_text']}}</pre></q-tooltip></q-icon>
+          <q-icon name="mdi-bug" v-if="prop.name === 'event_code' && isErrorType && isIntegration" @click.stop="clickHandler(index, 'error-report', item)"><q-tooltip>Report error to chat</q-tooltip></q-icon>
           <a @click.stop="" target="_blank" class="text-green" v-if="item.event_code === 901 && prop.name === 'name'" :href="`${$flespiCDN}/file/${item.uuid}`">
             {{getLogValueOfProp(prop, item)}}
           </a>
@@ -39,6 +38,8 @@ import { date, openURL, Platform } from 'quasar'
 import ItemMixin from './ItemMixin'
 
 export default {
+  name: 'LogsListItem',
+  emits: ['action', 'item-click'],
   props: [
     'item',
     'index',
@@ -119,22 +120,27 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-  .bg-white-opasity-3
-    background-color rgba(255, 255, 255, .3)
-  .list__item
-    display inline-block
-    height 19px
-    white-space nowrap
-    padding-left 5px
-    text-overflow ellipsis
-    overflow hidden
-    border-right 2px solid $grey-8
-    vertical-align text-bottom
-  .item--active
-    background-color $grey-1
-  .message-viewer .q-w-list>.missed-items
-    background-color rgba(255,255,255,.05)
-    &:nth-child(odd)
-      background-color rgba(255,255,255,.1)
+<style lang="scss" scoped>
+  .bg-white-opasity-3 {
+    background-color: rgba(255, 255, 255, .3);
+  }
+  .list__item {
+    display: inline-block;
+    height: 19px;
+    white-space: nowrap;
+    padding-left: 5px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    border-right: 2px solid $grey-8;
+    vertical-align: text-bottom;
+  }
+  .item--active {
+    background-color: $grey-1;
+  }
+  .message-viewer .q-w-list > .missed-items {
+    background-color: rgba(255, 255, 255, .05);
+    &:nth-child(odd) {
+      background-color: rgba(255, 255, 255, .1);
+    }
+  }
 </style>

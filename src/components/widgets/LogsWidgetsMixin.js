@@ -1,8 +1,17 @@
 import { date } from 'quasar'
 import get from 'lodash/get'
+import { markRaw } from 'vue'
 import JsonTree from '../JsonTree.vue'
-import ObjectView from '../ObjectView'
-import MessageView from '../MessageView'
+import ObjectViewComponent from '../ObjectView.vue'
+import MessageViewComponent from '../MessageView.vue'
+
+/*
+ * These end up inside a computed and would otherwise be handed to Vue as reactive proxies, which it
+ * warns about — a component definition has nothing to track.
+ */
+const JsonTreeView = markRaw(JsonTree)
+const ObjectView = markRaw(ObjectViewComponent)
+const MessageView = markRaw(MessageViewComponent)
 /*
 <widgets
   ref="logsView"
@@ -54,7 +63,7 @@ export default {
           'log object': {
             title: 'log object',
             description: log['x-flespi-description'],
-            wrapper: JsonTree,
+            wrapper: JsonTreeView,
             item: log,
             descriptionAction: log.traffic ? {
               handler: this.logsWidgetDescriptionActionHandler,
@@ -86,35 +95,35 @@ export default {
         if (log.item_data) {
           config.item_data = {
             title: 'item data',
-            wrapper: JsonTree,
+            wrapper: JsonTreeView,
             item: log.item_data
           }
         }
         if (log.http_data) {
           config.http_data = {
             title: 'http data',
-            wrapper: JsonTree,
+            wrapper: JsonTreeView,
             item: log.http_data
           }
         }
         if (log.properties) {
           config.properties = {
             title: 'properties',
-            wrapper: JsonTree,
+            wrapper: JsonTreeView,
             item: log.properties
           }
         }
         if (log.pending) {
           config.pending = {
             title: 'pending',
-            wrapper: JsonTree,
+            wrapper: JsonTreeView,
             item: log.pending
           }
         }
         if (log.current) {
           config.current = {
             title: `${log.name} [${date.formatDate(log.timestamp * 1000, 'HH:mm:ss')}]`,
-            wrapper: JsonTree,
+            wrapper: JsonTreeView,
             item: log.current
           }
         }

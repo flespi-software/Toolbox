@@ -1,8 +1,6 @@
-import { Logger } from '../infrastructure/logger'
+import { defineBoot } from '#q-app'
+import logger from 'src/infrastructure/appLogger'
 
-const logger = new Logger('Toolbox');
-
-export default ({ Vue, store }) => {
-  Vue.prototype.$logger = logger
-  Vue.$logger = logger
-}
+export default defineBoot(({ app }) => {
+  app.config.globalProperties.$logger = logger
+})

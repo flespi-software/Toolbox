@@ -5,11 +5,10 @@
       :class="[item['x-flespi-status'] ? 'missed-items' : '', highlighted && !selected ? 'bg-purple-9' : '']"
       :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, backgroundColor: selected ? 'rgba(255,255,255,0.7)': '', color: selected && !highlighted ? '#333' : ''}"
     >
-      <template v-for="(prop, k) in cols">
-        <span v-if="prop.__dest === 'etc'" class="list__item item_etc" :class="{[`item_${k}`]: true, 'item--active': menuCellActive && menuCellActive.row === index && menuCellActive.col === k}" :key="prop.name + k">{{values.etc.value || '*Empty*'}}</span>
+      <template v-for="(prop, k) in cols" :key="prop.name + k">
+        <span v-if="prop.__dest === 'etc'" class="list__item item_etc" :class="{[`item_${k}`]: true, 'item--active': menuCellActive && menuCellActive.row === index && menuCellActive.col === k}">{{values.etc.value || '*Empty*'}}</span>
         <span
           v-else
-          :key="prop.name + k"
           class="list__item"
           :class="{[`item_${k}`]: true, 'item--active': menuCellActive && menuCellActive.row === index && menuCellActive.col === k}"
           :title="values[prop.name].value"
@@ -93,19 +92,23 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-  .list__item
-    display inline-block
-    min-height 19px
-    white-space nowrap
-    padding-left 5px
-    text-overflow ellipsis
-    overflow hidden
-    border-right 2px solid $grey-8
-  .item--active
-    background-color $grey-7
-  .message-viewer .q-w-list>.missed-items
-    background-color rgba(255,255,255,.05)
-    &:nth-child(odd)
-      background-color rgba(255,255,255,.1)
+<style lang="scss" scoped>
+  .list__item {
+    display: inline-block;
+    min-height: 19px;
+    white-space: nowrap;
+    padding-left: 5px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    border-right: 2px solid $grey-8;
+  }
+  .item--active {
+    background-color: $grey-7;
+  }
+  .message-viewer .q-w-list>.missed-items {
+    background-color: rgba(255,255,255,.05);
+    &:nth-child(odd) {
+      background-color: rgba(255,255,255,.1);
+    }
+  }
 </style>

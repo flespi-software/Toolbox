@@ -10,15 +10,16 @@
 /*
  * Root component
  */
-import Offline from './components/Offline'
+import Offline from './components/Offline.vue'
 export default {
   name: 'App',
   components: { Offline }
 }
 </script>
 
-<style lang="stylus">
-  .with-modal
-    overflow hidden !important
-    padding-right 0 !important
+<style lang="scss">
+  .with-modal {
+    overflow: hidden !important;
+    padding-right: 0 !important;
+  }
 </style>

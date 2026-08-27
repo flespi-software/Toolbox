@@ -13,7 +13,7 @@
     />
     <div v-show="$q.platform.is.desktop || ($q.platform.is.mobile && selectedMessages)" :style="{width: $q.platform.is.desktop ? '75%' : '100%', maxWidth: $q.platform.is.desktop ? 'calc(100% - 250px)' : ''}">
       <q-toolbar class="bg-grey-9" v-if="active">
-        <q-icon color="white" size="1.5rem" class="cursor-pointer" name="mdi-close" v-if="$q.platform.is.mobile" @click.native="() => { selectedMessages = '' }"/>
+        <q-icon color="white" size="1.5rem" class="cursor-pointer" name="mdi-close" v-if="$q.platform.is.mobile" @click="() => { selectedMessages = '' }"/>
         <q-toolbar-title/>
         <q-btn color="white" flat dense :label="typeOfHexView === 'hex' ? 'text' : 'hex'" :icon-right="typeOfHexView === 'hex' ? 'mdi-format-text' : 'mdi-matrix'" @click="typeOfHexView = typeOfHexView === 'hex' ? 'text' : 'hex'">
           <q-tooltip>Change view mode to {{typeOfHexView === 'hex' ? 'text' : 'hex'}}</q-tooltip>
@@ -63,12 +63,19 @@
 </template>
 
 <script>
-import Messages from './Messages'
-import PacketView from '../PacketView'
-import pluginTrafficVuexModule from '../../../store/modules/pluginTraffic'
+import Messages from './Messages.vue'
+import PacketView from '../PacketView.vue'
+import { useMainStore } from 'src/stores/main'
+import { usePluginTrafficStore } from 'src/stores/traffic/pluginTraffic'
 import hexProcessing from '../../../mixins/hexProcessing'
 export default {
   props: ['active', 'isVisibleToolbar', 'config', 'pluginCloseble'],
+  setup (props) {
+    const mainStore = useMainStore()
+    /* the viewer's own store — registered as a Vuex module by name in the Vue 2 build */
+    const trafficStore = usePluginTrafficStore({ name: props.config.messages.vuexModuleName })
+    return { mainStore, trafficStore }
+  },
   data () {
     return {
       typeOfHexView: 'hex',
@@ -111,16 +118,9 @@ export default {
   },
   created () {
     console.log('----------------------- pluginTraffic')
-    if (!this.$store.state[this.moduleName]) {
-      this.$store.registerModule(
-        this.moduleName,
-        pluginTrafficVuexModule
-      )
-    }
   },
-  destroyed () {
-    this.$store.commit(`${this.moduleName}/clean`)
-    this.$store.unregisterModule(this.moduleName)
+  unmounted () {
+    this.trafficStore.clean()
   },
   watch: {
     active () {

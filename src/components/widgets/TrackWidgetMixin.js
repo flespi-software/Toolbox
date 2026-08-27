@@ -1,4 +1,5 @@
-import MapFrame from '../MapFrame'
+import { markRaw } from 'vue'
+import MapFrameComponent from '../MapFrame.vue'
 import { date } from 'quasar'
 /*
 <widgets
@@ -13,6 +14,9 @@ import { date } from 'quasar'
   @close="closeWidgetsHandler"
 />
 */
+/* a component definition inside a computed would otherwise be wrapped in a reactive proxy */
+const MapFrame = markRaw(MapFrameComponent)
+
 export default {
   data () {
     return {

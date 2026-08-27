@@ -1,8 +1,8 @@
-import Vue from 'vue'
-import settingsStorage from '../infrastructure/settingsStorage'
+import { defineBoot } from '#q-app'
+import settingsStorage from 'src/infrastructure/settingsStorage'
 
 /* settings are read synchronously all over the app, so IndexedDB must be hydrated before the app starts */
-export default async () => {
+export default defineBoot(async ({ app }) => {
   await settingsStorage.init()
-  Vue.prototype.$settingsStorage = settingsStorage
-}
+  app.config.globalProperties.$settingsStorage = settingsStorage
+})

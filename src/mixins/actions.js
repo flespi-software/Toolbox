@@ -1,4 +1,4 @@
-import { parse } from 'json2csv'
+import { Parser } from '@json2csv/plainjs'
 import { date } from 'quasar'
 export default {
   data () {
@@ -32,8 +32,7 @@ export default {
         }
       )
         .onOk((data) => {
-          const moduleState = this.$store.state[this.moduleName]
-          const colsSchema = moduleState.cols
+          const colsSchema = this.listStore.cols
           const cols = colsSchema.schemas[colsSchema.activeSchema].cols.filter(col => !col.__dest).map(col => col.name)
           if (cols.indexOf('host')>-1) {
             params.fields = [...cols, 'source'].join(',')
@@ -41,7 +40,7 @@ export default {
             params.fields = cols.join(',')
           }
           this.isFileCsvLoading = true
-          this.$store.dispatch(`${this.moduleName}/${this.actionName ? this.actionName : 'getMessages'}`, params)
+          this.listStore[this.actionName ? this.actionName : 'getMessages'](params)
             .then(messages => {
               if (!messages || !messages.length) {
                 this.$q.notify({
@@ -75,7 +74,7 @@ export default {
               })
               let csv = ''
               try {
-                csv = parse(messages, { fields: cols })
+                csv = new Parser({ fields: cols }).parse(messages)
               } catch (e) { console.log(e) }
               if (csv) {
                 const typeOfFile = 'text/csv',

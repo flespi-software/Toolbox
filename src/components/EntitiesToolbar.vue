@@ -15,21 +15,21 @@
         toggle-color="white"
         toggle-text-color="white"
         class="q-ml-sm gt-xs" size="sm"
-        :value="ratio"
-        @input="r => $emit('change-ratio', r)"
+        :model-value="ratio"
+        @update:model-value="r => $emit('change-ratio', r)"
         :options="[{label: 'logs', value: 100},{label: 'both', value: 50},{label: 'messages', value: 0}]"
       />
     </div>
     <div v-if="item && ($q.platform.is.desktop && width >= 900)" class="flex justify-end" :style="{width: `${actions && actions.length ? actions.length * 72 : ''}px`}">
-      <template v-for="(action, index) in actions">
-        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp" :key="index" v-if="action.condition">
+      <template v-for="(action, index) in actions" :key="index">
+        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp" v-if="action.condition">
           <q-btn :title="action.label" :loading="action.async" class="on-left cursor-pointer pull-right text-center rounded-borders q-px-xs q-py-none text-white" @click="action.handler" flat dense style="width: 60px">
-            <div slot="loading">
+            <template #loading>
               <q-icon size="1.5rem" :name="action.icon"/>
               <div style="font-size: .7rem; line-height: .7rem">{{action.label}}</div>
               <q-tooltip v-if="action.tooltip">{{action.tooltip}}</q-tooltip>
               <q-spinner class="absolute-bottom-right" color="white" size=".7rem" />
-            </div>
+            </template>
             <q-icon size="1.5rem" :name="action.icon"/>
             <div style="font-size: .7rem; line-height: .7rem">{{action.label}}</div>
             <q-tooltip v-if="action.tooltip">{{action.tooltip}}</q-tooltip>
@@ -39,7 +39,7 @@
     </div>
     <div v-else-if="item && (!$q.platform.is.desktop || width < 900)">
       <q-btn flat icon="mdi-dots-vertical" :loading="hasAsync" color="white" v-if="hasActiveActions" dense>
-        <template slot="loading">
+        <template #loading>
           <q-icon size="1.5rem" name="mdi-dots-vertical"/>
           <q-spinner class="absolute-bottom-right" color="white" size=".7rem" />
         </template>
@@ -52,13 +52,13 @@
                 toggle-color="grey-6"
                 toggle-text-color="white"
                 size="sm" flat
-                :value="ratio"
-                @input="r => $emit('change-ratio', r)"
+                :model-value="ratio"
+                @update:model-value="r => $emit('change-ratio', r)"
                 :options="[{label: 'logs', value: 100},{label: 'both', value: 50},{label: 'messages', value: 0}]"
               />
             </q-item>
-            <template v-for="(action, index) in actions">
-              <q-item v-close-popup v-if="action.condition" clickable @click="action.handler" :key="index" dense>
+            <template v-for="(action, index) in actions" :key="index">
+              <q-item v-close-popup v-if="action.condition" clickable @click="action.handler" dense>
                 <q-item-section side>
                   <q-icon :name="action.icon" />
                 </q-item-section>
@@ -78,6 +78,8 @@
 
 <script>
 export default {
+  name: 'EntitiesToolbar',
+  emits: ['change-mode', 'change-ratio'],
   props: ['item', 'ratio', 'mode', 'actions'],
   data () {
     return {

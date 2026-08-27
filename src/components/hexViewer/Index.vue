@@ -19,7 +19,7 @@
     />
     <div v-show="$q.platform.is.desktop || ($q.platform.is.mobile && selectedMessages)" :style="{width: $q.platform.is.desktop ? '75%' : '100%'}">
       <q-toolbar class="bg-grey-9" v-if="activeConnection">
-        <q-icon size="1.5rem" class="cursor-pointer" name="mdi-close" v-if="$q.platform.is.mobile" @click.native="() => { selectedMessages = '' }"/>
+        <q-icon size="1.5rem" class="cursor-pointer" name="mdi-close" v-if="$q.platform.is.mobile" @click="() => { selectedMessages = '' }"/>
         <q-toolbar-title>
           <div class="text-white">{{activeConnection.peer}}</div>
           <div class="text-white" style="font-size: .7rem;">{{activeConnection.ident}}</div>
@@ -92,14 +92,27 @@
 </template>
 
 <script>
-import Messages from '../../components/hexViewer/Messages'
-import MessagePreviewItem from '../../components/hexViewer/MessagePreviewItem'
-import HexViewer from '../HexViewer'
-import { mapState } from 'vuex'
+import Messages from '../../components/hexViewer/Messages.vue'
+import MessagePreviewItem from '../../components/hexViewer/MessagePreviewItem.vue'
+import HexViewer from '../HexViewer.vue'
 import { date } from 'quasar'
 import hexProcessing from '../../mixins/hexProcessing'
+import { useChannelsMessagesSerialStore } from 'src/qvirtualscroll/stores/channelsMessagesSerial'
+import { useMainStore } from 'src/stores/main'
+import settingsStorage from 'src/infrastructure/settingsStorage'
 export default {
   props: ['active', 'activeDevice', 'isVisibleToolbar', 'config'],
+  /* the same store the Messages child asks for — created here first, with the same config */
+  setup (props) {
+    const mainStore = useMainStore()
+    const trafficStore = useChannelsMessagesSerialStore({
+      name: props.config.messages.vuexModuleName,
+      lsNamespace: 'flespi-toolbox-settings.cols',
+      storage: settingsStorage,
+      errorHandler: (err) => { mainStore.reqFailed(err) }
+    })
+    return { mainStore, trafficStore }
+  },
   data () {
     return {
       selectedbytes: '',
@@ -111,13 +124,11 @@ export default {
     }
   },
   computed: {
-    ...mapState({
-      isEmptyMessages (state) {
-        return this.config.messages && state[this.config.messages.vuexModuleName] && !state[this.config.messages.vuexModuleName].messages.length
-      }
-    }),
+    isEmptyMessages () {
+      return this.config.messages && !this.trafficStore.messages.length
+    },
     loadingFlag () {
-      const state = this.$store.state[this.config.messages.vuexModuleName]
+      const state = this.trafficStore
       return !!(state && state.isLoading)
     },
     hex () {

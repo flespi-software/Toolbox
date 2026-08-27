@@ -1,24 +1,36 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
+import { defineRouter } from '#q-app'
+import {
+  createMemoryHistory,
+  createRouter,
+  createWebHashHistory,
+  createWebHistory,
+} from 'vue-router'
 
 import routes from './routes'
 
-Vue.use(VueRouter)
+/*
+ * If not building with SSR mode, you can
+ * directly export the Router instantiation;
+ *
+ * The function below can be async too; either use
+ * async/await or return a Promise which resolves
+ * with the Router instance.
+ */
 
-const Router = new VueRouter({
-  /*
-   * NOTE! Change Vue Router mode from quasar.conf.js -> build -> vueRouterMode
-   *
-   * If you decide to go with "history" mode, please also set "build.publicPath"
-   * to something other than an empty string.
-   * Example: '/' instead of ''
-   */
+export default defineRouter((/* { store, ssrContext } */) => {
+  const createHistory = import.meta.env.QUASAR_SERVER
+    ? createMemoryHistory
+    : (import.meta.env.QUASAR_VUE_ROUTER_MODE === 'history' ? createWebHistory : createWebHashHistory)
 
-  // Leave as is and change from quasar.conf.js instead!
-  mode: process.env.VUE_ROUTER_MODE,
-  base: process.env.VUE_ROUTER_BASE,
-  scrollBehavior: () => ({ y: 0 }),
-  routes
+  const Router = createRouter({
+    scrollBehavior: () => ({ left: 0, top: 0 }),
+    routes,
+
+    // Leave this as is and make changes in quasar.conf.js instead!
+    // quasar.conf.js -> build -> vueRouterMode
+    // quasar.conf.js -> build -> publicPath
+    history: createHistory(import.meta.env.QUASAR_VUE_ROUTER_BASE)
+  })
+
+  return Router
 })
-
-export default Router

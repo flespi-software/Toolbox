@@ -31,9 +31,10 @@
 </template>
 
 <script>
-import { DateRangePicker } from 'datetimerangepicker'
+import { DateRangePicker } from 'src/datetimerangepicker'
 import convertMixin from '../../mixins/convert'
 import { date } from 'quasar'
+import { getListStore } from 'src/qvirtualscroll/stores/registry'
 export default {
   props: ['format', 'dateRange', 'config', 'ident', 'itemId'],
   data () {
@@ -113,7 +114,7 @@ export default {
     async exportHandler () {
       this.loadingFlag = true
       const params = { from: Math.floor(this.currentDateRange[0].valueOf() / 1000), to: Math.floor(this.currentDateRange[1].valueOf() / 1000) + 0.999999 }
-      const events = await this.$store.dispatch(`${this.moduleName}/getExportData`, params)
+      const events = await getListStore(this.moduleName).getExportData(params)
       events.forEach((event, index) => {
         if (this.needTimeConvert) {
           const dateFormat = this.timeFormat || 'YYYY/MM/DD HH:mm:ss.SSS'

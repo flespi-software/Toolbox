@@ -39,18 +39,20 @@ export default {
 }
 </script>
 
-<style lang="stylus">
-.empty-state__back
-  width 100%
-  height 100%
-  overflow auto
-  background-image url(../../public/mountain.svg)
-  background-position center 100px
-  background-size contain
-  background-repeat no-repeat
-.empty-state__card
-  padding 8px
-  font-size .8rem
-  border-radius 5px
-  background-color rgba(0, 0, 0, .3)
+<style lang="scss">
+.empty-state__back {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-image: url(/mountain.svg);
+  background-position: center 100px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.empty-state__card {
+  padding: 8px;
+  font-size: .8rem;
+  border-radius: 5px;
+  background-color: rgba(0, 0, 0, .3);
+}
 </style>

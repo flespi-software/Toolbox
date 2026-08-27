@@ -1,10 +1,11 @@
+import { markRaw } from 'vue'
 import { date } from 'quasar'
 import get from 'lodash/get'
-import ImageView from '../ImageView'
-import JsonTree from '../JsonTree'
-import ObjectView from '../ObjectView'
-import MapFrame from '../MapFrame'
-import PluginProcessing from '../PluginProcessing'
+import ImageViewComponent from '../ImageView.vue'
+import JsonTreeComponent from '../JsonTree.vue'
+import ObjectViewComponent from '../ObjectView.vue'
+import MapFrameComponent from '../MapFrame.vue'
+import PluginProcessingComponent from '../PluginProcessing.vue'
 /*
 <widgets
   ref="messagesView"
@@ -21,6 +22,13 @@ import PluginProcessing from '../PluginProcessing'
   @prev="prevWidgetsMessage"
 />
 */
+/* a component definition inside a computed would otherwise be wrapped in a reactive proxy */
+const ImageView = markRaw(ImageViewComponent)
+const JsonTree = markRaw(JsonTreeComponent)
+const ObjectView = markRaw(ObjectViewComponent)
+const MapFrame = markRaw(MapFrameComponent)
+const PluginProcessing = markRaw(PluginProcessingComponent)
+
 export default {
   data () {
     return {
@@ -149,7 +157,6 @@ export default {
 
       data.content = data.content[0]
 
-      const isActive = this.isWidgetsMessageActive
       const view = this.$refs.messagesView
       switch (type) {
         case 'position': {

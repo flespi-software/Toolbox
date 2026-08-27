@@ -8,17 +8,17 @@
     @resizing="resizeHandler" @dragging="draggingHandler"
   >
     <div class="widget__header" :style="{height: `${headerHeight}px`}" v-show="!isMinimized && !isMaximized" @dblclick.stop="maximizeHandler()">
-      <q-icon @click.stop.prevent.native="closeHandler" name="mdi-close" class="float-right cursor-pointer" color="white"/>
-      <q-icon @click.stop.prevent.native="maximizeHandler(), calculateViewModel()" :name="isMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" class="float-right cursor-pointer" color="white"/>
-      <q-icon v-if="controls.minimizeLeft" @click.stop.prevent.native="minimizeHandler('left'), calculateViewModel()" name="mdi-arrow-collapse-right" class="float-right cursor-pointer" color="white"/>
-      <q-icon v-if="controls.minimizeRight" @click.stop.prevent.native="minimizeHandler('right'), calculateViewModel()" name="mdi-arrow-collapse-left" class="float-right cursor-pointer" color="white"/>
+      <q-icon @click.stop.prevent="closeHandler" name="mdi-close" class="float-right cursor-pointer" color="white"/>
+      <q-icon @click.stop.prevent="maximizeHandler(), calculateViewModel()" :name="isMaximized ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" class="float-right cursor-pointer" color="white"/>
+      <q-icon v-if="controls.minimizeLeft" @click.stop.prevent="minimizeHandler('left'), calculateViewModel()" name="mdi-arrow-collapse-right" class="float-right cursor-pointer" color="white"/>
+      <q-icon v-if="controls.minimizeRight" @click.stop.prevent="minimizeHandler('right'), calculateViewModel()" name="mdi-arrow-collapse-left" class="float-right cursor-pointer" color="white"/>
     </div>
     <div :style="styles" class="widget__content relative-position" :class="[isMinimized || isMaximized ? 'widget--drag-stop' : '']">
       <slot name="default"></slot>
     </div>
     <div class="widget__custom-controls widget--drag-stop" v-if="isMinimized || isMaximized" :style="{ top: isMaximized ? '3px' : '' }">
-      <q-icon v-if="(isMinimized || isMaximized) && ($q.platform.is.desktop && $q.screen.width > 500)" @mousedown.stop.prevent.native="restoreHandler" name="mdi-window-restore" size="25px" class="pull-right cursor-pointer" color="white"/>
-      <q-icon @mousedown.stop.prevent.native="closeHandler" name="mdi-close" class="pull-right cursor-pointer" size="25px" color="white"/>
+      <q-icon v-if="(isMinimized || isMaximized) && ($q.platform.is.desktop && $q.screen.width > 500)" @mousedown.stop.prevent="restoreHandler" name="mdi-window-restore" size="25px" class="pull-right cursor-pointer" color="white"/>
+      <q-icon @mousedown.stop.prevent="closeHandler" name="mdi-close" class="pull-right cursor-pointer" size="25px" color="white"/>
     </div>
   </vue-draggable-resizable>
 </template>
@@ -28,7 +28,8 @@ import VueDraggableResizable from 'vue-draggable-resizable'
 import debounce from 'lodash/debounce'
 
 export default {
-  name: 'widget-float-window',
+  name: 'WidgetFloatWindow',
+  emits: ['close', 'dragging', 'change-view-model'],
   props: [
     'controls', 'wrapperSize', 'viewModel'
   ],
@@ -268,81 +269,98 @@ export default {
 }
 </script>
 
-<style lang="stylus">
-  .widget__wrapper
-    z-index 1
-    .widget__header
-      cursor move
-      padding-right 1px
-      padding-top 3px
-    .widget__custom-controls
-      position absolute
-      top 13px
-      right 3px
-      z-index 999
-      background rgba(100,100,100,.4)
-      border-radius 5px
-    &.widget--pinned
-      .handle
-        display none!important
-    .handle
-      position absolute
-    .handle-mr, .handle-ml
-      top 0
-      height 100%
-      margin-top 0
-      border none
-      width 4px
-      background-color inherit
-      display block!important
-      z-index 998
-    .handle-mr
-      cursor e-resize
-      right 0
-      border-left 1px solid $grey-8
-    .handle-ml
-      left 0
-      cursor w-resize
-      border-right 1px solid $grey-8
-    .handle-tm, .handle-bm
-      left 0
-      width 100%
-      margin-top 0
-      height 4px
-      border none
-      background-color inherit
-      display block!important
-      z-index 998
-    .handle-tm
-      top 0
-      cursor n-resize
-      border-bottom 1px solid $grey-8
-    .handle-bm
-      bottom 0
-      cursor s-resize
-      border-top 1px solid $grey-8
-    .handle-tl, .handle-bl, .handle-br, .handle-tr
-      width 4px
-      height 4px
-      margin-top 0
-      border none
-      background-color inherit
-      display block!important
-      z-index 999
-    .handle-tl
-      cursor nw-resize
-      left 0
-      top 0
-    .handle-bl
-      cursor sw-resize
-      left 0
-      bottom 0
-    .handle-br
-      cursor nwse-resize
-      right 0
-      bottom 0
-    .handle-tr
-      cursor nesw-resize
-      right 0
-      top 0
+<style lang="scss">
+  .widget__wrapper {
+    z-index: 1;
+    .widget__header {
+      cursor: move;
+      padding-right: 1px;
+      padding-top: 3px;
+    }
+    .widget__custom-controls {
+      position: absolute;
+      top: 13px;
+      right: 3px;
+      z-index: 999;
+      background: rgba(100, 100, 100, .4);
+      border-radius: 5px;
+    }
+    &.widget--pinned {
+      .handle {
+        display: none !important;
+      }
+    }
+    .handle {
+      position: absolute;
+    }
+    .handle-mr, .handle-ml {
+      top: 0;
+      height: 100%;
+      margin-top: 0;
+      border: none;
+      width: 4px;
+      background-color: inherit;
+      display: block !important;
+      z-index: 998;
+    }
+    .handle-mr {
+      cursor: e-resize;
+      right: 0;
+      border-left: 1px solid $grey-8;
+    }
+    .handle-ml {
+      left: 0;
+      cursor: w-resize;
+      border-right: 1px solid $grey-8;
+    }
+    .handle-tm, .handle-bm {
+      left: 0;
+      width: 100%;
+      margin-top: 0;
+      height: 4px;
+      border: none;
+      background-color: inherit;
+      display: block !important;
+      z-index: 998;
+    }
+    .handle-tm {
+      top: 0;
+      cursor: n-resize;
+      border-bottom: 1px solid $grey-8;
+    }
+    .handle-bm {
+      bottom: 0;
+      cursor: s-resize;
+      border-top: 1px solid $grey-8;
+    }
+    .handle-tl, .handle-bl, .handle-br, .handle-tr {
+      width: 4px;
+      height: 4px;
+      margin-top: 0;
+      border: none;
+      background-color: inherit;
+      display: block !important;
+      z-index: 999;
+    }
+    .handle-tl {
+      cursor: nw-resize;
+      left: 0;
+      top: 0;
+    }
+    .handle-bl {
+      cursor: sw-resize;
+      left: 0;
+      bottom: 0;
+    }
+    .handle-br {
+      cursor: nwse-resize;
+      right: 0;
+      bottom: 0;
+    }
+    .handle-tr {
+      cursor: nesw-resize;
+      right: 0;
+      top: 0;
+    }
+  }
 </style>

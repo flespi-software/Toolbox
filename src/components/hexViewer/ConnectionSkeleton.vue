@@ -11,15 +11,20 @@
   </q-item>
 </template>
 
-<style lang="stylus">
-  .skeleton--modificator
-    border-radius 3px
-    animation flashing 1s infinite
-  @keyframes flashing
-    0%
-      opacity .3
-    50%
-      opacity .2
-    100%
-      opacity .3
+<style lang="scss">
+  .skeleton--modificator {
+    border-radius: 3px;
+    animation: flashing 1s infinite;
+  }
+  @keyframes flashing {
+    0% {
+      opacity: .3;
+    }
+    50% {
+      opacity: .2;
+    }
+    100% {
+      opacity: .3;
+    }
+  }
 </style>

@@ -4,13 +4,15 @@
     :color="`${eventsColors[message['proxy.event']]}-6`"
     class="hex-viewer__timeline-element"
   >
-    <div slot="title">
-      <div style="line-height: 18px;">
-        <span>{{eventsDesc[message['proxy.event']]}}</span>
-        <span v-if="message['proxy.source']" class="q-ml-xs text-grey-5" style="font-size: .8rem;">[target {{message['proxy.source']}}]</span>
+    <template #title>
+      <div>
+        <div style="line-height: 18px;">
+          <span>{{eventsDesc[message['proxy.event']]}}</span>
+          <span v-if="message['proxy.source']" class="q-ml-xs text-grey-5" style="font-size: .8rem;">[target {{message['proxy.source']}}]</span>
+        </div>
+        <div class="text-grey-5" style="font-size: .7rem;">{{date.formatDate(message.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss.SSS (Z)')}}</div>
       </div>
-      <div class="text-grey-5" style="font-size: .7rem;">{{date.formatDate(message.timestamp * 1000, 'DD/MM/YYYY HH:mm:ss.SSS (Z)')}}</div>
-    </div>
+    </template>
     <div style="word-break: break-all; font-size: .8rem; height: 1rem;" class="ellipsis">{{dataPreview}}</div>
   </q-timeline-entry>
 </template>
@@ -49,8 +51,10 @@ export default {
 }
 </script>
 
-<style lang="stylus">
-  .hex-viewer__timeline-element
-    .q-timeline__title
-      margin-bottom 0
+<style lang="scss">
+  .hex-viewer__timeline-element {
+    .q-timeline__title {
+      margin-bottom: 0;
+    }
+  }
 </style>

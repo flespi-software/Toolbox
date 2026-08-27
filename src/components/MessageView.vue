@@ -19,7 +19,7 @@
         <q-item-section>
           <q-item-label header class="ellipsis text-bold text-center text-white">No parameters</q-item-label>
           <q-item-label v-if="!Object.keys(item).length" caption class="ellipsis text-center text-white">Message has not fields</q-item-label>
-          <q-item-label v-if="!Object.keys(filteredObject).length && this.search" caption class="ellipsis text-center text-white">Nothing found on your search</q-item-label>
+          <q-item-label v-if="!Object.keys(filteredObject).length && search" caption class="ellipsis text-center text-white">Nothing found on your search</q-item-label>
         </q-item-section>
       </q-item>
       <template v-if="Object.keys(filteredObject).length">
@@ -52,13 +52,15 @@
 
 <script>
 import { date } from 'quasar'
-import { get } from 'lodash'
-import Vue from 'vue'
+import get from 'lodash/get'
+import { connector } from 'src/services/connector'
 
 import highlightMessage from './messages/highlightMessageMixin.js'
 
 const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'})
 export default {
+  name: 'MessageView',
+  emits: ['action'],
   props: ['log', 'meta'],
   data () {
     return {
@@ -100,7 +102,7 @@ export default {
           from: this.log.message_timestamp,
           to: this.log.message_timestamp
         }
-        const respmessage = await Vue.connector.http.get(`/gw/devices/${this.log.device_id}/messages?data=${encodeURIComponent(JSON.stringify(params))}`)
+        const respmessage = await connector.http.get(`/gw/devices/${this.log.device_id}/messages?data=${encodeURIComponent(JSON.stringify(params))}`)
         this.item = get(respmessage, 'data.result.0', {})
 
         this.loading = false
@@ -119,10 +121,13 @@ export default {
 }
 </script>
 
-<style lang="stylus">
-  .message-viewer__units
-    color $grey-4
-    font-size .8rem
-  .image-bin
-    max-width 100%
+<style lang="scss">
+  .message-viewer__units {
+    color: $grey-4;
+    font-size: .8rem;
+  }
+  .image-bin {
+    max-width: 100%;
+  }
 </style>
+

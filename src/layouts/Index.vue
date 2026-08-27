@@ -32,12 +32,11 @@
           <q-btn class="within-iframe-hide" @click="confirmExitHandler" small  flat round icon="mdi-exit-to-app"/>
         </q-toolbar>
       </q-header>
-      <q-drawer side="left" v-model="sides.left" :content-class="{'bg-grey-7':true}" v-if="isVisibleToolbar && !dashMode">
+      <q-drawer side="left" v-model="sides.left" class="bg-grey-7" v-if="isVisibleToolbar && !dashMode">
         <left-menu :config="config" :entities="renderEntities" :entity="entity"/>
       </q-drawer>
       <q-page-container class="bg-grey-9 no-scroll">
         <router-view
-          ref='main'
           v-if="configByEntity && isInit"
           :limit="limit"
           :isLoading="loadingFlag"
@@ -60,15 +59,21 @@
 </template>
 
 <script>
-import Vue from 'vue'
-import { mapState, mapMutations, mapActions } from 'vuex'
 import dist from '../../package.json'
-import LeftMenu from '../components/Menu'
-import Dash from '../components/Dash'
+import LeftMenu from '../components/Menu.vue'
+import Dash from '../components/Dash.vue'
 import Settings from '../components/Settings.vue'
-import cloneDeep from 'lodash/cloneDeep'
+import { connector } from 'src/services/connector'
+import { useMainStore } from 'src/stores/main'
+import { setPendingRoute } from 'src/services/redirectAfterLogin'
 
 export default {
+  setup () {
+    const mainStore = useMainStore()
+    /* the Vue 2 build read them in `beforeCreate`, before the first render */
+    mainStore.getToolboxSettings()
+    return { mainStore }
+  },
   data () {
     return {
       version: dist.version,
@@ -93,22 +98,21 @@ export default {
       ],
       isNeedSelect: true,
       entityInited: false,
-      isInit: Vue.connector.socket.connected()
+      isInit: connector.socket.connected()
     }
   },
   computed: {
-    ...mapState({
-      token: (state) => state.token,
-      isLoading (state) {
-        return state.isLoading && !this.entityInited
-      },
-      config: state => state.config,
-      errors: state => state.errors,
-      newNotificationCounter: state => state.newNotificationCounter,
-      settings: state => state.settings,
-      localeName: state => state.sessionSettings && state.sessionSettings.region && state.sessionSettings.region.name,
-      sessionSettings: state => state.sessionSettings
-    }),
+    token () { return this.mainStore.token },
+    isLoading () { return this.mainStore.isLoading && !this.entityInited },
+    config () { return this.mainStore.config },
+    errors () { return this.mainStore.errors },
+    newNotificationCounter () { return this.mainStore.newNotificationCounter },
+    settings () { return this.mainStore.settings },
+    sessionSettings () { return this.mainStore.sessionSettings },
+    localeName () {
+      const sessionSettings = this.mainStore.sessionSettings
+      return sessionSettings && sessionSettings.region && sessionSettings.region.name
+    },
     loadingFlag () {
       return this.connectFlag || this.isLoading
     },
@@ -160,16 +164,13 @@ export default {
     dashMode () { return !this.entity }
   },
   methods: {
-    ...mapMutations([
-      'setCid',
-      'clearToken',
-      'reqFailed',
-      'addError',
-      'clearNotificationCounter',
-      'clearToolboxSettings',
-      'setToolboxSessionSettings'
-    ]),
-    ...mapActions(['initConnection']),
+    clearToken () { this.mainStore.clearToken() },
+    reqFailed (payload) { this.mainStore.reqFailed(payload) },
+    addError (message) { this.mainStore.addError(message) },
+    clearNotificationCounter () { this.mainStore.clearNotificationCounter() },
+    clearToolboxSettings () { this.mainStore.clearToolboxSettings() },
+    setToolboxSessionSettings (data) { this.mainStore.setToolboxSessionSettings(data) },
+    initConnection (payload) { return this.mainStore.initConnection(payload) },
     toggleMenu () {
       this.sides.left = !this.sides.left
     },
@@ -193,7 +194,7 @@ export default {
     clearSettings () {
       this.limit = 1000
       this.clearToolboxSettings()
-      document.location.reload(true)
+      document.location.reload()
     },
     getGroups (groups) {
       return groups.reduce((result, group) => {
@@ -265,7 +266,7 @@ export default {
       }
     },
     routeProcess (route) {
-      const routeProcessIndex = Vue.connector.socket.on('connect', () => {
+      const routeProcessIndex = connector.socket.on('connect', () => {
         if (route.query.group) {
           const groups = route.query.group.split(','),
             entityByGroups = this.getGroups(groups)
@@ -282,13 +283,15 @@ export default {
             this.reset('Nothing to show by current token')
           }
         }
-        Vue.connector.socket.off('connect', routeProcessIndex)
+        connector.socket.off('connect', routeProcessIndex)
       })
       if (route.query.token && !this.token) {
         this.initConnection({ token: route.query.token })
       } else if (!this.token) { // if not logged in
-        Vue.connector.socket.off('connect', routeProcessIndex)
-        this.$router.push({ name: 'simpleLogin', params: { goto: route } }).catch(err => err)
+        connector.socket.off('connect', routeProcessIndex)
+        /* Vue Router 4 no longer carries objects in route params — see services/redirectAfterLogin */
+        setPendingRoute(route)
+        this.$router.push({ name: 'simpleLogin' }).catch(err => err)
       } else {
         this.routeMainProcess(route)
       }
@@ -320,7 +323,7 @@ export default {
       this.connectFlag = false
     },
     updateSettingsHandler (command) {
-      this.$store.commit('setToolboxSettings', command)
+      this.mainStore.setToolboxSettings(command)
     },
     goToMain () { this.$router.push('/').catch(err => err) }
   },
@@ -334,9 +337,6 @@ export default {
       this.routeProcess(route)
     }
   },
-  beforeCreate () {
-    this.$store.commit('getToolboxSettings')
-  },
   created () {
     this.routeParamsProcess(this.$route)
     this.routeProcess(this.$route)
@@ -346,21 +346,23 @@ export default {
     if (sessionSettings.mode !== undefined) this.toolboxMode = sessionSettings.mode
     if (!this.isInit) {
       this.connectFlag = true
-      this.connectionPreserveHandlerIndex = Vue.connector.socket.on('connect', this.connectionPreserveHandler)
+      this.connectionPreserveHandlerIndex = connector.socket.on('connect', this.connectionPreserveHandler)
     }
     this.setToolboxSessionSettings({ isNeedSelect: this.isNeedSelect, isVisibleToolbar: this.isVisibleToolbar, mode: this.toolboxMode })
   },
-  beforeDestroy () {
-    this.connectionPreserveHandlerIndex !== undefined && Vue.connector.socket.off('connect', this.connectionPreserveHandlerIndex)
+  beforeUnmount () {
+    this.connectionPreserveHandlerIndex !== undefined && connector.socket.off('connect', this.connectionPreserveHandlerIndex)
   },
   components: { LeftMenu, Settings, Dash }
 }
 </script>
 
-<style lang="stylus">
-  .version
-    vertical-align top
-    font-size 0.7rem
-  .header__main-toolbar
-    padding 1px 12px
+<style lang="scss">
+  .version {
+    vertical-align: top;
+    font-size: 0.7rem;
+  }
+  .header__main-toolbar {
+    padding: 1px 12px;
+  }
 </style>

@@ -1,5 +1,5 @@
 import { date } from 'quasar'
-import { mapState } from 'vuex'
+import { useMainStore } from 'src/stores/main'
 export const COLORS = {
   alert: 'red',
   info: 'grey-6',
@@ -50,9 +50,9 @@ const TYPES = {
   41: 'assets'
 }
 export default {
-  computed: mapState ({
-    logsObject: state => state.logsObject
-  }),
+  computed: {
+    logsObject () { return useMainStore().logsObject }
+  },
   methods: {
     getLogItemColorByCodes (code, extCode) {
       const logMeta = this.logsObject.codes[code]

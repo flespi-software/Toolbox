@@ -21,10 +21,9 @@
 </template>
 
 <script>
-import Vue from 'vue'
 import { date } from 'quasar'
 export default {
-  name: 'json-tree',
+  name: 'JsonTree',
   props: {
     item: [Object, Array],
     inverted: {
@@ -63,20 +62,24 @@ export default {
   },
   methods: {
     toggle (index) {
-      Vue.set(this.showObj, index, !this.showObj[index])
+      this.showObj[index] = !this.showObj[index]
     },
     formatDate: date.formatDate
   }
 }
 </script>
 
-<style lang='stylus'>
-  .margin-left
-    margin-left 16px
-  .json-tree__field-value
-    display inline
-    white-space pre-wrap
-    word-wrap break-word
-  .json-comma:last-child
-    display none
+<style lang="scss">
+  .margin-left {
+    margin-left: 16px;
+  }
+  .json-tree__field-value {
+    display: inline;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .json-comma:last-child {
+    display: none;
+  }
 </style>
+

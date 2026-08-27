@@ -1,5 +1,5 @@
-import Vue from 'vue'
-import { mapActions } from 'vuex'
+import logger from 'src/infrastructure/appLogger'
+import { useMainStore } from 'src/stores/main'
 import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
 
@@ -20,11 +20,56 @@ function getMainEntity (entity, routeId, lsId, flag, dest) {
   return res ? dest.push(res) : false
 }
 
-export default {
+/*
+ * Vue Router 4 reads the in-component guards straight off the component object
+ * — `(resolvedComponent.__vccOpts || resolvedComponent)[guardType]` — so a guard
+ * declared in a mixin is never found, where Vue 2 merged it into the options and
+ * Vue Router 3 picked it up. They are exported separately and every page spreads
+ * `...entitiesRouteGuards` into its own options.
+ */
+/*
+ * Vue 2 merged the mixin's route guard and the component's own into an array and Vue Router 3 ran
+ * both, mixin first. Vue Router 4 takes a single function off the component, and a spread would let
+ * the page's own guard drop the mixin's — which is how the entities get loaded. They are composed
+ * here in the order they used to run: each guard's `next` continues the chain, and the callbacks
+ * they hand to `next` all run once the component is in.
+ */
+export function composeRouteGuards (...sets) {
+  const composed = {}
+  for (const name of ['beforeRouteEnter', 'beforeRouteUpdate', 'beforeRouteLeave']) {
+    const guards = sets.map(set => set && set[name]).filter(Boolean)
+    if (!guards.length) { continue }
+    composed[name] = guards.length === 1
+      ? guards[0]
+      : function (to, from, next) {
+        const callbacks = []
+        const step = (index) => {
+          if (index === guards.length) {
+            next(vm => { callbacks.forEach(cb => cb(vm)) })
+            return
+          }
+          guards[index].call(this, to, from, (arg) => {
+            if (typeof arg === 'function') {
+              callbacks.push(arg)
+            } else if (arg !== undefined) {
+              /* a guard that redirects or aborts ends the chain */
+              next(arg)
+              return
+            }
+            step(index + 1)
+          })
+        }
+        step(0)
+      }
+  }
+  return composed
+}
+
+export const entitiesRouteGuards = {
   beforeRouteEnter (to, from, next) {
     const toEntity = to.meta.moduleName
     let fromEntity = from.meta.moduleName
-    Vue.$logger.info(`beforeRouteEnter: ${from.path} ======> ${to.path}`)
+    logger.info(`beforeRouteEnter: ${from.path} ======> ${to.path}`)
     next(vm => {
       if (toEntity !== fromEntity || !fromEntity) {
         let entity = toEntity
@@ -192,7 +237,7 @@ export default {
     })
   },
   beforeRouteUpdate (to, from, next) {
-    Vue.$logger.info(`beforeRouteUpdate: ${from.path} ======> ${to.path}`)
+    logger.info(`beforeRouteUpdate: ${from.path} ======> ${to.path}`)
     const toEntity = to.meta.moduleName,
       fromEntity = from.meta.moduleName,
       toId = to.params && to.params.id ? JSON.parse(to.params.id) : null,
@@ -248,7 +293,7 @@ export default {
       .then(next)
   },
   beforeRouteLeave (to, from, next) {
-    Vue.$logger.info(`beforeRouteLeave: ${from.path} ======> ${to.path}`)
+    logger.info(`beforeRouteLeave: ${from.path} ======> ${to.path}`)
     let fromEntity = from.meta.moduleName,
       toEntity = to.meta.moduleName
     const promises = []
@@ -336,13 +381,17 @@ export default {
       delete loadedEntities[promise.entity]
     })
     return this.removeEntities(promises).then(() => { next() })
+  }
+}
+
+export default {
+  computed: {
+    mainStore () { return useMainStore() }
   },
   methods: {
-    ...mapActions([
-      'getEntities',
-      'removeEntities',
-      'unsubscribeItems'
-    ]),
+    getEntities (payload) { return this.mainStore.getEntities(payload) },
+    removeEntities (payload) { return this.mainStore.removeEntities(payload) },
+    unsubscribeItems (payload) { return this.mainStore.unsubscribeItems(payload) },
     itemsLoad (entity, update, id, cb) {
       return this.getEntities([{ entity, mode: 1 }])
         .then((res) => {

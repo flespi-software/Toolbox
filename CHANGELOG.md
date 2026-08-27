@@ -1,5 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [2.0.0] - 2026-08-27
+[feature] rebuilt on Vue 3, Quasar 2 and Pinia; the build moved from webpack to Vite
+[feature] QVirtualScroll and DateTimeRangePicker are part of the application now instead of separate dependencies
+[fix] settings: the Save button applies the page row count again — it had no click handler
+[fix] logs: "Default columns" reverts the list without a reload
+[fix] containers: the message description no longer throws — `date` was used without being imported
+### [1.28.0] - 2026-08-10
+[feature] AI agents and connectors logs viewers, AI section in the menu
+[fix] logs: an event code missing from the toolbox/codes constant no longer breaks the list
 ### [1.27.6] - 2026-07-13
 [fix] intervals: named column presets survive a reload instead of disappearing and getting erased (bump qvirtualscroll)
 ### [1.27.5] - 2026-07-13

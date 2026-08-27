@@ -4,84 +4,88 @@
     <entities-toolbar
       :item="selectedItem" :ratio="ratio" :actions="actions" @change-ratio="updateRatio"
     >
-      <div class="flex" :class="{'middle-modificator': !active}" slot="selects">
-        <q-select
-          ref="itemSelect"
-          class="items__select"
-          :class="{'items__select--no-selected': !active}"
-          :value="active"
-          :options="filteredItems"
-          filled
-          :loading="isItemsInitStart && !isItemsInit"
-          :hide-dropdown-icon="!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('devices') > -1)"
-          :label="active ? 'Device' : 'SELECT DEVICE'"
-          dark hide-bottom-space dense color="white"
-          :disable="!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('devices') > -1)"
-          popup-content-class="items__popup"
-          :popup-content-style="{height: `${((filteredItems.length > 6 ? 6 : filteredItems.length) * 48) + (needShowGetDeletedAction && tokenType === 1 ? 77 : 48) + (filteredItems.length ? 0 : 4)}px`}"
-          @filter="(filter, update) => filterItems(entityName, filter, update)"
-        >
-          <div slot="before-options" class="bg-dark q-pa-xs select__filter">
-            <q-input v-model="filter" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" @input="filter => $refs.itemSelect.filter(filter)" autofocus>
-              <q-icon slot="prepend" name="mdi-magnify" color="white" />
-            </q-input>
-          </div>
-          <div slot="after-options" class="select__get-deleted" v-if="needShowGetDeletedAction && tokenType === 1">
-            <q-btn icon="mdi-download" class="deleted-action" @click.prevent.stop="getDeletedHandler">see deleted</q-btn>
-          </div>
-          <template v-slot:no-option>
-            <div style="min-height: 77px;">
-              <q-input v-model="filter" @input="filter => $refs.itemSelect.filter(filter)" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" class="q-ma-xs" autofocus>
-                <q-icon slot="prepend" name="mdi-magnify" color="white" />
-              </q-input>
-              <div class="text-center">No results</div>
-            </div>
-          </template>
-          <template v-slot:selected-item="scope">
-            <q-item
-              v-if="selectedItem"
-              v-bind="scope.itemProps"
-              v-on="scope.itemEvents"
-              class="q-pa-none"
-              style="min-height: 20px; margin-top: 2px; max-width: 100%"
-            >
-              <q-item-section>
-                <q-item-label header class="ellipsis overflow-hidden q-pa-none text-white">{{selectedItem.name || '&lt;noname&gt;'}}</q-item-label>
-                <q-item-label class="q-pa-none q-mt-none text-white ellipsis" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{selectedItem.configuration && selectedItem.configuration.ident ? selectedItem.configuration.ident : `&lt;no ident&gt;`}}</small></q-item-label>
-              </q-item-section>
-              <q-item-section class="text-white" side>
-                <q-item-label v-if="selectedItem.deleted" class="q-pa-none text-right"><small class="cheap-modifier">DELETED</small></q-item-label>
-                <q-item-label class="q-pa-none q-mt-none text-right"><small>#{{selectedItem.id}}</small></q-item-label>
-              </q-item-section>
-            </q-item>
-          </template>
-          <template v-slot:option="scope">
-            <q-item
-              v-bind="scope.itemProps"
-              @click="updateActive(scope.opt.id)"
-              v-on="scope.itemEvents"
-              :class="{'text-grey-8': scope.opt.deleted}"
-              class="q-pa-xs"
-              clickable
-            >
-              <q-item-section>
-                <q-item-label header class="ellipsis overflow-hidden q-pa-xs">{{scope.opt.name || '&lt;noname&gt;'}}</q-item-label>
-                <q-item-label class="q-pa-none q-mt-none" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{scope.opt.configuration && scope.opt.configuration.ident ? scope.opt.configuration.ident : `&lt;no ident&gt;`}}</small></q-item-label>
-              </q-item-section>
-              <q-item-section side>
-                <q-item-label v-if="scope.opt.deleted" class="q-pa-xs text-right"><small class="cheap-modifier cheap-modifier--item" :class="{'cheap-modifier--mobile': $q.platform.is.mobile}">DELETED</small></q-item-label>
-                <q-item-label class="q-pa-none q-mt-none text-right" :class="{'q-pr-xs': $q.platform.is.mobile}"><small>#{{scope.opt.id}}</small></q-item-label>
-              </q-item-section>
-            </q-item>
-          </template>
-        </q-select>
-        <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp" v-if="$q.platform.is.desktop && selectedItem && !selectedItem.deleted">
-          <q-btn title="Traffic hex payload" class="on-right pull-right text-center rounded-borders q-px-xs q-py-none text-white" v-if="needTrafficRoute" @click="trafficViewHandler" flat dense style="width: 50px;">
-            <q-icon size="1.5rem" color="white" name="mdi-download-network-outline"/>
-            <div style="font-size: .7rem; line-height: .7rem">Traffic</div>
-          </q-btn>
-        </transition>
-      </div>
+      <template #selects>
+        <div class="flex" :class="{'middle-modificator': !active}">
+          <q-select
+            ref="itemSelect"
+            class="items__select"
+            :class="{'items__select--no-selected': !active}"
+            :model-value="active"
+            :options="filteredItems"
+            filled
+            :loading="isItemsInitStart && !isItemsInit"
+            :hide-dropdown-icon="!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('devices') > -1)"
+            :label="active ? 'Device' : 'SELECT DEVICE'"
+            dark hide-bottom-space dense color="white"
+            :disable="!isNeedSelect || (typeof isNeedSelect === 'string' && isNeedSelect.indexOf('devices') > -1)"
+            popup-content-class="items__popup"
+            :popup-content-style="{height: `${((filteredItems.length > 6 ? 6 : filteredItems.length) * 48) + (needShowGetDeletedAction && tokenType === 1 ? 77 : 48) + (filteredItems.length ? 0 : 4)}px`}"
+            @filter="(filter, update) => filterItems(entityName, filter, update)"
+          >
+            <template #before-options>
+              <div class="bg-dark q-pa-xs select__filter">
+                <q-input v-model="filter" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" @update:model-value="filter => $refs.itemSelect.filter(filter)" autofocus>
+                  <template #prepend><q-icon  name="mdi-magnify" color="white" /></template>
+                </q-input>
+              </div>
+            </template>
+            <template #after-options>
+              <div class="select__get-deleted" v-if="needShowGetDeletedAction && tokenType === 1">
+                <q-btn icon="mdi-download" class="deleted-action" @click.prevent.stop="getDeletedHandler">see deleted</q-btn>
+              </div>
+            </template>
+            <template v-slot:no-option>
+              <div style="min-height: 77px;">
+                <q-input v-model="filter" @update:model-value="filter => $refs.itemSelect.filter(filter)" outlined hide-bottom-space rounded dense color="white" dark placeholder="Filter" class="q-ma-xs" autofocus>
+                  <template #prepend><q-icon  name="mdi-magnify" color="white" /></template>
+                </q-input>
+                <div class="text-center">No results</div>
+              </div>
+            </template>
+            <template v-slot:selected-item="scope">
+              <q-item
+                v-if="selectedItem"
+                v-bind="scope.itemProps"
+                class="q-pa-none"
+                style="min-height: 20px; margin-top: 2px; max-width: 100%"
+              >
+                <q-item-section>
+                  <q-item-label header class="ellipsis overflow-hidden q-pa-none text-white">{{selectedItem.name || '&lt;noname&gt;'}}</q-item-label>
+                  <q-item-label class="q-pa-none q-mt-none text-white ellipsis" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{selectedItem.configuration && selectedItem.configuration.ident ? selectedItem.configuration.ident : `&lt;no ident&gt;`}}</small></q-item-label>
+                </q-item-section>
+                <q-item-section class="text-white" side>
+                  <q-item-label v-if="selectedItem.deleted" class="q-pa-none text-right"><small class="cheap-modifier">DELETED</small></q-item-label>
+                  <q-item-label class="q-pa-none q-mt-none text-right"><small>#{{selectedItem.id}}</small></q-item-label>
+                </q-item-section>
+              </q-item>
+            </template>
+            <template v-slot:option="scope">
+              <q-item
+                v-bind="scope.itemProps"
+                @click="updateActive(scope.opt.id)"
+                :class="{'text-grey-8': scope.opt.deleted}"
+                class="q-pa-xs"
+                clickable
+              >
+                <q-item-section>
+                  <q-item-label header class="ellipsis overflow-hidden q-pa-xs">{{scope.opt.name || '&lt;noname&gt;'}}</q-item-label>
+                  <q-item-label class="q-pa-none q-mt-none" caption style="line-height: 0.75rem!important; margin-top: 1px;"><small>{{scope.opt.configuration && scope.opt.configuration.ident ? scope.opt.configuration.ident : `&lt;no ident&gt;`}}</small></q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-item-label v-if="scope.opt.deleted" class="q-pa-xs text-right"><small class="cheap-modifier cheap-modifier--item" :class="{'cheap-modifier--mobile': $q.platform.is.mobile}">DELETED</small></q-item-label>
+                  <q-item-label class="q-pa-none q-mt-none text-right" :class="{'q-pr-xs': $q.platform.is.mobile}"><small>#{{scope.opt.id}}</small></q-item-label>
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+          <transition appear enter-active-class="animated bounceInDown" leave-active-class="animated bounceOutUp" v-if="$q.platform.is.desktop && selectedItem && !selectedItem.deleted">
+            <q-btn title="Traffic hex payload" class="on-right pull-right text-center rounded-borders q-px-xs q-py-none text-white" v-if="needTrafficRoute" @click="trafficViewHandler" flat dense style="width: 50px;">
+              <q-icon size="1.5rem" color="white" name="mdi-download-network-outline"/>
+              <div style="font-size: .7rem; line-height: .7rem">Traffic</div>
+            </q-btn>
+          </transition>
+        </div>
+      </template>
     </entities-toolbar>
     <div v-if="isInit && active">
       <logs
@@ -171,12 +175,15 @@ import MainWidgetsMixin from '../../components/widgets/MainWidgetsMixin'
 import LogsWidgetsMixin from '../../components/widgets/LogsWidgetsMixin'
 import MessageWidgetsMixin from '../../components/widgets/MessageWidgetsMixin'
 import TrackWidgetMixin from '../../components/widgets/TrackWidgetMixin'
-import Widgets from '../../components/widgets/Widgets'
-import EntitiesToolbar from '../../components/EntitiesToolbar'
+import Widgets from '../../components/widgets/Widgets.vue'
+import EntitiesToolbar from '../../components/EntitiesToolbar.vue'
 import { openURL } from 'quasar'
-import { mapState, mapActions } from 'vuex'
-import init from '../../mixins/entitiesInit'
+import init, { entitiesRouteGuards } from '../../mixins/entitiesInit'
 import routerProcess from '../../mixins/routerProcess'
+import { useMainStore } from 'src/stores/main'
+import { useLogsStore } from 'src/qvirtualscroll/stores/logs'
+import { useDevicesMessagesStore as useMessagesListStore } from 'src/qvirtualscroll/stores/devicesMessages'
+import settingsStorage from 'src/infrastructure/settingsStorage'
 import get from 'lodash/get'
 import cloneDeep from 'lodash/cloneDeep'
 import { ACTION_MODE_SINGLE } from '../../config'
@@ -194,6 +201,8 @@ const ratioValues = {
 }
 
 export default {
+  /* Vue Router 4 does not pick guards up from a mixin — see mixins/entitiesInit.js */
+  ...entitiesRouteGuards,
   props: [
     'limit',
     'isLoading',
@@ -203,6 +212,19 @@ export default {
     'settings'
   ],
   mixins: [init, MainWidgetsMixin, LogsWidgetsMixin, MessageWidgetsMixin, TrackWidgetMixin, routerProcess],
+  setup (props) {
+    const mainStore = useMainStore()
+    /* the lists' own stores — the registry hands back the very ones the list components use */
+    const errorHandler = (err) => { mainStore.reqFailed(err) }
+    const lsNamespace = 'flespi-toolbox-settings.cols'
+    const logsStore = useLogsStore({
+      name: props.config.logs.vuexModuleName, lsNamespace, storage: settingsStorage, errorHandler
+    })
+    const messagesStore = useMessagesListStore({
+      name: props.config.messages.vuexModuleName, lsNamespace, storage: settingsStorage, errorHandler
+    })
+    return { logsStore, messagesStore }
+  },
   data () {
     return {
       entityName: 'devices',
@@ -215,53 +237,51 @@ export default {
     }
   },
   computed: {
-    ...mapState({
-      hasMessages (state) {
-        return this.config.messages && !!state[this.config.messages.vuexModuleName] && !!state[this.config.messages.vuexModuleName].messages.length && this.ratio !== 100
-      },
-      hasLogs (state) {
-        return this.config.logs && !!state[this.config.logs.vuexModuleName] && state[this.config.logs.vuexModuleName].messages && !!state[this.config.logs.vuexModuleName].messages.length && this.ratio !== 0
-      },
-      tokenType (state) { return state.tokenInfo && state.tokenInfo.access ? state.tokenInfo.access.type : -1 },
-      itemsCollection (state) {
-        return state.devices || {}
-      },
-      tasksByDevice (state) {
-        return Object.values(state.tasks || {})
-      },
-      trackByMessages (state) {
-        const messages = this.config && this.config.messages && state[this.config.messages.vuexModuleName]
-            ? state[this.config.messages.vuexModuleName].messages
-            : [],
-          track = [],
-          lbstrack = []
-        for (let i = 0; i < messages.length; i++) {
-          const message = messages[i]
-          if (!!message['position.latitude'] && !!message['position.longitude']) {
-            track.push(
-              {
-                lat: message['position.latitude'],
-                lon: message['position.longitude'],
-                dir: message['position.direction']
-              }
-            )
-          }
-          if (!!message['position.lbs.latitude'] && !!message['position.lbs.longitude']) {
-            lbstrack.push(
-              {
-                lat: message['position.lbs.latitude'],
-                lon: message['position.lbs.longitude']
-              }
-            )
-          }
+    hasMessages () {
+      return this.config.messages && !!this.messagesStore.messages.length && this.ratio !== 100
+    },
+    hasLogs () {
+      return this.config.logs && !!this.logsStore.messages.length && this.ratio !== 0
+    },
+    tokenType () { return this.mainStore.tokenInfo && this.mainStore.tokenInfo.access ? this.mainStore.tokenInfo.access.type : -1 },
+    itemsCollection () {
+      return this.mainStore.devices || {}
+    },
+    tasksByDevice () {
+      return Object.values(this.mainStore.tasks || {})
+    },
+    trackByMessages () {
+      const messages = this.config && this.config.messages
+          ? this.messagesStore.messages
+          : [],
+        track = [],
+        lbstrack = []
+      for (let i = 0; i < messages.length; i++) {
+        const message = messages[i]
+        if (!!message['position.latitude'] && !!message['position.longitude']) {
+          track.push(
+            {
+              lat: message['position.latitude'],
+              lon: message['position.longitude'],
+              dir: message['position.direction']
+            }
+          )
         }
-        if (this.isWidgetsTrackActive) { this.setWidgetTrackView('track', track) }
-        return track
-      },
-      needTrafficRoute (state) {
-        return get(state.config, 'deviceTraffic.isDrawable', false)
+        if (!!message['position.lbs.latitude'] && !!message['position.lbs.longitude']) {
+          lbstrack.push(
+            {
+              lat: message['position.lbs.latitude'],
+              lon: message['position.lbs.longitude']
+            }
+          )
+        }
       }
-    }),
+      if (this.isWidgetsTrackActive) { this.setWidgetTrackView('track', track) }
+      return track
+    },
+    needTrafficRoute () {
+      return get(this.mainStore.config, 'deviceTraffic.isDrawable', false)
+    },
     items () {
       return Object.values(this.itemsCollection)
     },
@@ -413,7 +433,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['getDeleted']),
+    getDeleted (payload) { return this.mainStore.getDeleted(payload) },
     clearHandler () {
       this.$q.dialog({
         title: 'Confirm',
@@ -422,8 +442,8 @@ export default {
         cancel: true,
         noRouteDismiss: true
       }).onOk(() => {
-        this.$store.commit(`${this.config.messages.vuexModuleName}/clearMessages`)
-        this.$store.commit(`${this.config.logs.vuexModuleName}/clearMessages`)
+        this.messagesStore.clearMessages()
+        this.logsStore.clearMessages()
         if (this.isWidgetsLogsActive) {
           this.isWidgetsLogsActive = false
           this.closeLogsWidgetsHandler()
@@ -602,10 +622,10 @@ export default {
       }
     },
     goToTrackit () {
-      const state = this.config && this.config.messages && this.$store.state[this.config.messages.vuexModuleName]
+      const state = this.config && this.config.messages && this.messagesStore
       const from = Math.floor(state.from / 1000)
       const to = Math.floor(state.to / 1000)
-      openURL(`${this.$flespiServer}/trackit/#/login/${this.$store.state.token}/devices/${this.active}?from=${from}&to=${to}`)
+      openURL(`${this.$flespiServer}/trackit/#/login/${this.mainStore.token}/devices/${this.active}?from=${from}&to=${to}`)
     }
   },
   watch: {
@@ -635,51 +655,64 @@ export default {
   components: { logs, messages, Widgets, EntitiesToolbar }
 }
 </script>
-<style lang="stylus" scoped>
-  .middle-modificator
-    position absolute
-    left calc(50% - 71px)
-  .items__select
-    max-width 100%
-    &--no-selected
-      width 180px
-      .q-field__marginal
-        height auto!important
-    .q-field__marginal
-      height 48px
-  .items__popup
-    .select__filter
-      position sticky
-      top 0
-      z-index 1
-    .select__get-deleted
-      position sticky
-      bottom 0
-      z-index 1
-  .items__filter
-    min-width 250px
-    border 1px solid $grey-9
-    border-radius 3px
-  .cheap-modifier
-    font-size .6rem
-    font-weight bolder
-    border-radius 3px
-    background-color #90a4ae
-    color white
-    padding 0 2px
-    width 45px
-    position absolute
-    top -10px
-    right 0px
-    &--item
-      top 5px
-    &--mobile
-      right 7px
-  .deleted-action
-    width 100%
-    color #eee
-    background-color #999
-    font-size .7rem
-    padding-top 0
-    padding-bottom 0
+<style lang="scss" scoped>
+  .middle-modificator {
+    position: absolute;
+    left: calc(50% - 71px);
+  }
+  .items__select {
+    max-width: 100%;
+    &--no-selected {
+      width: 180px;
+      .q-field__marginal {
+        height: auto!important;
+      }
+    }
+    .q-field__marginal {
+      height: 48px;
+    }
+  }
+  .items__popup {
+    .select__filter {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .select__get-deleted {
+      position: sticky;
+      bottom: 0;
+      z-index: 1;
+    }
+  }
+  .items__filter {
+    min-width: 250px;
+    border: 1px solid $grey-9;
+    border-radius: 3px;
+  }
+  .cheap-modifier {
+    font-size: .6rem;
+    font-weight: bolder;
+    border-radius: 3px;
+    background-color: #90a4ae;
+    color: white;
+    padding: 0 2px;
+    width: 45px;
+    position: absolute;
+    top: -10px;
+    right: 0px;
+    &--item {
+      top: 5px;
+    }
+    &--mobile {
+      right: 7px;
+    }
+  }
+  .deleted-action {
+    width: 100%;
+    color: #eee;
+    background-color: #999;
+    font-size: .7rem;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
 </style>

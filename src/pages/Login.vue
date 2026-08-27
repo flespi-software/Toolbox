@@ -8,7 +8,7 @@
           <div v-if="!canLogin || $q.platform.within.iframe" class="login-card shadow-4 bg-white column items-center justify-center no-wrap">
             <div class="row full-width">
               <div class="col-12 text-center text-red text-bold">
-                <big>Token has been expired or revoked</big>
+                <span style="font-size: larger">Token has been expired or revoked</span>
               </div>
             </div>
           </div>
@@ -32,10 +32,14 @@
 </template>
 
 <script>
-import Vue from 'vue'
-import { mapActions, mapMutations, mapState } from 'vuex'
+import { connector } from 'src/services/connector'
+import { useMainStore } from 'src/stores/main'
+import { takePendingRoute } from 'src/services/redirectAfterLogin'
 
 export default {
+  setup () {
+    return { mainStore: useMainStore() }
+  },
   data () {
     return {
       token: '',
@@ -50,9 +54,9 @@ export default {
     }
   },
   computed: {
-    ...mapState({
-      sessionSettings: state => state.sessionSettings
-    }),
+    sessionSettings () {
+      return this.mainStore.sessionSettings
+    },
     model: {
       get () {
         return this.token
@@ -62,12 +66,14 @@ export default {
       }
     },
     tokenInfo () {
-      return this.$store.state.tokenInfo
+      return this.mainStore.tokenInfo
     }
   },
   methods: {
-    ...mapActions(['initConnection']),
-    ...mapMutations(['setRegions', 'setToken', 'setToolboxSessionSettings']),
+    initConnection (payload) { return this.mainStore.initConnection(payload) },
+    setRegions (regions) { this.mainStore.setRegions(regions) },
+    setToken (token) { this.mainStore.setToken(token) },
+    setToolboxSessionSettings (data) { this.mainStore.setToolboxSessionSettings(data) },
     goto (to) {
       if (this.tokenInfo) {
         this.$router.push(to).catch(err => err)
@@ -76,19 +82,20 @@ export default {
           errorEventIndex = false
         const eventHandler = () => {
           this.$router.push(to).catch(err => err)
-          connectEventIndex && Vue.connector.socket.off('connect', connectEventIndex)
-          errorEventIndex && Vue.connector.socket.off('error', errorEventIndex)
+          connectEventIndex && connector.socket.off('connect', connectEventIndex)
+          errorEventIndex && connector.socket.off('error', errorEventIndex)
         }
-        connectEventIndex = Vue.connector.socket.on('connect', eventHandler)
-        errorEventIndex = Vue.connector.socket.on('error', eventHandler)
+        connectEventIndex = connector.socket.on('connect', eventHandler)
+        errorEventIndex = connector.socket.on('error', eventHandler)
       }
     },
     logIn (region) {
       this.initConnection({ token: this.token, region })
         .then(() => {
           this.$nextTick(() => {
-            if (this.$route.params && this.$route.params.goto) {
-              this.goto(this.$route.params.goto)
+            const goto = takePendingRoute()
+            if (goto) {
+              this.goto(goto)
             } else {
               this.goto('/')
             }
@@ -162,29 +169,35 @@ export default {
 }
 </script>
 
-<style lang="stylus">
-  .row__wrapper
-    height 80px
-  .login-page
-    .login-back
-      width 100%
-      height 100vh
-      overflow hidden
-      padding-top 15vh
-      background-image url(../../public/mountain.svg)
-      background-position center 100px
-      background-size contain
-      background-repeat no-repeat
-      background-color #333
-      color rgba(255,255,255,0.7)
-      .login-code
+<style lang="scss">
+  .row__wrapper {
+    height: 80px;
+  }
+  .login-page {
+    .login-back {
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      padding-top: 15vh;
+      background-image: url(/mountain.svg);
+      background-position: center 100px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-color: #333;
+      color: rgba(255, 255, 255, 0.7);
+      .login-code {
         width: 80vw;
         max-width: 600px;
-    .login-card
-      border-radius 2px
-      width 80vw
-      max-width 600px
-      padding 25px
-      > i
-        font-size 5rem
+      }
+    }
+    .login-card {
+      border-radius: 2px;
+      width: 80vw;
+      max-width: 600px;
+      padding: 25px;
+      > i {
+        font-size: 5rem;
+      }
+    }
+  }
 </style>

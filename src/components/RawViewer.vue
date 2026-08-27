@@ -4,9 +4,9 @@
       <q-card-section :style="{height: 'calc(100% - 54px)'}" class="q-pa-none">
         <template v-if="hasData">
           <q-tabs v-model="tabModel" class="text-white">
-            <template v-for="(item, key) in config">
+            <template v-for="(item, key) in config" :key="`tab-${key}`">
               <template v-if="item.data">
-                <q-tab :name="key" :label="item.title" :key="`tab-${key}`" color="grey-9"/>
+                <q-tab :name="key" :label="item.title" color="grey-9"/>
               </template>
             </template>
           </q-tabs>
@@ -68,5 +68,6 @@ export default {
 }
 </script>
 
-<style lang="stylus">
+<style lang="scss">
+
 </style>

@@ -19,7 +19,7 @@
       scrollOffset="10%"
       :item="listItem"
       :itemprops="getItemsProps"
-      @click.native="tableClickHandler"
+      @click="tableClickHandler"
       @scroll="scrollHandler"
       @action="actionHandler"
       @change-filter="filterChangeHandler"
@@ -30,18 +30,23 @@
       @arrowup="arrowUpHandler"
       @arrowdown="arrowDownHandler"
     >
-      <empty-pane slot="empty" :config="config.emptyState"/>
+      <template #empty><empty-pane  :config="config.emptyState"/></template>
     </virtual-scroll-list>
   </div>
 </template>
 
 <script>
-import { VirtualScrollList, devicesMessagesModule } from 'qvirtualscroll'
-import Vue from 'vue'
+/* a component definition in data() would be handed to Vue as a reactive proxy */
+import { markRaw } from 'vue'
+import { VirtualScrollList } from 'src/qvirtualscroll'
+import { useDevicesMessagesStore } from 'src/qvirtualscroll/stores/devicesMessages'
+import { connector } from 'src/services/connector'
+import { useMainStore } from 'src/stores/main'
+import settingsStorage from 'src/infrastructure/settingsStorage'
 import debounce from 'lodash/debounce'
 import actions from '../../mixins/actions'
 import { copyToClipboard } from 'quasar'
-import EmptyPane from '../EmptyPane'
+import EmptyPane from '../EmptyPane.vue'
 import MessagesListItem from './DevicesMessagesListItem.vue'
 import routerProcess from '../../mixins/routerProcess'
 import { ACTION_MODE_MULTI, ACTION_MODE_SINGLE } from '../../config'
@@ -58,9 +63,23 @@ export default {
     'limit',
     'config'
   ],
+  setup (props) {
+    const mainStore = useMainStore()
+    /*
+     * The Vue 2 build registered a Vuex module named after the list and dropped it again. The store
+     * registry keeps the same one-per-list identity.
+     */
+    const listStore = useDevicesMessagesStore({
+      name: props.config.vuexModuleName,
+      lsNamespace: 'flespi-toolbox-settings.cols',
+      storage: settingsStorage,
+      errorHandler: (err) => { mainStore.reqFailed(err) }
+    })
+    return { mainStore, listStore }
+  },
   data () {
     return {
-      listItem: MessagesListItem,
+      listItem: markRaw(MessagesListItem),
       theme: this.config.theme,
       actions: this.config.actions,
       autoscroll: true,
@@ -75,91 +94,91 @@ export default {
   computed: {
     messages: {
       get () {
-        const messages = this.$store.state[this.moduleName].messages
+        const messages = this.listStore.messages
         this.scrollControlling(messages.length)
         return messages
       },
       set (val) {
-        this.$store.commit(`${this.moduleName}/setMessages`, val)
+        this.listStore.setMessages(val)
       }
     },
     intervals () {
-      return this.$store.state[this.moduleName].messages
+      return this.listStore.messages
     },
     active: {
       get () {
-        return this.$store.state[this.moduleName].active
+        return this.listStore.active
       },
       async set (val) {
-        await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)/* remove subscription for previous active device */
-        this.$store.commit(`${this.moduleName}/setActive`, val)
-        this.$store.commit(`${this.moduleName}/clearMessages`)
-        await this.$store.dispatch(`${this.moduleName}/getCols`, { etc: true })
+        await this.listStore.unsubscribePooling()/* remove subscription for previous active device */
+        this.listStore.setActive(val)
+        this.listStore.clearMessages()
+        await this.listStore.getCols({ etc: true })
         await this.getMessages()
       }
     },
     cols: {
       get () {
-        return this.$store.state[this.moduleName].cols
+        return this.listStore.cols
       },
       set (val) {
-        this.$store.commit(`${this.moduleName}/updateCols`, val)
+        this.listStore.updateCols(val)
       }
     },
     filter: {
       get () {
-        return this.$store.state[this.moduleName].filter
+        return this.listStore.filter
       },
       set (val) {
         val = val || ''
-        this.$store.commit(`${this.moduleName}/setFilter`, val)
+        this.listStore.setFilter(val)
       }
     },
     from: {
       get () {
-        return this.$store.state[this.moduleName].from
+        return this.listStore.from
       },
       set (val) {
         val = val || 0
-        this.$store.commit(`${this.moduleName}/setFrom`, val)
+        this.listStore.setFrom(val)
       }
     },
     to: {
       get () {
-        return this.$store.state[this.moduleName].to
+        return this.listStore.to
       },
       set (val) {
         val = val || 0
-        this.$store.commit(`${this.moduleName}/setTo`, val)
+        this.listStore.setTo(val)
       }
     },
     realtimeEnabled () {
-      return this.$store.state[this.moduleName].realtimeEnabled
+      return this.listStore.realtimeEnabled
     },
     reverse: {
       get () {
-        return this.$store.state[this.moduleName].reverse || false
+        return this.listStore.reverse || false
       },
       set (val) {
-        this.$store.commit(`${this.moduleName}/setReverse`, val)
+        this.listStore.setReverse(val)
       }
     },
     currentLimit: {
       get () {
-        return this.$store.state[this.moduleName].limit
+        return this.listStore.limit
       },
       set (val) {
         val = val || 1000
-        this.$store.commit(`${this.moduleName}/setLimit`, val)
+        this.listStore.setLimit(val)
       }
     },
     selected: {
       get () {
-        return this.$store.state[this.moduleName].selected
+        return this.listStore.selected
       },
       set (val) {
         if (val && val.length) { this.autoscroll = false }
-        this.$store.commit(`${this.moduleName}/setSelected`, val)
+        this.listStore.setSelected(val)
         this.updateSelectedRoute(this.selectedMessagesTimestamps)
       }
     },
@@ -171,8 +190,7 @@ export default {
       return messages
     },
     loadingFlag () {
-      const state = this.$store.state
-      return !!(state[this.config.vuexModuleName] && state[this.config.vuexModuleName].isLoading)
+      return !!this.listStore.isLoading
     },
     needAutoscroll () {
       return this.realtimeEnabled && !this.selected.length && this.autoscroll
@@ -201,7 +219,8 @@ export default {
       ]
     },
     viewConfig () {
-      return Object.assign(this.config.viewConfig, { needKeysProcess: !!this.selected.length })
+      /* merging into `this.config.viewConfig` wrote into the shared config for good */
+      return Object.assign({}, this.config.viewConfig, { needKeysProcess: !!this.selected.length })
     }
   },
   methods: {
@@ -287,9 +306,9 @@ export default {
     },
     async getMessages () {
       if (this.to <= Date.now()) {
-        await this.$store.dispatch(`${this.moduleName}/get`)
+        await this.listStore.get()
       } else {
-        await this.$store.dispatch(`${this.moduleName}/getHistory`, 1000)
+        await this.listStore.getHistory(1000)
         this.scrollTo(this.messages.length - 1)
       }
     },
@@ -306,12 +325,12 @@ export default {
           (!!this.filter && !params.filter) ||
           (this.filter && params.filter && this.filter !== params.filter)
         ) {
-          if (this.realtimeEnabled) { this.$store.dispatch(`${this.moduleName}/unsubscribePooling`) }
+          if (this.realtimeEnabled) { this.listStore.unsubscribePooling() }
           this.filter = params.filter || null
           needUpdate = true
         }
         if (needUpdate) {
-          this.$store.commit(`${this.moduleName}/clearMessages`)
+          this.listStore.clearMessages()
           this.getMessages()
         }
       } catch (e) {}
@@ -330,11 +349,11 @@ export default {
       if (this.from === from && this.to === to) { return false }
       this.from = from
       this.to = to
-      this.$store.commit(`${this.moduleName}/clearMessages`)
+      this.listStore.clearMessages()
       this.getMessages()
     },
     paginationPrevChangeHandler () {
-      this.$store.dispatch(`${this.moduleName}/getPrevPage`)
+      this.listStore.getPrevPage()
         .then((count) => {
           if (count && typeof count === 'number') {
             this.scrollToWithSavePadding(count)
@@ -342,7 +361,7 @@ export default {
         })
     },
     paginationNextChangeHandler () {
-      this.$store.dispatch(`${this.moduleName}/getNextPage`)
+      this.listStore.getNextPage()
         .then((count) => {
           this.autoscroll = true
           if (count && typeof count === 'number') {
@@ -358,26 +377,26 @@ export default {
       if (existMessageIndex !== -1) {
         this.scrollTo(existMessageIndex - 1)
       } else {
-        this.$store.state[this.moduleName].messages = []
-        const intervalMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.begin - 180, to: interval.end + 180, count: this.limit })
+        this.listStore.messages = []
+        const intervalMessages = await this.listStore.getMessages({ from: interval.begin - 180, to: interval.end + 180, count: this.limit })
         const count = Math.ceil((this.limit - intervalMessages.length) / 2)
         let scrollToIndex = 0
         if (intervalMessages.length < this.limit) {
           const paddingMessages = await Promise.all([
-            this.$store.dispatch(`${this.moduleName}/getMessages`, { from: this.from / 1000, to: interval.begin - 0.000001, count, reverse: true }),
-            this.$store.dispatch(`${this.moduleName}/getMessages`, { from: interval.end + 0.000001, to: this.to / 1000, count })
+            this.listStore.getMessages({ from: this.from / 1000, to: interval.begin - 0.000001, count, reverse: true }),
+            this.listStore.getMessages({ from: interval.end + 0.000001, to: this.to / 1000, count })
           ])
           const prevMsgs = paddingMessages[0].reverse(),
             nextMsgs = paddingMessages[1]
           intervalMessages.splice(0, 0, ...prevMsgs)
           scrollToIndex = prevMsgs.length
           intervalMessages.splice(intervalMessages.length, 0, ...nextMsgs)
-          await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
+          await this.listStore.unsubscribePooling()
         } else {
-          await this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
+          await this.listStore.unsubscribePooling()
         }
-        this.$store.state[this.moduleName].pages = [intervalMessages.length]
-        this.$store.commit(`${this.moduleName}/setHistoryMessages`, intervalMessages)
+        this.listStore.pages = [intervalMessages.length]
+        this.listStore.setHistoryMessages(intervalMessages)
         setTimeout(function () {
           const existMessageIndex = intervalMessages.findIndex(message => message.timestamp === interval.begin || message['timestamp.key'] === interval.begin)
           that.scrollTo(existMessageIndex || scrollToIndex || 0)
@@ -399,7 +418,7 @@ export default {
         }
         case 'expression': {
           this.showExprTest(
-            this.$store.state.token,
+            this.mainStore.token,
             this.cols.schemas[this.cols.activeSchema].cols,
             this.selected.map(index => this.messages[index])
           )
@@ -438,7 +457,7 @@ export default {
         this.autoscroll = true
         this.scrollTo(this.messages.length - 1)
       } else {
-        this.$store.dispatch(`${this.moduleName}/getHistory`, 1000)
+        this.listStore.getHistory(1000)
           .then(() => {
             this.scrollTo(this.messages.length - 1)
           })
@@ -451,7 +470,7 @@ export default {
     },
     scrollControlling (count) {
       if (this.selected.length && this.selected[0] + 1000 <= count) {
-        this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
+        this.listStore.unsubscribePooling()
       }
     },
     nextSelect () {
@@ -492,7 +511,7 @@ export default {
         filter: this.filter || undefined,
         count: this.currentLimit
       }
-      const currentMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, currentMessagesParams)
+      const currentMessages = await this.listStore.getMessages(currentMessagesParams)
       const beforeMessagesParams = {
         from: this.from / 1000,
         to: (startTimestamp - 0.001) / 1000,
@@ -506,11 +525,11 @@ export default {
         filter: this.filter || undefined,
         count: (this.currentLimit / 2) - currentMessages.length
       }
-      const beforeMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, beforeMessagesParams)
-      const afterMessages = await this.$store.dispatch(`${this.moduleName}/getMessages`, afterMessagesParams)
+      const beforeMessages = await this.listStore.getMessages(beforeMessagesParams)
+      const afterMessages = await this.listStore.getMessages(afterMessagesParams)
       const messages = [...beforeMessages.reverse(), ...currentMessages, ...afterMessages]
-      this.$store.commit(`${this.moduleName}/limiting`, { type: 'init', count: messages.length })
-      this.$store.commit(`${this.moduleName}/setHistoryMessages`, messages)
+      this.listStore.limiting({ type: 'init', count: messages.length })
+      this.listStore.setHistoryMessages(messages)
       const scrollIndex = beforeMessages.length
       this.scrollTo(scrollIndex)
     },
@@ -536,12 +555,13 @@ export default {
       return res
     },
     async init () {
-      if (!this.$store.state[this.moduleName]) {
-        this.$store.registerModule(this.moduleName, devicesMessagesModule({ Vue, LocalStorage: this.$settingsStorage, name: { name: this.moduleName, lsNamespace: 'flespi-toolbox-settings.cols' }, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
+      /* a list that had already been set up used to be cleared instead of re-registered */
+      if (this.listStore.initialized) {
+        this.listStore.clear()
       } else {
-        this.$store.commit(`${this.moduleName}/clear`)
+        this.listStore.initialized = true
       }
-      this.$store.commit(`${this.moduleName}/setSortBy`, 'timestamp')
+      this.listStore.setSortBy('timestamp')
       this.currentLimit = this.limit
       let {
         filter,
@@ -552,8 +572,8 @@ export default {
 
       this.filter = filter
       this.dateRangeChangeHandler(this.dateRange)
-      this.$store.commit(`${this.moduleName}/setActive`, this.activeId)
-      await this.$store.dispatch(`${this.moduleName}/getCols`, { etc: true })
+      this.listStore.setActive(this.activeId)
+      await this.listStore.getCols({ etc: true })
 
       if (needInitMessages) {
         if (initTimestamp) {
@@ -635,24 +655,24 @@ export default {
   created () {
     this.debouncedUpdateMessagesRoute = debounce(this.updateMessagesRoute, 500, { trailing: true, maxWait: 1000 })
     this.init()
-    this.offlineHandler = Vue.connector.socket.on('offline', () => {
-      this.$store.commit(`${this.moduleName}/setOffline`)
+    this.offlineHandler = connector.socket.on('offline', () => {
+      this.listStore.setOffline()
     })
-    this.connectHandler = Vue.connector.socket.on('connect', () => {
-      if (this.$store.state[this.moduleName].offline) {
-        this.$store.commit(`${this.moduleName}/setReconnected`)
+    this.connectHandler = connector.socket.on('connect', () => {
+      if (this.listStore.offline) {
+        this.listStore.setReconnected()
         if (this.realtimeEnabled) {
-          this.$store.dispatch(`${this.moduleName}/getMissedMessages`)
+          this.listStore.getMissedMessages()
         }
-        this.$store.commit(`${this.moduleName}/clearOfflineState`)
+        this.listStore.clearOfflineState()
       }
     })
   },
-  beforeDestroy () {
-    this.$store.dispatch(`${this.moduleName}/unsubscribePooling`)
-    this.offlineHandler !== undefined && Vue.connector.socket.off('offline', this.offlineHandler)
-    this.connectHandler !== undefined && Vue.connector.socket.off('connect', this.connectHandler)
-    this.$store.commit(`${this.moduleName}/clear`)
+  beforeUnmount () {
+    this.listStore.unsubscribePooling()
+    this.offlineHandler !== undefined && connector.socket.off('offline', this.offlineHandler)
+    this.connectHandler !== undefined && connector.socket.off('connect', this.connectHandler)
+    this.listStore.clear()
   },
   mixins: [actions, routerProcess, testExpressionsMixin, multiselectMixin, liveTail],
   components: { VirtualScrollList, EmptyPane }

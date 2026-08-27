@@ -12,7 +12,7 @@ export default {
         }
         case 'expression': {
           this.showExprTest(
-            this.$store.state.token,
+            this.mainStore.token,
             this.cols.schemas[this.cols.activeSchema].cols,
             this.selected.map(index => this.messages[index])
           )

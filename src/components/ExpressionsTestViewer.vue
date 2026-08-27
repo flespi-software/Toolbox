@@ -87,6 +87,10 @@ export default {
   mounted() {
     window.addEventListener('message', this.eventHandle)
   },
+  beforeUnmount() {
+    /* the Vue 2 build left this listener behind on every dialog */
+    window.removeEventListener('message', this.eventHandle)
+  },
   watch: {
     data () {
       this.setData()

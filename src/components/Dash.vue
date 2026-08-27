@@ -58,21 +58,25 @@ export default {
 }
 </script>
 
-<style lang="stylus">
-  .dash
-    width 100%
-    height 100%
-    overflow auto
-    background-image url(../../public/mountain.svg)
-    background-position center 100px
-    background-size contain
-    background-repeat no-repeat
-    &__element
-      max-height 33%
-      min-height 200px
-      &--mobile
-        opacity .9
-      &:hover
-        opacity .9
-      opacity .6
+<style lang="scss">
+  .dash {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-image: url(/mountain.svg);
+    background-position: center 100px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    &__element {
+      max-height: 33%;
+      min-height: 200px;
+      opacity: .6;
+      &--mobile {
+        opacity: .9;
+      }
+      &:hover {
+        opacity: .9;
+      }
+    }
+  }
 </style>
