@@ -1,0 +1,1 @@
+import{$ as e,ct as t}from"./index--Z7br1kD.js";var n=e(async({app:e})=>{await t.init(),e.config.globalProperties.$settingsStorage=t});export{n as default};
