@@ -1,5 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [2.1.0] - 2026-10-02
+[feature] settings: export to a file and import from it (Settings dialog)
+[feature] settings saved while Toolbox was served from flespi.io/toolbox are brought over to toolbox.flespi.io once, without overwriting the ones already made there
+[fix] device traffic: text view wraps long packets in Safari/macOS instead of running off the line
+
 ### [2.0.0] - 2026-08-27
 [feature] rebuilt on Vue 3, Quasar 2 and Pinia; the build moved from webpack to Vite
 [feature] QVirtualScroll and DateTimeRangePicker are part of the application now instead of separate dependencies

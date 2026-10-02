@@ -3,7 +3,7 @@
     ref="dragResize"
     class="widget__wrapper absolute-top-left absolute-bottom-right"
     :class="[isMinimized || isMaximized ? 'widget--pinned' : '']"
-    :style="wrapperStyles" drag-cancel=".widget--drag-stop" :parent="true" :active="true"
+    :style="wrapperStyles" drag-handle=".widget__header" drag-cancel=".widget--drag-stop" :parent="true" :active="true"
     :x="x" :y="y" :w="width" :h="height" :min-width="100" :min-height="100"
     @resizing="resizeHandler" @dragging="draggingHandler"
   >

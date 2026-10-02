@@ -85,13 +85,26 @@
   .raw-hex-data {
     font-size: 0.8rem;
     font-family: initial;
+    // mnemonics are single tokens: inline-block keeps the container's break-all
+    // from splitting them while still allowing a line break on either side
+    display: inline-block;
+    word-break: normal;
+    // the byte spans carry q-mt-sm/q-mb-sm, which an inline box ignores but an
+    // inline-block one would turn into extra leading
+    margin-top: 0;
+    margin-bottom: 0;
     border-radius: 2px;
     background-color: #555;
     color: #ccc;
     padding: 0 2px;
   }
-  .hex-char, .text-char {
+  .hex-char {
     white-space: pre;
+  }
+  // pre-wrap, not pre: WebKit gives no line-break opportunity between adjacent
+  // white-space: pre spans, so a text-view packet never wrapped there
+  .text-char {
+    white-space: pre-wrap;
   }
   .selected--basic {
     color: rgb(51, 51, 51);

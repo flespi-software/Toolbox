@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Toolbox settings bridge</title>
+</head>
+<body>
+<script>
+/*
+ * Toolbox used to be served from flespi.io/toolbox and is served from toolbox.flespi.io now. Both
+ * URLs point to the same build, but browser storage is per origin, so the settings saved under the
+ * old URL stay with flespi.io. The app at toolbox.flespi.io loads this page from flespi.io in a
+ * hidden iframe, and the page hands over whatever settings that origin holds.
+ *
+ * Both hosts are the same site, so the iframe is not subject to third-party storage partitioning.
+ * The message is addressed to the allowed origins only: the browser drops it for any other parent,
+ * so a foreign page that embeds the bridge gets nothing.
+ */
+(function () {
+  var ALLOWED_PARENTS = ['https://toolbox.flespi.io']
+  var DB_NAME = 'flespi-toolbox'
+  var STORE_NAME = 'settings'
+  var SETTINGS_KEY = 'flespi-toolbox-settings'
+  var MESSAGE_TYPE = 'flespi-toolbox-settings-bridge'
+
+  if (window.parent === window) { return }
+
+  function isToolboxKey (name) {
+    return name === SETTINGS_KEY || name.indexOf(SETTINGS_KEY + '.cols.') === 0
+  }
+
+  /* the versions before IndexedDB kept everything in localStorage, quasar-encoded */
+  function readLocalStorage () {
+    var records = {}
+    try {
+      for (var i = 0; i < window.localStorage.length; i++) {
+        var name = window.localStorage.key(i)
+        if (!isToolboxKey(name)) { continue }
+        var raw = window.localStorage.getItem(name)
+        if (typeof raw === 'string' && raw.indexOf('__q_objt|') === 0) {
+          try { records[name] = JSON.parse(raw.slice('__q_objt|'.length)) } catch (e) {}
+        }
+      }
+    } catch (e) {}
+    return records
+  }
+
+  function readIndexedDb () {
+    return new Promise(function (resolve) {
+      var records = {}
+      try {
+        if (!window.indexedDB) { resolve(records); return }
+        var request = window.indexedDB.open(DB_NAME)
+        /* there was no database — do not leave an empty one behind */
+        request.onupgradeneeded = function () { request.transaction.abort() }
+        request.onerror = function () { resolve(records) }
+        request.onsuccess = function () {
+          var db = request.result
+          if (!db.objectStoreNames.contains(STORE_NAME)) { db.close(); resolve(records); return }
+          var cursorRequest = db.transaction(STORE_NAME, 'readonly').objectStore(STORE_NAME).openCursor()
+          cursorRequest.onsuccess = function () {
+            var cursor = cursorRequest.result
+            if (!cursor) { db.close(); resolve(records); return }
+            if (isToolboxKey(cursor.key)) { records[cursor.key] = cursor.value }
+            cursor.continue()
+          }
+          cursorRequest.onerror = function () { db.close(); resolve(records) }
+        }
+      } catch (e) {
+        resolve(records)
+      }
+    })
+  }
+
+  readIndexedDb().then(function (dbRecords) {
+    /* IndexedDB holds the newer state; localStorage only fills in what the database never got */
+    var records = readLocalStorage()
+    Object.keys(dbRecords).forEach(function (name) { records[name] = dbRecords[name] })
+    ALLOWED_PARENTS.forEach(function (origin) {
+      try {
+        window.parent.postMessage({ type: MESSAGE_TYPE, records: records }, origin)
+      } catch (e) {}
+    })
+  })
+})()
+</script>
+</body>
+</html>
