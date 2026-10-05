@@ -250,13 +250,34 @@ export default {
         cancel: true,
         ok: 'Register',
         noRouteDismiss: true
-      }).onOk(() => {
-        messages = this.sliceToChunks(messages, 1000)
-        messages.forEach(async (m) => {
-          await connector.http.post(`/gw/devices/${this.activeId}/messages`, m).then((response) => {}, (response) => {})
-        })
-        setTimeout(() => this.refresh(), 1000)
+      }).onOk(async () => {
+        /* a failed request used to be swallowed, the user could not tell it from a successful one */
+        try {
+          for (const chunk of this.sliceToChunks(messages, 1000)) {
+            await connector.http.post(`/gw/devices/${this.activeId}/messages`, chunk)
+          }
+          this.$q.notify({ type: 'positive', message: `${messages.length} message(s) sent for re-registration` })
+        } catch (e) {
+          const reason = (e && e.response && e.response.data && e.response.data.errors && e.response.data.errors.map(error => error.reason).join(', ')) || (e && e.message) || 'unknown error'
+          this.$q.notify({ type: 'negative', message: `Re-registering messages failed: ${reason}` })
+        }
+        /*
+         * Only the re-registered rows are brought up to date: reloading the whole list made it blink.
+         * In real time their copies replace them as they come, but lack some of the stored fields, and a
+         * list that shows a past period gets no copies at all. The storage needs a moment to have them.
+         */
+        const timestamps = messages.map(message => message.timestamp)
+        setTimeout(() => this.listStore.updateMessagesByTimestamps(timestamps), 1000)
       })
+    },
+    /*
+     * The row the context menu was opened on — or the whole selection when that row is part of it.
+     * Reading the selection alone sent nothing for a row that was right-clicked without being
+     * selected first, and the selected row instead of the clicked one when they differed.
+     */
+    getActionMessages (index) {
+      const indexes = this.selected.includes(index) ? this.selected : [index]
+      return indexes.map(index => this.messages[index]).filter(message => message !== undefined)
     },
     tableClickHandler (event) {
       if (!event.target.closest('.list-item--click-control')) {
@@ -444,14 +465,13 @@ export default {
           this.showExprTest(
             this.mainStore.token,
             this.cols.schemas[this.cols.activeSchema].cols,
-            this.selected.map(index => this.messages[index])
+            this.getActionMessages(index)
           )
           break
         }
         case 'registermessages': {
-          this.registerMessages(
-            this.selected.map(index => this.messages[index])
-          )
+          const messages = this.getActionMessages(index)
+          if (messages.length) { this.registerMessages(messages) }
           break
         }
         case 'timeSync': {

@@ -27,6 +27,7 @@
       :view="typeOfHexView"
       :style="{height: `calc(100vh - ${isVisibleToolbar ? '100px' : '50px'})`, position: 'relative', width: $q.platform.is.desktop ? '25%' : '100%', minWidth: '250px'}"
       @view-data="(content) => { selectedMessages = content }"
+      @hex-search="needle => { hexNeedle = needle }"
       @close="() => { $emit('change-active-device', null), selectedMessages = '' }"
     />
     <div v-show="$q.platform.is.desktop || ($q.platform.is.mobile && selectedMessages)" :style="{width: $q.platform.is.desktop ? '75%' : '100%', maxWidth: $q.platform.is.desktop ? 'calc(100% - 250px)' : ''}">
@@ -72,6 +73,7 @@
         :style="{height: `calc(100vh - ${isVisibleToolbar ? activeDevice ? '150px' : '100px' : '100px'})`, position: 'relative', overflow: 'auto'}"
         :packets="selectedMessages"
         :view="typeOfHexView"
+        :hex-needle="hexNeedle"
       />
       <div v-else-if="$q.platform.is.desktop && devicePreview && devicePreviewMessages.length" class="q-pa-md" style="overflow: hidden; max-height: calc(100vh - 100px);">
         <q-timeline layout="loose" color="white" dark>
@@ -111,6 +113,7 @@ export default {
       typeOfHexView: 'hex',
       limit: 1000,
       selectedMessages: '',
+      hexNeedle: '',
       moduleName: this.config.messages.vuexModuleName,
       devicePreviewMessages: []
     }

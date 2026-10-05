@@ -32,6 +32,13 @@ export function createDeviceTrafficStore ({ name }) {
       requestStatus: false,
       /* module-level in the Vue 2 build, so every traffic page shared it */
       mesagesPollingId: 0,
+      /* flespi expression over the packet fields, sent with every request for the list */
+      filter: '',
+      /* the end of the period the list has been loaded up to, polling goes on from there even
+       * when the filter left the list empty */
+      loadedTo: 0,
+      /* bumped whenever the list is replaced, so a response to a request made for the old list is dropped */
+      generation: 0,
       initialized: false
     }),
 
@@ -44,6 +51,15 @@ export function createDeviceTrafficStore ({ name }) {
       },
       clearMessages () {
       this.messages = []
+      this.generation++
+      },
+      setFilter (filter) {
+      this.filter = filter
+      },
+      /* the request data for the list, with the filter when there is one */
+      listParams (data) {
+      if (this.filter) { data.filter = this.filter }
+      return { data }
       },
       setMessages (messages) {
       this.messages = messages
@@ -93,11 +109,14 @@ export function createDeviceTrafficStore ({ name }) {
       try {
         const now = Date.now()
         const to = this.to > now ? now : this.to
-        const params = { data: { from: this.from / 1000, to: to / 1000, count: this.limit } }
+        const generation = ++this.generation
+        const params = this.listParams({ from: this.from / 1000, to: to / 1000, count: this.limit })
         const resp = await connector.gw.getDevicesPackets(this.active, params)
         logger.info(`[deviceTraffic]getMessages`)
         this.reqStart({ endpoint: 'getDevicesPackets', ids: this.active, params })
+        if (generation !== this.generation) { return }
         const messages = get(resp, 'data.result', [])
+        this.loadedTo = to / 1000
         this.setMessages(messages)
       } catch (e) {
         this.reqFailed(e)
@@ -113,12 +132,15 @@ export function createDeviceTrafficStore ({ name }) {
       try {
         const now = Date.now()
         const to = this.to > now ? now : this.to
-        const params = { data: { count: this.limit, reverse: true, from: this.from / 1000, to: to / 1000 } }
+        const generation = ++this.generation
+        const params = this.listParams({ count: this.limit, reverse: true, from: this.from / 1000, to: to / 1000 })
         const resp = await connector.gw.getDevicesPackets(this.active, params)
         logger.info(`[deviceTraffic]getMessagesTail`)
         this.reqStart({ endpoint: 'getDevicesPackets', ids: this.active, params })
+        if (generation !== this.generation) { return }
         const messages = get(resp, 'data.result', [])
         messages.reverse()
+        this.loadedTo = to / 1000
         this.setMessages(messages)
       } catch (e) {
         this.reqFailed(e)
@@ -132,12 +154,13 @@ export function createDeviceTrafficStore ({ name }) {
       this.requestStatus = true
       let messages = []
       try {
+        const generation = this.generation
         const from = this.messages[this.messages.length - 1].timestamp + 0.000001
-        const params = { data: { count: this.limit, from, to: this.to / 1000 } }
+        const params = this.listParams({ count: this.limit, from, to: this.to / 1000 })
         const resp = await connector.gw.getDevicesPackets(this.active, params)
         logger.info(`[deviceTraffic]getMessagesNext`)
         this.reqStart({ endpoint: 'getDevicesPackets', ids: this.active, params })
-        messages = get(resp, 'data.result', [])
+        messages = generation === this.generation ? get(resp, 'data.result', []) : []
         this.setMessagesAppend(messages)
       } catch (e) {
         this.reqFailed(e)
@@ -150,12 +173,13 @@ export function createDeviceTrafficStore ({ name }) {
       this.requestStatus = true
       let messages = []
       try {
+        const generation = this.generation
         const to = this.messages[0].timestamp - 0.000001
-        const params = { data: { count: this.limit, from: this.from / 1000, to, reverse: true } }
+        const params = this.listParams({ count: this.limit, from: this.from / 1000, to, reverse: true })
         const resp = await connector.gw.getDevicesPackets(this.active, params)
         logger.info(`[deviceTraffic]getMessagesPrev`)
         this.reqStart({ endpoint: 'getDevicesPackets', ids: this.active, params })
-        messages = get(resp, 'data.result', [])
+        messages = generation === this.generation ? get(resp, 'data.result', []) : []
         messages.reverse()
         this.setMessagesPrepend(messages)
       } catch (e) {
@@ -167,13 +191,17 @@ export function createDeviceTrafficStore ({ name }) {
       pollingGetMessages () {
       this.mesagesPollingId = setInterval(async () => {
         try {
-          const from = this.messages[this.messages.length - 1].timestamp + 0.000001
+          const generation = this.generation
+          const last = this.messages[this.messages.length - 1]
+          const from = last ? last.timestamp + 0.000001 : this.loadedTo
           const to = Math.ceil(Date.now() / 1000)
-          const params = { data: { from, to } }
+          const params = this.listParams({ from, to })
           const resp = await connector.gw.getDevicesPackets(this.active, params)
           logger.info(`[deviceTraffic]pollingGetMessages`)
           this.reqStart({ endpoint: 'getDevicesPackets', ids: this.active, params })
+          if (generation !== this.generation) { return }
           const messages = get(resp, 'data.result', [])
+          this.loadedTo = to
           this.setMessagesAppend(messages)
         } catch (e) {
           this.reqFailed(e)

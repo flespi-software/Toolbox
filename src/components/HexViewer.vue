@@ -110,6 +110,10 @@
     color: rgb(51, 51, 51);
     background-color: rgba(255, 255, 255, 0.7) !important;
   }
+  .selected--match {
+    color: rgb(51, 51, 51);
+    background-color: rgba(255, 179, 0, 0.85);
+  }
   .selected--error {
     color: rgb(51, 51, 51);
     background-color: rgba(244, 67, 54, 0.7);
@@ -174,6 +178,11 @@ export default {
     highlights: {
       type: Array,
       default: () => ([])
+    },
+    /* byte ranges ({ start, end }) found by a search, marked without the hints the highlights carry */
+    matches: {
+      type: Array,
+      default: () => ([])
     }
   },
   data () {
@@ -192,6 +201,13 @@ export default {
     bytesArray () { return this.getBytesArray(this.hex, this.view) },
     addresses () { return this.getAddresses(this.hex) },
     selected () { return this.getSelected(this.start, this.end) },
+    matched () {
+      const matched = new Set()
+      this.matches.forEach(({ start, end }) => {
+        for (let index = start; index <= end; index++) { matched.add(index) }
+      })
+      return matched
+    },
     highlighted () {
       return this.highlights.reduce((highlights, highlight) => {
         const range = this.getSelected(highlight.start, highlight.end)
@@ -241,6 +257,7 @@ export default {
         'selected--basic': this.selected.includes(index),
         'highlighted': this.highlighted.error[index] || this.highlighted.warning[index],
         'selected--error': this.highlighted.error[index],
+        'selected--match': this.matched.has(index),
         'selected--hovered': (this.hovered === index) || (this.start === this.end === index),
         [`byte-${index}`]: true
       }

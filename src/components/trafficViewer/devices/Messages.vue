@@ -82,6 +82,7 @@ import ExportModal from '../ExportModal.vue'
 import routerProcess from '../../../mixins/routerProcess'
 import highlightMixin from '../highlightConnMixin'
 import convertMixin from '../../../mixins/convert'
+import { buildPacketsFilter, packetMatches, normalizeHex } from 'src/stores/traffic/packetsFilter'
 import { useDeviceTrafficStore } from 'src/stores/traffic/deviceTraffic'
 
 export default {
@@ -113,13 +114,7 @@ export default {
       connFilter: null,
       hexSearch: '',
       hexSearchNormalized: '',
-      hexSearchOpen: false,
-      eventCategories: {
-        0: 'connect', 32: 'connect', 512: 'connect',
-        1: 'disconnect', 33: 'disconnect', 513: 'disconnect',
-        2: 'received', 130: 'received', 66: 'received', 34: 'received', 258: 'received', 514: 'received',
-        3: 'sent', 67: 'sent', 131: 'sent', 35: 'sent', 259: 'sent', 515: 'sent'
-      }
+      hexSearchOpen: false
     }
   },
   computed: {
@@ -190,16 +185,18 @@ export default {
       const ef = this.eventFilter
       return !(ef.connect && ef.disconnect && ef.received && ef.sent) || this.connFilter !== null || this.hexSearchNormalized.length > 0
     },
+    packetsFilter () {
+      return { eventFilter: this.eventFilter, connFilter: this.connFilter, hexNeedle: this.hexSearchNormalized }
+    },
+    /* sent with every request, so the search covers the whole period rather than the loaded pages */
+    serverFilter () {
+      return buildPacketsFilter(this.packetsFilter)
+    },
+    /* the server filter for bytes is a superset of the exact match, every packet is checked here as well */
     filteredMessages () {
       if (!this.hasActiveFilters) return this.messages
-      const hexNeedle = this.hexSearchNormalized
-      return this.messages.filter(msg => {
-        const cat = this.eventCategories[msg.type]
-        if (cat && !this.eventFilter[cat]) return false
-        if (this.connFilter !== null && msg.conn !== this.connFilter) return false
-        if (hexNeedle && (!msg.data || !this.base64ToHex(msg.data).includes(hexNeedle))) return false
-        return true
-      })
+      const filter = this.packetsFilter
+      return this.messages.filter(packet => packetMatches(packet, filter, this.base64ToHex))
     }
   },
   methods: {
@@ -232,19 +229,55 @@ export default {
       if (this.realtimeEnabled) {
         this.trafficStore.removePollingGetMessages()
       }
-      if (this.needAutoScroll && to <= Date.now()) {
-        this.needAutoScroll = false
-      }
       this.trafficStore.clearMessages()
+      if (this.isCurrentDay(from, to)) {
+        this.needAutoScroll = true
+        this.trafficStore.getMessagesTail()
+          .then(() => this.trafficStore.pollingGetMessages())
+        return
+      }
+      /* a period picked by hand is shown from its beginning, even one that is still going on */
+      this.needAutoScroll = false
       this.trafficStore.getMessages()
-        .then(() => {
-          if (to > Date.now()) {
-            this.trafficStore.pollingGetMessages()
-          }
-        })
+        .then(() => this.startPollingAtEnd(this.messages.length))
+    },
+    /*
+     * The current day as a whole is the period the viewer opens with by itself (and the one the day
+     * arrows lead back to), so it is shown from its end and follows the traffic as it comes.
+     */
+    isCurrentDay (from, to) {
+      const now = Date.now()
+      return from <= now && now < to && new Date(from).setHours(0, 0, 0, 0) === from && to - from >= 86399000
+    },
+    /*
+     * Real time goes on from the last packet of the list, so it starts only once the list has reached
+     * the present — a full page means there is more to load, and polling would have fetched all of it
+     * in one request. Until then the next pages are loaded by scrolling down.
+     */
+    startPollingAtEnd (loadedCount) {
+      if (this.to > Date.now() && !this.realtimeEnabled && loadedCount < this.currentLimit) {
+        this.trafficStore.pollingGetMessages()
+      }
     },
     clearSelected () {
       this.selected = []
+    },
+    /* the list is loaded again for the new filter, from the end of the period while it is still going on */
+    async applyServerFilter (filter) {
+      this.trafficStore.setFilter(filter)
+      if (!this.isInit) { return }
+      if (this.realtimeEnabled) {
+        this.trafficStore.removePollingGetMessages()
+      }
+      this.trafficStore.clearMessages()
+      this.selected = []
+      if (this.to > Date.now()) {
+        this.needAutoScroll = true
+        await this.trafficStore.getMessagesTail()
+        this.trafficStore.pollingGetMessages()
+      } else {
+        await this.trafficStore.getMessages()
+      }
     },
     toggleEventFilter (key) {
       this.eventFilter[key] = !this.eventFilter[key]
@@ -275,7 +308,8 @@ export default {
       }
     },
     updateHexSearch (val) {
-      this.hexSearchNormalized = val.replace(/[\s:.-]/g, '').toUpperCase()
+      this.hexSearchNormalized = normalizeHex(val)
+      this.$emit('hex-search', this.hexSearchNormalized)
       this.selected = []
       this.$emit('view-data', [])
     },
@@ -332,6 +366,7 @@ export default {
     },
     getMessagesNext () {
       this.trafficStore.getMessagesNext()
+        .then(messages => { messages && this.startPollingAtEnd(messages.length) })
     },
     actionHandler ({ index, type, content }) {
       switch (type) {
@@ -442,17 +477,25 @@ export default {
       const from = this.$route.query.from * 1000,
         to = this.$route.query.to * 1000,
         selectTime = this.$route.query.highlight || from
-      if (from && to) {
+      /* a reload keeps the period in the route: the current day is still opened at its end */
+      if (from && to && !this.$route.query.highlight && this.isCurrentDay(from, to)) {
+        this.from = from
+        this.to = to
+        await this.trafficStore.getMessagesTail()
+        await this.trafficStore.pollingGetMessages()
+      } else if (from && to) {
         this.from = from
         this.to = to
         await this.trafficStore.getMessages()
+        this.startPollingAtEnd(this.messages.length)
         this.$nextTick(() => this.highlightIncoming(selectTime))
       } else {
         await this.trafficStore.initTime()
         await this.trafficStore.getMessagesTail()
-      }
-      if (this.to > Date.now()) {
-        await this.trafficStore.pollingGetMessages()
+        /* the tail is the present already */
+        if (this.to > Date.now()) {
+          await this.trafficStore.pollingGetMessages()
+        }
       }
       this.updateRoute({
         query: {
@@ -464,6 +507,9 @@ export default {
     }
   },
   watch: {
+    serverFilter (filter) {
+      this.applyServerFilter(filter)
+    },
     activeId (val) {
       this.clear()
       this.active = val
@@ -483,6 +529,9 @@ export default {
     this.debouncedGetMessagesPrev = throttle(this.getMessagesPrev, 2000, { trailing: false })
     this.debouncedGetMessagesNext = throttle(this.getMessagesNext, 2000, { trailing: false })
     this.debouncedHexSearch = throttle(this.updateHexSearch, 500, { leading: false, trailing: true })
+    /* the store outlives the component, its filter is not to carry over to a list opened afresh */
+    this.trafficStore.setFilter('')
+    this.$emit('hex-search', '')
     this.init()
   },
   mounted () {

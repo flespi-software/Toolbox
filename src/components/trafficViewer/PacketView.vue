@@ -26,6 +26,7 @@
           v-if="batch.data"
           :hex="batch.data"
           :view="view"
+          :matches="getMatches(batch.data)"
           @selectedBytes="convertSelectedBytes"
         />
         <div class="packets__separator" :style="{backgroundColor: bgDataColors[batch.type]}" v-if="batches[index + 1]"></div>
@@ -45,8 +46,10 @@ import HexViewer from '../HexViewer.vue'
 import HexConverter from '../widgets/HexConverter.vue'
 import convertMixin from '../../mixins/convert'
 import { date } from 'quasar'
+import { hexMatches } from 'src/stores/traffic/packetsFilter'
 export default {
-  props: ['packets', 'view'],
+  /* hexNeedle: the bytes the list is searched for, marked in the packets */
+  props: ['packets', 'view', 'hexNeedle'],
   data () {
     return {
       date,
@@ -194,7 +197,22 @@ export default {
       }, [])
     }
   },
+  watch: {
+    packets () { this.scrollToMatch() },
+    hexNeedle () { this.scrollToMatch() }
+  },
   methods: {
+    getMatches (hex) {
+      return hexMatches(hex, this.hexNeedle)
+    },
+    /* a long packet is opened where the bytes searched for are */
+    scrollToMatch () {
+      if (!this.hexNeedle) { return }
+      this.$nextTick(() => {
+        const match = this.$el && this.$el.querySelector && this.$el.querySelector('.selected--match')
+        match && match.scrollIntoView({ block: 'center' })
+      })
+    },
     getNeedMissing (batchIndex) {
       const current = this.batches[batchIndex]
       const nextBatch = this.batches[batchIndex + 1]

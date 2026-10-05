@@ -30,6 +30,9 @@ export function createDevicesMessagesStore ({ name, lsNamespace, storage, errorH
     })
   }
 
+  /* fields the storage keeps from the original message, while the real-time copy of a re-registered one comes without them */
+  const keptOnReregister = ['server.timestamp', 'channel.id', 'peer', 'protocol.id']
+
   return defineStore(`qvs-devicesMessages-${name}`, {
     state: () => ({
       name,
@@ -59,7 +62,63 @@ export function createDevicesMessagesStore ({ name, lsNamespace, storage, errorH
     }),
 
     actions: {
+      /*
+       * The storage keeps one message per timestamp, so a message with the timestamp of a row the list
+       * already has is that row re-registered, not a new one. It replaces the row in place: inserted, it
+       * showed up as a duplicate until the whole list was reloaded. The fields the real-time copy lacks
+       * and the stored message keeps from the original are taken over from the row.
+       * Returns the messages that matched no row.
+       */
+      replaceMessages (data) {
+        const messages = this.messages
+        const last = messages[messages.length - 1]
+        /* the list is ascending by timestamp: anything past its end is new, and that is the usual case,
+         * so the lookup is built only when something may match, once for the whole batch */
+        if (!last || !data.some(message => message.timestamp <= last.timestamp)) { return data }
+        const indexByTimestamp = new Map()
+        messages.forEach((message, index) => indexByTimestamp.set(message.timestamp, index))
+        return data.filter(message => {
+          const index = indexByTimestamp.get(message.timestamp)
+          if (index === undefined) { return true }
+          const current = messages[index]
+          const kept = keptOnReregister.filter(field => message[field] === undefined && current[field] !== undefined)
+          if (kept.length) {
+            message = { ...message }
+            kept.forEach(field => { message[field] = current[field] })
+          }
+          messagesIndexing([message])
+          messages[index] = message
+          return false
+        })
+      },
+
+      /* brings the rows with these timestamps up to what the storage holds, without reloading the list */
+      async updateMessagesByTimestamps (timestamps) {
+        const mainStore = useMainStore()
+        if (!timestamps.length || !mainStore.token || !this.active || !this.messages.length) { return }
+        const wanted = new Set(timestamps)
+        const params = {
+          from: timestamps.reduce((min, timestamp) => Math.min(min, timestamp), Infinity),
+          to: timestamps.reduce((max, timestamp) => Math.max(max, timestamp), -Infinity),
+          /* the range lies within the loaded rows and the list filter applies, so this is an upper bound */
+          count: this.messages.length
+        }
+        if (this.filter) { params.filter = this.filter }
+        try {
+          /* not through getMessages: it raises isLoading, and the list would blink its loading state */
+          const resp = await connector.gw.getDevicesMessages(this.active, { data: JSON.stringify(params) })
+          this.errorsCheck(resp.data)
+          const messages = (resp.data.result || []).filter(message => wanted.has(message.timestamp))
+          this.replaceMessages(messages)
+          logger.info(`updateMessagesByTimestamps: ${messages.length} of ${timestamps.length}`)
+        } catch (e) {
+          errorHandler && errorHandler(e)
+          if (DEV) { console.log(e) }
+        }
+      },
+
       setRTMessages (data) {
+        data = data && this.replaceMessages(data)
         if (data && data.length) {
           messagesIndexing(data)
           const messages = this.messages

@@ -1,5 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [2.2.0] - 2026-10-05
+[feature] channel traffic: the same filters as device traffic — event types, connection, HEX search
+[feature] traffic: filters are applied by the server, so the search covers the whole period instead of the loaded pages
+[feature] traffic: the bytes searched for are highlighted in the opened packet, which is scrolled to the first match
+[fix] device messages: Re-register messages works on the row the menu was opened on — it sent nothing for a row not selected first, and the selected row instead of the clicked one
+[fix] device messages: re-registering reports success or the platform error, and updates the re-registered rows in place instead of reloading the whole list
+[fix] traffic: a period picked by hand opens at its beginning instead of scrolling to the present; real time starts once the list reaches the present
+[fix] traffic: HEX search matches whole bytes only
+
 ### [2.1.0] - 2026-10-02
 [feature] settings: export to a file and import from it (Settings dialog)
 [feature] settings saved while Toolbox was served from flespi.io/toolbox are brought over to toolbox.flespi.io once, without overwriting the ones already made there

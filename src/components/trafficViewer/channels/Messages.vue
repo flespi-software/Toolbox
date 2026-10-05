@@ -14,21 +14,39 @@
           @save="dateRangeChange"
         />
       </q-toolbar>
-      <div v-if="loadingFlag && itemsCount > 0" class="absolute-bottom-right absolute-top-left" style="overflow: hidden; top: 50px;">
+      <div class="bg-grey-9 q-px-xs" style="border-top: 1px solid #424242;">
+        <div class="flex items-center" style="height: 30px;">
+          <q-btn dense flat round size="xs" icon="mdi-lan-connect" :color="eventFilter.connect ? 'green-4' : 'grey-7'" @click="toggleEventFilter('connect')"><q-tooltip>Connect</q-tooltip></q-btn>
+          <q-btn dense flat round size="xs" icon="mdi-lan-disconnect" :color="eventFilter.disconnect ? 'red-4' : 'grey-7'" @click="toggleEventFilter('disconnect')"><q-tooltip>Disconnect</q-tooltip></q-btn>
+          <q-btn dense flat round size="xs" icon="mdi-arrow-left-thick" :color="eventFilter.received ? 'purple-4' : 'grey-7'" @click="toggleEventFilter('received')"><q-tooltip>Data received</q-tooltip></q-btn>
+          <q-btn dense flat round size="xs" icon="mdi-arrow-right-thick" :color="eventFilter.sent ? 'yellow-4' : 'grey-7'" @click="toggleEventFilter('sent')"><q-tooltip>Data sent</q-tooltip></q-btn>
+          <q-space/>
+          <q-badge v-if="connFilter !== null" color="amber-8" class="cursor-pointer q-mr-xs" @click="clearConnFilter">
+            conn:#{{connFilter.toString().slice(-6)}} <q-icon name="mdi-close" size="12px" class="q-ml-xs"/>
+          </q-badge>
+          <q-btn dense flat round size="xs" icon="mdi-magnify" :color="hexSearchOpen ? 'white' : 'grey-5'" @click="toggleHexSearch"><q-tooltip>HEX search</q-tooltip></q-btn>
+        </div>
+        <div v-if="hexSearchOpen" class="flex items-center" style="height: 26px; padding-bottom: 4px;">
+          <q-input ref="hexSearchInput" v-model="hexSearch" dense borderless dark placeholder="FF 00 AB..." input-class="text-white" class="full-width" style="font-size: 12px; font-family: monospace;" @update:model-value="debouncedHexSearch" @keydown.esc="toggleHexSearch">
+            <template v-slot:append><q-icon v-if="hexSearch" name="mdi-close" size="14px" color="grey-5" class="cursor-pointer" @click="hexSearch = ''; updateHexSearch('')"/></template>
+          </q-input>
+        </div>
+      </div>
+      <div v-if="loadingFlag && itemsCount > 0" class="absolute-bottom-right absolute-top-left" :style="{overflow: 'hidden', top: topOffset}">
         <message-skeleton v-for="(_, index) in new Array(itemsCount).fill('')" :key="index"/>
       </div>
-      <template v-else-if="!loadingFlag && messages.length">
+      <template v-else-if="!loadingFlag && filteredMessages.length">
         <VirtualList
           :onscroll="listScroll"
           ref="scroller"
-          :style="{position: 'absolute', top: '50px', bottom: 0, right: 0, left: 0, height: 'auto'}"
+          :style="{position: 'absolute', top: topOffset, bottom: 0, right: 0, left: 0, height: 'auto'}"
           :class="{'bg-grey-9': true, 'text-white': true, 'cursor-pointer': true}"
           :size="itemHeight"
           :remain="itemsCount"
           wclass="q-w-list"
         >
           <messages-list-item
-            v-for="(item, index) in messages"
+            v-for="(item, index) in filteredMessages"
             :key="index"
             :item="item"
             :index="index"
@@ -38,11 +56,16 @@
             :view="view"
             @action="actionHandler"
             @item-click="messageClickHandler"
+            @conn-filter="setConnFilter"
             @mouseenter="highlightConn(item.conn)"
             @mouseleave="highlightConn(null)"
           />
         </VirtualList>
       </template>
+      <div v-else-if="!loadingFlag && messages.length && !filteredMessages.length" class="text-center text-grey-5 q-pa-lg" :style="{marginTop: topOffset}">
+        <q-icon name="mdi-filter-off-outline" size="2rem" class="q-mb-sm"/><br>
+        No messages match current filters
+      </div>
       <empty-pane v-else :config="config.emptyState"/>
     </div>
     <export-modal ref="export" :format="view" :dateRange="dateRange" :config="config" :ident="device.ident" :item-id="activeId"/>
@@ -62,6 +85,8 @@ import range from 'lodash/range'
 import ExportModal from '../ExportModal.vue'
 import routerProcess from '../../../mixins/routerProcess'
 import highlightMixin from '../highlightConnMixin'
+import convertMixin from '../../../mixins/convert'
+import { buildPacketsFilter, packetMatches, normalizeHex } from 'src/stores/traffic/packetsFilter'
 import { useTrafficViewerStore } from 'src/stores/traffic/trafficViewer'
 
 export default {
@@ -90,7 +115,12 @@ export default {
       needAutoScroll: true,
       selected: [],
       scrollerScrollTop: 0,
-      isInit: false
+      isInit: false,
+      eventFilter: { connect: true, disconnect: true, received: true, sent: true },
+      connFilter: null,
+      hexSearch: '',
+      hexSearchNormalized: '',
+      hexSearchOpen: false
     }
   },
   computed: {
@@ -136,6 +166,26 @@ export default {
     },
     loadingFlag () {
       return !!this.trafficStore.isLoading
+    },
+    topOffset () {
+      return this.hexSearchOpen ? '110px' : '80px'
+    },
+    hasActiveFilters () {
+      const ef = this.eventFilter
+      return !(ef.connect && ef.disconnect && ef.received && ef.sent) || this.connFilter !== null || this.hexSearchNormalized.length > 0
+    },
+    packetsFilter () {
+      return { eventFilter: this.eventFilter, connFilter: this.connFilter, hexNeedle: this.hexSearchNormalized }
+    },
+    /* sent with every request, so the search covers the whole period rather than the loaded pages */
+    serverFilter () {
+      return buildPacketsFilter(this.packetsFilter)
+    },
+    /* the server filter for bytes is a superset of the exact match, every packet is checked here as well */
+    filteredMessages () {
+      if (!this.hasActiveFilters) return this.messages
+      const filter = this.packetsFilter
+      return this.messages.filter(packet => packetMatches(packet, filter, this.base64ToHex))
     }
   },
   methods: {
@@ -160,16 +210,35 @@ export default {
       if (this.realtimeEnabled) {
         this.trafficStore.removePollingGetMessages()
       }
-      if (this.needAutoScroll && to <= Date.now()) {
-        this.needAutoScroll = false
-      }
       this.trafficStore.clearMessages()
+      if (this.isCurrentDay(from, to)) {
+        this.needAutoScroll = true
+        this.trafficStore.getMessagesTail()
+          .then(() => this.trafficStore.pollingGetMessages())
+        return
+      }
+      /* a period picked by hand is shown from its beginning, even one that is still going on */
+      this.needAutoScroll = false
       this.trafficStore.getMessages()
-        .then(() => {
-          if (to > Date.now()) {
-            this.trafficStore.pollingGetMessages()
-          }
-        })
+        .then(() => this.startPollingAtEnd(this.messages.length))
+    },
+    /*
+     * The current day as a whole is the period the viewer opens with by itself (and the one the day
+     * arrows lead back to), so it is shown from its end and follows the traffic as it comes.
+     */
+    isCurrentDay (from, to) {
+      const now = Date.now()
+      return from <= now && now < to && new Date(from).setHours(0, 0, 0, 0) === from && to - from >= 86399000
+    },
+    /*
+     * Real time goes on from the last packet of the list, so it starts only once the list has reached
+     * the present — a full page means there is more to load, and polling would have fetched all of it
+     * in one request. Until then the next pages are loaded by scrolling down.
+     */
+    startPollingAtEnd (loadedCount) {
+      if (this.to > Date.now() && !this.realtimeEnabled && loadedCount < this.currentLimit) {
+        this.trafficStore.pollingGetMessages()
+      }
     },
     dateRangeChange (range) {
       this.updateRoute({
@@ -181,6 +250,57 @@ export default {
     },
     clearSelected () {
       this.selected = []
+    },
+    /* the list is loaded again for the new filter, from the end of the period while it is still going on */
+    async applyServerFilter (filter) {
+      this.trafficStore.setFilter(filter)
+      if (!this.isInit) { return }
+      if (this.realtimeEnabled) {
+        this.trafficStore.removePollingGetMessages()
+      }
+      this.trafficStore.clearMessages()
+      this.selected = []
+      if (this.to > Date.now()) {
+        this.needAutoScroll = true
+        await this.trafficStore.getMessagesTail()
+        this.trafficStore.pollingGetMessages()
+      } else {
+        await this.trafficStore.getMessages()
+      }
+    },
+    toggleEventFilter (key) {
+      this.eventFilter[key] = !this.eventFilter[key]
+      const ef = this.eventFilter
+      if (!ef.connect && !ef.disconnect && !ef.received && !ef.sent) {
+        this.eventFilter = { connect: true, disconnect: true, received: true, sent: true }
+      }
+      this.selected = []
+      this.$emit('view-data', [])
+    },
+    setConnFilter (conn) {
+      this.connFilter = conn
+      this.selected = []
+      this.$emit('view-data', [])
+    },
+    clearConnFilter () {
+      this.connFilter = null
+      this.selected = []
+      this.$emit('view-data', [])
+    },
+    toggleHexSearch () {
+      this.hexSearchOpen = !this.hexSearchOpen
+      if (this.hexSearchOpen) {
+        this.$nextTick(() => { this.$refs.hexSearchInput && this.$refs.hexSearchInput.focus() })
+      } else if (this.hexSearch) {
+        this.hexSearch = ''
+        this.updateHexSearch('')
+      }
+    },
+    updateHexSearch (val) {
+      this.hexSearchNormalized = normalizeHex(val)
+      this.$emit('hex-search', this.hexSearchNormalized)
+      this.selected = []
+      this.$emit('view-data', [])
     },
     wrapperResizeHandler () {
       this.resetParams()
@@ -235,6 +355,7 @@ export default {
     },
     getMessagesNext () {
       this.trafficStore.getMessagesNext()
+        .then(messages => { messages && this.startPollingAtEnd(messages.length) })
     },
     actionHandler ({ index, type, content }) {
       switch (type) {
@@ -276,7 +397,7 @@ export default {
       }
       if (this.needAutoScroll) { this.needAutoScroll = false }
       this.selected.sort((a, b) => a - b)
-      this.$emit('view-data', this.selected.map(index => ({ ...this.messages[index], index })))
+      this.$emit('view-data', this.selected.map(index => ({ ...this.filteredMessages[index], index })))
     },
     copyMessageHandler ({ index, content }) {
       copyToClipboard(JSON.stringify(content)).then((e) => {
@@ -313,7 +434,7 @@ export default {
     exportModalOpen () { this.$refs.export.show() },
     highlightIncoming (timestamp) {
       const isTypeDataReceive = (type) => type === 2 || type === 130 || type === 66 || type === 34
-      const { incomingMessageIndex, incomingMessageIndexEnd } = this.messages.reduce((result, message, index) => {
+      const { incomingMessageIndex, incomingMessageIndexEnd } = this.filteredMessages.reduce((result, message, index) => {
         if (isTypeDataReceive(message.type)) {
           if (result.incomingMessageIndex === -1) {
             result.incomingMessageIndex = index
@@ -335,7 +456,7 @@ export default {
         }
         return result
       }, { incomingMessageIndex: -1, incomingMessageIndexEnd: -1 })
-     if (incomingMessageIndexEnd > -1) {
+      if (incomingMessageIndexEnd > -1) {
         this.messageClickHandler({ index: incomingMessageIndexEnd, event: {} })
       } else if (incomingMessageIndex > -1) {
         this.messageClickHandler({ index: incomingMessageIndex, event: {} })
@@ -352,17 +473,25 @@ export default {
       const from = this.$route.query.from * 1000,
         to = this.$route.query.to * 1000,
         selectTime = this.$route.query.highlight || from
-      if (from && to) {
+      /* a reload keeps the period in the route: the current day is still opened at its end */
+      if (from && to && !this.$route.query.highlight && this.isCurrentDay(from, to)) {
+        this.from = from
+        this.to = to
+        await this.trafficStore.getMessagesTail()
+        await this.trafficStore.pollingGetMessages()
+      } else if (from && to) {
         this.from = from
         this.to = to
         await this.trafficStore.getMessages()
+        this.startPollingAtEnd(this.messages.length)
         this.$nextTick(() => this.highlightIncoming(selectTime))
       } else {
         await this.trafficStore.initTime()
         await this.trafficStore.getMessagesTail()
-      }
-      if (this.to > Date.now()) {
-        await this.trafficStore.pollingGetMessages()
+        /* the tail is the present already */
+        if (this.to > Date.now()) {
+          await this.trafficStore.pollingGetMessages()
+        }
       }
       this.updateRoute({
         query: {
@@ -374,6 +503,9 @@ export default {
     }
   },
   watch: {
+    serverFilter (filter) {
+      this.applyServerFilter(filter)
+    },
     activeId (val) {
       this.clear()
     },
@@ -391,6 +523,10 @@ export default {
   created () {
     this.debouncedGetMessagesPrev = throttle(this.getMessagesPrev, 2000, { trailing: false })
     this.debouncedGetMessagesNext = throttle(this.getMessagesNext, 2000, { trailing: false })
+    this.debouncedHexSearch = throttle(this.updateHexSearch, 500, { leading: false, trailing: true })
+    /* the store outlives the component, its filter is not to carry over to a list opened afresh */
+    this.trafficStore.setFilter('')
+    this.$emit('hex-search', '')
     this.init()
   },
   mounted () {
@@ -404,12 +540,13 @@ export default {
     }
   },
   unmounted () {
+    this.highlightConn(null)
     this.trafficStore.removePollingGetMessages()
     this.trafficStore.clearMessages()
     this.to = 0
     this.from = 0
   },
-  mixins: [routerProcess, highlightMixin],
+  mixins: [routerProcess, highlightMixin, convertMixin],
   components: { MessagesListItem, VirtualList, EmptyPane, MessageSkeleton, DateRangeModal, ExportModal }
 }
 </script>
