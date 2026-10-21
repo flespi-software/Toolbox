@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [2.2.3] - 2026-10-21
+[fix] message fields on mobile: text can be selected and copied again — the hint on every name and value cleared the selection on a long press; on mobile the hints are gone and long values wrap instead of being cut
+
 ### [2.2.2] - 2026-10-21
 [fix] container messages: every real-time message goes to its own place by key — a batch was inserted as a whole after the first row with a greater key, and a message with a key below the first rows broke the list
 

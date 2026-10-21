@@ -27,17 +27,17 @@
           v-for="(key) in Object.keys(filteredObject)" :key="key"
         >
           <q-item-section>
-            <q-item-label header class="ellipsis text-bold q-pa-none text-white">
+            <q-item-label header class="text-bold q-pa-none text-white" :class="{ ellipsis: hoverHints }">
               <span>{{key}}</span>
               <span v-if='meta[key] && meta[key].unit' class="object-viewier__units">, {{meta[key].unit}}</span>
-              <q-tooltip>
+              <q-tooltip v-if="hoverHints">
                 <span class="text-bold">{{key}}</span><span class="block" v-if='meta[key] && meta[key].unit'>, {{meta[key].unit}}</span>
                 <span class="block" v-if="meta[key] && meta[key].description">{{ meta[key].description }}</span>
               </q-tooltip>
             </q-item-label>
             <q-item-label v-if="filteredObject[key] && filteredObject[key].toString().match(/^data:image\/(?:gif|png|jpeg|bmp|webp)(?:;charset=utf-8)?;base64,(?:[A-Za-z0-9]|[+/])+={0,2}/)" caption><img class="image-bin" :src="filteredObject[key]" :alt="key"></q-item-label>
             <q-item-label v-else-if="key.indexOf('media.image') === 0 || key.indexOf('media.video') === 0" caption><a :href="filteredObject[key].url" target="_blank"><img class="image-bin" :src="filteredObject[key].url + '?preview=jpeg'" :alt="key"></a></q-item-label>
-            <q-item-label multiline v-else-if="key.indexOf('image.bin.') === -1" caption class="ellipsis text-white">{{typeof filteredObject[key] !== 'string' ? JSON.stringify(filteredObject[key]) : filteredObject[key]}}<q-tooltip>{{key.indexOf('timestamp') != -1 && typeof filteredObject[key] === 'number' ? formatDate(filteredObject[key] * 1000, 'YYYY-MM-DD HH:mm:ss.SSS') : (typeof filteredObject[key] !== 'string' ? JSON.stringify(filteredObject[key]) : filteredObject[key])}}</q-tooltip></q-item-label>
+            <q-item-label multiline v-else-if="key.indexOf('image.bin.') === -1" caption class="text-white" :class="hoverHints ? 'ellipsis' : 'field-value--wrapped'">{{typeof filteredObject[key] !== 'string' ? JSON.stringify(filteredObject[key]) : filteredObject[key]}}<q-tooltip v-if="hoverHints">{{key.indexOf('timestamp') != -1 && typeof filteredObject[key] === 'number' ? formatDate(filteredObject[key] * 1000, 'YYYY-MM-DD HH:mm:ss.SSS') : (typeof filteredObject[key] !== 'string' ? JSON.stringify(filteredObject[key]) : filteredObject[key])}}</q-tooltip></q-item-label>
             <q-item-label v-else-if="key.indexOf('image.bin.') === 0" caption><img class="image-bin" :src="`data:image/${key.split('.')[2]};base64, ${filteredObject[key].replace(/^data\:image\/\w*\;base64\,\s/, '')}`" :alt="key"></q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -67,6 +67,15 @@ export default {
   },
   mixins: [ highlightMessage ],
   computed: {
+    /*
+     * The hints are for a mouse. On a touch screen a tooltip opens on a long press — the gesture that
+     * selects text — and Quasar clears the selection and makes the page non-selectable for the whole
+     * press, so with a hint on every name and value nothing in the message could be selected to copy.
+     * Without them the values are wrapped instead of cut with an ellipsis, so they are seen in full.
+     */
+    hoverHints () {
+      return !this.$q.platform.is.mobile
+    },
     filteredObject () {
       return Object.keys(this.item).sort(collator.compare).reduce((acc, key) => {
         if (key.indexOf(this.search) !== -1) {
@@ -96,6 +105,10 @@ export default {
   }
   .image-bin {
     max-width: 100%;
+  }
+  .field-value--wrapped {
+    white-space: pre-wrap;
+    word-break: break-all;
   }
 </style>
 
