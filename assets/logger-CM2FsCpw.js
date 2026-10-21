@@ -1,1 +1,0 @@
-import{$ as e,st as t}from"./index-4w1Z-gd7.js";var n=e(({app:e})=>{e.config.globalProperties.$logger=t});export{n as default};

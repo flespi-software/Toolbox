@@ -1,0 +1,1 @@
+import{$ as e}from"./index-CpF7HPXM.js";import{t}from"./QSelect-BGrXqZ_J.js";t.props.popupNoRouteDismiss={type:Boolean,default:!0};var n=e(()=>{});export{n as default};
