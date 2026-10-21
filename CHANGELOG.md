@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [2.2.1] - 2026-10-21
+[fix] device messages: a real-time message sharing its timestamp with a shown one but not its timestamp.key is a separate row again — since 2.2.0 it replaced the other message of the same second
+[fix] device messages: a real-time message older than the rows at the start of the list no longer breaks the list, and every message of a batch goes to its place by time
+
 ### [2.2.0] - 2026-10-05
 [feature] channel traffic: the same filters as device traffic — event types, connection, HEX search
 [feature] traffic: filters are applied by the server, so the search covers the whole period instead of the loaded pages

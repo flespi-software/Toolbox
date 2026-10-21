@@ -33,6 +33,15 @@ export function createDevicesMessagesStore ({ name, lsNamespace, storage, errorH
   /* fields the storage keeps from the original message, while the real-time copy of a re-registered one comes without them */
   const keptOnReregister = ['server.timestamp', 'channel.id', 'peer', 'protocol.id']
 
+  /*
+   * A device keeps one message per timestamp and timestamp.key: messages that share a timestamp and
+   * differ in timestamp.key are separate messages (event records a tracker sends within one second).
+   */
+  function messageIdentity (message) {
+    const key = message['timestamp.key']
+    return key === undefined ? `t${message.timestamp}` : `k${key}`
+  }
+
   return defineStore(`qvs-devicesMessages-${name}`, {
     state: () => ({
       name,
@@ -63,10 +72,11 @@ export function createDevicesMessagesStore ({ name, lsNamespace, storage, errorH
 
     actions: {
       /*
-       * The storage keeps one message per timestamp, so a message with the timestamp of a row the list
-       * already has is that row re-registered, not a new one. It replaces the row in place: inserted, it
-       * showed up as a duplicate until the whole list was reloaded. The fields the real-time copy lacks
-       * and the stored message keeps from the original are taken over from the row.
+       * A message with the identity (timestamp and timestamp.key) of a row the list already has is that
+       * row re-registered, not a new one. It replaces the row in place: inserted, it showed up as a
+       * duplicate until the whole list was reloaded. Matching on the timestamp alone replaced the other
+       * messages of the same second instead. The fields the real-time copy lacks and the stored message
+       * keeps from the original are taken over from the row.
        * Returns the messages that matched no row.
        */
       replaceMessages (data) {
@@ -75,10 +85,10 @@ export function createDevicesMessagesStore ({ name, lsNamespace, storage, errorH
         /* the list is ascending by timestamp: anything past its end is new, and that is the usual case,
          * so the lookup is built only when something may match, once for the whole batch */
         if (!last || !data.some(message => message.timestamp <= last.timestamp)) { return data }
-        const indexByTimestamp = new Map()
-        messages.forEach((message, index) => indexByTimestamp.set(message.timestamp, index))
+        const indexByIdentity = new Map()
+        messages.forEach((message, index) => indexByIdentity.set(messageIdentity(message), index))
         return data.filter(message => {
-          const index = indexByTimestamp.get(message.timestamp)
+          const index = indexByIdentity.get(messageIdentity(message))
           if (index === undefined) { return true }
           const current = messages[index]
           const kept = keptOnReregister.filter(field => message[field] === undefined && current[field] !== undefined)
@@ -123,30 +133,19 @@ export function createDevicesMessagesStore ({ name, lsNamespace, storage, errorH
           messagesIndexing(data)
           const messages = this.messages
           if (this.sortBy) {
-            /* write by sorted field */
-            const message = data[0],
-              fieldName = this.sortBy,
-              length = this.messages.length - 1
-            let index = null,
-              escapeFlag = true
-            if (length > 0) {
-              for (let i = length; i !== 0 || escapeFlag; i--) {
-                if (messages[i][fieldName] > message[fieldName]) {
-                  index = i
-                  if (i === 0) {
-                    escapeFlag = false
-                  }
-                } else {
-                  escapeFlag = false
-                }
-              }
-            }
+            /*
+             * Each message goes to its place by the sorted field, searched from the end where new ones
+             * belong; one equal to a row goes after it. The loop this replaces placed the whole batch by
+             * its first message, put one older than every row at the end, and read past the start of
+             * the list (a TypeError) for a message older than all but the first row.
+             */
+            const fieldName = this.sortBy
             this.newMessagesInterseptor && this.newMessagesInterseptor(data)
-            if (index) {
-              messages.splice(index, 0, ...data)
-            } else {
-              messages.splice(messages.length, 0, ...data)
-            }
+            data.forEach(message => {
+              let index = messages.length
+              while (index > 0 && messages[index - 1][fieldName] > message[fieldName]) { index-- }
+              messages.splice(index, 0, message)
+            })
           } else {
             this.newMessagesInterseptor && this.newMessagesInterseptor(data)
             messages.splice(messages.length, 0, ...data)
