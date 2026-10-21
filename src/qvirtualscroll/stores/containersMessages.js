@@ -65,30 +65,19 @@ export function createContainersMessagesStore ({ name, lsNamespace, storage, err
           messagesIndexing(data)
           const messages = this.messages
           if (this.sortBy) {
-            /* write by sorted field */
-            const message = data[0],
-              fieldName = this.sortBy,
-              length = this.messages.length - 1
-            let index = null,
-              escapeFlag = true
-            if (length > 0) {
-              for (let i = length; i !== 0 || escapeFlag; i--) {
-                if (messages[i][fieldName] > message[fieldName]) {
-                  index = i
-                  if (i === 0) {
-                    escapeFlag = false
-                  }
-                } else {
-                  escapeFlag = false
-                }
-              }
-            }
+            /*
+             * Each message goes to its place by the sorted field, searched from the end where new ones
+             * belong; one equal to a row goes after it. The loop this replaces placed the whole batch by
+             * its first message, put one older than every row at the end, and read past the start of
+             * the list (a TypeError) for a message older than all but the first row.
+             */
+            const fieldName = this.sortBy
             this.newMessagesInterseptor && this.newMessagesInterseptor(data)
-            if (index) {
-              messages.splice(index, 0, ...data)
-            } else {
-              messages.splice(messages.length, 0, ...data)
-            }
+            data.forEach(message => {
+              let index = messages.length
+              while (index > 0 && messages[index - 1][fieldName] > message[fieldName]) { index-- }
+              messages.splice(index, 0, message)
+            })
           } else {
             this.newMessagesInterseptor && this.newMessagesInterseptor(data)
             messages.splice(messages.length, 0, ...data)

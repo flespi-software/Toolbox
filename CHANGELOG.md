@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [2.2.2] - 2026-10-21
+[fix] container messages: every real-time message goes to its own place by key — a batch was inserted as a whole after the first row with a greater key, and a message with a key below the first rows broke the list
+
 ### [2.2.1] - 2026-10-21
 [fix] device messages: a real-time message sharing its timestamp with a shown one but not its timestamp.key is a separate row again — since 2.2.0 it replaced the other message of the same second
 [fix] device messages: a real-time message older than the rows at the start of the list no longer breaks the list, and every message of a batch goes to its place by time
