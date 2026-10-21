@@ -1,0 +1,1 @@
+import{$ as e,st as t}from"./index-PYS77JVV.js";var n=e(({app:e})=>{e.config.globalProperties.$logger=t});export{n as default};

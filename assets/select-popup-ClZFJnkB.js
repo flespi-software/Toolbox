@@ -1,0 +1,1 @@
+import{$ as e}from"./index-PYS77JVV.js";import{t}from"./QSelect-ExewaDQs.js";t.props.popupNoRouteDismiss={type:Boolean,default:!0};var n=e(()=>{});export{n as default};
